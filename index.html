@@ -218,6 +218,7 @@ tr:hover td{background:#fafbfd}
       <div class="kpi w"><div class="kpi-lbl">Lance Ativo</div><div class="kpi-val" id="kpi-lance">—</div><div class="kpi-sub">ofertas neste mês</div></div>
       <div class="kpi"><div class="kpi-lbl">Aguardando</div><div class="kpi-val" id="kpi-aguard">—</div><div class="kpi-sub">sem oferta de lance</div></div>
       <div class="kpi"><div class="kpi-lbl">Leads no CRM</div><div class="kpi-val" id="kpi-leads">—</div><div class="kpi-sub">indicações ativas</div></div>
+      <div class="kpi" style="border-top:3px solid var(--err)"><div class="kpi-lbl">Canceladas</div><div class="kpi-val" id="kpi-cancel" style="color:var(--err)">—</div><div class="kpi-sub" id="kpi-cancel-sub">excluídas da carteira</div></div>
     </div>
     <div class="g2">
       <div class="card"><div class="ch"><span class="ct">Status das Cotas</span></div><div class="cb"><div class="chart-wrap"><canvas id="ch-status"></canvas></div></div></div>
@@ -233,7 +234,7 @@ tr:hover td{background:#fafbfd}
       <input class="fi fi-lg" type="text" id="f-search" placeholder="🔍  Nome, grupo, cota, CPF..." oninput="filterCtrl()">
       <select class="fi fi-md" id="f-status" onchange="filterCtrl()">
         <option value="">Todos Status</option>
-        <option>SORTEIO / LANCE</option><option>CONTEMPLADO</option><option>LANCE</option><option>SUPLENCIA - 2 NA FRENTE</option><option>Repassamos a contemplação</option>
+        <option>SORTEIO / LANCE</option><option>CONTEMPLADO</option><option>LANCE</option><option>SUPLENCIA - 2 NA FRENTE</option><option>Repassamos a contemplação</option><option>CANCELADO</option>
       </select>
       <select class="fi fi-md" id="f-assessor" onchange="filterCtrl()">
         <option value="">Todos Assessores</option>
@@ -442,7 +443,7 @@ tr:hover td{background:#fafbfd}
       <div class="g2" style="margin-bottom:0">
         <div class="form-g"><label class="form-l">Status</label>
           <select class="form-i" id="mc-status">
-            <option>SORTEIO / LANCE</option><option>LANCE</option><option>CONTEMPLADO</option><option>SUPLENCIA - 2 NA FRENTE</option>
+            <option>SORTEIO / LANCE</option><option>LANCE</option><option>CONTEMPLADO</option><option>SUPLENCIA - 2 NA FRENTE</option><option>CANCELADO</option>
           </select>
         </div>
         <div class="form-g"><label class="form-l">Dia Vencimento</label><input type="number" class="form-i" id="mc-venc" min="1" max="31"></div>
@@ -564,7 +565,7 @@ let selProj=null, minChart=null, contChart=null;
 // ═══ UTILS ═══
 const brl=(v,d=2)=>v==null?'—':'R '+Number(v).toLocaleString('pt-BR',{minimumFractionDigits:d,maximumFractionDigits:d});
 const pct=(v,d=2)=>v==null?'—':(Number(v)*100).toFixed(d)+'%';
-const SB={'CONTEMPLADO':'<span class="badge b-ok">✓ Contemplado</span>','SORTEIO / LANCE':'<span class="badge b-gray">Sorteio/Lance</span>','LANCE':'<span class="badge b-warn">⚡ Lance</span>','SUPLENCIA - 2 NA FRENTE':'<span class="badge b-ora">Suplençia</span>','Repassamos a contemplação':'<span class="badge b-info">Repassado</span>','CONTEMPLADO / MAS NÃO VAI PAGAR':'<span class="badge b-err">Sem pgto</span>'};
+const SB={'CONTEMPLADO':'<span class="badge b-ok">✓ Contemplado</span>','SORTEIO / LANCE':'<span class="badge b-gray">Sorteio/Lance</span>','LANCE':'<span class="badge b-warn">⚡ Lance</span>','SUPLENCIA - 2 NA FRENTE':'<span class="badge b-ora">Suplençia</span>','Repassamos a contemplação':'<span class="badge b-info">Repassado</span>','CONTEMPLADO / MAS NÃO VAI PAGAR':'<span class="badge b-err">Sem pgto</span>','CANCELADO':'<span class="badge b-err">✕ Cancelado</span>'};
 function sbadge(s){return SB[s]||`<span class="badge b-gray">${s}</span>`;}
 function atag(a){if(!a)return'';const cls=a.includes('ALAN')?'tAL':a.includes('ALE')?'tAE':a==='GLAUCO'?'tGL':(a==='GIL'||a==='Gil')?'tGI':a==='SZPIN'?'tSZ':a==='Coyote'?'tCO':'tOT';return`<span class="tag ${cls}">${a}</span>`;}
 function paginate(items,pg,pp=30){const s=(pg-1)*pp;return{items:items.slice(s,s+pp),total:items.length,pages:Math.ceil(items.length/pp)};}
@@ -629,17 +630,22 @@ async function deleteLeadDB(id){
 
 // ═══ DASHBOARD ═══
 function initDash(){
-  const contemp=COTAS.filter(r=>r.status==='CONTEMPLADO').length;
-  const lance=COTAS.filter(r=>r.status==='LANCE').length;
-  const aguard=COTAS.filter(r=>r.status==='SORTEIO / LANCE').length;
-  const cred=COTAS.reduce((s,r)=>s+(r.credito||0),0);
-  document.getElementById('kpi-total').textContent=COTAS.length;
+  const ativas=COTAS.filter(r=>r.status!=='CANCELADO');
+  const canceladas=COTAS.filter(r=>r.status==='CANCELADO');
+  const contemp=ativas.filter(r=>r.status==='CONTEMPLADO').length;
+  const lance=ativas.filter(r=>r.status==='LANCE').length;
+  const aguard=ativas.filter(r=>r.status==='SORTEIO / LANCE').length;
+  const cred=ativas.reduce((s,r)=>s+(r.credito||0),0);
+  const credCancel=canceladas.reduce((s,r)=>s+(r.credito||0),0);
+  document.getElementById('kpi-total').textContent=ativas.length;
   document.getElementById('kpi-contemp').textContent=contemp;
-  document.getElementById('kpi-contemp-sub').textContent=COTAS.length>0?Math.round(contemp/COTAS.length*100)+'% da carteira':'—';
+  document.getElementById('kpi-contemp-sub').textContent=ativas.length>0?Math.round(contemp/ativas.length*100)+'% da carteira':'—';
   document.getElementById('kpi-cred').textContent=cred>=1e6?(cred/1e6).toFixed(1)+'M':brl(cred,0);
   document.getElementById('kpi-lance').textContent=lance;
   document.getElementById('kpi-aguard').textContent=aguard;
   document.getElementById('kpi-leads').textContent=LEADS.length;
+  document.getElementById('kpi-cancel').textContent=canceladas.length;
+  document.getElementById('kpi-cancel-sub').textContent=canceladas.length>0?'- '+brl(credCancel,0)+' da carteira':'excluídas da carteira';
 
   Object.values(dashCharts).forEach(c=>c.destroy());dashCharts={};
   dashCharts.status=new Chart(document.getElementById('ch-status'),{type:'doughnut',data:{labels:['Contempladas','Lance Ativo','Sorteio/Espera','Outros'],datasets:[{data:[contemp,lance,aguard,COTAS.length-contemp-lance-aguard],backgroundColor:['#10b981','#f59e0b','#94a3b8','#f97316'],borderWidth:0,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{position:'right',labels:{font:{size:11},padding:12}}}}});
