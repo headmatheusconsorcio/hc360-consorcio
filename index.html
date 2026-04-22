@@ -948,17 +948,62 @@ function renderProj(){
   }).join('')+'<div class="pcard" style="border-style:dashed;display:flex;align-items:center;justify-content:center;min-height:160px;color:var(--txt2)" onclick="openModalCota(-1)"><div style="text-align:center"><div style="font-size:26px">+</div><div style="font-size:13px;font-weight:600">Nova Cota</div></div></div>';
 }
 function selProjFn(name){
-  selProj=name;document.querySelectorAll('.pcard').forEach(c=>c.classList.remove('sel'));event.currentTarget.classList.add('sel');
+  selProj=name;
+  document.querySelectorAll('.pcard').forEach(c=>c.classList.remove('sel'));
+  event.currentTarget.classList.add('sel');
   const cotas=COTAS.filter(r=>r.nome===name);
-  const c=cotas.filter(r=>r.status==='CONTEMPLADO').length;const cr=cotas.reduce((s,r)=>s+(r.credito||0),0);
-  const isAbr=name==='Fernando Abramovay';
-  let det=`<div class="card"><div class="ch"><span class="ct">${name} — ${cotas.length} cotas</span><div style="display:flex;gap:8px;align-items:center"><span class="badge b-info">${cotas.length-c} ativas</span><span class="badge b-ok">${c} contempl.</span><span style="font-size:12px;color:var(--txt2);margin-left:6px">${brl(cr,0)}</span></div></div>`;
-  if(isAbr){
-    det+=`<div class="tw"><table><thead><tr><th>Grupo/Cota</th><th>Tipo</th><th>Valor Carta</th><th>Carta Atual.</th><th>Status</th><th>Parcela</th><th>Lance Pago</th><th>Saldo Devedor</th><th>Info</th></tr></thead><tbody>${FERNANDO.map(r=>{const sb=r.status==='Contemplado'?'<span class="badge b-ok">✓ Contempl.</span>':'<span class="badge b-info">Ativo</span>';const lp=r.lance_pago==='SORTEIO'?'<span class="badge b-info">Sorteio</span>':r.lance_pago&&!isNaN(r.lance_pago)?brl(parseFloat(r.lance_pago),0):'—';return`<tr><td><strong>${r.grupo_cota}</strong></td><td>Imóvel</td><td>${brl(r.valor_carta,0)}</td><td>${r.carta_atualizada?brl(r.carta_atualizada,0):'—'}</td><td>${sb}</td><td>${brl(r.parcela_atual)}</td><td>${lp}</td><td>${brl(r.saldo_devedor,0)}</td><td style="font-size:11px;max-width:150px">${r.informacao||'—'}</td></tr>`;}).join('')}</tbody></table></div>`;
-  }else{
-    det+=`<div class="tw"><table><thead><tr><th>Grupo</th><th>Cota</th><th>Crédito</th><th>Parcela</th><th>Status</th><th>Lance</th><th>Posição</th><th>Ação</th></tr></thead><tbody>${cotas.map(r=>`<tr><td>${r.grupo||'—'}</td><td>${r.cota||'—'}</td><td>${brl(r.credito,0)}</td><td>${brl(r.parcela)}</td><td>${sbadge(r.status)}</td><td>${r.lance1?brl(r.lance1,0):'—'}</td><td style="font-size:11px">${r.posicao||'—'}</td><td><button class="btn btn-ok btn-sm" onclick="openModalContemp('${r.id}')">✓ Contemplar</button></td></tr>`).join('')}</tbody></table></div>`;
-  }
-  det+='</div>';document.getElementById('proj-detail').innerHTML=det;
+  const ativas=cotas.filter(r=>r.status!=='CANCELADO');
+  const contemp=cotas.filter(r=>r.status==='CONTEMPLADO').length;
+  const cancel=cotas.filter(r=>r.status==='CANCELADO').length;
+  const lance=cotas.filter(r=>r.status==='LANCE').length;
+  const cr=ativas.reduce((s,r)=>s+(r.credito||0),0);
+  const parc=ativas.reduce((s,r)=>s+(r.parcela||0),0);
+  const pct=ativas.length>0?Math.round(contemp/ativas.length*100):0;
+  let det=`
+  <div class="card" style="margin-top:20px">
+    <div class="ch" style="flex-wrap:wrap;gap:8px">
+      <span class="ct" style="font-size:16px">?? ${name}</span>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        ${atag(cotas[0]?.assessor)}
+        <span class="badge b-gray">${ativas.length} ativas</span>
+        <span class="badge b-ok">${contemp} contempl.</span>
+        ${lance>0?`<span class="badge b-warn">${lance} lance</span>`:''}
+        ${cancel>0?`<span class="badge b-err">${cancel} canceladas</span>`:''}
+      </div>
+    </div>
+    <div style="padding:16px 18px;display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;border-bottom:1px solid var(--bdr)">
+      <div><div style="font-size:11px;color:var(--txt2);font-weight:700;text-transform:uppercase">Crédito Total</div><div style="font-size:20px;font-weight:800;color:var(--info)">${cr>=1e6?(cr/1e6).toFixed(2)+'M':brl(cr,0)}</div></div>
+      <div><div style="font-size:11px;color:var(--txt2);font-weight:700;text-transform:uppercase">Parcela/mês</div><div style="font-size:20px;font-weight:800;color:var(--warn)">${brl(parc)}</div></div>
+      <div><div style="font-size:11px;color:var(--txt2);font-weight:700;text-transform:uppercase">Progresso</div><div style="font-size:20px;font-weight:800;color:var(--ok)">${pct}%</div></div>
+      <div><div style="font-size:11px;color:var(--txt2);font-weight:700;text-transform:uppercase">Total de Cotas</div><div style="font-size:20px;font-weight:800">${cotas.length}</div></div>
+    </div>
+    <div style="padding:10px 18px;border-bottom:1px solid var(--bdr)">
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--txt2);margin-bottom:4px"><span>Contemplações</span><span>${contemp} / ${ativas.length}</span></div>
+      <div class="pbar"><div class="pfill" style="width:${pct}%"></div></div>
+    </div>
+    <div class="tw"><table>
+      <thead><tr><th>Grupo</th><th>Cota</th><th>Crédito</th><th>Parcela</th><th>Venc.</th><th>Status</th><th>Lance 1</th><th>Lance 2</th><th>Posição / Info</th><th style="text-align:center">Ações</th></tr></thead>
+      <tbody>${cotas.sort((a,b)=>{const o={'LANCE':0,'SORTEIO / LANCE':1,'SUPLENCIA - 2 NA FRENTE':2,'CONTEMPLADO':3,'CANCELADO':4};return(o[a.status]??5)-(o[b.status]??5);}).map(r=>`
+        <tr style="${r.status==='CANCELADO'?'opacity:.5;':''}"">
+          <td><strong>${r.grupo||'—'}</strong></td>
+          <td>${r.cota||'—'}</td>
+          <td>${brl(r.credito,0)}</td>
+          <td>${brl(r.parcela)}</td>
+          <td style="font-size:11px">${r.adesao?new Date(r.adesao).toLocaleDateString('pt-BR'):'—'}</td>
+          <td>${sbadge(r.status)}</td>
+          <td>${r.lance1?(r.lance1*100).toFixed(1)+'%':'—'}</td>
+          <td>${r.lance2?(r.lance2*100).toFixed(1)+'%':'—'}</td>
+          <td style="font-size:11px;max-width:180px;white-space:normal">${r.posicao||r.informacao||'—'}</td>
+          <td style="text-align:center;white-space:nowrap">
+            ${r.status!=='CONTEMPLADO'&&r.status!=='CANCELADO'?`<button class="btn btn-ok btn-sm" onclick="openModalContemp('${r.id}')" title="Registrar contemplação">✓</button> `:''}
+            <button class="btn btn-out btn-sm" onclick="openModalCota('${r.id}')" title="Editar cota">✏️</button>
+          </td>
+        </tr>`).join('')}
+      </tbody>
+    </table></div>
+  </div>`;
+  document.getElementById('proj-detail').innerHTML=det;
+  document.getElementById('proj-detail').scrollIntoView({behavior:'smooth',block:'start'});
 }
 
 // ═══ MODAL UTILS ═══
