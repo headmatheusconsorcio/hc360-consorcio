@@ -60,7 +60,12 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 /* TABLE */
 .tw{overflow-x:auto}
 table{width:100%;border-collapse:collapse;font-size:12.5px}
-th{background:#f8fafc;color:var(--txt2);font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;padding:9px 13px;text-align:left;border-bottom:1px solid var(--bdr);white-space:nowrap}
+th{background:#f8fafc;color:var(--txt2);font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;padding:9px 13px;text-align:left;border-bottom:1px solid var(--bdr);white-space:nowrap;user-select:none}
+th[onclick]:hover{background:#eef2ff;color:var(--sb3)}
+.sort-ico{display:inline-block;margin-left:3px;font-size:10px;opacity:.5}
+th[onclick] .sort-ico{opacity:.4}
+th[onclick]:hover .sort-ico{opacity:.9}
+th[onclick].sorted .sort-ico{opacity:1;color:var(--acc)}
 td{padding:9px 13px;border-bottom:1px solid #f1f5f9;vertical-align:middle}
 tr:last-child td{border-bottom:none}
 tr:hover td{background:#fafbfd}
@@ -246,14 +251,14 @@ tr:hover td{background:#fafbfd}
     <div class="card">
       <div class="tw"><table>
         <thead><tr>
-          <th onclick="sortCtrl('nome')" style="cursor:pointer">Cliente <span id="csort-nome">⇅</span></th>
-          <th onclick="sortCtrl('grupo')" style="cursor:pointer">Grupo/Cota <span id="csort-grupo">⇅</span></th>
-          <th onclick="sortCtrl('credito')" style="cursor:pointer">Crédito <span id="csort-credito">⇅</span></th>
-          <th onclick="sortCtrl('parcela')" style="cursor:pointer">Parcela <span id="csort-parcela">⇅</span></th>
+          <th onclick="sortCtrl('nome')" style="cursor:pointer">Cliente <span id="csort-nome" class="sort-ico">⇅</span></th>
+          <th onclick="sortCtrl('grupo')" style="cursor:pointer">Grupo/Cota <span id="csort-grupo" class="sort-ico">⇅</span></th>
+          <th onclick="sortCtrl('credito')" style="cursor:pointer">Crédito <span id="csort-credito" class="sort-ico">⇅</span></th>
+          <th onclick="sortCtrl('parcela')" style="cursor:pointer">Parcela <span id="csort-parcela" class="sort-ico">⇅</span></th>
           <th>Venc.</th>
-          <th onclick="sortCtrl('assessor')" style="cursor:pointer">Assessor <span id="csort-assessor">⇅</span></th>
-          <th onclick="sortCtrl('status')" style="cursor:pointer">Status <span id="csort-status">⇅</span></th>
-          <th onclick="sortCtrl('lance1')" style="cursor:pointer">Lance 1 <span id="csort-lance1">⇅</span></th>
+          <th onclick="sortCtrl('assessor')" style="cursor:pointer">Assessor <span id="csort-assessor" class="sort-ico">⇅</span></th>
+          <th onclick="sortCtrl('status')" style="cursor:pointer">Status <span id="csort-status" class="sort-ico">⇅</span></th>
+          <th onclick="sortCtrl('lance1')" style="cursor:pointer">Lance 1 <span id="csort-lance1" class="sort-ico">⇅</span></th>
           <th>Posição</th><th>Comissão</th><th>Ações</th>
         </tr></thead>
         <tbody id="ctrl-tbody"></tbody>
@@ -350,17 +355,17 @@ tr:hover td{background:#fafbfd}
       <div class="card">
         <div class="ch"><span class="ct">Todos os Grupos</span><span style="font-size:12px;color:var(--txt2)" id="browse-count">560 grupos</span></div>
         <div class="tw"><table><thead><tr>
-          <th onclick="sortBrowse('g')" style="cursor:pointer">Grupo <span id="bsort-g">⇅</span></th>
+          <th onclick="sortBrowse('g')" style="cursor:pointer">Grupo <span id="bsort-g" class="sort-ico">⇅</span></th>
           <th>Tipo</th><th>Situação</th>
-          <th onclick="sortBrowse('idx')" style="cursor:pointer">Indexador <span id="bsort-idx">⇅</span></th>
-          <th onclick="sortBrowse('pr')" style="cursor:pointer">Prazo Rest. <span id="bsort-pr">⇅</span></th>
-          <th onclick="sortBrowse('asm')" style="cursor:pointer">Próx. Assembleia <span id="bsort-asm">⇅</span></th>
-          <th onclick="sortBrowse('vagas')" style="cursor:pointer">Vagas <span id="bsort-vagas">⇅</span></th>
-          <th onclick="sortBrowse('vmin')" style="cursor:pointer">Valor Mín. <span id="bsort-vmin">⇅</span></th>
-          <th onclick="sortBrowse('vmax')" style="cursor:pointer">Valor Máx. <span id="bsort-vmax">⇅</span></th>
-          <th onclick="sortBrowse('ul_min')" style="cursor:pointer">Últ. Lance Mín. <span id="bsort-ul_min">⇅</span></th>
-          <th onclick="sortBrowse('at_min')" style="cursor:pointer">Lance Atual <span id="bsort-at_min">⇅</span></th>
-          <th onclick="sortBrowse('at_cl')" style="cursor:pointer">Contemp. <span id="bsort-at_cl">⇅</span></th>
+          <th onclick="sortBrowse('idx')" style="cursor:pointer">Indexador <span id="bsort-idx" class="sort-ico">⇅</span></th>
+          <th onclick="sortBrowse('pr')" style="cursor:pointer">Prazo Rest. <span id="bsort-pr" class="sort-ico">⇅</span></th>
+          <th onclick="sortBrowse('asm')" style="cursor:pointer">Próx. Assembleia <span id="bsort-asm" class="sort-ico">⇅</span></th>
+          <th onclick="sortBrowse('vagas')" style="cursor:pointer">Vagas <span id="bsort-vagas" class="sort-ico">⇅</span></th>
+          <th onclick="sortBrowse('vmin')" style="cursor:pointer">Valor Mín. <span id="bsort-vmin" class="sort-ico">⇅</span></th>
+          <th onclick="sortBrowse('vmax')" style="cursor:pointer">Valor Máx. <span id="bsort-vmax" class="sort-ico">⇅</span></th>
+          <th onclick="sortBrowse('ul_min')" style="cursor:pointer">Últ. Lance Mín. <span id="bsort-ul_min" class="sort-ico">⇅</span></th>
+          <th onclick="sortBrowse('at_min')" style="cursor:pointer">Lance Atual <span id="bsort-at_min" class="sort-ico">⇅</span></th>
+          <th onclick="sortBrowse('at_cl')" style="cursor:pointer">Contemp. <span id="bsort-at_cl" class="sort-ico">⇅</span></th>
         </tr></thead><tbody id="browse-tbody"></tbody></table></div>
         <div class="pag" id="browse-pag"></div>
       </div>
@@ -458,14 +463,14 @@ tr:hover td{background:#fafbfd}
       <div class="card">
         <div class="tw"><table>
           <thead><tr>
-            <th onclick="sortProjList('nome')" style="cursor:pointer">Cliente <span id="psort-nome">⇅</span></th>
-            <th onclick="sortProjList('grupo')" style="cursor:pointer">Grupo/Cota <span id="psort-grupo">⇅</span></th>
-            <th onclick="sortProjList('credito')" style="cursor:pointer">Crédito <span id="psort-credito">⇅</span></th>
-            <th onclick="sortProjList('parcela')" style="cursor:pointer">Parcela <span id="psort-parcela">⇅</span></th>
+            <th onclick="sortProjList('nome')" style="cursor:pointer">Cliente <span id="psort-nome" class="sort-ico">⇅</span></th>
+            <th onclick="sortProjList('grupo')" style="cursor:pointer">Grupo/Cota <span id="psort-grupo" class="sort-ico">⇅</span></th>
+            <th onclick="sortProjList('credito')" style="cursor:pointer">Crédito <span id="psort-credito" class="sort-ico">⇅</span></th>
+            <th onclick="sortProjList('parcela')" style="cursor:pointer">Parcela <span id="psort-parcela" class="sort-ico">⇅</span></th>
             <th>Venc.</th>
-            <th onclick="sortProjList('assessor')" style="cursor:pointer">Assessor <span id="psort-assessor">⇅</span></th>
-            <th onclick="sortProjList('status')" style="cursor:pointer">Status <span id="psort-status">⇅</span></th>
-            <th onclick="sortProjList('lance1')" style="cursor:pointer">Lance 1 <span id="psort-lance1">⇅</span></th>
+            <th onclick="sortProjList('assessor')" style="cursor:pointer">Assessor <span id="psort-assessor" class="sort-ico">⇅</span></th>
+            <th onclick="sortProjList('status')" style="cursor:pointer">Status <span id="psort-status" class="sort-ico">⇅</span></th>
+            <th onclick="sortProjList('lance1')" style="cursor:pointer">Lance 1 <span id="psort-lance1" class="sort-ico">⇅</span></th>
             <th>Posição</th><th>Comissão</th><th>Ações</th>
           </tr></thead>
           <tbody id="plist-tbody"></tbody>
@@ -477,6 +482,53 @@ tr:hover td{background:#fafbfd}
 
   </div>
 </main>
+
+<!-- MODAL SIMULAÇÃO -->
+<div class="moverlay" id="modal-sim">
+  <div class="modal" style="width:820px;max-width:96vw">
+    <div class="mh">
+      <span class="mt" id="sim-title">📊 Proposta — </span>
+      <button class="mc" onclick="closeModal('modal-sim')">✕</button>
+    </div>
+    <div class="mb" style="gap:8px">
+      <div class="frow" style="margin-bottom:0;gap:8px">
+        <div class="ac-wrap" style="flex:1">
+          <input class="fi" style="width:100%" type="text" id="sim-input" placeholder="🔍  Buscar grupo (ex: 40001, 58, 240...)  — Lance, prazo, tipo..." oninput="simAC()" onkeydown="simKey(event)">
+          <div class="ac-list" id="sim-ac"></div>
+        </div>
+        <select class="fi" id="sim-tipo-f" style="width:130px">
+          <option value="">Todos</option><option value="Im">Imóveis</option><option value="Ro">Rodas</option>
+        </select>
+        <button class="btn btn-out btn-sm" onclick="simClear()">✕</button>
+      </div>
+      <div style="font-size:11px;color:var(--txt2);margin-bottom:4px">Clique no grupo para adicionar à composição</div>
+      <div style="overflow-x:auto">
+        <table id="sim-table" style="font-size:12.5px">
+          <thead><tr>
+            <th>Grupo</th><th>Tipo</th><th>Crédito (R$)</th><th>Qtd. Cotas</th><th>Lance (%)</th><th>Parcela Est.</th><th>Subtotal Crédito</th><th></th>
+          </tr></thead>
+          <tbody id="sim-tbody"><tr><td colspan="8" style="text-align:center;color:var(--txt2);padding:20px">Adicione grupos pelo campo acima</td></tr></tbody>
+        </table>
+      </div>
+      <div style="background:#f8fafc;border-radius:10px;border:1.5px solid var(--bdr);padding:14px;margin-top:4px">
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
+          <div><div style="font-size:10px;font-weight:700;color:var(--txt2);text-transform:uppercase;margin-bottom:2px">Total de Cotas</div><div style="font-size:20px;font-weight:800" id="sim-tot-cotas">0</div></div>
+          <div><div style="font-size:10px;font-weight:700;color:var(--txt2);text-transform:uppercase;margin-bottom:2px">Crédito Total</div><div style="font-size:20px;font-weight:800;color:var(--info)" id="sim-tot-cred">R$ 0</div></div>
+          <div><div style="font-size:10px;font-weight:700;color:var(--txt2);text-transform:uppercase;margin-bottom:2px">Lance Total Est.</div><div style="font-size:20px;font-weight:800;color:var(--warn)" id="sim-tot-lance">R$ 0</div></div>
+          <div><div style="font-size:10px;font-weight:700;color:var(--txt2);text-transform:uppercase;margin-bottom:2px">Parcela Total/mês</div><div style="font-size:20px;font-weight:800;color:var(--acc)" id="sim-tot-parc">R$ 0</div></div>
+        </div>
+      </div>
+      <div class="form-g" style="margin-bottom:0"><label class="form-l">Observações da proposta</label><textarea class="form-i" id="sim-obs" rows="2" style="resize:none" placeholder="Estratégia, condições especiais, próximos passos..."></textarea></div>
+    </div>
+    <div class="mf" style="justify-content:space-between">
+      <button class="btn btn-out" onclick="closeModal('modal-sim')">Fechar</button>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-out btn-sm" onclick="simSalvar()">💾 Salvar Rascunho</button>
+        <button class="btn btn-ok" onclick="simFechar()" id="sim-fechar-btn">✓ Confirmar → Criar Cotas</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- MODAL COTA -->
 <div class="moverlay" id="modal-cota">
@@ -659,6 +711,11 @@ async function loadData(){
     ]);
     if(e1)throw e1;
     COTAS=c||[];LEADS=l||[];
+    window._hasTaxaAdm=COTAS.length===0||'taxa_adm' in (COTAS[0]||{});
+    if(!window._hasTaxaAdm){
+      // coluna ainda não existe — tenta criar via upsert vazio para forçar detecção futura
+      console.info('[HC360] taxa_adm column not detected yet');
+    }
     setSync(true);
     initDash();ctrlFiltered=[...COTAS];renderCtrl();renderAgenda();renderCRM();renderProj();
     document.getElementById('kpi-leads').textContent=LEADS.length;
@@ -926,7 +983,7 @@ function renderCRM(){
     return`<div class="pipe-col">
       <div class="pipe-hdr"><span style="width:10px;height:10px;border-radius:50%;background:${PIPE_COLORS[stage]};display:inline-block"></span>${stage} <span class="badge b-gray" style="margin-left:auto">${items.length}</span></div>
       ${total>0?`<div style="font-size:11px;color:var(--txt2);margin-bottom:8px">${brl(total,0)}</div>`:''}
-      ${items.slice(0,5).map(l=>`<div class="pipe-card" onclick="openModalLead('${l.id}')"><div class="pipe-card-name">${l.nome||'—'}</div><div class="pipe-card-meta">${l.interesse||''}${l.valor_potencial?' · '+brl(l.valor_potencial,0):''}${l.indicado_por?'<br>via '+l.indicado_por:''}</div></div>`).join('')}
+      ${items.slice(0,5).map(l=>{const hasSim=l.observacao&&l.observacao.startsWith('SIM:');return`<div class="pipe-card"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:6px"><div onclick="openModalLead('${l.id}')" style="flex:1;cursor:pointer"><div class="pipe-card-name">${l.nome||'—'}</div><div class="pipe-card-meta">${l.interesse||''}${l.valor_potencial?' · '+brl(l.valor_potencial,0):''}${l.indicado_por?'<br>via '+l.indicado_por:''}</div></div><button class="btn btn-sm" style="background:${hasSim?'var(--ok)':'var(--acc)'};color:#fff;padding:3px 7px;font-size:11px;white-space:nowrap" onclick="openModalSim('${l.id}')">${hasSim?'📋 Ver':'📊'}</button></div></div>`;}).join('')}
       ${items.length>5?`<div style="font-size:11px;color:var(--txt2);text-align:center;padding:6px">+${items.length-5} mais</div>`:''}
     </div>`;
   }).join('');
@@ -940,7 +997,10 @@ function renderCRM(){
     <td>${l.valor_potencial?brl(l.valor_potencial,0):'—'}</td>
     <td><span class="badge" style="background:${PIPE_COLORS[l.status]||'#94a3b8'}22;color:${PIPE_COLORS[l.status]||'#475569'}">${l.status||'—'}</span></td>
     <td style="font-size:11px;color:var(--txt2)">${l.created_at?l.created_at.slice(0,10):'—'}</td>
-    <td><button class="btn btn-out btn-sm" onclick="openModalLead('${l.id}')">✏️</button></td>
+    <td style="display:flex;gap:4px">
+      <button class="btn btn-out btn-sm" onclick="openModalLead('${l.id}')">✏️</button>
+      <button class="btn btn-sm btn-pri" style="font-size:11px" onclick="openModalSim('${l.id}')">📊</button>
+    </td>
   </tr>`).join('');
 }
 
@@ -971,6 +1031,109 @@ async function deleteLead(){
   if(!confirm('Excluir este lead?'))return;
   showLoad();const ok=await deleteLeadDB(currentLead);hideLoad();
   if(ok){toast('Lead excluído');closeModal('modal-lead');filterCRM();}
+}
+
+// ═══ SIMULAÇÃO / PROPOSTA ═══
+let simLead=null, simRows=[];
+function openModalSim(leadId){
+  simLead=LEADS.find(l=>l.id===leadId);
+  if(!simLead)return;
+  document.getElementById('sim-title').textContent='📊 Proposta — '+(simLead.nome||'Lead');
+  // Carregar simulação salva
+  const obs=simLead.observacao||'';
+  if(obs.startsWith('SIM:')){
+    try{const d=JSON.parse(obs.slice(4));simRows=d.rows||[];document.getElementById('sim-obs').value=d.nota||'';}catch(e){simRows=[];}
+  }else{simRows=[];document.getElementById('sim-obs').value='';}
+  document.getElementById('sim-input').value='';
+  document.getElementById('sim-ac').classList.remove('open');
+  renderSimTable();
+  document.getElementById('modal-sim').classList.add('open');
+}
+function simAC(){
+  const q=document.getElementById('sim-input').value.trim().toLowerCase();
+  const tipo=document.getElementById('sim-tipo-f').value;
+  const ac=document.getElementById('sim-ac');
+  if(q.length<1){ac.classList.remove('open');return;}
+  const matches=Object.entries(GUIA).filter(([g,d])=>{
+    const tOk=!tipo||(tipo==='Im'?(d.tp||'').includes('Im'):(!(d.tp||'').includes('Im')&&!(d.tp||'').includes('MOT')));
+    return tOk&&(g.toString().startsWith(q)||(d.tp||'').toLowerCase().includes(q));
+  }).slice(0,10);
+  if(!matches.length){ac.classList.remove('open');return;}
+  ac.innerHTML=matches.map(([g,d])=>{
+    const minPct=d.at_min&&d.at_min>0?(d.at_min*100).toFixed(1)+'%':'—';
+    const vagas=d.vagas!=null?d.vagas:'?';
+    return`<div class="ac-item" onclick="simAddGrupo('${g}')" style="display:flex;justify-content:space-between;align-items:center">
+      <div><strong style="color:var(--acc)">${g}</strong> <span style="font-size:11px;color:var(--txt2)">${(d.tp||'').replace('IMÓVEIS','🏠 Im').replace('VEÍCULOS LEVES','🚗').replace('VEÍCULOS PESADOS','🚛').replace('MOTOS','🏍')}</span></div>
+      <div style="font-size:11px;color:var(--txt2);text-align:right">Lance: <strong>${minPct}</strong> · Vagas: <strong>${vagas}</strong> · ${d.vmax?brl(d.vmax,0):'—'}</div>
+    </div>`;
+  }).join('');
+  ac.classList.add('open');
+}
+function simKey(e){if(e.key==='Escape')document.getElementById('sim-ac').classList.remove('open');}
+function simClear(){document.getElementById('sim-input').value='';document.getElementById('sim-ac').classList.remove('open');}
+function simAddGrupo(g){
+  const d=GUIA[g];if(!d)return;
+  simRows.push({grupo:g,tipo:(d.tp||''),credito:d.vmax||340000,qtd:1,lancePerc:d.at_min&&d.at_min>0?+(d.at_min*100).toFixed(1):30,prazo:d.pr||192,taxaAdm:23,fr:d.fr!=null?+(d.fr*100).toFixed(1):3});
+  document.getElementById('sim-input').value='';document.getElementById('sim-ac').classList.remove('open');
+  renderSimTable();
+}
+function renderSimTable(){
+  if(!simRows.length){
+    document.getElementById('sim-tbody').innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--txt2);padding:20px">Adicione grupos pelo campo acima</td></tr>';
+    calcSimTotals();return;
+  }
+  document.getElementById('sim-tbody').innerHTML=simRows.map((r,i)=>{
+    const parcEst=(r.credito*(1-r.lancePerc/100))/r.prazo*(1+(r.taxaAdm/100)+r.fr/100)*r.qtd;
+    return`<tr>
+      <td><strong style="color:var(--acc)">${r.grupo}</strong></td>
+      <td style="font-size:11px;max-width:100px;overflow:hidden;text-overflow:ellipsis">${r.tipo.replace('IMÓVEIS','🏠').replace('VEÍCULOS LEVES','🚗').replace('VEÍCULOS PESADOS','🚛').replace('MOTOS','🏍')}</td>
+      <td><input class="form-i" type="number" style="width:110px;padding:3px 6px;font-size:12px" value="${r.credito}" oninput="simRows[${i}].credito=+this.value;calcSimTotals()"></td>
+      <td><input class="form-i" type="number" style="width:55px;padding:3px 6px;font-size:12px" min="1" value="${r.qtd}" oninput="simRows[${i}].qtd=Math.max(1,+this.value)||1;calcSimTotals()"></td>
+      <td><input class="form-i" type="number" style="width:65px;padding:3px 6px;font-size:12px" step="0.1" min="0" max="100" value="${r.lancePerc}" oninput="simRows[${i}].lancePerc=+this.value;calcSimTotals()"></td>
+      <td style="font-size:12px;font-weight:700;color:var(--warn)">${brl(parcEst)}</td>
+      <td style="font-size:12px;font-weight:700;color:var(--info)">${brl(r.credito*r.qtd,0)}</td>
+      <td><button class="btn btn-err btn-sm" style="padding:2px 8px" onclick="simRows.splice(${i},1);renderSimTable()">✕</button></td>
+    </tr>`;
+  }).join('');
+  calcSimTotals();
+}
+function calcSimTotals(){
+  const totCotas=simRows.reduce((s,r)=>s+r.qtd,0);
+  const totCred=simRows.reduce((s,r)=>s+r.credito*r.qtd,0);
+  const totLance=simRows.reduce((s,r)=>s+r.credito*r.qtd*r.lancePerc/100,0);
+  const totParc=simRows.reduce((s,r)=>{const liq=r.credito*(1-r.lancePerc/100);return s+liq/r.prazo*(1+(r.taxaAdm/100)+r.fr/100)*r.qtd;},0);
+  document.getElementById('sim-tot-cotas').textContent=totCotas;
+  document.getElementById('sim-tot-cred').textContent=brl(totCred,0);
+  document.getElementById('sim-tot-lance').textContent=brl(totLance,0);
+  document.getElementById('sim-tot-parc').textContent=brl(totParc);
+}
+async function simSalvar(){
+  if(!simLead)return;
+  const payload={rows:simRows,nota:document.getElementById('sim-obs').value,ts:new Date().toISOString()};
+  const res=await upsertLead({id:simLead.id,observacao:'SIM:'+JSON.stringify(payload),updated_at:new Date().toISOString()});
+  if(res){Object.assign(simLead,res);toast('Proposta salva no lead!');renderCRM();}
+}
+async function simFechar(){
+  if(!simRows.length){toast('Adicione pelo menos um grupo','err');return;}
+  if(!confirm(`Confirmar? Serão criadas ${simRows.reduce((s,r)=>s+r.qtd,0)} cotas para ${simLead?.nome} e o lead será marcado como Fechado.`))return;
+  showLoad();
+  const assessor=simLead?.assessor||'ALAN / ESCRITORIO';
+  const nome=simLead?.nome||'';
+  let erros=0;
+  for(const r of simRows){
+    for(let i=0;i<r.qtd;i++){
+      const cotaData={nome,assessor,grupo:r.grupo,credito:r.credito,status:'SORTEIO / LANCE',lance1:r.lancePerc/100,informacao:'Criada via proposta CRM',updated_at:new Date().toISOString()};
+      const res=await upsertCota(cotaData);
+      if(!res)erros++;
+    }
+  }
+  // Atualizar lead para Fechado
+  await upsertLead({id:simLead.id,status:'Fechado',updated_at:new Date().toISOString()});
+  hideLoad();
+  if(erros===0){
+    toast(`${simRows.reduce((s,r)=>s+r.qtd,0)} cotas criadas! Lead fechado.`,'ok');
+    closeModal('modal-sim');initDash();filterCtrl();renderCRM();renderProj();
+  }else{toast(`Concluído com ${erros} erro(s)`,erros>0?'err':'ok');}
 }
 
 // ═══ GUIA ═══
@@ -1172,7 +1335,7 @@ function closeModal(id){document.getElementById(id).classList.remove('open');}
 window.addEventListener('DOMContentLoaded',()=>{
   browseData=Object.entries(GUIA);renderBrowse(browseData,1);
   calcProp();updLance();
-  document.addEventListener('click',e=>{if(!e.target.closest('.ac-wrap'))document.getElementById('ac-list').classList.remove('open');});
+  document.addEventListener('click',e=>{if(!e.target.closest('.ac-wrap')){document.getElementById('ac-list').classList.remove('open');const sa=document.getElementById('sim-ac');if(sa)sa.classList.remove('open');}});
   loadData();
 });
 </script>
