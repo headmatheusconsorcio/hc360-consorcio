@@ -794,7 +794,6 @@ async function saveCota(){
     lance2:parseFloat(document.getElementById('mc-l2').value)||null,
     posicao:document.getElementById('mc-pos').value,
     informacao:document.getElementById('mc-obs').value,
-    taxa_adm:parseFloat(document.getElementById('mc-taxa').value)||null,
     updated_at:new Date().toISOString(),
   };
   if(currentCotaId&&currentCotaId!==-1)data.id=currentCotaId;
