@@ -1716,15 +1716,15 @@ function renderProjList(){
     const isDirty=dirtyBulk.has(String(r.id));
     const isSelected=projSelected.has(String(r.id));
     const rowBg=isDirty?'background:#fff8f2':'';
-    const chkCell=bulkMode?'<td><input type="checkbox" id="pchk-'+r.id+'" '+(isSelected?'checked':'')+' onchange="projSelectRow(''+r.id+'',this.checked)"></td>':'';
-    const statusCell=bulkMode?'<td><select id="pbs-'+r.id+'" class="form-i" style="padding:3px 6px;font-size:12px;min-width:120px" onchange="projBulkMark(''+r.id+'')">'
+    const chkCell=bulkMode?'<td><input type="checkbox" id="pchk-'+r.id+'" '+(isSelected?'checked':'')+' data-rid="'+r.id+'" onchange="projSelectRow(this.dataset.rid,this.checked)"></td>':'';
+    const statusCell=bulkMode?'<td><select id="pbs-'+r.id+'" class="form-i" style="padding:3px 6px;font-size:12px;min-width:120px" data-rid="'+r.id+'" onchange="projBulkMark(this.dataset.rid)">'
       +['Sorteio','Em Andamento','Contemplado','Cancelado'].map(s=>'<option'+(r.status===s||(s==='Sorteio'&&r.status==='SORTEIO / LANCE')||(s==='Em Andamento'&&(r.status==='LANCE'||r.status==='SUPLENCIA - 2 NA FRENTE'))||(s==='Contemplado'&&r.status==='CONTEMPLADO')||(s==='Cancelado'&&r.status==='CANCELADO')?' selected':'')+'>'+(s==='Em Andamento'?'⚡ Em Andamento':s)+'</option>').join('')
       +'</select></td>'
       :'<td>'+sbadge(r.status)+'</td>';
-    const lanceCell=bulkMode?'<td><input id="pbl-'+r.id+'" type="number" class="form-i" style="padding:3px 6px;font-size:12px;width:110px" value="'+(r.lance1||'')+'" placeholder="R$..." onchange="projBulkMark(''+r.id+'')"></td>'
+    const lanceCell=bulkMode?'<td><input id="pbl-'+r.id+'" type="number" class="form-i" style="padding:3px 6px;font-size:12px;width:110px" value="'+(r.lance1||'')+'" placeholder="R$..." data-rid="'+r.id+'" onchange="projBulkMark(this.dataset.rid)"></td>'
       :'<td>'+(r.lance1?brl(r.lance1,0):'—')+'</td>';
     const acoesCell=bulkMode?''
-      :'<td style="display:flex;gap:4px"><button class="btn btn-out btn-sm" onclick="openModalCota(''+r.id+'')">✏️</button><button class="btn btn-ok btn-sm" onclick="openModalContemp(''+r.id+'')" title="Contemplar">✓</button></td>';
+      :'<td style="display:flex;gap:4px"><button class="btn btn-out btn-sm" data-rid="'+r.id+'" onclick="openModalCota(this.dataset.rid)">✏️</button><button class="btn btn-ok btn-sm" data-rid="'+r.id+'" onclick="openModalContemp(this.dataset.rid)" title="Contemplar">✓</button></td>';
     return '<tr'+(rowBg?' style="'+rowBg+'"':'')+'>'
       +chkCell
       +'<td><strong>'+(r.nome||'—')+'</strong><br><span style="font-size:10.5px;color:var(--txt2)">'+(r.cpf||'')+'</span></td>'
