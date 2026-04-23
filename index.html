@@ -858,19 +858,13 @@ function updateSidebarUser(u){
 }
 
 async function loadProfile(user){
-  if(!sb)return;
-  try{
-    const {data,error}=await sb.from('profiles').select('*').eq('user_id',user.id).maybeSingle();
-    if(error)throw error;
-    if(data){
-      CURRENT_USER={email:user.email,assessorName:data.assessor_name,isAdmin:data.is_admin||false,displayName:data.assessor_name||user.email.split('@')[0]};
-    }else{
-      CURRENT_USER={email:user.email,assessorName:null,isAdmin:false,displayName:user.email.split('@')[0]};
-    }
-  }catch(e){
-    CURRENT_USER={email:user.email,assessorName:null,isAdmin:true,displayName:user.email.split('@')[0]};
-    console.warn('profiles table not found — treating as admin. Run SQL setup first.');
-  }
+  const meta=user.app_metadata||{};
+  CURRENT_USER={
+    email:user.email,
+    assessorName:meta.assessor_name||null,
+    isAdmin:meta.is_admin===true,
+    displayName:meta.display_name||meta.assessor_name||user.email.split('@')[0]
+  };
   updateSidebarUser(CURRENT_USER);
 }
 
