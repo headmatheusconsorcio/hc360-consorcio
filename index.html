@@ -379,19 +379,6 @@ tr:hover td{background:#fafbfd}
       <div>
         <div class="card"><div class="ch"><span class="ct">Dados da Operação</span></div><div class="cb">
           <div class="form-g"><label class="form-l">Cliente</label><input class="form-i" id="p-cliente" placeholder="Nome do cliente"></div>
-          <div class="form-g"><label class="form-l">Grupos</label><input class="form-i" id="p-grupos" placeholder="Ex: 40001, 40004, 40009"></div>
-          <div class="g2" style="margin-bottom:0">
-            <div class="form-g"><label class="form-l">Crédito por Cota (R$)</label><input type="number" class="form-i" id="p-credito" value="340000" oninput="calcProp()"></div>
-            <div class="form-g"><label class="form-l">Qtd. de Cotas</label><input type="number" class="form-i" id="p-cotas" value="1" oninput="calcProp()"></div>
-          </div>
-          <div class="g2" style="margin-bottom:0">
-            <div class="form-g"><label class="form-l">Taxa Adm. (%)</label><input type="number" class="form-i" id="p-taxaadm" value="23" step="0.1" oninput="calcProp()"></div>
-            <div class="form-g"><label class="form-l">Prazo (meses)</label><input type="number" class="form-i" id="p-prazo" value="192" oninput="calcProp()"></div>
-          </div>
-          <div class="g2" style="margin-bottom:0">
-            <div class="form-g"><label class="form-l">Fundo Reserva (%)</label><input type="number" class="form-i" id="p-fr" value="3" step="0.1" oninput="calcProp()"></div>
-            <div class="form-g"><label class="form-l">Seguro (%/mês)</label><input type="number" class="form-i" id="p-seg" value="0.04719" step="0.001" oninput="calcProp()"></div>
-          </div>
           <div class="dvr"></div>
           <div class="form-g">
             <label class="form-l">Lance Total (% da carta)</label>
@@ -402,23 +389,32 @@ tr:hover td{background:#fafbfd}
             <div class="form-g"><label class="form-l">Rec. Próprios (%)</label><input type="number" class="form-i" id="p-rp" value="10" step="1" oninput="calcProp()"></div>
             <div class="form-g"><label class="form-l">Parte da Carta (%)</label><input type="number" class="form-i" id="p-lc" value="30" readonly style="background:#f8fafc;color:var(--txt2)"></div>
           </div>
-          <div class="dvr"></div>
           <div class="g2" style="margin-bottom:0">
-            <div class="form-g">
-              <label class="form-l">Mês de Contemplação</label>
-              <input type="number" class="form-i" id="p-mes" value="1" min="1" oninput="calcProp()" placeholder="Ex: 6 = 6º mês">
-            </div>
-            <div class="form-g">
-              <label class="form-l">Redução Pré-Contempl.</label>
-              <select class="form-i" id="p-red" onchange="calcProp()">
-                <option value="0">Sem redução</option>
-                <option value="30">30% de redução</option>
-                <option value="50">50% de redução</option>
-              </select>
-            </div>
+            <div class="form-g"><label class="form-l">Seguro (%/mês)</label><input type="number" class="form-i" id="p-seg" value="0.04719" step="0.001" oninput="calcProp()"></div>
+            <div class="form-g"><label class="form-l">Mês de Contemplação</label><input type="number" class="form-i" id="p-mes" value="1" min="1" oninput="calcProp()"></div>
           </div>
-          <button class="btn btn-pri" style="width:100%;margin-top:10px;justify-content:center" onclick="calcProp()">Calcular</button>
+          <div class="form-g">
+            <label class="form-l">Redução Pré-Contempl.</label>
+            <select class="form-i" id="p-red" onchange="calcProp()">
+              <option value="0">Sem redução</option>
+              <option value="30">30% de redução</option>
+              <option value="50">50% de redução</option>
+            </select>
+          </div>
+          <div class="dvr"></div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+            <label class="form-l" style="margin:0">Composição de Grupos</label>
+            <button class="btn btn-out btn-sm" onclick="addPropGrupo()">+ Grupo</button>
+          </div>
+          <div id="prop-grupos-list"></div>
         </div></div>
+
+        <div class="card" style="margin-top:16px">
+          <div class="ch"><span class="ct">🏆 Grupos Sugeridos</span><span style="font-size:12px;color:var(--txt2)" id="sug-subtitle">baseado no lance %</span></div>
+          <div class="tw" style="padding:0"><table style="font-size:12px"><thead><tr>
+            <th>Grupo</th><th>Tipo</th><th>Crédito Máx</th><th>Prazo</th><th>Lance Médio Hist.</th><th>Assertividade</th><th></th>
+          </tr></thead><tbody id="prop-sug-body"></tbody></table></div>
+        </div>
       </div>
       <div>
         <div class="card">
@@ -441,6 +437,7 @@ tr:hover td{background:#fafbfd}
               <div class="res-row"><span class="res-l">Parcela Pós-Contemplação</span><span class="res-v ok" id="r-pp">—</span></div>
               <div class="res-row"><span class="res-l">Custo Total (adm + FR)</span><span class="res-v" id="r-cet">—</span></div>
             </div>
+            <div id="prop-breakdown" style="display:none;margin-top:12px"></div>
             <div class="note">• Lances não são garantia de contemplação.<br>• Simulação considera contemplação imediata.<br>• Valores sujeitos a reajuste pelo indexador do grupo.</div>
           </div>
         </div>
@@ -1287,7 +1284,16 @@ function guiaSel(g){
   document.getElementById('guia-hist-body').innerHTML=HIST.months.map((m,i)=>`<tr><td>${mpt(m)}</td><td>${mn[i]>0?'<span style="color:var(--ok);font-weight:700">'+mn[i].toFixed(2)+'%</span>':'—'}</td><td>${mx[i]&&mx[i]>0?'<span style="color:var(--err);font-weight:700">'+mx[i].toFixed(2)+'%</span>':'—'}</td><td>${ct[i]>0?ct[i]:'—'}</td></tr>`).join('');
 }
 function guiaClear(){document.getElementById('guia-input').value='';document.getElementById('guia-result').style.display='none';document.getElementById('guia-empty').style.display='none';document.getElementById('guia-browse').style.display='block';selGrupo=null;}
-function usarNaProposta(){if(selGrupo){const d=GUIA[selGrupo];document.getElementById('p-grupos').value=selGrupo;if(d&&d.vmax)document.getElementById('p-credito').value=d.vmax;if(d&&d.fr)document.getElementById('p-fr').value=(d.fr*100).toFixed(1);if(d&&d.pr)document.getElementById('p-prazo').value=d.pr;}nav('prop',document.querySelectorAll('.ni')[6]);calcProp();}
+function usarNaProposta(){
+  if(selGrupo){
+    if(!propGrupos.some(pg=>pg.grupo===selGrupo)){
+      if(propGrupos.length===1&&!propGrupos[0].grupo)lookupGrupo(0,selGrupo);
+      else{propGrupos.push({grupo:'',prazo:192,fr:3,taxaadm:23,credMin:0,credMax:0,credito:340000,qtd:1});lookupGrupo(propGrupos.length-1,selGrupo);}
+    }
+  }
+  nav('prop',document.querySelectorAll('.ni')[6]);
+  calcProp();
+}
 function renderBrowse(data,pg){browsePage=pg;
   let sorted=data;
   if(browseSort.col){const c=browseSort.col;const d2=browseSort.dir;sorted=data.slice().sort(([ag,ad],[bg,bd])=>{const va=c==='g'?ag:(ad[c]??'');const vb=c==='g'?bg:(bd[c]??'');if(typeof va==='number'&&typeof vb==='number')return(va-vb)*d2;return String(va).localeCompare(String(vb),'pt-BR')*d2;});}
@@ -1297,51 +1303,138 @@ function browseGo(p){renderBrowse(browseData,p);}
 function sortBrowse(col){browseSort.dir=browseSort.col===col?-browseSort.dir:1;browseSort.col=col;renderBrowse(browseData,1);}
 
 // ═══ PROPOSTA ═══
+let propGrupos=[{grupo:'',prazo:192,fr:3,taxaadm:23,credMin:0,credMax:0,credito:340000,qtd:1}];
 function updLance(){const t=parseFloat(document.getElementById('p-lance').value)||0;const rp=parseFloat(document.getElementById('p-rp').value)||0;document.getElementById('p-lc').value=Math.max(0,t-rp).toFixed(1);document.getElementById('p-lance-lbl').textContent=t.toFixed(0)+'%';}
+function addPropGrupo(){propGrupos.push({grupo:'',prazo:192,fr:3,taxaadm:23,credMin:0,credMax:0,credito:340000,qtd:1});renderPropGrupos();}
+function removePropGrupo(i){if(propGrupos.length===1)return;propGrupos.splice(i,1);renderPropGrupos();calcProp();}
+function lookupGrupo(i,val){
+  propGrupos[i].grupo=val.trim();
+  const d=GUIA[val.trim()]||{};
+  if(d.pr)propGrupos[i].prazo=d.pr;
+  if(d.fr!=null)propGrupos[i].fr=parseFloat((d.fr*100).toFixed(2));
+  if(d.ta!=null)propGrupos[i].taxaadm=parseFloat((d.ta*100).toFixed(2));
+  if(d.vmax){propGrupos[i].credito=d.vmax;propGrupos[i].credMax=d.vmax;}
+  if(d.vmin!=null)propGrupos[i].credMin=d.vmin;
+  renderPropGrupos();calcProp();
+}
+function renderPropGrupos(){
+  const el=document.getElementById('prop-grupos-list');if(!el)return;
+  el.innerHTML=propGrupos.map((g,i)=>{
+    const d=GUIA[g.grupo]||{};
+    const hasD=!!(d.pr);
+    const tpLbl=d.tp?(d.tp.toUpperCase().includes('IM')||d.tp.toUpperCase().includes('RES')?'🏠 Imóvel':'🚗 Veículo'):'';
+    const info=hasD?tpLbl+' · Prazo '+g.prazo+'m · FR '+g.fr+'% · Adm '+g.taxaadm+'% · '+brl(g.credMin,0)+' – '+brl(g.credMax,0):'Digite o nº do grupo para carregar dados';
+    const bg=hasD?'#f0fdf4':'#f8fafc';const bc=hasD?'var(--ok)':'var(--bdr)';const tc=hasD?'var(--ok)':'var(--txt2)';
+    return '<div style="background:'+bg+';border-radius:8px;padding:10px;margin-bottom:8px;border:1.5px solid '+bc+'">'
+      +'<div style="display:grid;grid-template-columns:80px 1fr 56px 22px;gap:5px;align-items:center">'
+      +'<input class="form-i" style="font-size:12px;padding:5px 8px;font-weight:700;letter-spacing:.5px" placeholder="Grupo" value="'+g.grupo+'" oninput="lookupGrupo('+i+',this.value)">'
+      +'<input class="form-i" style="font-size:12px;padding:5px 8px" type="number" placeholder="Crédito/cota" value="'+g.credito+'" oninput="propGrupos['+i+'].credito=parseFloat(this.value)||0;calcProp()">'
+      +'<input class="form-i" style="font-size:12px;padding:5px 8px;text-align:center" type="number" placeholder="Qtd" min="1" value="'+g.qtd+'" oninput="propGrupos['+i+'].qtd=parseInt(this.value)||1;calcProp()">'
+      +'<button onclick="removePropGrupo('+i+')" style="background:none;border:none;cursor:pointer;color:var(--err);font-size:20px;padding:0;line-height:1" title="Remover">×</button>'
+      +'</div><div style="font-size:11px;color:'+tc+';margin-top:5px">'+info+'</div></div>';
+  }).join('');
+}
+function renderPropSugestoes(){
+  const lt=parseFloat(document.getElementById('p-lance').value)||40;
+  const subEl=document.getElementById('sug-subtitle');if(subEl)subEl.textContent='para lance de '+lt.toFixed(0)+'%';
+  const tbody=document.getElementById('prop-sug-body');if(!tbody)return;
+  const scored=[];
+  Object.entries(HIST.groups).forEach((entry)=>{
+    const g=entry[0],hd=entry[1];
+    const mn=hd.mn||[];
+    const valid=mn.filter(v=>v>0);
+    if(valid.length<3)return;
+    const avgMin=valid.reduce((a,b)=>a+b,0)/valid.length;
+    const success=valid.filter(v=>lt>=v).length/valid.length;
+    const d=GUIA[g]||{};
+    if(!d.vmax)return;
+    if(d.sit&&d.sit!=='Andamento')return;
+    scored.push({g:g,d:d,avgMin:avgMin,success:success,vagas:d.vagas||0});
+  });
+  scored.sort((a,b)=>b.success-a.success||b.vagas-a.vagas);
+  tbody.innerHTML=scored.slice(0,12).map(item=>{
+    const g=item.g,d=item.d,avgMin=item.avgMin,success=item.success;
+    const pct=Math.round(success*100);
+    const col=success>=0.8?'var(--ok)':success>=0.5?'var(--warn)':'var(--err)';
+    const tpLbl=d.tp?(d.tp.toUpperCase().includes('IM')||d.tp.toUpperCase().includes('RES')?'🏠':'🚗'):'📦';
+    const inList=propGrupos.some(pg=>pg.grupo===g);
+    const btn=inList?'<span style="color:var(--ok);font-size:11px;font-weight:600">✓</span>':'<button class="btn btn-out btn-sm" onclick="usarGrupoSugerido(''+g+'')">+ Usar</button>';
+    return '<tr><td><strong>'+g+'</strong></td><td>'+tpLbl+'</td><td>'+brl(d.vmax,0)+'</td><td>'+(d.pr||'—')+'m</td><td>'+avgMin.toFixed(1)+'%</td><td><span style="color:'+col+';font-weight:700">'+pct+'%</span></td><td>'+btn+'</td></tr>';
+  }).join('')||'<tr><td colspan="7" style="text-align:center;color:var(--txt2);padding:12px">Nenhum dado histórico disponível</td></tr>';
+}
+function usarGrupoSugerido(g){
+  if(!propGrupos.some(pg=>pg.grupo===g)){
+    propGrupos.push({grupo:'',prazo:192,fr:3,taxaadm:23,credMin:0,credMax:0,credito:340000,qtd:1});
+    lookupGrupo(propGrupos.length-1,g);
+  }else{renderPropSugestoes();}
+}
 function calcProp(){
   updLance();
-  const cred=parseFloat(document.getElementById('p-credito').value)||0;
-  const nc=parseInt(document.getElementById('p-cotas').value)||1;
-  const taxaAdm=parseFloat(document.getElementById('p-taxaadm').value)||0;
-  const prazo=parseInt(document.getElementById('p-prazo').value)||1;
-  const fr=parseFloat(document.getElementById('p-fr').value)||0;
-  const seg=parseFloat(document.getElementById('p-seg').value)||0;
   const lt=parseFloat(document.getElementById('p-lance').value)||0;
   const rp=parseFloat(document.getElementById('p-rp').value)||0;
   const lc=Math.max(0,lt-rp);
+  const seg=parseFloat(document.getElementById('p-seg').value)||0;
   const mes=Math.max(1,parseInt(document.getElementById('p-mes').value)||1);
   const red=parseFloat(document.getElementById('p-red').value)||0;
   const cliente=document.getElementById('p-cliente').value||'—';
-  const grupos=document.getElementById('p-grupos').value||'—';
-  const ct=cred*nc;
-  const lRP=ct*rp/100;
-  const lLC=ct*lc/100;
-  const lTot=lRP+lLC;
-  const credLiq=ct-lLC;
-  const sd=ct*(1+taxaAdm/100+fr/100);
-  const amortM=sd/prazo;
-  const pi=amortM+ct*seg/100;
-  const piRed=pi*(1-red/100);
-  const mesReal=Math.min(mes,prazo-1);
-  const amortPago=mesReal*amortM;
-  const saldoPos=Math.max(0,sd-amortPago-lTot);
-  const prazoRest=prazo-mesReal;
-  const pp=prazoRest>0?saldoPos/prazoRest+credLiq*seg/100:0;
-  const custoTotal=(taxaAdm+fr).toFixed(1)+'% ≈ '+brl(ct*(taxaAdm+fr)/100,0);
-  document.getElementById('prop-title').textContent='Proposta — '+cliente+' · '+grupos;
-  const set=(id,v)=>{document.getElementById(id).textContent=v;};
-  set('r-cred',brl(ct,0));set('r-cotas',nc);set('r-percota',brl(cred,0));
-  set('r-lperc',lt.toFixed(2)+'%');set('r-lrp',brl(lRP,0));set('r-llc',brl(lLC,0));set('r-ltot',brl(lTot,0));
-  set('r-liq',brl(credLiq,0));set('r-sd',brl(sd,0));
-  set('r-pi',brl(pi));set('r-pi-red',brl(piRed));
-  document.getElementById('r-pi-red-row').style.display=red>0?'flex':'none';
-  set('r-mes',mesReal+'º mês');set('r-saldo-pos',brl(saldoPos,0));set('r-pp',brl(pp));set('r-cet',custoTotal);
+  let totCred=0,totCotas=0,totSD=0,totLRP=0,totLLC=0,totLTot=0,totLiq=0,totPi=0,totPp=0,totSP=0,totTa=0,totFr=0;
+  let prazoRef=propGrupos[0]?propGrupos[0].prazo:192;
+  propGrupos.forEach(g=>{
+    const nc=g.qtd||1,cred=g.credito||0,ta=g.taxaadm||0,pr=g.prazo||1,fr=g.fr||0;
+    const ct=cred*nc,lRP=ct*rp/100,lLC=ct*lc/100,lTot=lRP+lLC,liq=ct-lLC;
+    const sd=ct*(1+ta/100+fr/100);
+    const amM=sd/pr;
+    const pi=amM+ct*seg/100;
+    const mr=Math.min(mes,pr-1);
+    const sp=Math.max(0,sd-mr*amM-lTot);
+    const pr2=pr-mr;
+    const pp=pr2>0?sp/pr2+liq*seg/100:0;
+    totCred+=ct;totCotas+=nc;totSD+=sd;totLRP+=lRP;totLLC+=lLC;totLTot+=lTot;totLiq+=liq;totPi+=pi;totPp+=pp;totSP+=sp;
+    totTa+=ta*nc;totFr+=fr*nc;
+  });
+  const piRed=totPi*(1-red/100);
+  const mesReal=Math.min(mes,prazoRef-1);
+  const avgTa=totCotas?totTa/totCotas:0;const avgFr=totCotas?totFr/totCotas:0;
+  const grupos=propGrupos.filter(g=>g.grupo).map(g=>g.grupo).join(', ')||'—';
+  document.getElementById('prop-title').textContent='Proposta — '+cliente+(grupos!=='—'?' · '+grupos:'');
+  const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
+  set('r-cred',brl(totCred,0));set('r-cotas',totCotas);set('r-percota',totCotas?brl(totCred/totCotas,0):'—');
+  set('r-lperc',lt.toFixed(2)+'%');set('r-lrp',brl(totLRP,0));set('r-llc',brl(totLLC,0));set('r-ltot',brl(totLTot,0));
+  set('r-liq',brl(totLiq,0));set('r-sd',brl(totSD,0));
+  set('r-pi',brl(totPi));set('r-pi-red',brl(piRed));
+  const prRow=document.getElementById('r-pi-red-row');if(prRow)prRow.style.display=red>0?'flex':'none';
+  set('r-mes',mesReal+'º mês');set('r-saldo-pos',brl(totSP,0));set('r-pp',brl(totPp));
+  set('r-cet',(avgTa+avgFr).toFixed(1)+'% ≈ '+brl(totSD-totCred,0));
+  const bdEl=document.getElementById('prop-breakdown');
+  if(bdEl){
+    if(propGrupos.length>1){
+      bdEl.style.display='block';
+      bdEl.innerHTML='<div style="font-size:11px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px">Detalhamento por Grupo</div>'
+        +'<div class="tw"><table style="font-size:12px"><thead><tr><th>Grupo</th><th>Cotas</th><th>Crédito</th><th>Saldo Dev.</th><th>Parcela Pré</th><th>Parcela Pós</th></tr></thead><tbody>'
+        +propGrupos.map(g=>{
+          const nc=g.qtd||1,ct=(g.credito||0)*nc,ta=g.taxaadm||0,pr=g.prazo||1,fr=g.fr||0;
+          const lLC2=ct*lc/100,lTot2=ct*rp/100+lLC2,liq2=ct-lLC2;
+          const sd2=ct*(1+ta/100+fr/100),amM2=sd2/pr;
+          const pi2=amM2+ct*seg/100;
+          const mr2=Math.min(mes,pr-1),sp2=Math.max(0,sd2-mr2*amM2-lTot2),pr3=pr-mr2;
+          const pp2=pr3>0?sp2/pr3+liq2*seg/100:0;
+          return '<tr><td><strong>'+(g.grupo||'—')+'</strong></td><td>'+nc+'</td><td>'+brl(ct,0)+'</td><td>'+brl(sd2,0)+'</td><td>'+brl(pi2)+'</td><td>'+brl(pp2)+'</td></tr>';
+        }).join('')+'</tbody></table></div>';
+    }else{bdEl.style.display='none';}
+  }
+  renderPropSugestoes();
   document.getElementById('cenarios-tbody').innerHTML=[15,20,25,30,35,40,45,50,60,70,80].map(p=>{
-    const llc2=ct*Math.max(0,p-rp)/100;const liq2=ct-llc2;const ltot2=ct*rp/100+llc2;
-    const sp2=Math.max(0,sd-amortPago-ltot2);
-    const pp2=prazoRest>0?sp2/prazoRest+liq2*seg/100:0;
+    let tPi=0,tPp=0,tLiq=0,tLtot=0;
+    propGrupos.forEach(g=>{
+      const nc=g.qtd||1,cred=g.credito||0,ta=g.taxaadm||0,pr=g.prazo||1,fr=g.fr||0;
+      const ct=cred*nc,llc2=ct*Math.max(0,p-rp)/100,liq2=ct-llc2,ltot2=ct*rp/100+llc2;
+      const sd2=ct*(1+ta/100+fr/100),amM2=sd2/pr,pi2=amM2+ct*seg/100;
+      const mr2=Math.min(mes,pr-1),sp2=Math.max(0,sd2-mr2*amM2-ltot2),pr3=pr-mr2;
+      const pp2=pr3>0?sp2/pr3+liq2*seg/100:0;
+      tPi+=pi2;tPp+=pp2;tLiq+=liq2;tLtot+=ltot2;
+    });
     const hl=p===lt?' style="background:#fff8f2"':'';
-    return`<tr${hl}><td><strong>${p}%</strong>${p===lt?' ◄':''}</td><td>${brl(ct*rp/100,0)}</td><td>${brl(llc2,0)}</td><td>${brl(liq2,0)}</td><td>${brl(pi)}</td><td>${brl(pp2)}</td></tr>`;
+    return '<tr'+hl+'><td><strong>'+p+'%</strong>'+(p===lt?' ◄':'')+'</td><td>'+brl(totCred*rp/100,0)+'</td><td>'+brl(totCred*Math.max(0,p-rp)/100,0)+'</td><td>'+brl(tLiq,0)+'</td><td>'+brl(tPi)+'</td><td>'+brl(tPp)+'</td></tr>';
   }).join('');
 }
 
@@ -1501,7 +1594,7 @@ function closeModal(id){document.getElementById(id).classList.remove('open');}
 // ═══ INIT ═══
 window.addEventListener('DOMContentLoaded',()=>{
   browseData=Object.entries(GUIA);renderBrowse(browseData,1);
-  calcProp();updLance();
+  renderPropGrupos();calcProp();updLance();
   document.addEventListener('click',e=>{if(!e.target.closest('.ac-wrap')){document.getElementById('ac-list').classList.remove('open');const sa=document.getElementById('sim-ac');if(sa)sa.classList.remove('open');}});
   loadData();
 });
