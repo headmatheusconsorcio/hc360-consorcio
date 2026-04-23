@@ -1630,13 +1630,14 @@ function cenLineChange(id,field,val){
 function renderCenLines(){
   const wrap=document.getElementById('cen-lines-wrap');if(!wrap)return;
   wrap.innerHTML=cenLines.map(l=>{
-    return '<div class="cen-line" id="cl-'+l.id+'">'
-      +'<input class="form-i" style="flex:1.5;min-width:130px;font-size:12px;padding:6px 10px" value="'+l.nome+'" oninput="cenLineChange('+l.id+','nome',this.value)">'
-      +'<div style="display:flex;align-items:center;gap:4px;white-space:nowrap"><span style="font-size:11px;color:var(--txt2)">Taxa</span><input type="number" class="form-i" style="width:68px;font-size:12px;padding:6px 8px" value="'+l.taxa+'" step="0.5" oninput="cenLineChange('+l.id+','taxa',this.value)"><span style="font-size:11px;color:var(--txt2)">% a.a.</span></div>'
-      +'<div style="display:flex;align-items:center;gap:4px;white-space:nowrap"><span style="font-size:11px;color:var(--txt2)">Prazo</span><input type="number" class="form-i" style="width:60px;font-size:12px;padding:6px 8px" value="'+l.prazo+'" step="12" oninput="cenLineChange('+l.id+','prazo',this.value)"><span style="font-size:11px;color:var(--txt2)">m</span></div>'
-      +'<div style="display:flex;align-items:center;gap:4px;white-space:nowrap"><span style="font-size:11px;color:var(--txt2)">Entrada</span><input type="number" class="form-i" style="width:56px;font-size:12px;padding:6px 8px" value="'+l.entrada+'" step="5" oninput="cenLineChange('+l.id+','entrada',this.value)"><span style="font-size:11px;color:var(--txt2)">%</span></div>'
-      +'<select class="form-i" style="font-size:12px;padding:6px 8px;width:90px" onchange="cenLineChange('+l.id+','sis',this.value)"><option'+(l.sis==='SAC'?' selected':'')+'>SAC</option><option'+(l.sis==='PRICE'?' selected':'')+' value="PRICE">PRICE</option></select>'
-      +'<button onclick="removeCenLine('+l.id+')" style="background:none;border:none;cursor:pointer;color:var(--err);font-size:18px;flex-shrink:0">×</button>'
+    const lid=l.id;
+    return '<div class="cen-line" id="cl-'+lid+'">'
+      +'<input class="form-i" style="flex:1.5;min-width:130px;font-size:12px;padding:6px 10px" value="'+l.nome+'" data-lid="'+lid+'" data-field="nome" oninput="cenLineChange(+this.dataset.lid,this.dataset.field,this.value)">'
+      +'<div style="display:flex;align-items:center;gap:4px;white-space:nowrap"><span style="font-size:11px;color:var(--txt2)">Taxa</span><input type="number" class="form-i" style="width:68px;font-size:12px;padding:6px 8px" value="'+l.taxa+'" step="0.5" data-lid="'+lid+'" data-field="taxa" oninput="cenLineChange(+this.dataset.lid,this.dataset.field,this.value)"><span style="font-size:11px;color:var(--txt2)">% a.a.</span></div>'
+      +'<div style="display:flex;align-items:center;gap:4px;white-space:nowrap"><span style="font-size:11px;color:var(--txt2)">Prazo</span><input type="number" class="form-i" style="width:60px;font-size:12px;padding:6px 8px" value="'+l.prazo+'" step="12" data-lid="'+lid+'" data-field="prazo" oninput="cenLineChange(+this.dataset.lid,this.dataset.field,this.value)"><span style="font-size:11px;color:var(--txt2)">m</span></div>'
+      +'<div style="display:flex;align-items:center;gap:4px;white-space:nowrap"><span style="font-size:11px;color:var(--txt2)">Entrada</span><input type="number" class="form-i" style="width:56px;font-size:12px;padding:6px 8px" value="'+l.entrada+'" step="5" data-lid="'+lid+'" data-field="entrada" oninput="cenLineChange(+this.dataset.lid,this.dataset.field,this.value)"><span style="font-size:11px;color:var(--txt2)">%</span></div>'
+      +'<select class="form-i" style="font-size:12px;padding:6px 8px;width:90px" data-lid="'+lid+'" data-field="sis" onchange="cenLineChange(+this.dataset.lid,this.dataset.field,this.value)"><option'+(l.sis==='SAC'?' selected':'')+'>SAC</option><option'+(l.sis==='PRICE'?' selected':'')+' value="PRICE">PRICE</option></select>'
+      +'<button data-lid="'+lid+'" onclick="removeCenLine(+this.dataset.lid)" style="background:none;border:none;cursor:pointer;color:var(--err);font-size:18px;flex-shrink:0">×</button>'
       +'</div>';
   }).join('');
 }
