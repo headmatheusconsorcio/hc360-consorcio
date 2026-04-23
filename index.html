@@ -390,7 +390,10 @@ tr:hover td{background:#fafbfd}
     <div class="prop-grid">
       <div>
         <div class="card"><div class="ch"><span class="ct">Dados da Operação</span></div><div class="cb">
-          <div class="form-g"><label class="form-l">Cliente</label><input class="form-i" id="p-cliente" placeholder="Nome do cliente"></div>
+          <div class="g2" style="margin-bottom:12px">
+            <div class="form-g" style="margin-bottom:0"><label class="form-l">Cliente</label><input class="form-i" id="p-cliente" placeholder="Nome do cliente"></div>
+            <div class="form-g" style="margin-bottom:0"><label class="form-l">Crédito Alvo (R$)</label><input type="number" class="form-i" id="p-cred-target" value="340000" step="10000" oninput="renderPropSugestoes()"></div>
+          </div>
           <div class="dvr"></div>
           <div class="form-g">
             <label class="form-l">Lance Total (% da carta)</label>
@@ -423,13 +426,13 @@ tr:hover td{background:#fafbfd}
 
         <div class="card" style="margin-top:16px">
           <div class="ch"><span class="ct">🏆 Grupos Sugeridos</span><span style="font-size:12px;color:var(--txt2)" id="sug-subtitle">baseado no lance %</span></div>
-          <div style="padding:8px 16px 4px;font-size:12px;font-weight:700;color:#1e40af;background:#eff6ff;border-bottom:1px solid #dbeafe;display:flex;align-items:center;gap:6px">?? Imóveis</div>
+          <div style="padding:8px 16px 4px;font-size:12px;font-weight:700;color:#1e40af;background:#eff6ff;border-bottom:1px solid #dbeafe;display:flex;align-items:center;gap:6px">🏠 Imóveis</div>
           <div class="tw" style="padding:0;margin-bottom:0"><table style="font-size:12px"><thead><tr>
-            <th>Grupo</th><th>Crédito Máx</th><th>Prazo</th><th>Lance Médio</th><th>Assertividade</th><th>Parcela Pré</th><th>Parcela Pós</th><th></th>
+            <th>Grupo</th><th>Faixa de Crédito</th><th>Prazo</th><th>Lance Médio</th><th>Assertividade</th><th>Parcela Pré</th><th>Parcela Pós</th><th></th>
           </tr></thead><tbody id="prop-sug-im"><tr><td colspan="8" style="text-align:center;color:var(--txt2);padding:10px">Calculando...</td></tr></tbody></table></div>
-          <div style="padding:8px 16px 4px;font-size:12px;font-weight:700;color:#92400e;background:#fffbeb;border-top:2px solid var(--bdr);border-bottom:1px solid #fef3c7;display:flex;align-items:center;gap:6px">?? Veículos</div>
+          <div style="padding:8px 16px 4px;font-size:12px;font-weight:700;color:#92400e;background:#fffbeb;border-top:2px solid var(--bdr);border-bottom:1px solid #fef3c7;display:flex;align-items:center;gap:6px">🚗 Veículos</div>
           <div class="tw" style="padding:0"><table style="font-size:12px"><thead><tr>
-            <th>Grupo</th><th>Crédito Máx</th><th>Prazo</th><th>Lance Médio</th><th>Assertividade</th><th>Parcela Pré</th><th>Parcela Pós</th><th></th>
+            <th>Grupo</th><th>Faixa de Crédito</th><th>Prazo</th><th>Lance Médio</th><th>Assertividade</th><th>Parcela Pré</th><th>Parcela Pós</th><th></th>
           </tr></thead><tbody id="prop-sug-ro"><tr><td colspan="8" style="text-align:center;color:var(--txt2);padding:10px">Calculando...</td></tr></tbody></table></div>
         </div>
       </div>
@@ -460,18 +463,18 @@ tr:hover td{background:#fafbfd}
         </div>
         <div class="card">
           <div class="ch">
-            <span class="ct">?? Comparativo de Linhas de Crédito</span>
-            <button class="btn btn-pri btn-sm" onclick="abrirApresentacao()" id="btn-ap" style="display:none">?? Ver Apresentação</button>
+            <span class="ct">📊 Comparativo de Linhas de Crédito</span>
+            <button class="btn btn-pri btn-sm" onclick="abrirApresentacao()" id="btn-ap" style="display:none">🌟 Ver Apresentação</button>
           </div>
           <div class="cb" style="padding-bottom:12px">
             <div style="font-size:12px;color:var(--txt2);margin-bottom:12px">Configure as linhas de crédito alternativas para comparar com o consórcio.</div>
             <div id="cen-lines-wrap" style="display:flex;flex-direction:column;gap:8px"></div>
             <div class="frow" style="gap:6px;margin-top:10px;flex-wrap:wrap">
-              <button class="btn btn-out btn-sm" onclick="addCenLinePreset({nome:'Financiamento Imob. (CEF)',taxa:9.5,prazo:360,sis:'SAC',entrada:20})">?? Financ. CEF</button>
-              <button class="btn btn-out btn-sm" onclick="addCenLinePreset({nome:'Financiamento Imob. (Itaú)',taxa:10.9,prazo:240,sis:'SAC',entrada:20})">?? Financ. Itaú</button>
-              <button class="btn btn-out btn-sm" onclick="addCenLinePreset({nome:'Financiamento Veículo',taxa:15,prazo:60,sis:'PRICE',entrada:0})">?? Financ. Veículo</button>
-              <button class="btn btn-out btn-sm" onclick="addCenLinePreset({nome:'CDC Banco',taxa:24,prazo:48,sis:'PRICE',entrada:0})">?? CDC</button>
-              <button class="btn btn-out btn-sm" onclick="addCenLinePreset({nome:'Crédito Pessoal',taxa:36,prazo:24,sis:'PRICE',entrada:0})">?? Pessoal</button>
+              <button class="btn btn-out btn-sm" onclick="addCenLinePreset({nome:'Financiamento Imob. (CEF)',taxa:9.5,prazo:360,sis:'SAC',entrada:20})">🏦 Financ. CEF</button>
+              <button class="btn btn-out btn-sm" onclick="addCenLinePreset({nome:'Financiamento Imob. (Itaú)',taxa:10.9,prazo:240,sis:'SAC',entrada:20})">🏦 Financ. Itaú</button>
+              <button class="btn btn-out btn-sm" onclick="addCenLinePreset({nome:'Financiamento Veículo',taxa:15,prazo:60,sis:'PRICE',entrada:0})">🚗 Financ. Veículo</button>
+              <button class="btn btn-out btn-sm" onclick="addCenLinePreset({nome:'CDC Banco',taxa:24,prazo:48,sis:'PRICE',entrada:0})">💳 CDC</button>
+              <button class="btn btn-out btn-sm" onclick="addCenLinePreset({nome:'Crédito Pessoal',taxa:36,prazo:24,sis:'PRICE',entrada:0})">💸 Pessoal</button>
               <button class="btn btn-out btn-sm" onclick="addCenLinePreset(null)" style="border-style:dashed">+ Personalizado</button>
             </div>
             <div id="cen-resultado" style="margin-top:16px"></div>
@@ -1415,7 +1418,7 @@ function lookupGrupo(i,val){
     if(d.vmax){propGrupos[i].credito=d.vmax;propGrupos[i].credMax=d.vmax;}
     if(d.vmin!=null)propGrupos[i].credMin=d.vmin;
     const isIm2=d.tp&&(d.tp.toUpperCase().includes('IM')||d.tp.toUpperCase().includes('RES'));
-    const tpLbl=d.tp?(isIm2?'?? Imóvel':'?? Veículo'):'';
+    const tpLbl=d.tp?(isIm2?'🏠 Imóvel':'🚗 Veículo'):'';
     const tpBg=isIm2?'#dbeafe':'#fef3c7';const tpCl=isIm2?'#1e40af':'#92400e';
     const infoEl=document.getElementById('pg-info-'+i);
     const boxEl=document.getElementById('pg-box-'+i);
@@ -1441,7 +1444,7 @@ function renderPropGrupos(){
     const d=GUIA[g.grupo]||{};
     const hasD=!!(d.pr);
     const isIm=d.tp&&(d.tp.toUpperCase().includes('IM')||d.tp.toUpperCase().includes('RES'));
-    const tpLbl=d.tp?(isIm?'?? Imóvel':'?? Veículo'):'';
+    const tpLbl=d.tp?(isIm?'🏠 Imóvel':'🚗 Veículo'):'';
     const tpBadgeHtml=hasD?'<span style="display:inline-block;padding:2px 9px;border-radius:12px;font-size:11.5px;font-weight:700;background:'+(isIm?'#dbeafe':'#fef3c7')+';color:'+(isIm?'#1e40af':'#92400e')+'">'+tpLbl+'</span>':'<span style="display:inline-block;padding:2px 9px;border-radius:12px;font-size:11px;font-weight:600;background:#f1f5f9;color:var(--txt2)">Grupo '+(i+1)+'</span>';
     const prazoRest=hasD?(g.prazo-(g.mesAtual||0)):null;
     const info=hasD?'Prazo '+g.prazo+'m · Restante <strong style="color:var(--info)">'+(prazoRest!=null?prazoRest+'m':'?')+'</strong> · FR '+g.fr+'% · Adm '+g.taxaadm+'% · '+brl(g.credMin,0)+' – '+brl(g.credMax,0):'Digite o nº do grupo para carregar dados';
@@ -1464,7 +1467,10 @@ function renderPropSugestoes(){
   const lc2=Math.max(0,lt-rp2);
   const seg2=parseFloat(document.getElementById('p-seg').value)||0;
   const mes2=Math.max(1,parseInt(document.getElementById('p-mes').value)||1);
-  const subEl=document.getElementById('sug-subtitle');if(subEl)subEl.textContent='lance '+lt.toFixed(0)+'% · RP '+rp2+'%';
+  const tcEl=document.getElementById('p-cred-target');
+  const targetCred=tcEl?parseFloat(tcEl.value)||0:0;
+  const subEl=document.getElementById('sug-subtitle');
+  if(subEl)subEl.textContent=(targetCred?'R$ '+brl(targetCred,0)+' · ':'')+'lance '+lt.toFixed(0)+'%';
   const tbodyIm=document.getElementById('prop-sug-im');
   const tbodyRo=document.getElementById('prop-sug-ro');
   if(!tbodyIm&&!tbodyRo)return;
@@ -1473,6 +1479,10 @@ function renderPropSugestoes(){
   guiaEntries.forEach(entry=>{
     const g=entry[0],d=entry[1];
     if(!d.vmax||!d.pr)return;
+    if(targetCred>0){
+      const lo=d.vmin||0,hi=d.vmax;
+      if(hi<targetCred*0.6||lo>targetCred*1.5)return;
+    }
     const hd=HIST.groups[g]||HIST.groups[parseInt(g)]||{};
     const mn=(hd.mn||[]).filter(v=>v>0);
     const avgMin=mn.length?mn.reduce((a,b)=>a+b,0)/mn.length:null;
@@ -1486,9 +1496,11 @@ function renderPropSugestoes(){
     const mr2=Math.min(mes2,pr2-1),sp2=Math.max(0,sd2-mr2*amM2-lTot2),pr3=pr2-mr2;
     const pp2=pr3>0?sp2/pr3+liq2*seg2/100:0;
     const isImov=d.tp&&(d.tp.toUpperCase().includes('IM')||d.tp.toUpperCase().includes('RES'));
-    scored.push({g:g,d:d,avgMin:avgMin,success:success,vagas:d.vagas||0,pi:pi2,pp:pp2,isIm:isImov});
+    const dist=targetCred>0?Math.abs(cred2-targetCred)/targetCred:0;
+    scored.push({g:g,d:d,avgMin:avgMin,success:success,vagas:d.vagas||0,pi:pi2,pp:pp2,isIm:isImov,dist:dist});
   });
   scored.sort((a,b)=>{
+    if(targetCred>0){const dd=a.dist-b.dist;if(Math.abs(dd)>0.05)return dd;}
     const sa=a.success!=null?a.success:-1,sb2=b.success!=null?b.success:-1;
     return sb2-sa||b.vagas-a.vagas;
   });
@@ -1499,11 +1511,13 @@ function renderPropSugestoes(){
     const inList=propGrupos.some(pg=>pg.grupo===g);
     const btn=inList?'<span style="color:var(--ok);font-size:11px;font-weight:600">✓ adicionado</span>':'<button class="btn btn-out btn-sm" data-g="'+g+'" onclick="usarGrupoSugerido(this.dataset.g)">+ Usar</button>';
     const assertTxt=pct!=null?'<span style="color:'+col+';font-weight:700">'+pct+'%</span>':'<span style="color:var(--txt2)">s/hist.</span>';
-    return '<tr><td><strong>'+g+'</strong></td><td>'+brl(d.vmax,0)+'</td><td>'+d.pr+'m</td><td>'+(avgMin!=null?avgMin.toFixed(1)+'%':'—')+'</td><td>'+assertTxt+'</td><td>'+brl(item.pi)+'</td><td>'+brl(item.pp)+'</td><td>'+btn+'</td></tr>';
+    const credTxt=d.vmin?brl(d.vmin,0)+' – '+brl(d.vmax,0):brl(d.vmax,0);
+    const matchDot=targetCred>0&&item.dist<0.15?'<span style="color:var(--ok);margin-left:4px" title="Próximo do crédito alvo">✓</span>':'';
+    return '<tr><td><strong>'+g+'</strong></td><td style="white-space:nowrap">'+credTxt+matchDot+'</td><td>'+d.pr+'m</td><td>'+(avgMin!=null?avgMin.toFixed(1)+'%':'—')+'</td><td>'+assertTxt+'</td><td>'+brl(item.pi)+'</td><td>'+brl(item.pp)+'</td><td>'+btn+'</td></tr>';
   }
-  const imList=scored.filter(s=>s.isIm).slice(0,10);
-  const roList=scored.filter(s=>!s.isIm).slice(0,10);
-  const empty='<tr><td colspan="8" style="text-align:center;color:var(--txt2);padding:10px">Nenhum dado</td></tr>';
+  const imList=scored.filter(s=>s.isIm).slice(0,12);
+  const roList=scored.filter(s=>!s.isIm).slice(0,12);
+  const empty='<tr><td colspan="8" style="text-align:center;color:var(--txt2);padding:10px">Nenhum grupo encontrado para este crédito</td></tr>';
   if(tbodyIm)tbodyIm.innerHTML=imList.map(mkSugRow).join('')||empty;
   if(tbodyRo)tbodyRo.innerHTML=roList.map(mkSugRow).join('')||empty;
 }
@@ -1680,7 +1694,7 @@ function calcCenario(){
   // Build all items (consorcio first, then cenLines)
   const items=[];
   items.push({
-    nome:'?? Consórcio',
+    nome:'🏆 Consórcio',
     sub:'Adm '+(c.avgTa+c.avgFr).toFixed(1)+'% · Lance '+c.lt+'%',
     pi:c.totPi, pf:c.totPp, total:c.consTotal, cetAa:c.consAdmCusto, credE:c.totLTot, isCons:true
   });
@@ -1743,11 +1757,11 @@ function abrirApresentacao(){
   document.getElementById('ap-data-title').textContent='Proposta gerada em '+hoje+' · Crédito '+brl(c.totCred,0);
 
   document.getElementById('ap-kpis').innerHTML=[
-    {lbl:'Crédito Total',val:brl(c.totCred,0),ico:'??'},
-    {lbl:'Lance ('+c.lt+'%)',val:brl(c.totLTot,0),ico:'??'},
+    {lbl:'Crédito Total',val:brl(c.totCred,0),ico:'💰'},
+    {lbl:'Lance ('+c.lt+'%)',val:brl(c.totLTot,0),ico:'🎯'},
     {lbl:'Crédito Líquido',val:brl(c.totLiq,0),ico:'✅'},
-    {lbl:'Parcela Pré',val:brl(c.totPi),ico:'??'},
-    {lbl:'Parcela Pós',val:brl(c.totPp),ico:'??'},
+    {lbl:'Parcela Pré',val:brl(c.totPi),ico:'📅'},
+    {lbl:'Parcela Pós',val:brl(c.totPp),ico:'📉'},
   ].map(k=>'<div style="background:rgba(255,255,255,.12);border-radius:10px;padding:12px 14px"><div style="font-size:18px;margin-bottom:4px">'+k.ico+'</div><div style="font-size:11px;opacity:.7;margin-bottom:2px">'+k.lbl+'</div><div style="font-size:15px;font-weight:800">'+k.val+'</div></div>').join('');
 
   const minTotal=Math.min(..._cenItems.map(x=>x.total));
@@ -1761,10 +1775,10 @@ function abrirApresentacao(){
     {bg:'#fffbeb',border:'#f59e0b'},{bg:'#fdf4ff',border:'#a855f7'},{bg:'#fff1f2',border:'#f43f5e'},
   ];
   document.getElementById('ap-vantagens').innerHTML=[
-    {ico:'??',t:'Sem Juros',s:'Taxa adm + FR no lugar de juros compostos'},
-    {ico:'??',t:'Flexibilidade',s:'Lance para antecipar a contemplação'},
-    {ico:'??',t:'Patrimônio',s:'Carta de crédito com poder de compra à vista'},
-    {ico:'??',t:'Parceria HC360',s:'Assessoria completa durante todo o plano'},
+    {ico:'🚫',t:'Sem Juros',s:'Taxa adm + FR no lugar de juros compostos'},
+    {ico:'📊',t:'Flexibilidade',s:'Lance para antecipar a contemplação'},
+    {ico:'💸',t:'Patrimônio',s:'Carta de crédito com poder de compra à vista'},
+    {ico:'🤝',t:'Parceria HC360',s:'Assessoria completa durante todo o plano'},
   ].map(v=>'<div class="ap-chip" style="text-align:center"><div style="font-size:22px;margin-bottom:6px">'+v.ico+'</div><div style="font-size:12px;font-weight:700;margin-bottom:3px">'+v.t+'</div><div style="font-size:11px;color:var(--txt2)">'+v.s+'</div></div>').join('');
 
   document.getElementById('ap-comp-cards').innerHTML=_cenItems.map((it,idx)=>{
@@ -1864,7 +1878,7 @@ function renderProjDetail(name){
   document.getElementById('proj-detail').innerHTML=`
   <div class="card" style="margin-top:20px">
     <div class="ch" style="flex-wrap:wrap;gap:8px">
-      <span class="ct" style="font-size:15px">?? ${name}</span>
+      <span class="ct" style="font-size:15px">👤 ${name}</span>
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">${atag(cotas[0]?.assessor)}</div>
     </div>
     <div style="padding:14px 18px;display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;border-bottom:1px solid var(--bdr)">
