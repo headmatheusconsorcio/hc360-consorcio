@@ -1182,7 +1182,8 @@ function simCheckAll(v){simSuggestions.forEach((s,i)=>{s.selected=v;});renderSim
 function simAddSelecionados(){
   const sel=simSuggestions.filter(s=>s.selected);
   if(!sel.length){toast('Selecione ao menos um grupo','err');return;}
-  sel.forEach((${g,d,qtd})=>{
+  sel.forEach((item)=>{
+    const g=item.g,d=item.d,qtd=item.qtd;
     if(!simRows.find(r=>r.grupo===g)){
       simRows.push({grupo:g,tipo:d.tp||'',credito:d.vmax||340000,qtd,lancePerc:d.at_min&&d.at_min>0?+(d.at_min*100).toFixed(1):30,prazo:d.pr||192,taxaAdm:23,fr:d.fr!=null?+(d.fr*100).toFixed(1):3});
     }
