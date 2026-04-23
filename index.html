@@ -258,8 +258,8 @@ tr:hover td{background:#fafbfd}
           <th>Venc.</th>
           <th onclick="sortCtrl('assessor')" style="cursor:pointer">Assessor <span id="csort-assessor" class="sort-ico">⇅</span></th>
           <th onclick="sortCtrl('status')" style="cursor:pointer">Status <span id="csort-status" class="sort-ico">⇅</span></th>
-          <th onclick="sortCtrl('lance1')" style="cursor:pointer">Lance 1 <span id="csort-lance1" class="sort-ico">⇅</span></th>
-          <th>Posição</th><th>Comissão</th><th>Ações</th>
+          <th onclick="sortCtrl('lance1')" style="cursor:pointer">Lance <span id="csort-lance1" class="sort-ico">⇅</span></th>
+          <th>Comissão</th><th>Ações</th>
         </tr></thead>
         <tbody id="ctrl-tbody"></tbody>
       </table></div>
@@ -441,8 +441,20 @@ tr:hover td{background:#fafbfd}
             <div class="note">• Lances não são garantia de contemplação.<br>• Simulação considera contemplação imediata.<br>• Valores sujeitos a reajuste pelo indexador do grupo.</div>
           </div>
         </div>
-        <div class="card"><div class="ch"><span class="ct">Comparativo de Estratégias</span><span style="font-size:11px;color:var(--txt2)" id="cen-sub">por mês de contemplação</span></div>
-          <div class="tw"><table style="font-size:12px"><thead><tr><th>Estratégia</th><th>Lance %</th><th>Rec. Próprios</th><th>Crédito Líq.</th><th>Parcela Pré</th><th>Parcela Pós</th><th>Economia/mês</th><th>Total Desembolso</th></tr></thead><tbody id="cenarios-tbody"></tbody></table></div>
+        <div class="card">
+          <div class="ch"><span class="ct">Comparativo de Linhas de Crédito</span></div>
+          <div class="cb" style="padding-bottom:8px">
+            <div class="frow" style="gap:10px;margin-bottom:12px;flex-wrap:wrap">
+              <div style="display:flex;align-items:center;gap:6px"><label style="font-size:12px;font-weight:600;white-space:nowrap">Taxa Financiamento (% a.a.)</label><input type="number" id="cen-tx-fin" value="9.5" step="0.5" min="1" max="30" class="fi" style="width:80px" oninput="calcProp()"></div>
+              <div style="display:flex;align-items:center;gap:6px"><label style="font-size:12px;font-weight:600;white-space:nowrap">Taxa CDC (% a.a.)</label><input type="number" id="cen-tx-cdc" value="18" step="1" min="1" max="60" class="fi" style="width:80px" oninput="calcProp()"></div>
+              <div style="display:flex;align-items:center;gap:6px"><label style="font-size:12px;font-weight:600;white-space:nowrap">Sistema</label><select id="cen-sistema" class="fi" onchange="calcProp()"><option value="SAC">SAC</option><option value="PRICE">PRICE (PMT fixo)</option></select></div>
+            </div>
+            <div class="tw"><table style="font-size:12px"><thead><tr><th>Modalidade</th><th>Parcela Inicial</th><th>Parcela Final</th><th>Desembolso Total</th><th>Custo (% a.a.)</th><th>Diff. vs Consórcio</th></tr></thead><tbody id="cenarios-tbody"></tbody></table></div>
+          </div>
+        </div>
+        <div class="card" style="margin-top:14px">
+          <div class="ch"><span class="ct">Estratégias de Lance</span><span style="font-size:11px;color:var(--txt2)" id="cen-sub">por mês de contemplação</span></div>
+          <div class="tw"><table style="font-size:12px"><thead><tr><th>Estratégia</th><th>Lance %</th><th>Rec. Próprios</th><th>Crédito Líq.</th><th>Parcela Pré</th><th>Parcela Pós</th><th>Economia/mês</th><th>Total Desembolso</th></tr></thead><tbody id="estrat-tbody"></tbody></table></div>
         </div>
       </div>
     </div>
@@ -483,7 +495,7 @@ tr:hover td{background:#fafbfd}
             <option value="">↳ Alterar status...</option>
             <option>Sorteio</option><option>Em Andamento</option><option>Contemplado</option><option>Cancelado</option>
           </select>
-          <input id="proj-bulk-lance" type="number" class="fi" placeholder="↳ Lance R$..." style="width:130px">
+          <input id="proj-bulk-lance" type="number" class="fi" placeholder="↳ Lance %..." style="width:110px">
           <select id="proj-bulk-assessor" class="fi fi-md">
             <option value="">↳ Assessor...</option>
             <option>ALAN / ESCRITORIO</option><option>ALE / ESCRITORIO</option><option>GLAUCO</option><option>GIL</option><option>SZPIN</option><option>Coyote</option>
@@ -504,8 +516,8 @@ tr:hover td{background:#fafbfd}
             <th>Venc.</th>
             <th onclick="sortProjList('assessor')" style="cursor:pointer">Assessor <span id="psort-assessor" class="sort-ico">⇅</span></th>
             <th onclick="sortProjList('status')" style="cursor:pointer">Status <span id="psort-status" class="sort-ico">⇅</span></th>
-            <th onclick="sortProjList('lance1')" style="cursor:pointer">Últ. Lance <span id="psort-lance1" class="sort-ico">⇅</span></th>
-            <th>Posição</th><th>Ações</th>
+            <th onclick="sortProjList('lance1')" style="cursor:pointer">Últ. Lance % <span id="psort-lance1" class="sort-ico">⇅</span></th>
+            <th>Ações</th>
           </tr></thead>
           <tbody id="plist-tbody"></tbody>
         </table></div>
@@ -645,8 +657,7 @@ tr:hover td{background:#fafbfd}
         <div class="form-g"><label class="form-l">Dia Vencimento</label><input type="number" class="form-i" id="mc-venc" min="1" max="31"></div>
       </div>
       <div class="g2" style="margin-bottom:0">
-        <div class="form-g"><label class="form-l">Última Oferta de Lance (R$)</label><input type="number" class="form-i" id="mc-l1"></div>
-        <div class="form-g"><label class="form-l">Posição na Fila</label><input class="form-i" id="mc-pos" placeholder="Ex: 3°"></div>
+        <div class="form-g"><label class="form-l">Última Oferta de Lance (%)</label><input type="number" class="form-i" id="mc-l1" step="0.1" placeholder="Ex: 30.5"></div>
       </div>
       <div class="g2" style="margin-bottom:0">
         <div class="form-g"><label class="form-l">Data da Assembleia</label><input type="date" class="form-i" id="mc-asm"></div>
@@ -893,8 +904,7 @@ function renderCtrl(){
     <td>${brl(r.credito,0)}</td><td>${brl(r.parcela)}</td>
     <td style="font-size:11px">${r.vencimento?'dia '+r.vencimento:'—'}</td>
     <td>${atag(r.assessor)}</td><td>${sbadge(r.status)}</td>
-    <td>${r.lance1?brl(r.lance1,0):'—'}</td>
-    <td style="font-size:11px;color:var(--txt2)">${r.posicao||'—'}</td>
+    <td>${r.lance1?(+(r.lance1*100).toFixed(1)+'%'):'—'}</td>
     <td>${r.comissao==='PAGO'?'<span class="badge b-ok">✓ Pago</span>':'<span class="badge b-warn">Pend.</span>'}</td>
     <td style="display:flex;gap:4px">
       <button class="btn btn-out btn-sm" onclick="openModalCota('${r.id}')">✏️</button>
@@ -907,14 +917,16 @@ function renderCtrl(){
 // ═══ MODAL COTA ═══
 function openModalCota(id){
   currentCotaId=id;
-  const isNew=id===-1||id===null||id===-1;
-  const r=isNew?{}:COTAS.find(c=>c.id===id)||{};
+  const isNew=id===-1||id===null;
+  const r=isNew?{}:COTAS.find(c=>String(c.id)===String(id))||{};
   document.getElementById('modal-cota-title').textContent=isNew?'Nova Cota':`Editar — ${r.nome||''} · ${r.grupo||''}/${r.cota||''}`;
   document.getElementById('mc-del-btn').style.display=isNew?'none':'inline-flex';
-  ['nome','cpf','grupo','cota','credito','parcela','assessor','adesao','status','l1','pos','taxa'].forEach(k=>{
+  ['nome','cpf','grupo','cota','credito','parcela','assessor','adesao','status','taxa'].forEach(k=>{
     const el=document.getElementById('mc-'+k);
-    if(el)el.value=r[k==='l1'?'lance1':k==='obs'?'informacao':k==='pos'?'posicao':k==='taxa'?'taxa_adm':k]||'';
+    if(el)el.value=r[k==='taxa'?'taxa_adm':k]||'';
   });
+  const l1El=document.getElementById('mc-l1');
+  if(l1El)l1El.value=r.lance1?+(r.lance1*100).toFixed(1):'';
   document.getElementById('mc-venc').value=r.vencimento||'';
   const rawInfo=r.informacao||'';
   const asmMatch=rawInfo.match(/\[ASM:([^\]]+)\]/);
@@ -934,8 +946,7 @@ async function saveCota(){
     assessor:document.getElementById('mc-assessor').value,
     adesao:document.getElementById('mc-adesao').value||null,
     status:document.getElementById('mc-status').value,
-    lance1:parseFloat(document.getElementById('mc-l1').value)||null,
-    posicao:document.getElementById('mc-pos').value,
+    lance1:(v=>v?parseFloat(v)/100:null)(document.getElementById('mc-l1').value),
     informacao:(()=>{const obs=document.getElementById('mc-obs').value.trim();const asm=document.getElementById('mc-asm').value;return obs+(asm?' [ASM:'+asm+']':'');})(),
     updated_at:new Date().toISOString(),
   };
@@ -1334,9 +1345,9 @@ function browseGo(p){renderBrowse(browseData,p);}
 function sortBrowse(col){browseSort.dir=browseSort.col===col?-browseSort.dir:1;browseSort.col=col;renderBrowse(browseData,1);}
 
 // ═══ PROPOSTA ═══
-let propGrupos=[{grupo:'',prazo:192,fr:3,taxaadm:23,credMin:0,credMax:0,credito:340000,qtd:1}];
+let propGrupos=[{grupo:'',prazo:192,fr:3,taxaadm:23,credMin:0,credMax:0,credito:340000,qtd:1,mesAtual:0}];
 function updLance(){const t=parseFloat(document.getElementById('p-lance').value)||0;const rp=parseFloat(document.getElementById('p-rp').value)||0;document.getElementById('p-lc').value=Math.max(0,t-rp).toFixed(1);document.getElementById('p-lance-lbl').textContent=t.toFixed(0)+'%';}
-function addPropGrupo(){propGrupos.push({grupo:'',prazo:192,fr:3,taxaadm:23,credMin:0,credMax:0,credito:340000,qtd:1});renderPropGrupos();}
+function addPropGrupo(){propGrupos.push({grupo:'',prazo:192,fr:3,taxaadm:23,credMin:0,credMax:0,credito:340000,qtd:1,mesAtual:0});renderPropGrupos();}
 function removePropGrupo(i){if(propGrupos.length===1)return;propGrupos.splice(i,1);renderPropGrupos();calcProp();}
 function lookupGrupo(i,val){
   propGrupos[i].grupo=val.trim();
@@ -1369,13 +1380,18 @@ function renderPropGrupos(){
   el.innerHTML=propGrupos.map((g,i)=>{
     const d=GUIA[g.grupo]||{};
     const hasD=!!(d.pr);
-    const tpLbl=d.tp?(d.tp.toUpperCase().includes('IM')||d.tp.toUpperCase().includes('RES')?'🏠 Imóvel':'🚗 Veículo'):'';
-    const info=hasD?tpLbl+' · Prazo '+g.prazo+'m · FR '+g.fr+'% · Adm '+g.taxaadm+'% · '+brl(g.credMin,0)+' – '+brl(g.credMax,0):'Digite o nº do grupo para carregar dados';
-    const bg=hasD?'#f0fdf4':'#f8fafc';const bc=hasD?'var(--ok)':'var(--bdr)';const tc=hasD?'var(--ok)':'var(--txt2)';
+    const isIm=d.tp&&(d.tp.toUpperCase().includes('IM')||d.tp.toUpperCase().includes('RES'));
+    const tpLbl=d.tp?(isIm?'?? Imóvel':'?? Veículo'):'';
+    const tpBadge=hasD?'<span style="display:inline-block;padding:1px 7px;border-radius:12px;font-size:11px;font-weight:700;margin-right:6px;background:'+(isIm?'#dbeafe':'#fef3c7')+';color:'+(isIm?'#1e40af':'#92400e')+'">'+tpLbl+'</span>':'';
+    const prazoRest=hasD?(g.prazo-(g.mesAtual||0)):null;
+    const info=hasD?'Prazo '+g.prazo+'m · Restante <strong style="color:var(--info)">'+(prazoRest!=null?prazoRest+'m':'?')+'</strong> · FR '+g.fr+'% · Adm '+g.taxaadm+'% · '+brl(g.credMin,0)+' – '+brl(g.credMax,0):'Digite o nº do grupo para carregar dados';
+    const bg=hasD?'#f0fdf4':'#f8fafc';const bc=hasD?'var(--ok)':'var(--bdr)';const tc=hasD?'var(--txt)':'var(--txt2)';
     return '<div id="pg-box-'+i+'" style="background:'+bg+';border-radius:8px;padding:10px;margin-bottom:8px;border:1.5px solid '+bc+'">'
-      +'<div style="display:grid;grid-template-columns:80px 50px 1fr 50px 22px;gap:5px;align-items:center">'
+      +'<div style="display:flex;align-items:center;gap:4px;margin-bottom:6px">'+tpBadge+'<span style="font-size:10px;color:var(--txt2)">Grupo '+i+'</span></div>'
+      +'<div style="display:grid;grid-template-columns:80px 65px 65px 1fr 50px 22px;gap:5px;align-items:center">'
       +'<input class="form-i" style="font-size:12px;padding:5px 8px;font-weight:700;letter-spacing:.5px" placeholder="Grupo" value="'+g.grupo+'" oninput="lookupGrupo('+i+',this.value)">'
-      +'<input id="pg-prz-'+i+'" class="form-i" style="font-size:11px;padding:5px 4px;text-align:center;background:#f1f5f9;color:var(--txt2)" readonly value="'+(hasD?g.prazo+'m':'—')+'" title="Prazo">'
+      +'<input id="pg-prz-'+i+'" class="form-i" style="font-size:11px;padding:5px 4px;text-align:center;background:#f1f5f9;color:var(--txt2)" readonly value="'+(hasD?g.prazo+'m':'—')+'" title="Prazo total">'
+      +'<input id="pg-mes-'+i+'" class="form-i" style="font-size:11px;padding:5px 4px;text-align:center" type="number" min="0" placeholder="Mês atual" value="'+(g.mesAtual||'')+'" title="Mês atual do grupo (quantos meses ja passaram)" oninput="propGrupos['+i+'].mesAtual=parseInt(this.value)||0;renderPropGrupos();calcProp()">'
       +'<input id="pg-cred-'+i+'" class="form-i" style="font-size:12px;padding:5px 8px" type="number" placeholder="Crédito/cota" value="'+g.credito+'" oninput="propGrupos['+i+'].credito=parseFloat(this.value)||0;calcProp()">'
       +'<input class="form-i" style="font-size:12px;padding:5px 6px;text-align:center" type="number" placeholder="Qtd" min="1" value="'+g.qtd+'" oninput="propGrupos['+i+'].qtd=parseInt(this.value)||1;calcProp()">'
       +'<button onclick="removePropGrupo('+i+')" style="background:none;border:none;cursor:pointer;color:var(--err);font-size:20px;padding:0;line-height:1" title="Remover">×</button>'
@@ -1426,7 +1442,7 @@ function renderPropSugestoes(){
 }
 function usarGrupoSugerido(g){
   if(!propGrupos.some(pg=>pg.grupo===g)){
-    propGrupos.push({grupo:'',prazo:192,fr:3,taxaadm:23,credMin:0,credMax:0,credito:340000,qtd:1});
+    propGrupos.push({grupo:'',prazo:192,fr:3,taxaadm:23,credMin:0,credMax:0,credito:340000,qtd:1,mesAtual:0});
     lookupGrupo(propGrupos.length-1,g);
   }else{renderPropSugestoes();}
 }
@@ -1486,12 +1502,15 @@ function calcProp(){
   }
   renderPropSugestoes();
   const prazoAvg=propGrupos.reduce((a,g)=>a+(g.prazo||192)*(g.qtd||1),0)/Math.max(totCotas,1);
+
+  // ── Estratégias de Lance ──
   const cenStrat=[
-    {p:0,label:'Sorteio (sem lance)'},{p:10,label:'Lance Leve'},{p:20,label:'Lance 20%'},
+    {p:0,label:'Sorteio (sem lance)'},{p:10,label:'Lance Leve 10%'},{p:20,label:'Lance 20%'},
     {p:25,label:'Lance 25%'},{p:30,label:'Lance 30%'},{p:35,label:'Lance 35%'},
-    {p:40,label:'Lance 40%'},{p:45,label:'Lance 45%'},{p:50,label:'Lance Agressivo'}
+    {p:40,label:'Lance 40%'},{p:45,label:'Lance 45%'},{p:50,label:'Lance Agressivo 50%'}
   ];
-  document.getElementById('cenarios-tbody').innerHTML=cenStrat.map(strat=>{
+  const stratEl=document.getElementById('estrat-tbody');
+  if(stratEl)stratEl.innerHTML=cenStrat.map(strat=>{
     const p=strat.p;
     let tPi=0,tPp=0,tLiq=0,tLtot=0;
     propGrupos.forEach(g=>{
@@ -1508,6 +1527,46 @@ function calcProp(){
     const lbl=strat.label+(p===lt?' ◄':'');
     return '<tr'+hl+'><td>'+lbl+'</td><td><strong>'+p+'%</strong></td><td>'+brl(totCred*rp/100,0)+'</td><td>'+brl(tLiq,0)+'</td><td>'+brl(tPi)+'</td><td>'+brl(tPp)+'</td><td><span style="color:var(--ok);font-weight:700">'+brl(eco)+'</span></td><td><strong>'+brl(totalDes,0)+'</strong></td></tr>';
   }).join('');
+
+  // ── Comparativo de Linhas de Crédito ──
+  const txFinEl=document.getElementById('cen-tx-fin'),txCdcEl=document.getElementById('cen-tx-cdc'),sistEl=document.getElementById('cen-sistema');
+  const cenTbody=document.getElementById('cenarios-tbody');
+  if(!cenTbody||!txFinEl)return;
+  const txFin=(parseFloat(txFinEl.value)||9.5)/100;
+  const txCdc=(parseFloat(txCdcEl.value)||18)/100;
+  const sistema=sistEl?sistEl.value:'SAC';
+  const prazoM=Math.round(prazoAvg);
+  function calcLinhaCredito(cred,taxaAa,pr,sis){
+    const r=Math.pow(1+taxaAa,1/12)-1;
+    let pi,pf,total;
+    if(sis==='PRICE'){
+      const pmt=cred*r*Math.pow(1+r,pr)/(Math.pow(1+r,pr)-1);
+      pi=pmt;pf=pmt;total=pmt*pr;
+    }else{
+      const amort=cred/pr;
+      pi=amort+cred*r;
+      pf=amort+(cred/pr)*r;
+      total=pr*amort+cred*r*(pr+1)/2;
+    }
+    const cetAa=(Math.pow(total/cred,12/pr)-1)*100;
+    return{pi,pf,total,cetAa};
+  }
+  const consTotal=mes*totPi+totLTot+(Math.max(prazoAvg-mes,1))*totPp;
+  const consAdmCusto=(totSD-totCred)/totCred*100;
+  const fin=calcLinhaCredito(totCred,txFin,prazoM,sistema);
+  const cdc=calcLinhaCredito(totCred,txCdc,Math.min(prazoM,60),sistema);
+  function diffCell(val,ref){
+    const d=val-ref;
+    if(Math.abs(d)<1)return '<td style="color:var(--txt2)">—</td>';
+    return d<0?'<td style="color:var(--ok);font-weight:700">Economiza '+brl(Math.abs(d),0)+'</td>':'<td style="color:var(--err);font-weight:700">Custa mais '+brl(d,0)+'</td>';
+  }
+  cenTbody.innerHTML=
+    '<tr style="background:#f0fdf4"><td><strong>?? Consórcio</strong><br><span style="font-size:10px;color:var(--txt2)">Adm '+(avgTa+avgFr).toFixed(1)+'% · Lance '+lt+'%</span></td>'
+    +'<td>'+brl(totPi)+'</td><td>'+brl(totPp)+'</td><td><strong>'+brl(consTotal,0)+'</strong></td><td>'+consAdmCusto.toFixed(1)+'% a.a.</td><td style="color:var(--txt2)">Base de comparação</td></tr>'
+    +'<tr><td><strong>?? Financiamento</strong><br><span style="font-size:10px;color:var(--txt2)">'+sistema+' · '+((txFin)*100).toFixed(1)+'% a.a. · '+prazoM+'m</span></td>'
+    +'<td>'+brl(fin.pi)+'</td><td>'+brl(fin.pf)+'</td><td><strong>'+brl(fin.total,0)+'</strong></td><td>'+fin.cetAa.toFixed(1)+'% a.a.</td>'+diffCell(fin.total,consTotal)+'</tr>'
+    +'<tr><td><strong>?? CDC / Crédito Pessoal</strong><br><span style="font-size:10px;color:var(--txt2)">'+sistema+' · '+((txCdc)*100).toFixed(1)+'% a.a. · '+Math.min(prazoM,60)+'m</span></td>'
+    +'<td>'+brl(cdc.pi)+'</td><td>'+brl(cdc.pf)+'</td><td><strong>'+brl(cdc.total,0)+'</strong></td><td>'+cdc.cetAa.toFixed(1)+'% a.a.</td>'+diffCell(cdc.total,consTotal)+'</tr>';
 }
 
 // ═══ PROJETOS ═══
@@ -1538,9 +1597,12 @@ function renderProjDetail(name){
   const cr=ativas.reduce((s,r)=>s+(r.credito||0),0);
   const parc=ativas.reduce((s,r)=>s+(r.parcela||0),0);
   const pct=ativas.length>0?Math.round(contemp/ativas.length*100):0;
+  const isCancelada=r=>r.status==='Cancelado'||r.status==='CANCELADO';
   const ordem={'Em Andamento':0,'LANCE':0,'Sorteio':1,'SORTEIO / LANCE':1,'SUPLENCIA - 2 NA FRENTE':1,'Contemplado':3,'CONTEMPLADO':3,'Cancelado':4,'CANCELADO':4};
   const filtradas=projFiltro==='TODOS'?cotas:cotas.filter(r=>r.status===projFiltro);
-  const sorted=filtradas.slice().sort((a,b)=>(ordem[a.status]??5)-(ordem[b.status]??5));
+  const ativas2=filtradas.filter(r=>!isCancelada(r)).slice().sort((a,b)=>(ordem[a.status]??5)-(ordem[b.status]??5));
+  const canceladas2=filtradas.filter(r=>isCancelada(r));
+  const sorted=[...ativas2,...canceladas2];
 
   const FILTROS=[
     {k:'TODOS',label:'Todos',n:cotas.length,cls:''},
@@ -1552,8 +1614,9 @@ function renderProjDetail(name){
 
   const statusOpts=['Sorteio','Em Andamento','Contemplado','Cancelado'].map(s=>`<option>${s}</option>`).join('');
 
-  const rows=sorted.map(r=>`
-    <tr id="proj-row-${r.id}" style="${r.status==='CANCELADO'||r.status==='Cancelado'?'opacity:.45':''}" >
+  function mkRow(r){
+    const isCan=isCancelada(r);
+    return `<tr id="proj-row-${r.id}" style="${isCan?'opacity:.4;background:#fafafa':''}" >
       <td><strong>${r.grupo||'—'}</strong></td>
       <td>${r.cota||'—'}</td>
       <td>${brl(r.credito,0)}</td>
@@ -1563,15 +1626,17 @@ function renderProjDetail(name){
           ${['Sorteio','Em Andamento','Contemplado','Cancelado'].map(s=>`<option${r.status===s||((s==='Sorteio'&&r.status==='SORTEIO / LANCE')||(s==='Em Andamento'&&(r.status==='LANCE'||r.status==='SUPLENCIA - 2 NA FRENTE'))||(s==='Contemplado'&&r.status==='CONTEMPLADO')||(s==='Cancelado'&&r.status==='CANCELADO'))?' selected':''}>` +s+`</option>`).join('')}
         </select>
       </td>
-      <td><input class="form-i" style="padding:3px 6px;font-size:12px;width:70px" id="pl1-${r.id}" type="number" step="0.1" min="0" max="100" value="${r.lance1?+(r.lance1*100).toFixed(2):''}" placeholder="%" oninput="projMarkDirty('${r.id}')"></td>
-      <td><input class="form-i" style="padding:3px 6px;font-size:12px;width:70px" id="pl2-${r.id}" type="number" step="0.1" min="0" max="100" value="${r.lance2?+(r.lance2*100).toFixed(2):''}" placeholder="%" oninput="projMarkDirty('${r.id}')"></td>
-      <td><input class="form-i" style="padding:3px 6px;font-size:12px;min-width:140px" id="ppos-${r.id}" type="text" value="${(r.posicao||'').replace(/"/g,'&quot;')}" placeholder="Posição / Info" oninput="projMarkDirty('${r.id}')"></td>
+      <td><input class="form-i" style="padding:3px 6px;font-size:12px;width:70px" id="pl1-${r.id}" type="number" step="0.1" min="0" max="100" value="${r.lance1?+(r.lance1*100).toFixed(1):''}" placeholder="%" oninput="projMarkDirty('${r.id}')"></td>
       <td style="white-space:nowrap;text-align:center">
         <button id="psave-${r.id}" class="btn btn-ok btn-sm" style="display:none" onclick="projSaveRow('${r.id}')" title="Salvar">💾 Salvar</button>
-        ${r.status!=='CONTEMPLADO'&&r.status!=='Contemplado'&&r.status!=='CANCELADO'&&r.status!=='Cancelado'?`<button class="btn btn-out btn-sm" onclick="openModalContemp('${r.id}')" title="Registrar contemplação">✓ Contempl.</button> `:''}
+        ${!isCan?`<button class="btn btn-out btn-sm" onclick="openModalContemp('${r.id}')" title="Registrar contemplação">✓ Contempl.</button> `:''}
         <button class="btn btn-out btn-sm" onclick="openModalCota('${r.id}')" title="Ver / editar completo">✏️</button>
       </td>
-    </tr>`).join('');
+    </tr>`;
+  }
+  const nCan=canceladas2.length;
+  const sepRow=nCan&&projFiltro==='TODOS'?'<tr><td colspan="7" style="background:#fee2e2;color:#991b1b;font-size:11px;font-weight:700;padding:6px 13px;letter-spacing:.4px;text-transform:uppercase">✕ Canceladas ('+nCan+')</td></tr>':'';
+  const rows=ativas2.map(mkRow).join('')+sepRow+canceladas2.map(mkRow).join('');
 
   document.getElementById('proj-detail').innerHTML=`
   <div class="card" style="margin-top:20px">
@@ -1590,7 +1655,7 @@ function renderProjDetail(name){
       ${FILTROS.map(f=>`<button onclick="projFiltro='${f.k}';renderProjDetail('${name}')" style="padding:5px 12px;border-radius:20px;border:2px solid ${projFiltro===f.k?'var(--acc)':'var(--bdr)'};background:${projFiltro===f.k?'var(--acc)':'#fff'};color:${projFiltro===f.k?'#fff':'var(--txt)'};font-size:12px;font-weight:600;cursor:pointer">${f.label} ${f.n>0?`<span style="opacity:.7">(${f.n})</span>`:''}</button>`).join('')}
     </div>
     <div class="tw"><table>
-      <thead><tr><th>Grupo</th><th>Cota</th><th>Crédito</th><th>Parcela</th><th>Status</th><th>Lance 1%</th><th>Lance 2%</th><th>Posição / Info</th><th style="text-align:center">Ações</th></tr></thead>
+      <thead><tr><th>Grupo</th><th>Cota</th><th>Crédito</th><th>Parcela</th><th>Status</th><th>Lance %</th><th style="text-align:center">Ações</th></tr></thead>
       <tbody>${rows}</tbody>
     </table></div>
     ${sorted.length===0?'<div style="padding:30px;text-align:center;color:var(--txt2)">Nenhuma cota neste filtro</div>':''}
@@ -1601,12 +1666,10 @@ function projMarkDirty(id){
   if(btn)btn.style.display='inline-flex';
 }
 async function projSaveRow(id){
-  const r=COTAS.find(c=>c.id===id);if(!r)return;
+  const r=COTAS.find(c=>String(c.id)===String(id));if(!r)return;
   const status=document.getElementById('ps-'+id).value;
   const l1v=document.getElementById('pl1-'+id).value;
-  const l2v=document.getElementById('pl2-'+id).value;
-  const pos=document.getElementById('ppos-'+id).value;
-  const patch={id,status,lance1:l1v?parseFloat(l1v)/100:null,lance2:l2v?parseFloat(l2v)/100:null,posicao:pos};
+  const patch={id,status,lance1:l1v?parseFloat(l1v)/100:null};
   const res=await upsertCota(patch);
   if(res){
     Object.assign(r,patch);
@@ -1644,7 +1707,7 @@ function projBulkMark(id){
   const sid=String(id);const r=COTAS.find(c=>String(c.id)===sid);if(!r)return;
   const stEl=document.getElementById('pbs-'+id);const l1El=document.getElementById('pbl-'+id);
   if(stEl)r.status=stEl.value;
-  if(l1El&&l1El.value!=='')r.lance1=parseFloat(l1El.value)||r.lance1;
+  if(l1El&&l1El.value!=='')r.lance1=parseFloat(l1El.value)/100||r.lance1;
   dirtyBulk.add(sid);
   const dcnt=document.getElementById('proj-dirty-count');if(dcnt)dcnt.textContent=dirtyBulk.size;
   const saveBtn=document.getElementById('proj-save-all-btn');if(saveBtn)saveBtn.style.display='inline-flex';
@@ -1658,7 +1721,7 @@ function projApplyBulk(){
   projSelected.forEach(sid=>{
     const r=COTAS.find(c=>String(c.id)===sid);if(!r)return;
     if(newStatus)r.status=newStatus;
-    if(newLance)r.lance1=parseFloat(newLance)||r.lance1;
+    if(newLance)r.lance1=parseFloat(newLance)/100||r.lance1;
     if(newAssessor)r.assessor=newAssessor;
     dirtyBulk.add(sid);
   });
@@ -1721,8 +1784,8 @@ function renderProjList(){
       +['Sorteio','Em Andamento','Contemplado','Cancelado'].map(s=>'<option'+(r.status===s||(s==='Sorteio'&&r.status==='SORTEIO / LANCE')||(s==='Em Andamento'&&(r.status==='LANCE'||r.status==='SUPLENCIA - 2 NA FRENTE'))||(s==='Contemplado'&&r.status==='CONTEMPLADO')||(s==='Cancelado'&&r.status==='CANCELADO')?' selected':'')+'>'+(s==='Em Andamento'?'⚡ Em Andamento':s)+'</option>').join('')
       +'</select></td>'
       :'<td>'+sbadge(r.status)+'</td>';
-    const lanceCell=bulkMode?'<td><input id="pbl-'+r.id+'" type="number" class="form-i" style="padding:3px 6px;font-size:12px;width:110px" value="'+(r.lance1||'')+'" placeholder="R$..." data-rid="'+r.id+'" onchange="projBulkMark(this.dataset.rid)"></td>'
-      :'<td>'+(r.lance1?brl(r.lance1,0):'—')+'</td>';
+    const lanceCell=bulkMode?'<td><input id="pbl-'+r.id+'" type="number" class="form-i" style="padding:3px 6px;font-size:12px;width:80px" value="'+(r.lance1?+(r.lance1*100).toFixed(1):'')+'" placeholder="%..." data-rid="'+r.id+'" onchange="projBulkMark(this.dataset.rid)"></td>'
+      :'<td>'+(r.lance1?(+(r.lance1*100).toFixed(1)+'%'):'—')+'</td>';
     const acoesCell=bulkMode?''
       :'<td style="display:flex;gap:4px"><button class="btn btn-out btn-sm" data-rid="'+r.id+'" onclick="openModalCota(this.dataset.rid)">✏️</button><button class="btn btn-ok btn-sm" data-rid="'+r.id+'" onclick="openModalContemp(this.dataset.rid)" title="Contemplar">✓</button></td>';
     return '<tr'+(rowBg?' style="'+rowBg+'"':'')+'>'
@@ -1734,7 +1797,6 @@ function renderProjList(){
       +'<td>'+atag(r.assessor)+'</td>'
       +statusCell
       +lanceCell
-      +'<td style="font-size:11px;color:var(--txt2)">'+(r.posicao||'—')+'</td>'
       +acoesCell
       +'</tr>';
   }).join('');
