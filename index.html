@@ -365,6 +365,17 @@ tr:hover td{background:#fafbfd}
 
     <div class="pipeline" id="crm-pipeline"></div>
 
+    <div class="card" id="assessor-leads-admin-card" style="display:none;border:2px solid var(--acc);margin-bottom:14px">
+      <div class="ch" style="background:#fff8f2">
+        <span class="ct" style="color:var(--acc)">📤 Leads Enviados pelos Assessores</span>
+        <span id="assessor-leads-count" class="badge b-ora">0</span>
+      </div>
+      <div class="tw"><table style="font-size:12px">
+        <thead><tr><th>Nome</th><th>Telefone</th><th>Assessor</th><th>Interesse</th><th>Valor</th><th>Status</th><th>Data</th><th>Ações</th></tr></thead>
+        <tbody id="assessor-leads-tbody"></tbody>
+      </table></div>
+    </div>
+
     <div class="card">
       <div class="ch"><span class="ct">Todos os Leads</span><span id="crm-count" class="badge b-info">0</span></div>
       <div class="tw"><table>
@@ -1003,6 +1014,7 @@ function updateSidebarUser(u){
   const nbtn=document.getElementById('topbar-nova-cota');if(nbtn)nbtn.style.display=u.isAdmin?'':'none';
   const alCard=document.getElementById('assessor-lead-card');if(alCard)alCard.style.display=u.isAdmin?'none':'block';
   const crmMain=document.getElementById('crm-main-content');if(crmMain)crmMain.style.display=u.isAdmin?'':'none';
+  if(u.isAdmin)setTimeout(renderAssessorLeads,800);
 }
 
 async function loadProfile(user){
@@ -1043,21 +1055,24 @@ async function assessorEnviarLead(){
   const nome=document.getElementById('al-nome').value.trim();
   const tel=document.getElementById('al-tel').value.trim();
   if(!nome){toast('Informe o nome do cliente','err');return;}
+  const aName=CURRENT_USER.assessorName||CURRENT_USER.displayName;
   const payload={
     nome,
     telefone:tel,
     interesse:document.getElementById('al-interesse').value,
-    credito_estimado:parseFloat(document.getElementById('al-credito').value)||null,
+    valor_potencial:parseFloat(document.getElementById('al-credito').value)||null,
     observacao:document.getElementById('al-obs').value.trim(),
-    assessor:CURRENT_USER.assessorName||CURRENT_USER.displayName,
+    indicado_por:aName,
+    assessor:aName,
     status:'Novo',
-    created_at:new Date().toISOString()
+    updated_at:new Date().toISOString()
   };
-  const {error}=await sb.from('leads').insert(payload);
+  const {data,error}=await sb.from('leads').insert(payload).select().single();
   if(error){toast('Erro ao enviar: '+error.message,'err');return;}
-  toast('Lead enviado com sucesso!');
+  if(data)LEADS.unshift(data);
+  toast('Lead enviado com sucesso ao admin!');
   document.getElementById('al-nome').value='';document.getElementById('al-tel').value='';document.getElementById('al-obs').value='';document.getElementById('al-credito').value='';
-  if(CURRENT_USER.isAdmin){loadData();}
+  renderAssessorLeads();
 }
 
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&document.getElementById('login-screen').style.display!=='none')doLogin();});
@@ -1393,9 +1408,37 @@ function filterCRM(){
   leadsFiltered=LEADS.filter(l=>(!s||(l.nome||'').toLowerCase().includes(s)||(l.indicado_por||'').toLowerCase().includes(s))&&(!st||l.status===st)&&(!as||l.assessor===as));
   renderCRM();
 }
+function renderAssessorLeads(){
+  if(!CURRENT_USER||!CURRENT_USER.isAdmin)return;
+  const card=document.getElementById('assessor-leads-admin-card');
+  const tbody=document.getElementById('assessor-leads-tbody');
+  const badge=document.getElementById('assessor-leads-count');
+  if(!card||!tbody)return;
+  // Leads where indicado_por is set (submitted by an assessor) and created in last 30 days
+  const assLeads=LEADS.filter(l=>l.indicado_por&&l.indicado_por!=='').sort((a,b)=>new Date(b.created_at||0)-new Date(a.created_at||0));
+  badge.textContent=assLeads.length+' leads';
+  card.style.display=assLeads.length?'':'none';
+  tbody.innerHTML=assLeads.map(l=>{
+    const dt=l.created_at?new Date(l.created_at).toLocaleDateString('pt-BR'):'—';
+    const sta=l.status||'Novo';
+    const staCls=sta==='Fechado'?'b-ok':sta==='Perdido'?'b-err':sta==='Novo'?'b-ora':'b-warn';
+    return `<tr>
+      <td><strong>${l.nome||'—'}</strong></td>
+      <td style="font-size:11px">${l.telefone||'—'}</td>
+      <td><span class="badge b-ora" style="font-size:10px">${l.indicado_por||'—'}</span></td>
+      <td style="font-size:11px">${l.interesse||'—'}</td>
+      <td style="font-size:11px">${l.valor_potencial?brl(l.valor_potencial,0):'—'}</td>
+      <td><span class="badge ${staCls}">${sta}</span></td>
+      <td style="font-size:11px">${dt}</td>
+      <td><button class="btn btn-out btn-sm" data-lid="${l.id}" onclick="openModalLead(this.dataset.lid)">Ver / Editar</button></td>
+    </tr>`;
+  }).join('')||'<tr><td colspan="8" style="text-align:center;color:var(--txt2);padding:14px">Nenhum lead de assessor ainda</td></tr>';
+}
+
 function renderCRM(){
   leadsFiltered=leadsFiltered.length?leadsFiltered:[...LEADS];
   document.getElementById('crm-count').textContent=leadsFiltered.length+' leads';
+  renderAssessorLeads();
   // Pipeline
   document.getElementById('crm-pipeline').innerHTML=PIPE_STAGES.map(stage=>{
     const items=leadsFiltered.filter(l=>l.status===stage);
