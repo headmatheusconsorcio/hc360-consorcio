@@ -14,6 +14,14 @@
   --txt:#1e293b;--txt2:#64748b;--bdr:#e2e8f0;--bg:#f1f5f9;--card:#fff
 }
 body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--txt);display:flex;min-height:100vh}
+.login-screen{position:fixed;inset:0;background:var(--sb);display:flex;align-items:center;justify-content:center;z-index:999}
+.login-box{background:#fff;border-radius:18px;padding:40px 44px;width:380px;max-width:95vw;box-shadow:0 24px 80px rgba(0,0,0,.35)}
+.login-logo{text-align:center;margin-bottom:28px}
+.login-logo-t{font-size:24px;font-weight:800;color:var(--sb)}
+.login-logo-s{font-size:11px;font-weight:700;color:var(--acc);letter-spacing:2px;text-transform:uppercase;margin-top:3px}
+.login-err{background:#fee2e2;color:#991b1b;border-radius:8px;padding:9px 12px;font-size:12.5px;margin-bottom:14px;display:none}
+.login-btn{width:100%;padding:11px;background:var(--acc);color:#fff;border:none;border-radius:9px;font-size:14px;font-weight:700;cursor:pointer;transition:background .15s}
+.login-btn:hover{background:#d46818}
 .sb{width:242px;min-height:100vh;background:var(--sb);display:flex;flex-direction:column;position:fixed;top:0;left:0;z-index:100}
 .sb-logo{padding:22px 20px 18px;border-bottom:1px solid rgba(255,255,255,.08)}
 .logo-t{color:#fff;font-size:20px;font-weight:700}.logo-s{color:var(--acc);font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-top:2px}
@@ -182,6 +190,19 @@ tr:hover td{background:#fafbfd}
 </head>
 <body>
 
+<div class="login-screen" id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="login-logo-t">HC360</div>
+      <div class="login-logo-s">Gestão de Consórcio</div>
+    </div>
+    <div class="login-err" id="login-err"></div>
+    <div class="form-g"><label class="form-l">E-mail</label><input class="form-i" id="login-email" type="email" placeholder="seu@email.com" autocomplete="email"></div>
+    <div class="form-g" style="margin-bottom:20px"><label class="form-l">Senha</label><input class="form-i" id="login-pass" type="password" placeholder="••••••••" autocomplete="current-password"></div>
+    <button class="login-btn" id="login-btn" onclick="doLogin()">Entrar</button>
+  </div>
+</div>
+
 <div class="loading-overlay" id="loading">
   <div class="spinner"></div>
   <div style="font-size:14px;font-weight:600;color:var(--txt2)">Carregando dados...</div>
@@ -207,10 +228,11 @@ tr:hover td{background:#fafbfd}
   </nav>
   <div class="sb-foot">
     <div class="user-b">
-      <div class="avatar">M</div>
-      <div><div class="u-name">Mathe</div><div class="u-role">Head de Consórcio</div></div>
+      <div class="avatar" id="sb-avatar">?</div>
+      <div><div class="u-name" id="sb-name">—</div><div class="u-role" id="sb-role">carregando...</div></div>
       <div class="sync-dot" id="sync-dot" title="Status da conexão"></div>
     </div>
+    <button onclick="doLogout()" style="margin-top:10px;width:100%;background:rgba(255,255,255,.08);border:none;color:rgba(255,255,255,.5);font-size:11.5px;padding:7px;border-radius:7px;cursor:pointer;transition:all .15s" onmouseover="this.style.background='rgba(255,255,255,.15)'" onmouseout="this.style.background='rgba(255,255,255,.08)'">Sair da conta</button>
   </div>
 </aside>
 
@@ -825,6 +847,58 @@ const FERNANDO=[{"adesao":"2025-11-26","grupo_cota":"040001/473","tipo":"Imóvel
 const MPT={'Jan/25':'Jan/25','Feb/25':'Fev/25','Mar/25':'Mar/25','Apr/25':'Abr/25','May/25':'Mai/25','Jun/25':'Jun/25','Jul/25':'Jul/25','Aug/25':'Ago/25','Sep/25':'Set/25','Oct/25':'Out/25','Nov/25':'Nov/25','Dec/25':'Dez/25','Jan/26':'Jan/26','Feb/26':'Fev/26','Mar/26':'Mar/26'};
 const mpt=m=>MPT[m]||m;
 
+// ═══ AUTH ═══
+let CURRENT_USER=null; // {email, assessorName, isAdmin, displayName}
+
+function updateSidebarUser(u){
+  const ini=(u.displayName||u.email||'?')[0].toUpperCase();
+  document.getElementById('sb-avatar').textContent=ini;
+  document.getElementById('sb-name').textContent=u.displayName||u.email.split('@')[0];
+  document.getElementById('sb-role').textContent=u.isAdmin?'Administrador':'Assessor';
+}
+
+async function loadProfile(user){
+  if(!sb)return;
+  try{
+    const {data,error}=await sb.from('profiles').select('*').eq('user_id',user.id).maybeSingle();
+    if(error)throw error;
+    if(data){
+      CURRENT_USER={email:user.email,assessorName:data.assessor_name,isAdmin:data.is_admin||false,displayName:data.assessor_name||user.email.split('@')[0]};
+    }else{
+      CURRENT_USER={email:user.email,assessorName:null,isAdmin:false,displayName:user.email.split('@')[0]};
+    }
+  }catch(e){
+    CURRENT_USER={email:user.email,assessorName:null,isAdmin:true,displayName:user.email.split('@')[0]};
+    console.warn('profiles table not found — treating as admin. Run SQL setup first.');
+  }
+  updateSidebarUser(CURRENT_USER);
+}
+
+async function doLogin(){
+  const email=document.getElementById('login-email').value.trim();
+  const pass=document.getElementById('login-pass').value;
+  const errEl=document.getElementById('login-err');
+  const btn=document.getElementById('login-btn');
+  errEl.style.display='none';
+  btn.disabled=true;btn.textContent='Entrando...';
+  const {data,error}=await sb.auth.signInWithPassword({email,password:pass});
+  btn.disabled=false;btn.textContent='Entrar';
+  if(error){errEl.textContent=error.message==='Invalid login credentials'?'E-mail ou senha incorretos':error.message;errEl.style.display='block';return;}
+  await loadProfile(data.user);
+  document.getElementById('login-screen').style.display='none';
+  await loadData();
+}
+
+async function doLogout(){
+  await sb.auth.signOut();
+  CURRENT_USER=null;COTAS=[];LEADS=[];
+  document.getElementById('login-screen').style.display='flex';
+  document.getElementById('login-email').value='';
+  document.getElementById('login-pass').value='';
+}
+
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&document.getElementById('login-screen').style.display!=='none')doLogin();});
+
 let COTAS=[], LEADS=[], dashCharts={};
 let ctrlFiltered=[], ctrlPage=1, ctrlSort={col:null,dir:1};
 let browseData=Object.entries(GUIA), browsePage=1, browseSort={col:null,dir:1};
@@ -863,7 +937,11 @@ async function loadData(){
       sb.from('leads').select('*').order('created_at',{ascending:false})
     ]);
     if(e1)throw e1;
-    COTAS=c||[];LEADS=l||[];
+    let rawCotas=c||[];
+    if(CURRENT_USER&&!CURRENT_USER.isAdmin&&CURRENT_USER.assessorName){
+      rawCotas=rawCotas.filter(r=>r.assessor&&r.assessor.toLowerCase().includes(CURRENT_USER.assessorName.toLowerCase()));
+    }
+    COTAS=rawCotas;LEADS=l||[];
     window._hasTaxaAdm=COTAS.length===0||'taxa_adm' in (COTAS[0]||{});
     if(!window._hasTaxaAdm){
       // coluna ainda não existe — tenta criar via upsert vazio para forçar detecção futura
@@ -2044,11 +2122,19 @@ function renderProjList(){
 function closeModal(id){document.getElementById(id).classList.remove('open');}
 
 // ═══ INIT ═══
-window.addEventListener('DOMContentLoaded',()=>{
+window.addEventListener('DOMContentLoaded',async ()=>{
   browseData=Object.entries(GUIA);renderBrowse(browseData,1);
   renderPropGrupos();calcProp();updLance();
   document.addEventListener('click',e=>{if(!e.target.closest('.ac-wrap')){document.getElementById('ac-list').classList.remove('open');const sa=document.getElementById('sim-ac');if(sa)sa.classList.remove('open');}});
-  loadData();
+  // check for existing session (auto-login if token still valid)
+  if(sb){
+    const {data:{session}}=await sb.auth.getSession();
+    if(session&&session.user){
+      await loadProfile(session.user);
+      document.getElementById('login-screen').style.display='none';
+      await loadData();
+    }
+  }
 });
 </script>
 </body>
