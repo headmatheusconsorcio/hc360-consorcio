@@ -412,7 +412,7 @@ tr:hover td{background:#fafbfd}
         <div class="card" style="margin-top:16px">
           <div class="ch"><span class="ct">🏆 Grupos Sugeridos</span><span style="font-size:12px;color:var(--txt2)" id="sug-subtitle">baseado no lance %</span></div>
           <div class="tw" style="padding:0"><table style="font-size:12px"><thead><tr>
-            <th>Grupo</th><th>Tipo</th><th>Crédito Máx</th><th>Prazo</th><th>Lance Médio Hist.</th><th>Assertividade</th><th></th>
+            <th>Grupo</th><th>Tipo</th><th>Crédito Máx</th><th>Prazo</th><th>Lance Médio</th><th>Assertividade</th><th>Parcela Pré Est.</th><th>Parcela Pós Est.</th><th></th>
           </tr></thead><tbody id="prop-sug-body"></tbody></table></div>
         </div>
       </div>
@@ -467,6 +467,7 @@ tr:hover td{background:#fafbfd}
         </select>
         <button class="btn btn-out btn-sm" onclick="clearProjList()">✕</button>
         <button class="btn btn-ok btn-sm" onclick="openModalCota(-1)">+ Nova Cota</button>
+        <button class="btn btn-warn btn-sm" onclick="projToggleBulk()" id="proj-bulk-toggle">☑ Edição em Massa</button>
         <span style="margin-left:auto;font-size:12px;color:var(--txt2)" id="pf-count">—</span>
       </div>
     </div>
@@ -475,9 +476,27 @@ tr:hover td{background:#fafbfd}
       <div id="proj-detail"></div>
     </div>
     <div id="proj-view-list" style="display:none">
+      <div id="proj-bulk-bar" style="display:none;background:#fff;border:1.5px solid var(--acc);border-radius:10px;padding:12px 16px;margin-bottom:12px">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <strong style="color:var(--acc);white-space:nowrap" id="proj-bulk-count">0 selecionadas</strong>
+          <select id="proj-bulk-status" class="fi fi-md">
+            <option value="">↳ Alterar status...</option>
+            <option>Sorteio</option><option>Em Andamento</option><option>Contemplado</option><option>Cancelado</option>
+          </select>
+          <input id="proj-bulk-lance" type="number" class="fi" placeholder="↳ Lance R$..." style="width:130px">
+          <select id="proj-bulk-assessor" class="fi fi-md">
+            <option value="">↳ Assessor...</option>
+            <option>ALAN / ESCRITORIO</option><option>ALE / ESCRITORIO</option><option>GLAUCO</option><option>GIL</option><option>SZPIN</option><option>Coyote</option>
+          </select>
+          <button class="btn btn-pri btn-sm" onclick="projApplyBulk()">Aplicar a Selecionadas</button>
+          <button class="btn btn-ok" onclick="projSalvarTudo()" id="proj-save-all-btn" style="display:none">💾 Salvar Tudo (<span id="proj-dirty-count">0</span>)</button>
+          <button class="btn btn-out btn-sm" onclick="projClearSelection()" style="margin-left:auto">✕ Desmarcar Tudo</button>
+        </div>
+      </div>
       <div class="card">
         <div class="tw"><table>
           <thead><tr>
+            <th id="plist-th-chk" style="display:none;width:32px"><input type="checkbox" id="plist-check-all" onchange="projSelectAll(this.checked)"></th>
             <th onclick="sortProjList('nome')" style="cursor:pointer">Cliente <span id="psort-nome" class="sort-ico">⇅</span></th>
             <th onclick="sortProjList('grupo')" style="cursor:pointer">Grupo/Cota <span id="psort-grupo" class="sort-ico">⇅</span></th>
             <th onclick="sortProjList('credito')" style="cursor:pointer">Crédito <span id="psort-credito" class="sort-ico">⇅</span></th>
@@ -485,8 +504,8 @@ tr:hover td{background:#fafbfd}
             <th>Venc.</th>
             <th onclick="sortProjList('assessor')" style="cursor:pointer">Assessor <span id="psort-assessor" class="sort-ico">⇅</span></th>
             <th onclick="sortProjList('status')" style="cursor:pointer">Status <span id="psort-status" class="sort-ico">⇅</span></th>
-            <th onclick="sortProjList('lance1')" style="cursor:pointer">Lance 1 <span id="psort-lance1" class="sort-ico">⇅</span></th>
-            <th>Posição</th><th>Comissão</th><th>Ações</th>
+            <th onclick="sortProjList('lance1')" style="cursor:pointer">Últ. Lance <span id="psort-lance1" class="sort-ico">⇅</span></th>
+            <th>Posição</th><th>Ações</th>
           </tr></thead>
           <tbody id="plist-tbody"></tbody>
         </table></div>
@@ -762,7 +781,7 @@ function setSync(ok){const d=document.getElementById('sync-dot'),s=document.getE
 
 // ═══ NAV ═══
 const PGT={'dash':'Dashboard','ctrl':'Controle de Cotas','agenda':'Agenda','crm':'CRM / Indicações','guia':'Guia de Oportunidades','prop':'Gerar Proposta','proj':'Projetos / Cotas'};
-function nav(id,el){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));document.getElementById('page-'+id).classList.add('active');if(el)el.classList.add('active');document.getElementById('pg-title').textContent=PGT[id]||id;if(id==='ctrl')filterCtrl();if(id==='agenda')renderAgenda();if(id==='crm')renderCRM();if(id==='guia'){browseData=Object.entries(GUIA);renderBrowse(browseData,1);}if(id==='prop'){calcProp();updLance();}if(id==='proj')renderProj();}
+function nav(id,el){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));document.getElementById('page-'+id).classList.add('active');if(el)el.classList.add('active');document.getElementById('pg-title').textContent=PGT[id]||id;if(id==='ctrl')filterCtrl();if(id==='agenda')renderAgenda();if(id==='crm')renderCRM();if(id==='guia'){browseData=Object.entries(GUIA);renderBrowse(browseData,1);}if(id==='prop'){renderPropGrupos();calcProp();updLance();}if(id==='proj')renderProj();}
 
 // ═══ SUPABASE ═══
 async function loadData(){
@@ -1335,6 +1354,7 @@ function lookupGrupo(i,val){
     if(infoEl)infoEl.innerHTML='<span style="color:var(--ok)">'+tpLbl+' · Prazo '+propGrupos[i].prazo+'m · FR '+propGrupos[i].fr+'% · Adm '+propGrupos[i].taxaadm+'% · '+brl(propGrupos[i].credMin,0)+' – '+brl(propGrupos[i].credMax,0)+'</span>';
     if(boxEl){boxEl.style.background='#f0fdf4';boxEl.style.borderColor='var(--ok)';}
     if(credEl)credEl.value=propGrupos[i].credito;
+    const przEl=document.getElementById('pg-prz-'+i);if(przEl)przEl.value=propGrupos[i].prazo+'m';
     calcProp();
   }else{
     propGrupos[i].credMax=0;propGrupos[i].credMin=0;
@@ -1353,40 +1373,56 @@ function renderPropGrupos(){
     const info=hasD?tpLbl+' · Prazo '+g.prazo+'m · FR '+g.fr+'% · Adm '+g.taxaadm+'% · '+brl(g.credMin,0)+' – '+brl(g.credMax,0):'Digite o nº do grupo para carregar dados';
     const bg=hasD?'#f0fdf4':'#f8fafc';const bc=hasD?'var(--ok)':'var(--bdr)';const tc=hasD?'var(--ok)':'var(--txt2)';
     return '<div id="pg-box-'+i+'" style="background:'+bg+';border-radius:8px;padding:10px;margin-bottom:8px;border:1.5px solid '+bc+'">'
-      +'<div style="display:grid;grid-template-columns:80px 1fr 56px 22px;gap:5px;align-items:center">'
+      +'<div style="display:grid;grid-template-columns:80px 50px 1fr 50px 22px;gap:5px;align-items:center">'
       +'<input class="form-i" style="font-size:12px;padding:5px 8px;font-weight:700;letter-spacing:.5px" placeholder="Grupo" value="'+g.grupo+'" oninput="lookupGrupo('+i+',this.value)">'
+      +'<input id="pg-prz-'+i+'" class="form-i" style="font-size:11px;padding:5px 4px;text-align:center;background:#f1f5f9;color:var(--txt2)" readonly value="'+(hasD?g.prazo+'m':'—')+'" title="Prazo">'
       +'<input id="pg-cred-'+i+'" class="form-i" style="font-size:12px;padding:5px 8px" type="number" placeholder="Crédito/cota" value="'+g.credito+'" oninput="propGrupos['+i+'].credito=parseFloat(this.value)||0;calcProp()">'
-      +'<input class="form-i" style="font-size:12px;padding:5px 8px;text-align:center" type="number" placeholder="Qtd" min="1" value="'+g.qtd+'" oninput="propGrupos['+i+'].qtd=parseInt(this.value)||1;calcProp()">'
+      +'<input class="form-i" style="font-size:12px;padding:5px 6px;text-align:center" type="number" placeholder="Qtd" min="1" value="'+g.qtd+'" oninput="propGrupos['+i+'].qtd=parseInt(this.value)||1;calcProp()">'
       +'<button onclick="removePropGrupo('+i+')" style="background:none;border:none;cursor:pointer;color:var(--err);font-size:20px;padding:0;line-height:1" title="Remover">×</button>'
       +'</div><div id="pg-info-'+i+'" style="font-size:11px;color:'+tc+';margin-top:5px">'+info+'</div></div>';
   }).join('');
 }
 function renderPropSugestoes(){
   const lt=parseFloat(document.getElementById('p-lance').value)||40;
-  const subEl=document.getElementById('sug-subtitle');if(subEl)subEl.textContent='para lance de '+lt.toFixed(0)+'%';
+  const rp2=parseFloat(document.getElementById('p-rp').value)||0;
+  const lc2=Math.max(0,lt-rp2);
+  const seg2=parseFloat(document.getElementById('p-seg').value)||0;
+  const mes2=Math.max(1,parseInt(document.getElementById('p-mes').value)||1);
+  const subEl=document.getElementById('sug-subtitle');if(subEl)subEl.textContent='lance '+lt.toFixed(0)+'% · RP '+rp2+'%';
   const tbody=document.getElementById('prop-sug-body');if(!tbody)return;
   const scored=[];
-  Object.entries(HIST.groups).forEach((entry)=>{
-    const g=entry[0],hd=entry[1];
-    const mn=hd.mn||[];
-    const valid=mn.filter(v=>v>0);
-    if(valid.length<2)return;
-    const avgMin=valid.reduce((a,b)=>a+b,0)/valid.length;
-    const success=valid.filter(v=>lt>=v).length/valid.length;
-    const d=GUIA[g]||{};
-    if(!d.vmax)return;
-    scored.push({g:g,d:d,avgMin:avgMin,success:success,vagas:d.vagas||0});
+  const guiaEntries=Object.entries(GUIA);
+  guiaEntries.forEach(entry=>{
+    const g=entry[0],d=entry[1];
+    if(!d.vmax||!d.pr)return;
+    const hd=HIST.groups[g]||HIST.groups[parseInt(g)]||{};
+    const mn=(hd.mn||[]).filter(v=>v>0);
+    const avgMin=mn.length?mn.reduce((a,b)=>a+b,0)/mn.length:null;
+    const success=mn.length?mn.filter(v=>lt>=v).length/mn.length:null;
+    const ta2=d.ta?+(d.ta*100).toFixed(1):23;
+    const fr2=d.fr?+(d.fr*100).toFixed(1):3;
+    const pr2=d.pr;const cred2=d.vmax;
+    const lLC2=cred2*lc2/100,liq2=cred2-lLC2,lTot2=cred2*rp2/100+lLC2;
+    const sd2=cred2*(1+ta2/100+fr2/100);
+    const amM2=sd2/pr2,pi2=amM2+cred2*seg2/100;
+    const mr2=Math.min(mes2,pr2-1),sp2=Math.max(0,sd2-mr2*amM2-lTot2),pr3=pr2-mr2;
+    const pp2=pr3>0?sp2/pr3+liq2*seg2/100:0;
+    scored.push({g:g,d:d,avgMin:avgMin,success:success,vagas:d.vagas||0,pi:pi2,pp:pp2});
   });
-  scored.sort((a,b)=>b.success-a.success||b.vagas-a.vagas);
-  tbody.innerHTML=scored.slice(0,12).map(item=>{
+  scored.sort((a,b)=>{
+    const sa=a.success!=null?a.success:-1,sb2=b.success!=null?b.success:-1;
+    return sb2-sa||b.vagas-a.vagas;
+  });
+  tbody.innerHTML=scored.slice(0,15).map(item=>{
     const g=item.g,d=item.d,avgMin=item.avgMin,success=item.success;
-    const pct=Math.round(success*100);
-    const col=success>=0.8?'var(--ok)':success>=0.5?'var(--warn)':'var(--err)';
+    const pct=success!=null?Math.round(success*100):null;
+    const col=success==null?'var(--txt2)':success>=0.8?'var(--ok)':success>=0.5?'var(--warn)':'var(--err)';
     const tpLbl=d.tp?(d.tp.toUpperCase().includes('IM')||d.tp.toUpperCase().includes('RES')?'🏠':'🚗'):'📦';
     const inList=propGrupos.some(pg=>pg.grupo===g);
-    const btn=inList?'<span style="color:var(--ok);font-size:11px;font-weight:600">✓</span>':'<button class="btn btn-out btn-sm" data-g="'+g+'" onclick="usarGrupoSugerido(this.dataset.g)">+ Usar</button>';
-    return '<tr><td><strong>'+g+'</strong></td><td>'+tpLbl+'</td><td>'+brl(d.vmax,0)+'</td><td>'+(d.pr||'—')+'m</td><td>'+avgMin.toFixed(1)+'%</td><td><span style="color:'+col+';font-weight:700">'+pct+'%</span></td><td>'+btn+'</td></tr>';
-  }).join('')||'<tr><td colspan="7" style="text-align:center;color:var(--txt2);padding:12px">Nenhum dado histórico disponível</td></tr>';
+    const btn=inList?'<span style="color:var(--ok);font-size:11px;font-weight:600">✓ adicionado</span>':'<button class="btn btn-out btn-sm" data-g="'+g+'" onclick="usarGrupoSugerido(this.dataset.g)">+ Usar</button>';
+    const assertTxt=pct!=null?'<span style="color:'+col+';font-weight:700">'+pct+'%</span>':'<span style="color:var(--txt2)">s/hist.</span>';
+    return '<tr><td><strong>'+g+'</strong></td><td>'+tpLbl+'</td><td>'+brl(d.vmax,0)+'</td><td>'+d.pr+'m</td><td>'+(avgMin!=null?avgMin.toFixed(1)+'%':'—')+'</td><td>'+assertTxt+'</td><td>'+brl(item.pi)+'</td><td>'+brl(item.pp)+'</td><td>'+btn+'</td></tr>';
+  }).join('')||'<tr><td colspan="9" style="text-align:center;color:var(--txt2);padding:12px">Nenhum dado disponível</td></tr>';
 }
 function usarGrupoSugerido(g){
   if(!propGrupos.some(pg=>pg.grupo===g)){
@@ -1582,6 +1618,72 @@ async function projSaveRow(id){
 }
 
 // ═══ PROJETOS LIST VIEW ═══
+let bulkMode=false;let dirtyBulk=new Set();let projSelected=new Set();
+function projToggleBulk(){
+  bulkMode=!bulkMode;
+  const tog=document.getElementById('proj-bulk-toggle');
+  if(tog){tog.textContent=bulkMode?'✕ Sair de Edição em Massa':'☑ Edição em Massa';tog.className=bulkMode?'btn btn-err btn-sm':'btn btn-warn btn-sm';}
+  const bar=document.getElementById('proj-bulk-bar');if(bar)bar.style.display=bulkMode?'block':'none';
+  if(!bulkMode){projSelected.clear();dirtyBulk.clear();}
+  renderProjList();
+}
+function projSelectRow(id,checked){
+  const sid=String(id);if(checked)projSelected.add(sid);else projSelected.delete(sid);
+  const cnt=document.getElementById('proj-bulk-count');if(cnt)cnt.textContent=projSelected.size+' selecionada'+(projSelected.size!==1?'s':'');
+}
+function projSelectAll(checked){
+  document.querySelectorAll('[id^="pchk-"]').forEach(cb=>{cb.checked=checked;projSelectRow(cb.id.replace('pchk-',''),checked);});
+}
+function projClearSelection(){
+  projSelected.clear();
+  document.querySelectorAll('[id^="pchk-"]').forEach(cb=>cb.checked=false);
+  const ca=document.getElementById('plist-check-all');if(ca)ca.checked=false;
+  const cnt=document.getElementById('proj-bulk-count');if(cnt)cnt.textContent='0 selecionadas';
+}
+function projBulkMark(id){
+  const sid=String(id);const r=COTAS.find(c=>String(c.id)===sid);if(!r)return;
+  const stEl=document.getElementById('pbs-'+id);const l1El=document.getElementById('pbl-'+id);
+  if(stEl)r.status=stEl.value;
+  if(l1El&&l1El.value!=='')r.lance1=parseFloat(l1El.value)||r.lance1;
+  dirtyBulk.add(sid);
+  const dcnt=document.getElementById('proj-dirty-count');if(dcnt)dcnt.textContent=dirtyBulk.size;
+  const saveBtn=document.getElementById('proj-save-all-btn');if(saveBtn)saveBtn.style.display='inline-flex';
+}
+function projApplyBulk(){
+  if(!projSelected.size)return toast('Selecione ao menos uma cota','warn');
+  const newStatus=document.getElementById('proj-bulk-status').value;
+  const newLance=document.getElementById('proj-bulk-lance').value;
+  const newAssessor=document.getElementById('proj-bulk-assessor').value;
+  if(!newStatus&&!newLance&&!newAssessor)return toast('Preencha ao menos um campo para alterar','warn');
+  projSelected.forEach(sid=>{
+    const r=COTAS.find(c=>String(c.id)===sid);if(!r)return;
+    if(newStatus)r.status=newStatus;
+    if(newLance)r.lance1=parseFloat(newLance)||r.lance1;
+    if(newAssessor)r.assessor=newAssessor;
+    dirtyBulk.add(sid);
+  });
+  document.getElementById('proj-bulk-status').value='';
+  document.getElementById('proj-bulk-lance').value='';
+  document.getElementById('proj-bulk-assessor').value='';
+  const dcnt=document.getElementById('proj-dirty-count');if(dcnt)dcnt.textContent=dirtyBulk.size;
+  const saveBtn=document.getElementById('proj-save-all-btn');if(saveBtn)saveBtn.style.display='inline-flex';
+  toast(projSelected.size+' cota(s) atualizadas em memória — clique 💾 Salvar Tudo para gravar');
+  renderProjList();
+}
+async function projSalvarTudo(){
+  if(!dirtyBulk.size)return toast('Nenhuma alteração pendente','warn');
+  showLoad();let ok=0,errs=0;
+  for(const sid of dirtyBulk){
+    const r=COTAS.find(c=>String(c.id)===sid);if(!r)continue;
+    const res=await upsertCota({id:r.id,status:r.status,lance1:r.lance1,assessor:r.assessor,updated_at:new Date().toISOString()});
+    if(res)ok++;else errs++;
+  }
+  hideLoad();dirtyBulk.clear();
+  const saveBtn=document.getElementById('proj-save-all-btn');if(saveBtn)saveBtn.style.display='none';
+  const dcnt=document.getElementById('proj-dirty-count');if(dcnt)dcnt.textContent='0';
+  toast(ok+' cota(s) salvas'+(errs?' · '+errs+' erro(s)':'')+'!',errs?'err':'ok');
+  renderProjList();initDash();
+}
 function setProjView(v){
   projView=v;
   document.getElementById('proj-view-cards').style.display=v==='cards'?'block':'none';
@@ -1606,21 +1708,36 @@ function renderProjList(){
   const sorted=plistSort.col?sortArr(plistFiltered,plistSort.col,plistSort.dir):plistFiltered;
   ['nome','grupo','credito','parcela','assessor','status','lance1'].forEach(c=>{const el=document.getElementById('psort-'+c);if(el)el.textContent=sortIcon(plistSort,c);});
   document.getElementById('pf-count').textContent=plistFiltered.length+' cotas';
-  const{items,total,pages}=paginate(sorted,plistPage,30);
-  document.getElementById('plist-tbody').innerHTML=items.map(r=>`<tr>
-    <td><strong>${r.nome||'—'}</strong><br><span style="font-size:10.5px;color:var(--txt2)">${r.cpf||''}</span></td>
-    <td>${r.grupo||'—'} / ${r.cota||'—'}</td>
-    <td>${brl(r.credito,0)}</td><td>${brl(r.parcela)}</td>
-    <td style="font-size:11px">${r.vencimento?'dia '+r.vencimento:'—'}</td>
-    <td>${atag(r.assessor)}</td><td>${sbadge(r.status)}</td>
-    <td>${r.lance1?brl(r.lance1,0):'—'}</td>
-    <td style="font-size:11px;color:var(--txt2)">${r.posicao||'—'}</td>
-    <td>${r.comissao==='PAGO'?'<span class="badge b-ok">✓ Pago</span>':'<span class="badge b-warn">Pend.</span>'}</td>
-    <td style="display:flex;gap:4px">
-      <button class="btn btn-out btn-sm" onclick="openModalCota('${r.id}')">✏️</button>
-      <button class="btn btn-ok btn-sm" onclick="openModalContemp('${r.id}')" title="Contemplar">✓</button>
-    </td>
-  </tr>`).join('');
+  const chkTh=document.getElementById('plist-th-chk');
+  if(chkTh)chkTh.style.display=bulkMode?'table-cell':'none';
+  const{items,total,pages}=paginate(sorted,plistPage,50);
+  const stOpts=['Sorteio','Em Andamento','Contemplado','Cancelado'].map(s=>'<option>'+s+'</option>').join('');
+  document.getElementById('plist-tbody').innerHTML=items.map(r=>{
+    const isDirty=dirtyBulk.has(String(r.id));
+    const isSelected=projSelected.has(String(r.id));
+    const rowBg=isDirty?'background:#fff8f2':'';
+    const chkCell=bulkMode?'<td><input type="checkbox" id="pchk-'+r.id+'" '+(isSelected?'checked':'')+' onchange="projSelectRow(''+r.id+'',this.checked)"></td>':'';
+    const statusCell=bulkMode?'<td><select id="pbs-'+r.id+'" class="form-i" style="padding:3px 6px;font-size:12px;min-width:120px" onchange="projBulkMark(''+r.id+'')">'
+      +['Sorteio','Em Andamento','Contemplado','Cancelado'].map(s=>'<option'+(r.status===s||(s==='Sorteio'&&r.status==='SORTEIO / LANCE')||(s==='Em Andamento'&&(r.status==='LANCE'||r.status==='SUPLENCIA - 2 NA FRENTE'))||(s==='Contemplado'&&r.status==='CONTEMPLADO')||(s==='Cancelado'&&r.status==='CANCELADO')?' selected':'')+'>'+(s==='Em Andamento'?'⚡ Em Andamento':s)+'</option>').join('')
+      +'</select></td>'
+      :'<td>'+sbadge(r.status)+'</td>';
+    const lanceCell=bulkMode?'<td><input id="pbl-'+r.id+'" type="number" class="form-i" style="padding:3px 6px;font-size:12px;width:110px" value="'+(r.lance1||'')+'" placeholder="R$..." onchange="projBulkMark(''+r.id+'')"></td>'
+      :'<td>'+(r.lance1?brl(r.lance1,0):'—')+'</td>';
+    const acoesCell=bulkMode?''
+      :'<td style="display:flex;gap:4px"><button class="btn btn-out btn-sm" onclick="openModalCota(''+r.id+'')">✏️</button><button class="btn btn-ok btn-sm" onclick="openModalContemp(''+r.id+'')" title="Contemplar">✓</button></td>';
+    return '<tr'+(rowBg?' style="'+rowBg+'"':'')+'>'
+      +chkCell
+      +'<td><strong>'+(r.nome||'—')+'</strong><br><span style="font-size:10.5px;color:var(--txt2)">'+(r.cpf||'')+'</span></td>'
+      +'<td>'+(r.grupo||'—')+' / '+(r.cota||'—')+'</td>'
+      +'<td>'+brl(r.credito,0)+'</td><td>'+brl(r.parcela)+'</td>'
+      +'<td style="font-size:11px">'+(r.vencimento?'dia '+r.vencimento:'—')+'</td>'
+      +'<td>'+atag(r.assessor)+'</td>'
+      +statusCell
+      +lanceCell
+      +'<td style="font-size:11px;color:var(--txt2)">'+(r.posicao||'—')+'</td>'
+      +acoesCell
+      +'</tr>';
+  }).join('');
   renderPag('plist-pag',plistPage,pages,'plistGo');
 }
 
