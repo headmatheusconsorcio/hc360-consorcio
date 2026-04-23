@@ -1358,7 +1358,7 @@ function renderPropSugestoes(){
     const col=success>=0.8?'var(--ok)':success>=0.5?'var(--warn)':'var(--err)';
     const tpLbl=d.tp?(d.tp.toUpperCase().includes('IM')||d.tp.toUpperCase().includes('RES')?'🏠':'🚗'):'📦';
     const inList=propGrupos.some(pg=>pg.grupo===g);
-    const btn=inList?'<span style="color:var(--ok);font-size:11px;font-weight:600">✓</span>':'<button class="btn btn-out btn-sm" onclick="usarGrupoSugerido(''+g+'')">+ Usar</button>';
+    const btn=inList?'<span style="color:var(--ok);font-size:11px;font-weight:600">✓</span>':'<button class="btn btn-out btn-sm" data-g="'+g+'" onclick="usarGrupoSugerido(this.dataset.g)">+ Usar</button>';
     return '<tr><td><strong>'+g+'</strong></td><td>'+tpLbl+'</td><td>'+brl(d.vmax,0)+'</td><td>'+(d.pr||'—')+'m</td><td>'+avgMin.toFixed(1)+'%</td><td><span style="color:'+col+';font-weight:700">'+pct+'%</span></td><td>'+btn+'</td></tr>';
   }).join('')||'<tr><td colspan="7" style="text-align:center;color:var(--txt2);padding:12px">Nenhum dado histórico disponível</td></tr>';
 }
