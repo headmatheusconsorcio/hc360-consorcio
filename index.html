@@ -509,6 +509,34 @@ tr:hover td{background:#f0f7f6}
         <div class="tw"><table><thead><tr><th>Mês</th><th>Lance Mín.</th><th>Lance Máx.</th><th>Contemplados</th></tr></thead><tbody id="guia-hist-body"></tbody></table></div>
       </div>
     </div>
+    <!-- OPORTUNIDADES DA SEMANA -->
+    <div id="guia-oportunidades" style="margin-bottom:20px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+        <div>
+          <div style="font-size:18px;font-weight:800;color:var(--sb);font-family:'Playfair Display',serif">🌟 Oportunidades da Semana</div>
+          <div style="font-size:12px;color:var(--txt2);margin-top:2px">Melhores grupos por perfil · Lance médio últimos 12 meses · Dados GUIA Itaú</div>
+        </div>
+        <button class="btn btn-out btn-sm" onclick="document.getElementById('guia-oportunidades').style.display='none';document.getElementById('guia-browse').scrollIntoView()">Ver todos os grupos ↓</button>
+      </div>
+      <div class="g2" style="margin-bottom:16px">
+        <div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+            <span style="font-size:20px">🏠</span>
+            <span style="font-size:14px;font-weight:700;color:var(--sb)">Top Imóveis</span>
+            <span class="badge b-teal" id="oport-im-badge">—</span>
+          </div>
+          <div id="oport-im"></div>
+        </div>
+        <div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+            <span style="font-size:20px">🚗</span>
+            <span style="font-size:14px;font-weight:700;color:var(--sb)">Top Automóveis</span>
+            <span class="badge b-teal" id="oport-ro-badge">—</span>
+          </div>
+          <div id="oport-ro"></div>
+        </div>
+      </div>
+    </div>
     <div id="guia-browse">
       <div class="card">
         <div class="ch"><span class="ct">Todos os Grupos</span><span style="font-size:12px;color:var(--txt2)" id="browse-count">560 grupos</span></div>
@@ -892,13 +920,40 @@ tr:hover td{background:#f0f7f6}
           </div>
         </div>
       </div>
-      <div class="form-g" style="margin-bottom:0">
-        <label class="form-l">Prazo desejado para Contemplação</label>
-        <div class="toggle-group" id="sim-prazo-pref">
-          <button class="toggle-btn act" data-val="0" onclick="simSetToggle('sim-prazo-pref','0')">Sem preferência</button>
-          <button class="toggle-btn" data-val="60" onclick="simSetToggle('sim-prazo-pref','60')">Até 5 anos</button>
-          <button class="toggle-btn" data-val="120" onclick="simSetToggle('sim-prazo-pref','120')">Até 10 anos</button>
-          <button class="toggle-btn" data-val="180" onclick="simSetToggle('sim-prazo-pref','180')">Até 15 anos</button>
+      <div class="g2" style="margin-bottom:0">
+        <div class="form-g" style="margin-bottom:0">
+          <label class="form-l">Prazo mínimo do grupo (meses)</label>
+          <select class="form-i" id="sim-prazo-min">
+            <option value="0">Qualquer</option>
+            <option value="36">36 meses (3 anos)</option>
+            <option value="48">48 meses (4 anos)</option>
+            <option value="60">60 meses (5 anos)</option>
+            <option value="72">72 meses (6 anos)</option>
+            <option value="84">84 meses (7 anos)</option>
+            <option value="96">96 meses (8 anos)</option>
+            <option value="120">120 meses (10 anos)</option>
+            <option value="144">144 meses (12 anos)</option>
+            <option value="168">168 meses (14 anos)</option>
+            <option value="180">180 meses (15 anos)</option>
+          </select>
+        </div>
+        <div class="form-g" style="margin-bottom:0">
+          <label class="form-l">Prazo máximo do grupo (meses)</label>
+          <select class="form-i" id="sim-prazo-max">
+            <option value="0">Qualquer</option>
+            <option value="36">36 meses (3 anos)</option>
+            <option value="48">48 meses (4 anos)</option>
+            <option value="60">60 meses (5 anos)</option>
+            <option value="72">72 meses (6 anos)</option>
+            <option value="84">84 meses (7 anos)</option>
+            <option value="96">96 meses (8 anos)</option>
+            <option value="120">120 meses (10 anos)</option>
+            <option value="144">144 meses (12 anos)</option>
+            <option value="168">168 meses (14 anos)</option>
+            <option value="180">180 meses (15 anos)</option>
+            <option value="200" selected>200 meses</option>
+            <option value="240">240 meses (20 anos)</option>
+          </select>
         </div>
       </div>
       <div id="sim-lancepct-info" style="display:none;background:#f0f7f6;border-radius:9px;padding:10px 14px;border-left:3px solid var(--sb2)">
@@ -1235,7 +1290,7 @@ function setSync(ok){const d=document.getElementById('sync-dot'),s=document.getE
 const PGT={'dash':'Dashboard','ctrl':'Controle de Cotas','agenda':'Agenda','crm':'CRM / Indicações','guia':'Guia de Oportunidades','prop':'Gerar Proposta','proj':'Projetos / Cotas'};
 function toggleSidebar(){const sb=document.getElementById('sidebar');const ov=document.getElementById('sb-overlay');sb.classList.toggle('mob-open');ov.classList.toggle('open');}
 function nav(id,el){if(window.innerWidth<=700){const sb=document.getElementById('sidebar');const ov=document.getElementById('sb-overlay');sb.classList.remove('mob-open');ov.classList.remove('open');}
-document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));document.getElementById('page-'+id).classList.add('active');if(el)el.classList.add('active');document.getElementById('pg-title').textContent=PGT[id]||id;if(id==='ctrl')filterCtrl();if(id==='agenda')renderAgenda();if(id==='crm')renderCRM();if(id==='guia'){browseData=Object.entries(GUIA);renderBrowse(browseData,1);}if(id==='prop'){renderPropGrupos();calcProp();updLance();}if(id==='proj')renderProj();}
+document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));document.getElementById('page-'+id).classList.add('active');if(el)el.classList.add('active');document.getElementById('pg-title').textContent=PGT[id]||id;if(id==='ctrl')filterCtrl();if(id==='agenda')renderAgenda();if(id==='crm')renderCRM();if(id==='guia'){browseData=Object.entries(GUIA);renderBrowse(browseData,1);document.getElementById('guia-oportunidades').style.display='';renderOportunidades();}if(id==='prop'){renderPropGrupos();calcProp();updLance();}if(id==='proj')renderProj();}
 
 // ═══ SUPABASE ═══
 async function loadData(){
@@ -1652,7 +1707,7 @@ function openModalSim(leadId){
   if(obs.startsWith('SIM:')){
     try{const d=JSON.parse(obs.slice(4));simRows=d.rows||[];document.getElementById('sim-obs').value=d.nota||'';simGoStep(3);}
     catch(e){simRows=[];simGoStep(1);}
-  }else{simRows=[];['sim-credito','sim-lance-rp','sim-limite-parc'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});document.getElementById('sim-pqtd').value=1;simSetFinalidade('Im');simSetToggle('sim-lance-emb','nao');simSetToggle('sim-parc-red','nao');simSetToggle('sim-prazo-pref','0');document.getElementById('sim-lancepct-info').style.display='none';simGoStep(1);}
+  }else{simRows=[];['sim-credito','sim-lance-rp','sim-limite-parc'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});document.getElementById('sim-pqtd').value=1;simSetFinalidade('Im');simSetToggle('sim-lance-emb','nao');simSetToggle('sim-parc-red','nao');document.getElementById('sim-prazo-min').value='0';document.getElementById('sim-prazo-max').value='200';document.getElementById('sim-lancepct-info').style.display='none';simGoStep(1);}
   document.getElementById('modal-sim').classList.add('open');
 }
 function simGoStep(n){
@@ -1706,7 +1761,8 @@ function simBuscarGrupos(){
   const limParc=parseFloat(document.getElementById('sim-limite-parc').value)||Infinity;
   const lanceEmb=simGetToggle('sim-lance-emb')==='sim';
   const parcRed=simGetToggle('sim-parc-red')==='sim';
-  const prazoPref=parseInt(simGetToggle('sim-prazo-pref'))||0;
+  const prazoMin=parseInt(document.getElementById('sim-prazo-min').value)||0;
+  const prazoMax=parseInt(document.getElementById('sim-prazo-max').value)||9999;
   const finalidade=simGetToggle('sim-finalidade');
   const qtdDes=parseInt(document.getElementById('sim-pqtd').value)||1;
   const lanceRPpct=lanceRP>0?(lanceRP/credito*100):100;
@@ -1726,6 +1782,8 @@ function simBuscarGrupos(){
     const lanceMedPct=h.avgMin?h.avgMin*100:d.at_min?d.at_min*100:30;
     if(lanceMedPct>lanceTotalPct+8)return false;
     const prazo=d.pr||120;
+    if(prazoMin>0&&prazo<prazoMin)return false;
+    if(prazoMax>0&&prazoMax<9999&&prazo>prazoMax)return false;
     const parcBruta=(cred*(1+TAX_ADM/100+FR/100))/prazo;
     const parcEff=parcRed?parcBruta*0.30:parcBruta;
     if(parcEff>limParc)return false;
@@ -1740,7 +1798,8 @@ function simBuscarGrupos(){
     let score=0;
     score+=Math.min((d.vagas||0)*2,40);
     score+=Math.max(0,(lanceTotalPct-lanceMedPct)*1.5);
-    if(prazoPref>0)score+=Math.max(0,20-Math.abs(prazo-prazoPref)*0.3);
+    const prazoPref=prazoMin>0&&prazoMax<9999?Math.round((prazoMin+prazoMax)/2):0;
+    if(prazoPref>0)score+=Math.max(0,20-Math.abs(prazo-prazoPref)*0.2);
     const cDist=credito>0?Math.abs(cred-credito)/credito:0;
     score-=cDist*20;
     return{g,d,h,prazo,cred,parcEff,lanceMedPct,score,selected:true,qtd:qtdDes};
@@ -2662,9 +2721,112 @@ function renderProjList(){
 // ═══ MODAL UTILS ═══
 function closeModal(id){document.getElementById(id).classList.remove('open');}
 
+// ═══ OPORTUNIDADES DA SEMANA ═══
+function hist12mo(g){
+  const hd=HIST.groups[g]||HIST.groups[parseInt(g)]||{};
+  const mn=hd.lmin||[];const mx=hd.lmax||[];const ct=hd.contemp||[];
+  const n=mn.length,start=Math.max(0,n-12);
+  const mn12=mn.slice(start);const mx12=mx.slice(start);const ct12=ct.slice(start);
+  const mnF=mn12.filter(v=>v>0);const mxF=mx12.filter(v=>v>0);
+  return{
+    months:HIST.months.slice(start),
+    lmin:mn12,lmax:mx12,contemp:ct12,
+    avgMin:mnF.length?mnF.reduce((a,b)=>a+b,0)/mnF.length:null,
+    avgMax:mxF.length?mxF.reduce((a,b)=>a+b,0)/mxF.length:null,
+    minAll:mnF.length?Math.min(...mnF):null,
+    maxAll:mxF.length?Math.max(...mxF):null,
+    trend:mnF.length>=2?mnF[mnF.length-1]-mnF[0]:0
+  };
+}
+function mptShort(m){const p=m.split('-');const mnames=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];return mnames[parseInt(p[1])-1]+'/'+p[0].slice(2);}
+function renderOportunidades(){
+  const isIm=d=>{const t=(d.tp||'').toUpperCase();return t.includes('IMÓV');}
+  const isRo=d=>{const t=(d.tp||'').toUpperCase();return!t.includes('IMÓV');}
+  function topGroups(filterFn,n){
+    return Object.entries(GUIA)
+      .filter(([g,d])=>d.sit==='Andamento'&&(d.vagas||0)>0&&filterFn(d))
+      .map(([g,d])=>{
+        const h=hist12mo(g);
+        if(!h.avgMin)return null;
+        const score=(d.vagas||0)*2+Math.max(0,40-h.avgMin*100)+Math.max(0,10-h.trend*200);
+        return{g,d,h,score};
+      })
+      .filter(Boolean)
+      .sort((a,b)=>b.score-a.score)
+      .slice(0,n);
+  }
+  function renderCard({g,d,h}){
+    const minPct=v=>v>0?(v*100).toFixed(1)+'%':'—';
+    const rows=h.months.map((m,i)=>{
+      const mn=h.lmin[i];const mx=h.lmax[i];const ct=h.contemp[i];
+      const hasMn=mn>0;
+      return`<tr>
+        <td style="padding:5px 10px;font-size:11px;color:var(--txt2);white-space:nowrap">${mptShort(m)}</td>
+        <td style="padding:5px 10px;font-size:12px;font-weight:700;color:${hasMn?'var(--ok)':'var(--txt2)'}">${hasMn?(mn*100).toFixed(1)+'%':'—'}</td>
+        <td style="padding:5px 10px;font-size:12px;font-weight:700;color:${mx>0?'var(--err)':'var(--txt2)'}">${mx>0?(mx*100).toFixed(1)+'%':'—'}</td>
+        <td style="padding:5px 10px;font-size:12px;color:var(--txt2)">${ct>0?ct:'—'}</td>
+      </tr>`;
+    }).join('');
+    const trendIco=h.trend<-0.005?'📉':h.trend>0.005?'📈':'➡️';
+    const avgMinPct=h.avgMin?(h.avgMin*100).toFixed(1)+'%':'—';
+    const avgMaxPct=h.avgMax?(h.avgMax*100).toFixed(1)+'%':'—';
+    return`<div class="card" style="margin-bottom:14px">
+      <div class="ch" style="background:linear-gradient(90deg,var(--sb) 0%,var(--sb2) 100%);border-radius:14px 14px 0 0">
+        <div style="display:flex;align-items:center;gap:12px">
+          <span style="font-size:20px;font-weight:900;color:var(--acc);font-family:'Playfair Display',serif">${g}</span>
+          <div>
+            <div style="color:#fff;font-size:13px;font-weight:700">${d.vmax?brl(d.vmax,0):d.vmin?'A partir de '+brl(d.vmin,0):'—'}</div>
+            <div style="color:rgba(255,255,255,.55);font-size:11px">${d.pr||'?'}m · ${(d.tp||'').split(' ')[0]}</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:14px;align-items:center">
+          <div style="text-align:center">
+            <div style="color:rgba(255,255,255,.5);font-size:9.5px;text-transform:uppercase;letter-spacing:.5px">Vagas</div>
+            <div style="color:${(d.vagas||0)>20?'#6ee7b7':(d.vagas||0)>5?'var(--warn)':'#fca5a5'};font-size:16px;font-weight:800">${d.vagas||'?'}</div>
+          </div>
+          <div style="text-align:center">
+            <div style="color:rgba(255,255,255,.5);font-size:9.5px;text-transform:uppercase;letter-spacing:.5px">Méd. Mín.</div>
+            <div style="color:var(--acc);font-size:16px;font-weight:800">${avgMinPct}</div>
+          </div>
+          <div style="text-align:center">
+            <div style="color:rgba(255,255,255,.5);font-size:9.5px;text-transform:uppercase;letter-spacing:.5px">Tendência</div>
+            <div style="font-size:18px">${trendIco}</div>
+          </div>
+        </div>
+      </div>
+      <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;font-size:12px">
+          <thead><tr style="background:var(--card2)">
+            <th style="padding:6px 10px;font-size:9.5px;color:var(--txt2);text-transform:uppercase;letter-spacing:.5px;text-align:left;border-bottom:1px solid var(--bdr)">Mês</th>
+            <th style="padding:6px 10px;font-size:9.5px;color:var(--ok);text-transform:uppercase;letter-spacing:.5px;text-align:left;border-bottom:1px solid var(--bdr)">Lance Mín.</th>
+            <th style="padding:6px 10px;font-size:9.5px;color:var(--err);text-transform:uppercase;letter-spacing:.5px;text-align:left;border-bottom:1px solid var(--bdr)">Lance Máx.</th>
+            <th style="padding:6px 10px;font-size:9.5px;color:var(--txt2);text-transform:uppercase;letter-spacing:.5px;text-align:left;border-bottom:1px solid var(--bdr)">Contemp.</th>
+          </tr></thead>
+          <tbody>${rows}</tbody>
+          <tfoot><tr style="background:#fdf6e3">
+            <td style="padding:7px 10px;font-size:11px;font-weight:700;color:var(--acc2)">Média 12m</td>
+            <td style="padding:7px 10px;font-size:12px;font-weight:800;color:var(--ok)">${avgMinPct}</td>
+            <td style="padding:7px 10px;font-size:12px;font-weight:800;color:var(--err)">${avgMaxPct}</td>
+            <td style="padding:7px 10px;font-size:11px;color:var(--txt2)">${trendIco} ${h.trend<0?'Em queda':h.trend>0?'Em alta':'Estável'}</td>
+          </tr></tfoot>
+        </table>
+      </div>
+      <div style="padding:10px 14px;display:flex;justify-content:flex-end;gap:8px">
+        <button class="btn btn-out btn-sm" onclick="guiaSel('${g}')">Ver análise completa →</button>
+      </div>
+    </div>`;
+  }
+  const topIm=topGroups(isIm,5);
+  const topRo=topGroups(isRo,5);
+  document.getElementById('oport-im-badge').textContent=topIm.length+' grupos';
+  document.getElementById('oport-ro-badge').textContent=topRo.length+' grupos';
+  document.getElementById('oport-im').innerHTML=topIm.map(renderCard).join('');
+  document.getElementById('oport-ro').innerHTML=topRo.map(renderCard).join('');
+}
+
 // ═══ INIT ═══
 window.addEventListener('DOMContentLoaded',async ()=>{
-  browseData=Object.entries(GUIA);renderBrowse(browseData,1);
+  browseData=Object.entries(GUIA);renderBrowse(browseData,1);renderOportunidades();
   renderPropGrupos();calcProp();updLance();
   document.addEventListener('click',e=>{if(!e.target.closest('.ac-wrap')){document.getElementById('ac-list').classList.remove('open');const sa=document.getElementById('sim-ac');if(sa)sa.classList.remove('open');}});
   // check for existing session (auto-login if token still valid)
