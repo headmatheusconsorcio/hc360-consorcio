@@ -127,6 +127,18 @@ tr:hover td{background:#fafbfd}
 .mc{cursor:pointer;font-size:20px;color:var(--txt2);background:none;border:none}
 .mb{padding:22px;display:flex;flex-direction:column;gap:12px}
 .mf{padding:14px 22px;border-top:1px solid var(--bdr);display:flex;justify-content:flex-end;gap:8px;position:sticky;bottom:0;background:#fff}
+/* CEN LINES */
+.cen-line{background:#f8fafc;border:1.5px solid var(--bdr);border-radius:10px;padding:10px 14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.cen-line.cons{background:#f0fdf4;border-color:var(--ok)}
+.comp-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px;margin-bottom:14px}
+.comp-card{border-radius:12px;padding:16px;border:2px solid transparent;transition:all .15s}
+.comp-card.best{border-color:var(--ok);box-shadow:0 4px 14px rgba(16,185,129,.15)}
+.comp-badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;margin-bottom:8px}
+.ap-modal{background:#fff;border-radius:16px;width:860px;max-width:97vw;max-height:94vh;overflow-y:auto;box-shadow:0 24px 80px rgba(0,0,0,.28)}
+.ap-header{background:var(--sb);color:#fff;padding:28px 36px 22px;border-radius:16px 16px 0 0}
+.ap-section{padding:24px 36px;border-bottom:1px solid var(--bdr)}
+.ap-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;margin-top:16px}
+.ap-chip{border-radius:12px;padding:14px 16px;border:1px solid var(--bdr)}
 /* AUTOCOMPLETE */
 .ac-wrap{position:relative}
 .ac-list{position:absolute;top:100%;left:0;right:0;background:#fff;border:1.5px solid var(--acc);border-top:none;border-radius:0 0 8px 8px;max-height:220px;overflow-y:auto;z-index:50;display:none}
@@ -411,9 +423,14 @@ tr:hover td{background:#fafbfd}
 
         <div class="card" style="margin-top:16px">
           <div class="ch"><span class="ct">🏆 Grupos Sugeridos</span><span style="font-size:12px;color:var(--txt2)" id="sug-subtitle">baseado no lance %</span></div>
+          <div style="padding:8px 16px 4px;font-size:12px;font-weight:700;color:#1e40af;background:#eff6ff;border-bottom:1px solid #dbeafe;display:flex;align-items:center;gap:6px">?? Imóveis</div>
+          <div class="tw" style="padding:0;margin-bottom:0"><table style="font-size:12px"><thead><tr>
+            <th>Grupo</th><th>Crédito Máx</th><th>Prazo</th><th>Lance Médio</th><th>Assertividade</th><th>Parcela Pré</th><th>Parcela Pós</th><th></th>
+          </tr></thead><tbody id="prop-sug-im"><tr><td colspan="8" style="text-align:center;color:var(--txt2);padding:10px">Calculando...</td></tr></tbody></table></div>
+          <div style="padding:8px 16px 4px;font-size:12px;font-weight:700;color:#92400e;background:#fffbeb;border-top:2px solid var(--bdr);border-bottom:1px solid #fef3c7;display:flex;align-items:center;gap:6px">?? Veículos</div>
           <div class="tw" style="padding:0"><table style="font-size:12px"><thead><tr>
-            <th>Grupo</th><th>Tipo</th><th>Crédito Máx</th><th>Prazo</th><th>Lance Médio</th><th>Assertividade</th><th>Parcela Pré Est.</th><th>Parcela Pós Est.</th><th></th>
-          </tr></thead><tbody id="prop-sug-body"></tbody></table></div>
+            <th>Grupo</th><th>Crédito Máx</th><th>Prazo</th><th>Lance Médio</th><th>Assertividade</th><th>Parcela Pré</th><th>Parcela Pós</th><th></th>
+          </tr></thead><tbody id="prop-sug-ro"><tr><td colspan="8" style="text-align:center;color:var(--txt2);padding:10px">Calculando...</td></tr></tbody></table></div>
         </div>
       </div>
       <div>
@@ -442,14 +459,22 @@ tr:hover td{background:#fafbfd}
           </div>
         </div>
         <div class="card">
-          <div class="ch"><span class="ct">Comparativo de Linhas de Crédito</span></div>
-          <div class="cb" style="padding-bottom:8px">
-            <div class="frow" style="gap:10px;margin-bottom:12px;flex-wrap:wrap">
-              <div style="display:flex;align-items:center;gap:6px"><label style="font-size:12px;font-weight:600;white-space:nowrap">Taxa Financiamento (% a.a.)</label><input type="number" id="cen-tx-fin" value="9.5" step="0.5" min="1" max="30" class="fi" style="width:80px" oninput="calcProp()"></div>
-              <div style="display:flex;align-items:center;gap:6px"><label style="font-size:12px;font-weight:600;white-space:nowrap">Taxa CDC (% a.a.)</label><input type="number" id="cen-tx-cdc" value="18" step="1" min="1" max="60" class="fi" style="width:80px" oninput="calcProp()"></div>
-              <div style="display:flex;align-items:center;gap:6px"><label style="font-size:12px;font-weight:600;white-space:nowrap">Sistema</label><select id="cen-sistema" class="fi" onchange="calcProp()"><option value="SAC">SAC</option><option value="PRICE">PRICE (PMT fixo)</option></select></div>
+          <div class="ch">
+            <span class="ct">?? Comparativo de Linhas de Crédito</span>
+            <button class="btn btn-pri btn-sm" onclick="abrirApresentacao()" id="btn-ap" style="display:none">?? Ver Apresentação</button>
+          </div>
+          <div class="cb" style="padding-bottom:12px">
+            <div style="font-size:12px;color:var(--txt2);margin-bottom:12px">Configure as linhas de crédito alternativas para comparar com o consórcio.</div>
+            <div id="cen-lines-wrap" style="display:flex;flex-direction:column;gap:8px"></div>
+            <div class="frow" style="gap:6px;margin-top:10px;flex-wrap:wrap">
+              <button class="btn btn-out btn-sm" onclick="addCenLinePreset({nome:'Financiamento Imob. (CEF)',taxa:9.5,prazo:360,sis:'SAC',entrada:20})">?? Financ. CEF</button>
+              <button class="btn btn-out btn-sm" onclick="addCenLinePreset({nome:'Financiamento Imob. (Itaú)',taxa:10.9,prazo:240,sis:'SAC',entrada:20})">?? Financ. Itaú</button>
+              <button class="btn btn-out btn-sm" onclick="addCenLinePreset({nome:'Financiamento Veículo',taxa:15,prazo:60,sis:'PRICE',entrada:0})">?? Financ. Veículo</button>
+              <button class="btn btn-out btn-sm" onclick="addCenLinePreset({nome:'CDC Banco',taxa:24,prazo:48,sis:'PRICE',entrada:0})">?? CDC</button>
+              <button class="btn btn-out btn-sm" onclick="addCenLinePreset({nome:'Crédito Pessoal',taxa:36,prazo:24,sis:'PRICE',entrada:0})">?? Pessoal</button>
+              <button class="btn btn-out btn-sm" onclick="addCenLinePreset(null)" style="border-style:dashed">+ Personalizado</button>
             </div>
-            <div class="tw"><table style="font-size:12px"><thead><tr><th>Modalidade</th><th>Parcela Inicial</th><th>Parcela Final</th><th>Desembolso Total</th><th>Custo (% a.a.)</th><th>Diff. vs Consórcio</th></tr></thead><tbody id="cenarios-tbody"></tbody></table></div>
+            <div id="cen-resultado" style="margin-top:16px"></div>
           </div>
         </div>
         <div class="card" style="margin-top:14px">
@@ -669,6 +694,37 @@ tr:hover td{background:#fafbfd}
       <button class="btn btn-err btn-sm" id="mc-del-btn" onclick="deleteCota()" style="display:none;margin-right:auto">🗑 Excluir</button>
       <button class="btn btn-out" onclick="closeModal('modal-cota')">Cancelar</button>
       <button class="btn btn-pri" onclick="saveCota()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL APRESENTAÇÃO CLIENTE -->
+<div class="moverlay" id="modal-ap">
+  <div class="ap-modal">
+    <div class="ap-header">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px">
+        <div>
+          <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;opacity:.6;margin-bottom:6px">HC360 CONSÓRCIO · PROPOSTA COMERCIAL</div>
+          <div style="font-size:22px;font-weight:800" id="ap-cliente-title">—</div>
+          <div style="font-size:13px;opacity:.7;margin-top:4px" id="ap-data-title">—</div>
+        </div>
+        <button class="mc" onclick="closeModal('modal-ap')" style="color:#fff;font-size:24px;flex-shrink:0">✕</button>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-top:20px" id="ap-kpis"></div>
+    </div>
+    <div class="ap-section">
+      <div style="font-size:14px;font-weight:700;margin-bottom:4px">Por que Consórcio?</div>
+      <div style="font-size:13px;color:var(--txt2)" id="ap-why">—</div>
+      <div class="ap-row" id="ap-vantagens"></div>
+    </div>
+    <div class="ap-section">
+      <div style="font-size:14px;font-weight:700;margin-bottom:14px">Comparativo de Linhas de Crédito</div>
+      <div id="ap-comp-cards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-bottom:16px"></div>
+      <div class="tw" id="ap-comp-table"></div>
+    </div>
+    <div style="padding:18px 36px;background:#f8fafc;border-radius:0 0 16px 16px;display:flex;align-items:center;justify-content:space-between">
+      <div style="font-size:11px;color:var(--txt2)">HC360 Consórcio · Simulação não constitui oferta · Valores sujeitos a aprovação</div>
+      <button class="btn btn-out btn-sm" onclick="window.print()">🖨️ Imprimir</button>
     </div>
   </div>
 </div>
@@ -1358,11 +1414,15 @@ function lookupGrupo(i,val){
     if(d.ta!=null)propGrupos[i].taxaadm=parseFloat((d.ta*100).toFixed(2));
     if(d.vmax){propGrupos[i].credito=d.vmax;propGrupos[i].credMax=d.vmax;}
     if(d.vmin!=null)propGrupos[i].credMin=d.vmin;
-    const tpLbl=d.tp?(d.tp.toUpperCase().includes('IM')||d.tp.toUpperCase().includes('RES')?'🏠 Imóvel':'🚗 Veículo'):'';
+    const isIm2=d.tp&&(d.tp.toUpperCase().includes('IM')||d.tp.toUpperCase().includes('RES'));
+    const tpLbl=d.tp?(isIm2?'?? Imóvel':'?? Veículo'):'';
+    const tpBg=isIm2?'#dbeafe':'#fef3c7';const tpCl=isIm2?'#1e40af':'#92400e';
     const infoEl=document.getElementById('pg-info-'+i);
     const boxEl=document.getElementById('pg-box-'+i);
     const credEl=document.getElementById('pg-cred-'+i);
-    if(infoEl)infoEl.innerHTML='<span style="color:var(--ok)">'+tpLbl+' · Prazo '+propGrupos[i].prazo+'m · FR '+propGrupos[i].fr+'% · Adm '+propGrupos[i].taxaadm+'% · '+brl(propGrupos[i].credMin,0)+' – '+brl(propGrupos[i].credMax,0)+'</span>';
+    const tpEl=document.getElementById('pg-tp-'+i);
+    if(tpEl)tpEl.innerHTML='<span style="display:inline-block;padding:2px 9px;border-radius:12px;font-size:11.5px;font-weight:700;background:'+tpBg+';color:'+tpCl+'">'+tpLbl+'</span>';
+    if(infoEl){const pr=propGrupos[i];const rest=pr.prazo-(pr.mesAtual||0);infoEl.innerHTML='<span style="color:var(--ok)">Prazo '+pr.prazo+'m · Restante <strong style="color:#3b82f6">'+rest+'m</strong> · FR '+pr.fr+'% · Adm '+pr.taxaadm+'% · '+brl(pr.credMin,0)+' – '+brl(pr.credMax,0)+'</span>';}
     if(boxEl){boxEl.style.background='#f0fdf4';boxEl.style.borderColor='var(--ok)';}
     if(credEl)credEl.value=propGrupos[i].credito;
     const przEl=document.getElementById('pg-prz-'+i);if(przEl)przEl.value=propGrupos[i].prazo+'m';
@@ -1382,12 +1442,12 @@ function renderPropGrupos(){
     const hasD=!!(d.pr);
     const isIm=d.tp&&(d.tp.toUpperCase().includes('IM')||d.tp.toUpperCase().includes('RES'));
     const tpLbl=d.tp?(isIm?'?? Imóvel':'?? Veículo'):'';
-    const tpBadge=hasD?'<span style="display:inline-block;padding:1px 7px;border-radius:12px;font-size:11px;font-weight:700;margin-right:6px;background:'+(isIm?'#dbeafe':'#fef3c7')+';color:'+(isIm?'#1e40af':'#92400e')+'">'+tpLbl+'</span>':'';
+    const tpBadgeHtml=hasD?'<span style="display:inline-block;padding:2px 9px;border-radius:12px;font-size:11.5px;font-weight:700;background:'+(isIm?'#dbeafe':'#fef3c7')+';color:'+(isIm?'#1e40af':'#92400e')+'">'+tpLbl+'</span>':'<span style="display:inline-block;padding:2px 9px;border-radius:12px;font-size:11px;font-weight:600;background:#f1f5f9;color:var(--txt2)">Grupo '+(i+1)+'</span>';
     const prazoRest=hasD?(g.prazo-(g.mesAtual||0)):null;
     const info=hasD?'Prazo '+g.prazo+'m · Restante <strong style="color:var(--info)">'+(prazoRest!=null?prazoRest+'m':'?')+'</strong> · FR '+g.fr+'% · Adm '+g.taxaadm+'% · '+brl(g.credMin,0)+' – '+brl(g.credMax,0):'Digite o nº do grupo para carregar dados';
     const bg=hasD?'#f0fdf4':'#f8fafc';const bc=hasD?'var(--ok)':'var(--bdr)';const tc=hasD?'var(--txt)':'var(--txt2)';
     return '<div id="pg-box-'+i+'" style="background:'+bg+';border-radius:8px;padding:10px;margin-bottom:8px;border:1.5px solid '+bc+'">'
-      +'<div style="display:flex;align-items:center;gap:4px;margin-bottom:6px">'+tpBadge+'<span style="font-size:10px;color:var(--txt2)">Grupo '+i+'</span></div>'
+      +'<div style="display:flex;align-items:center;gap:6px;margin-bottom:7px"><span id="pg-tp-'+i+'">'+tpBadgeHtml+'</span></div>'
       +'<div style="display:grid;grid-template-columns:80px 65px 65px 1fr 50px 22px;gap:5px;align-items:center">'
       +'<input class="form-i" style="font-size:12px;padding:5px 8px;font-weight:700;letter-spacing:.5px" placeholder="Grupo" value="'+g.grupo+'" oninput="lookupGrupo('+i+',this.value)">'
       +'<input id="pg-prz-'+i+'" class="form-i" style="font-size:11px;padding:5px 4px;text-align:center;background:#f1f5f9;color:var(--txt2)" readonly value="'+(hasD?g.prazo+'m':'—')+'" title="Prazo total">'
@@ -1405,7 +1465,9 @@ function renderPropSugestoes(){
   const seg2=parseFloat(document.getElementById('p-seg').value)||0;
   const mes2=Math.max(1,parseInt(document.getElementById('p-mes').value)||1);
   const subEl=document.getElementById('sug-subtitle');if(subEl)subEl.textContent='lance '+lt.toFixed(0)+'% · RP '+rp2+'%';
-  const tbody=document.getElementById('prop-sug-body');if(!tbody)return;
+  const tbodyIm=document.getElementById('prop-sug-im');
+  const tbodyRo=document.getElementById('prop-sug-ro');
+  if(!tbodyIm&&!tbodyRo)return;
   const scored=[];
   const guiaEntries=Object.entries(GUIA);
   guiaEntries.forEach(entry=>{
@@ -1423,22 +1485,27 @@ function renderPropSugestoes(){
     const amM2=sd2/pr2,pi2=amM2+cred2*seg2/100;
     const mr2=Math.min(mes2,pr2-1),sp2=Math.max(0,sd2-mr2*amM2-lTot2),pr3=pr2-mr2;
     const pp2=pr3>0?sp2/pr3+liq2*seg2/100:0;
-    scored.push({g:g,d:d,avgMin:avgMin,success:success,vagas:d.vagas||0,pi:pi2,pp:pp2});
+    const isImov=d.tp&&(d.tp.toUpperCase().includes('IM')||d.tp.toUpperCase().includes('RES'));
+    scored.push({g:g,d:d,avgMin:avgMin,success:success,vagas:d.vagas||0,pi:pi2,pp:pp2,isIm:isImov});
   });
   scored.sort((a,b)=>{
     const sa=a.success!=null?a.success:-1,sb2=b.success!=null?b.success:-1;
     return sb2-sa||b.vagas-a.vagas;
   });
-  tbody.innerHTML=scored.slice(0,15).map(item=>{
+  function mkSugRow(item){
     const g=item.g,d=item.d,avgMin=item.avgMin,success=item.success;
     const pct=success!=null?Math.round(success*100):null;
     const col=success==null?'var(--txt2)':success>=0.8?'var(--ok)':success>=0.5?'var(--warn)':'var(--err)';
-    const tpLbl=d.tp?(d.tp.toUpperCase().includes('IM')||d.tp.toUpperCase().includes('RES')?'🏠':'🚗'):'📦';
     const inList=propGrupos.some(pg=>pg.grupo===g);
     const btn=inList?'<span style="color:var(--ok);font-size:11px;font-weight:600">✓ adicionado</span>':'<button class="btn btn-out btn-sm" data-g="'+g+'" onclick="usarGrupoSugerido(this.dataset.g)">+ Usar</button>';
     const assertTxt=pct!=null?'<span style="color:'+col+';font-weight:700">'+pct+'%</span>':'<span style="color:var(--txt2)">s/hist.</span>';
-    return '<tr><td><strong>'+g+'</strong></td><td>'+tpLbl+'</td><td>'+brl(d.vmax,0)+'</td><td>'+d.pr+'m</td><td>'+(avgMin!=null?avgMin.toFixed(1)+'%':'—')+'</td><td>'+assertTxt+'</td><td>'+brl(item.pi)+'</td><td>'+brl(item.pp)+'</td><td>'+btn+'</td></tr>';
-  }).join('')||'<tr><td colspan="9" style="text-align:center;color:var(--txt2);padding:12px">Nenhum dado disponível</td></tr>';
+    return '<tr><td><strong>'+g+'</strong></td><td>'+brl(d.vmax,0)+'</td><td>'+d.pr+'m</td><td>'+(avgMin!=null?avgMin.toFixed(1)+'%':'—')+'</td><td>'+assertTxt+'</td><td>'+brl(item.pi)+'</td><td>'+brl(item.pp)+'</td><td>'+btn+'</td></tr>';
+  }
+  const imList=scored.filter(s=>s.isIm).slice(0,10);
+  const roList=scored.filter(s=>!s.isIm).slice(0,10);
+  const empty='<tr><td colspan="8" style="text-align:center;color:var(--txt2);padding:10px">Nenhum dado</td></tr>';
+  if(tbodyIm)tbodyIm.innerHTML=imList.map(mkSugRow).join('')||empty;
+  if(tbodyRo)tbodyRo.innerHTML=roList.map(mkSugRow).join('')||empty;
 }
 function usarGrupoSugerido(g){
   if(!propGrupos.some(pg=>pg.grupo===g)){
@@ -1528,45 +1595,200 @@ function calcProp(){
     return '<tr'+hl+'><td>'+lbl+'</td><td><strong>'+p+'%</strong></td><td>'+brl(totCred*rp/100,0)+'</td><td>'+brl(tLiq,0)+'</td><td>'+brl(tPi)+'</td><td>'+brl(tPp)+'</td><td><span style="color:var(--ok);font-weight:700">'+brl(eco)+'</span></td><td><strong>'+brl(totalDes,0)+'</strong></td></tr>';
   }).join('');
 
-  // ── Comparativo de Linhas de Crédito ──
-  const txFinEl=document.getElementById('cen-tx-fin'),txCdcEl=document.getElementById('cen-tx-cdc'),sistEl=document.getElementById('cen-sistema');
-  const cenTbody=document.getElementById('cenarios-tbody');
-  if(!cenTbody||!txFinEl)return;
-  const txFin=(parseFloat(txFinEl.value)||9.5)/100;
-  const txCdc=(parseFloat(txCdcEl.value)||18)/100;
-  const sistema=sistEl?sistEl.value:'SAC';
-  const prazoM=Math.round(prazoAvg);
-  function calcLinhaCredito(cred,taxaAa,pr,sis){
-    const r=Math.pow(1+taxaAa,1/12)-1;
-    let pi,pf,total;
-    if(sis==='PRICE'){
-      const pmt=cred*r*Math.pow(1+r,pr)/(Math.pow(1+r,pr)-1);
-      pi=pmt;pf=pmt;total=pmt*pr;
-    }else{
-      const amort=cred/pr;
-      pi=amort+cred*r;
-      pf=amort+(cred/pr)*r;
-      total=pr*amort+cred*r*(pr+1)/2;
-    }
-    const cetAa=(Math.pow(total/cred,12/pr)-1)*100;
-    return{pi,pf,total,cetAa};
-  }
+  // ── Alimenta o comparativo de linhas ──
   const consTotal=mes*totPi+totLTot+(Math.max(prazoAvg-mes,1))*totPp;
-  const consAdmCusto=(totSD-totCred)/totCred*100;
-  const fin=calcLinhaCredito(totCred,txFin,prazoM,sistema);
-  const cdc=calcLinhaCredito(totCred,txCdc,Math.min(prazoM,60),sistema);
-  function diffCell(val,ref){
-    const d=val-ref;
-    if(Math.abs(d)<1)return '<td style="color:var(--txt2)">—</td>';
-    return d<0?'<td style="color:var(--ok);font-weight:700">Economiza '+brl(Math.abs(d),0)+'</td>':'<td style="color:var(--err);font-weight:700">Custa mais '+brl(d,0)+'</td>';
+  const consAdmCusto=totCred>0?(totSD-totCred)/totCred*100:0;
+  _cenConsorcio={totCred,totPi,totPp,totLTot,totLiq,consTotal,consAdmCusto,lt,avgTa,avgFr};
+  calcCenario();
+}
+
+// ═══ COMPARATIVO LINHAS DE CRÉDITO ═══
+let cenLines=[];
+let cenNextId=1;
+let _cenConsorcio=null;
+
+function addCenLinePreset(preset){
+  const p=preset||{nome:'Personalizado',taxa:12,prazo:120,sis:'SAC',entrada:0};
+  cenLines.push({id:cenNextId++,ativo:true,...p});
+  renderCenLines();
+  calcCenario();
+}
+
+function removeCenLine(id){
+  cenLines=cenLines.filter(l=>l.id!==id);
+  renderCenLines();
+  calcCenario();
+}
+
+function cenLineChange(id,field,val){
+  const l=cenLines.find(l=>l.id===id);if(!l)return;
+  if(field==='taxa'||field==='prazo'||field==='entrada')l[field]=parseFloat(val)||0;
+  else l[field]=val;
+  calcCenario();
+}
+
+function renderCenLines(){
+  const wrap=document.getElementById('cen-lines-wrap');if(!wrap)return;
+  wrap.innerHTML=cenLines.map(l=>{
+    return '<div class="cen-line" id="cl-'+l.id+'">'
+      +'<input class="form-i" style="flex:1.5;min-width:130px;font-size:12px;padding:6px 10px" value="'+l.nome+'" oninput="cenLineChange('+l.id+','nome',this.value)">'
+      +'<div style="display:flex;align-items:center;gap:4px;white-space:nowrap"><span style="font-size:11px;color:var(--txt2)">Taxa</span><input type="number" class="form-i" style="width:68px;font-size:12px;padding:6px 8px" value="'+l.taxa+'" step="0.5" oninput="cenLineChange('+l.id+','taxa',this.value)"><span style="font-size:11px;color:var(--txt2)">% a.a.</span></div>'
+      +'<div style="display:flex;align-items:center;gap:4px;white-space:nowrap"><span style="font-size:11px;color:var(--txt2)">Prazo</span><input type="number" class="form-i" style="width:60px;font-size:12px;padding:6px 8px" value="'+l.prazo+'" step="12" oninput="cenLineChange('+l.id+','prazo',this.value)"><span style="font-size:11px;color:var(--txt2)">m</span></div>'
+      +'<div style="display:flex;align-items:center;gap:4px;white-space:nowrap"><span style="font-size:11px;color:var(--txt2)">Entrada</span><input type="number" class="form-i" style="width:56px;font-size:12px;padding:6px 8px" value="'+l.entrada+'" step="5" oninput="cenLineChange('+l.id+','entrada',this.value)"><span style="font-size:11px;color:var(--txt2)">%</span></div>'
+      +'<select class="form-i" style="font-size:12px;padding:6px 8px;width:90px" onchange="cenLineChange('+l.id+','sis',this.value)"><option'+(l.sis==='SAC'?' selected':'')+'>SAC</option><option'+(l.sis==='PRICE'?' selected':'')+' value="PRICE">PRICE</option></select>'
+      +'<button onclick="removeCenLine('+l.id+')" style="background:none;border:none;cursor:pointer;color:var(--err);font-size:18px;flex-shrink:0">×</button>'
+      +'</div>';
+  }).join('');
+}
+
+function _calcLinha(cred,taxaAa,prazoM,sis,entradaPerc){
+  const credE=cred*(entradaPerc/100);
+  const credLiq=cred-credE;
+  if(credLiq<=0)return{pi:0,pf:0,total:credE,cetAa:0,credE};
+  const r=Math.pow(1+taxaAa/100,1/12)-1;
+  let pi,pf,totalJuros;
+  if(sis==='PRICE'){
+    const pmt=r>0?credLiq*r*Math.pow(1+r,prazoM)/(Math.pow(1+r,prazoM)-1):credLiq/prazoM;
+    pi=pmt;pf=pmt;totalJuros=pmt*prazoM;
+  }else{
+    const amort=credLiq/prazoM;
+    pi=amort+credLiq*r;
+    pf=amort+(credLiq/prazoM)*r;
+    totalJuros=prazoM*amort+credLiq*r*(prazoM+1)/2;
   }
-  cenTbody.innerHTML=
-    '<tr style="background:#f0fdf4"><td><strong>?? Consórcio</strong><br><span style="font-size:10px;color:var(--txt2)">Adm '+(avgTa+avgFr).toFixed(1)+'% · Lance '+lt+'%</span></td>'
-    +'<td>'+brl(totPi)+'</td><td>'+brl(totPp)+'</td><td><strong>'+brl(consTotal,0)+'</strong></td><td>'+consAdmCusto.toFixed(1)+'% a.a.</td><td style="color:var(--txt2)">Base de comparação</td></tr>'
-    +'<tr><td><strong>?? Financiamento</strong><br><span style="font-size:10px;color:var(--txt2)">'+sistema+' · '+((txFin)*100).toFixed(1)+'% a.a. · '+prazoM+'m</span></td>'
-    +'<td>'+brl(fin.pi)+'</td><td>'+brl(fin.pf)+'</td><td><strong>'+brl(fin.total,0)+'</strong></td><td>'+fin.cetAa.toFixed(1)+'% a.a.</td>'+diffCell(fin.total,consTotal)+'</tr>'
-    +'<tr><td><strong>?? CDC / Crédito Pessoal</strong><br><span style="font-size:10px;color:var(--txt2)">'+sistema+' · '+((txCdc)*100).toFixed(1)+'% a.a. · '+Math.min(prazoM,60)+'m</span></td>'
-    +'<td>'+brl(cdc.pi)+'</td><td>'+brl(cdc.pf)+'</td><td><strong>'+brl(cdc.total,0)+'</strong></td><td>'+cdc.cetAa.toFixed(1)+'% a.a.</td>'+diffCell(cdc.total,consTotal)+'</tr>';
+  const total=totalJuros+credE;
+  const cetAa=credLiq>0?((Math.pow(totalJuros/credLiq,12/prazoM)-1)*100):0;
+  return{pi,pf,total,cetAa,credE};
+}
+
+function calcCenario(){
+  if(!_cenConsorcio)return;
+  const c=_cenConsorcio;
+  const cred=c.totCred;
+  const resultado=document.getElementById('cen-resultado');
+  if(!resultado)return;
+
+  const COLORS=[
+    {bg:'#f0fdf4',border:'#10b981',badgeBg:'#d1fae5',badgeCl:'#065f46'},
+    {bg:'#eff6ff',border:'#3b82f6',badgeBg:'#dbeafe',badgeCl:'#1e40af'},
+    {bg:'#fffbeb',border:'#f59e0b',badgeBg:'#fef3c7',badgeCl:'#92400e'},
+    {bg:'#fdf4ff',border:'#a855f7',badgeBg:'#f3e8ff',badgeCl:'#6b21a8'},
+    {bg:'#fff1f2',border:'#f43f5e',badgeBg:'#ffe4e6',badgeCl:'#9f1239'},
+  ];
+
+  // Build all items (consorcio first, then cenLines)
+  const items=[];
+  items.push({
+    nome:'?? Consórcio',
+    sub:'Adm '+(c.avgTa+c.avgFr).toFixed(1)+'% · Lance '+c.lt+'%',
+    pi:c.totPi, pf:c.totPp, total:c.consTotal, cetAa:c.consAdmCusto, credE:c.totLTot, isCons:true
+  });
+  cenLines.filter(l=>l.ativo).forEach(l=>{
+    const r=_calcLinha(cred,l.taxa,l.prazo,l.sis,l.entrada);
+    items.push({nome:l.nome,sub:l.sis+' · '+l.taxa+'% a.a. · '+l.prazo+'m',pi:r.pi,pf:r.pf,total:r.total,cetAa:r.cetAa,credE:r.credE});
+  });
+
+  const minTotal=Math.min(...items.map(x=>x.total));
+
+  // visual cards
+  const cards=items.map((it,idx)=>{
+    const col=COLORS[idx%COLORS.length];
+    const isBest=it.total===minTotal;
+    const diff=it.total-minTotal;
+    const diffTxt=it.isCons?'<span style="color:var(--ok);font-size:11px;font-weight:700">Base de referência</span>':diff<1?'<span style="color:var(--ok);font-size:11px;font-weight:700">⭐ Melhor opção</span>':'<span style="color:var(--err);font-size:11px">Custa mais '+brl(diff,0)+'</span>';
+    return '<div style="background:'+col.bg+';border:2px solid '+(isBest?col.border:'var(--bdr)')+';border-radius:12px;padding:14px;position:relative">'
+      +(isBest?'<div style="position:absolute;top:-1px;right:10px;background:'+col.border+';color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:0 0 8px 8px">MELHOR</div>':'')
+      +'<div style="font-size:12.5px;font-weight:700;margin-bottom:2px">'+it.nome+'</div>'
+      +'<div style="font-size:10px;color:var(--txt2);margin-bottom:10px">'+it.sub+'</div>'
+      +(it.credE>0?'<div style="display:flex;justify-content:space-between;font-size:11px;padding:3px 0;border-bottom:1px solid rgba(0,0,0,.06)"><span style="color:var(--txt2)">Entrada/Lance</span><span style="font-weight:600">'+brl(it.credE,0)+'</span></div>':'')
+      +'<div style="display:flex;justify-content:space-between;font-size:11px;padding:3px 0;border-bottom:1px solid rgba(0,0,0,.06)"><span style="color:var(--txt2)">Parcela inicial</span><span style="font-weight:600">'+brl(it.pi)+'</span></div>'
+      +'<div style="display:flex;justify-content:space-between;font-size:11px;padding:3px 0;border-bottom:1px solid rgba(0,0,0,.06)"><span style="color:var(--txt2)">Parcela final</span><span style="font-weight:600">'+brl(it.pf)+'</span></div>'
+      +'<div style="display:flex;justify-content:space-between;font-size:12px;padding:6px 0 2px;font-weight:700"><span>Total pago</span><span style="color:'+(isBest?col.border:'var(--txt)')+'">'+brl(it.total,0)+'</span></div>'
+      +'<div style="font-size:11px;color:var(--txt2);margin-top:4px">CET: '+it.cetAa.toFixed(1)+'% a.a.</div>'
+      +'<div style="margin-top:8px">'+diffTxt+'</div>'
+      +'</div>';
+  }).join('');
+
+  // table
+  const tRows=items.map((it,idx)=>{
+    const col=COLORS[idx%COLORS.length];
+    const isBest=it.total===minTotal;
+    const diff=it.total-_cenConsorcio.consTotal;
+    const diffCell=it.isCons?'<span style="color:var(--txt2);font-size:11px">—</span>':diff<-1?'<span style="color:var(--ok);font-weight:700">Economiza '+brl(Math.abs(diff),0)+'</span>':diff>1?'<span style="color:var(--err)">+'+brl(diff,0)+'</span>':'<span style="color:var(--txt2)">igual</span>';
+    return '<tr style="'+(isBest?'background:'+col.bg+';font-weight:600':'')+'"><td>'+it.nome+'<br><span style="font-size:10px;color:var(--txt2);font-weight:400">'+it.sub+'</span></td>'
+      +'<td>'+brl(it.credE>0?it.credE:0,0)+'</td>'
+      +'<td>'+brl(it.pi)+'</td><td>'+brl(it.pf)+'</td>'
+      +'<td><strong>'+brl(it.total,0)+'</strong></td>'
+      +'<td>'+it.cetAa.toFixed(1)+'% a.a.</td>'
+      +'<td>'+diffCell+'</td></tr>';
+  }).join('');
+
+  resultado.innerHTML='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:12px;margin-bottom:16px">'+cards+'</div>'
+    +'<div class="tw"><table style="font-size:12px"><thead><tr><th>Modalidade</th><th>Entrada/Lance</th><th>Parcela Inicial</th><th>Parcela Final</th><th>Total Pago</th><th>CET</th><th>vs Consórcio</th></tr></thead><tbody>'+tRows+'</tbody></table></div>';
+
+  const btn=document.getElementById('btn-ap');
+  if(btn)btn.style.display='inline-flex';
+  _cenItems=items;
+}
+
+let _cenItems=[];
+function abrirApresentacao(){
+  if(!_cenConsorcio||!_cenItems.length)return;
+  const c=_cenConsorcio;
+  const cliente=document.getElementById('p-cliente').value||'Cliente';
+  const hoje=new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'});
+
+  document.getElementById('ap-cliente-title').textContent=cliente;
+  document.getElementById('ap-data-title').textContent='Proposta gerada em '+hoje+' · Crédito '+brl(c.totCred,0);
+
+  document.getElementById('ap-kpis').innerHTML=[
+    {lbl:'Crédito Total',val:brl(c.totCred,0),ico:'??'},
+    {lbl:'Lance ('+c.lt+'%)',val:brl(c.totLTot,0),ico:'??'},
+    {lbl:'Crédito Líquido',val:brl(c.totLiq,0),ico:'✅'},
+    {lbl:'Parcela Pré',val:brl(c.totPi),ico:'??'},
+    {lbl:'Parcela Pós',val:brl(c.totPp),ico:'??'},
+  ].map(k=>'<div style="background:rgba(255,255,255,.12);border-radius:10px;padding:12px 14px"><div style="font-size:18px;margin-bottom:4px">'+k.ico+'</div><div style="font-size:11px;opacity:.7;margin-bottom:2px">'+k.lbl+'</div><div style="font-size:15px;font-weight:800">'+k.val+'</div></div>').join('');
+
+  const minTotal=Math.min(..._cenItems.map(x=>x.total));
+  const best=_cenItems.find(x=>x.total===minTotal);
+  const fin=_cenItems.find(x=>!x.isCons);
+  const econFin=fin?fin.total-c.consTotal:0;
+  document.getElementById('ap-why').textContent=econFin>0?'Comparado ao financiamento convencional, o consórcio pode representar uma economia de '+brl(econFin,0)+' ao longo do período — sem juros, pagando apenas a taxa administrativa e fundo de reserva.':'O consórcio é uma forma de crédito planejado sem juros, com taxa administrativa e fundo de reserva, ideal para quem pode aguardar a contemplação.';
+
+  const COLORS=[
+    {bg:'#f0fdf4',border:'#10b981'},{bg:'#eff6ff',border:'#3b82f6'},
+    {bg:'#fffbeb',border:'#f59e0b'},{bg:'#fdf4ff',border:'#a855f7'},{bg:'#fff1f2',border:'#f43f5e'},
+  ];
+  document.getElementById('ap-vantagens').innerHTML=[
+    {ico:'??',t:'Sem Juros',s:'Taxa adm + FR no lugar de juros compostos'},
+    {ico:'??',t:'Flexibilidade',s:'Lance para antecipar a contemplação'},
+    {ico:'??',t:'Patrimônio',s:'Carta de crédito com poder de compra à vista'},
+    {ico:'??',t:'Parceria HC360',s:'Assessoria completa durante todo o plano'},
+  ].map(v=>'<div class="ap-chip" style="text-align:center"><div style="font-size:22px;margin-bottom:6px">'+v.ico+'</div><div style="font-size:12px;font-weight:700;margin-bottom:3px">'+v.t+'</div><div style="font-size:11px;color:var(--txt2)">'+v.s+'</div></div>').join('');
+
+  document.getElementById('ap-comp-cards').innerHTML=_cenItems.map((it,idx)=>{
+    const col=COLORS[idx%COLORS.length];
+    const isBest=it.total===minTotal;
+    return '<div style="background:'+col.bg+';border:2px solid '+(isBest?col.border:'#e2e8f0')+';border-radius:12px;padding:16px;text-align:center">'
+      +(isBest?'<div style="font-size:10px;font-weight:700;color:'+col.border+';margin-bottom:4px">⭐ MELHOR CUSTO TOTAL</div>':'')
+      +'<div style="font-size:13px;font-weight:700;margin-bottom:8px">'+it.nome+'</div>'
+      +'<div style="font-size:11px;color:var(--txt2);margin-bottom:10px">'+it.sub+'</div>'
+      +'<div style="font-size:11px;color:var(--txt2)">Total pago</div>'
+      +'<div style="font-size:20px;font-weight:800;color:'+(isBest?col.border:'var(--txt)')+'">'+brl(it.total,0)+'</div>'
+      +'<div style="font-size:11px;color:var(--txt2);margin-top:4px">'+it.cetAa.toFixed(1)+'% a.a.</div></div>';
+  }).join('');
+
+  const tH='<table style="font-size:12px;width:100%"><thead><tr><th>Modalidade</th><th>Entrada</th><th>Parcela Inicial</th><th>Parcela Final</th><th>Total Pago</th><th>CET</th></tr></thead><tbody>';
+  const tR=_cenItems.map((it,idx)=>{
+    const col=COLORS[idx%COLORS.length];
+    const isBest=it.total===minTotal;
+    return '<tr style="background:'+(isBest?col.bg:'')+'"><td><strong>'+it.nome+'</strong><br><span style="font-size:10px;color:var(--txt2)">'+it.sub+'</span></td>'
+      +'<td>'+brl(it.credE,0)+'</td><td>'+brl(it.pi)+'</td><td>'+brl(it.pf)+'</td>'
+      +'<td><strong>'+brl(it.total,0)+'</strong></td><td>'+it.cetAa.toFixed(1)+'%</td></tr>';
+  }).join('');
+  document.getElementById('ap-comp-table').innerHTML='<div class="tw">'+tH+tR+'</tbody></table></div>';
+
+  document.getElementById('modal-ap').classList.add('open');
 }
 
 // ═══ PROJETOS ═══
