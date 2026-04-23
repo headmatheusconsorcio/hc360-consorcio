@@ -238,7 +238,7 @@ tr:hover td{background:#fafbfd}
       <input class="fi fi-lg" type="text" id="f-search" placeholder="🔍  Nome, grupo, cota, CPF..." oninput="filterCtrl()">
       <select class="fi fi-md" id="f-status" onchange="filterCtrl()">
         <option value="">Todos Status</option>
-        <option>SORTEIO / LANCE</option><option>CONTEMPLADO</option><option>LANCE</option><option>SUPLENCIA - 2 NA FRENTE</option><option>Repassamos a contemplação</option><option>CANCELADO</option>
+        <option>Sorteio</option><option>Em Andamento</option><option>Contemplado</option><option>Cancelado</option>
       </select>
       <select class="fi fi-md" id="f-assessor" onchange="filterCtrl()">
         <option value="">Todos Assessores</option>
@@ -441,8 +441,8 @@ tr:hover td{background:#fafbfd}
             <div class="note">• Lances não são garantia de contemplação.<br>• Simulação considera contemplação imediata.<br>• Valores sujeitos a reajuste pelo indexador do grupo.</div>
           </div>
         </div>
-        <div class="card"><div class="ch"><span class="ct">Cenários</span></div>
-          <div class="tw"><table><thead><tr><th>Lance %</th><th>Rec. Próprios</th><th>Parte Carta</th><th>Crédito Líquido</th><th>Parcela Pré</th><th>Parcela Pós</th></tr></thead><tbody id="cenarios-tbody"></tbody></table></div>
+        <div class="card"><div class="ch"><span class="ct">Comparativo de Estratégias</span><span style="font-size:11px;color:var(--txt2)" id="cen-sub">por mês de contemplação</span></div>
+          <div class="tw"><table style="font-size:12px"><thead><tr><th>Estratégia</th><th>Lance %</th><th>Rec. Próprios</th><th>Crédito Líq.</th><th>Parcela Pré</th><th>Parcela Pós</th><th>Economia/mês</th><th>Total Desembolso</th></tr></thead><tbody id="cenarios-tbody"></tbody></table></div>
         </div>
       </div>
     </div>
@@ -459,7 +459,7 @@ tr:hover td{background:#fafbfd}
         <input class="fi fi-lg" type="text" id="pf-search" placeholder="🔍  Nome, grupo, cota, CPF..." oninput="filterProjList()">
         <select class="fi fi-md" id="pf-status" onchange="filterProjList()">
           <option value="">Todos Status</option>
-          <option>SORTEIO / LANCE</option><option>CONTEMPLADO</option><option>LANCE</option><option>SUPLENCIA - 2 NA FRENTE</option><option>Repassamos a contemplação</option><option>CANCELADO</option>
+          <option>Sorteio</option><option>Em Andamento</option><option>Contemplado</option><option>Cancelado</option>
         </select>
         <select class="fi fi-md" id="pf-assessor" onchange="filterProjList()">
           <option value="">Todos Assessores</option>
@@ -620,18 +620,20 @@ tr:hover td{background:#fafbfd}
       <div class="g2" style="margin-bottom:0">
         <div class="form-g"><label class="form-l">Status</label>
           <select class="form-i" id="mc-status">
-            <option>SORTEIO / LANCE</option><option>LANCE</option><option>CONTEMPLADO</option><option>SUPLENCIA - 2 NA FRENTE</option><option>CANCELADO</option>
+            <option>Sorteio</option><option>Em Andamento</option><option>Contemplado</option><option>Cancelado</option>
           </select>
         </div>
         <div class="form-g"><label class="form-l">Dia Vencimento</label><input type="number" class="form-i" id="mc-venc" min="1" max="31"></div>
       </div>
       <div class="g2" style="margin-bottom:0">
-        <div class="form-g"><label class="form-l">Lance 1 (R$)</label><input type="number" class="form-i" id="mc-l1"></div>
-        <div class="form-g"><label class="form-l">Lance 2 (R$)</label><input type="number" class="form-i" id="mc-l2"></div>
+        <div class="form-g"><label class="form-l">Última Oferta de Lance (R$)</label><input type="number" class="form-i" id="mc-l1"></div>
+        <div class="form-g"><label class="form-l">Posição na Fila</label><input class="form-i" id="mc-pos" placeholder="Ex: 3°"></div>
       </div>
-      <div class="form-g"><label class="form-l">Posição na Fila</label><input class="form-i" id="mc-pos" placeholder="Ex: 3°"></div>
+      <div class="g2" style="margin-bottom:0">
+        <div class="form-g"><label class="form-l">Data da Assembleia</label><input type="date" class="form-i" id="mc-asm"></div>
+        <div class="form-g"><label class="form-l">Taxa Adm. Negociada (%)</label><input type="number" class="form-i" id="mc-taxa" step="0.1" placeholder="Ex: 22.5"></div>
+      </div>
       <div class="form-g"><label class="form-l">Observação</label><input class="form-i" id="mc-obs"></div>
-      <div class="form-g"><label class="form-l">Taxa Adm. Negociada (%)</label><input type="number" class="form-i" id="mc-taxa" step="0.1" placeholder="Ex: 22.5 — preencher ao fechar venda"></div>
     </div>
     <div class="mf">
       <button class="btn btn-err btn-sm" id="mc-del-btn" onclick="deleteCota()" style="display:none;margin-right:auto">🗑 Excluir</button>
@@ -745,7 +747,7 @@ let selProj=null, minChart=null, contChart=null;
 // ═══ UTILS ═══
 const brl=(v,d=2)=>v==null?'—':'R '+Number(v).toLocaleString('pt-BR',{minimumFractionDigits:d,maximumFractionDigits:d});
 const pct=(v,d=2)=>v==null?'—':(Number(v)*100).toFixed(d)+'%';
-const SB={'CONTEMPLADO':'<span class="badge b-ok">✓ Contemplado</span>','SORTEIO / LANCE':'<span class="badge b-gray">Sorteio/Lance</span>','LANCE':'<span class="badge b-warn">⚡ Lance</span>','SUPLENCIA - 2 NA FRENTE':'<span class="badge b-ora">Suplençia</span>','Repassamos a contemplação':'<span class="badge b-info">Repassado</span>','CONTEMPLADO / MAS NÃO VAI PAGAR':'<span class="badge b-err">Sem pgto</span>','CANCELADO':'<span class="badge b-err">✕ Cancelado</span>'};
+const SB={'Contemplado':'<span class="badge b-ok">✓ Contemplado</span>','CONTEMPLADO':'<span class="badge b-ok">✓ Contemplado</span>','Sorteio':'<span class="badge b-gray">Sorteio</span>','SORTEIO / LANCE':'<span class="badge b-gray">Sorteio</span>','Em Andamento':'<span class="badge b-warn">⚡ Em Andamento</span>','LANCE':'<span class="badge b-warn">⚡ Em Andamento</span>','SUPLENCIA - 2 NA FRENTE':'<span class="badge b-warn">⚡ Em Andamento</span>','Cancelado':'<span class="badge b-err">✕ Cancelado</span>','CANCELADO':'<span class="badge b-err">✕ Cancelado</span>','Repassamos a contemplação':'<span class="badge b-info">Repassado</span>'};
 function sbadge(s){return SB[s]||`<span class="badge b-gray">${s}</span>`;}
 function atag(a){if(!a)return'';const cls=a.includes('ALAN')?'tAL':a.includes('ALE')?'tAE':a==='GLAUCO'?'tGL':(a==='GIL'||a==='Gil')?'tGI':a==='SZPIN'?'tSZ':a==='Coyote'?'tCO':'tOT';return`<span class="tag ${cls}">${a}</span>`;}
 function paginate(items,pg,pp=30){const s=(pg-1)*pp;return{items:items.slice(s,s+pp),total:items.length,pages:Math.ceil(items.length/pp)};}
@@ -819,9 +821,9 @@ async function deleteLeadDB(id){
 function initDash(){
   const ativas=COTAS.filter(r=>r.status!=='CANCELADO');
   const canceladas=COTAS.filter(r=>r.status==='CANCELADO');
-  const contemp=ativas.filter(r=>r.status==='CONTEMPLADO').length;
-  const lance=ativas.filter(r=>r.status==='LANCE').length;
-  const aguard=ativas.filter(r=>r.status==='SORTEIO / LANCE').length;
+  const contemp=ativas.filter(r=>r.status==='CONTEMPLADO'||r.status==='Contemplado').length;
+  const lance=ativas.filter(r=>r.status==='LANCE'||r.status==='Em Andamento').length;
+  const aguard=ativas.filter(r=>r.status==='SORTEIO / LANCE'||r.status==='Sorteio').length;
   const cred=ativas.reduce((s,r)=>s+(r.credito||0),0);
   const credCancel=canceladas.reduce((s,r)=>s+(r.credito||0),0);
   document.getElementById('kpi-total').textContent=ativas.length;
@@ -890,11 +892,15 @@ function openModalCota(id){
   const r=isNew?{}:COTAS.find(c=>c.id===id)||{};
   document.getElementById('modal-cota-title').textContent=isNew?'Nova Cota':`Editar — ${r.nome||''} · ${r.grupo||''}/${r.cota||''}`;
   document.getElementById('mc-del-btn').style.display=isNew?'none':'inline-flex';
-  ['nome','cpf','grupo','cota','credito','parcela','assessor','adesao','status','l1','l2','pos','obs','taxa'].forEach(k=>{
+  ['nome','cpf','grupo','cota','credito','parcela','assessor','adesao','status','l1','pos','taxa'].forEach(k=>{
     const el=document.getElementById('mc-'+k);
-    if(el)el.value=r[k==='l1'?'lance1':k==='l2'?'lance2':k==='obs'?'informacao':k==='pos'?'posicao':k==='taxa'?'taxa_adm':k]||'';
+    if(el)el.value=r[k==='l1'?'lance1':k==='obs'?'informacao':k==='pos'?'posicao':k==='taxa'?'taxa_adm':k]||'';
   });
   document.getElementById('mc-venc').value=r.vencimento||'';
+  const rawInfo=r.informacao||'';
+  const asmMatch=rawInfo.match(/\[ASM:([^\]]+)\]/);
+  document.getElementById('mc-asm').value=asmMatch?asmMatch[1]:'';
+  document.getElementById('mc-obs').value=rawInfo.replace(/\s*\[ASM:[^\]]+\]/,'').trim();
   document.getElementById('modal-cota').classList.add('open');
 }
 async function saveCota(){
@@ -910,9 +916,8 @@ async function saveCota(){
     adesao:document.getElementById('mc-adesao').value||null,
     status:document.getElementById('mc-status').value,
     lance1:parseFloat(document.getElementById('mc-l1').value)||null,
-    lance2:parseFloat(document.getElementById('mc-l2').value)||null,
     posicao:document.getElementById('mc-pos').value,
-    informacao:document.getElementById('mc-obs').value,
+    informacao:(()=>{const obs=document.getElementById('mc-obs').value.trim();const asm=document.getElementById('mc-asm').value;return obs+(asm?' [ASM:'+asm+']':'');})(),
     updated_at:new Date().toISOString(),
   };
   if(currentCotaId&&currentCotaId!==-1)data.id=currentCotaId;
@@ -981,7 +986,7 @@ function renderAgenda(){
 
   // Parcelas vencendo
   const parcVenc=[];
-  COTAS.filter(r=>r.vencimento&&r.status!=='CONTEMPLADO').forEach(r=>{
+  COTAS.filter(r=>r.vencimento&&r.status!=='CONTEMPLADO'&&r.status!=='Contemplado').forEach(r=>{
     const d=new Date(hoje.getFullYear(),hoje.getMonth(),r.vencimento);
     if(d<hoje)d.setMonth(d.getMonth()+1);
     const diff=Math.round((d-hoje)/(1000*60*60*24));
@@ -1003,10 +1008,17 @@ function renderAgenda(){
 
   // Assembleias dos grupos em carteira
   const grpAsm={};
-  COTAS.filter(r=>r.status!=='CONTEMPLADO'&&r.grupo).forEach(r=>{
+  COTAS.filter(r=>r.status!=='CONTEMPLADO'&&r.status!=='Contemplado'&&r.grupo).forEach(r=>{
     const g=r.grupo.toString().replace(/^0+/,'');
     if(!grpAsm[g]){const gd=GUIA[g]||GUIA[r.grupo];if(gd&&gd.asm)grpAsm[g]={asm:gd.asm,grupos:[]};else return;}
     if(grpAsm[g])grpAsm[g].grupos.push(r);
+  });
+  COTAS.filter(r=>r.informacao&&r.informacao.includes('[ASM:')).forEach(r=>{
+    const m=r.informacao.match(/\[ASM:([^\]]+)\]/);if(!m)return;
+    const asmDateStr=m[1];const gk='asm_'+r.id;
+    if(!grpAsm[gk])grpAsm[gk]={asm:asmDateStr,grupos:[],custom:true};
+    else grpAsm[gk].grupos.push(r);
+    if(!grpAsm[gk].grupos.length)grpAsm[gk].grupos=[r];
   });
   const asmList=Object.entries(grpAsm).sort((a,b)=>a[1].asm.localeCompare(b[1].asm));
   document.getElementById('agenda-assembleias').innerHTML=asmList.length?asmList.slice(0,8).map(([g,d])=>{
@@ -1019,7 +1031,7 @@ function renderAgenda(){
   document.getElementById('agenda-parcelas').innerHTML=parcVenc.filter(r=>r.diffDias<=30).slice(0,8).map(r=>agItem(r,r.diffDias<=3?'err':r.diffDias<=7?'warn':'info')).join('')||'<div style="color:var(--txt2);font-size:13px;padding:8px">Nenhuma nos próximos 30 dias</div>';
 
   // Sem lance
-  const semLance=COTAS.filter(r=>r.status==='SORTEIO / LANCE'&&!r.lance1);
+  const semLance=COTAS.filter(r=>(r.status==='SORTEIO / LANCE'||r.status==='Sorteio')&&!r.lance1);
   document.getElementById('agenda-semlance-count').textContent=semLance.length;
   document.getElementById('agenda-semlance').innerHTML=semLance.slice(0,20).map(r=>`<tr><td><strong>${r.nome}</strong></td><td>${r.grupo||'—'}/${r.cota||'—'}</td><td>${brl(r.credito,0)}</td><td>${brl(r.parcela)}</td><td>${atag(r.assessor)}</td><td style="font-size:11px;color:var(--txt2)">${r.adesao?r.adesao:'—'}</td><td><button class="btn btn-warn btn-sm" onclick="openModalContemp('${r.id}')" style="background:var(--warn);color:#fff">⚡ Contemplar</button></td></tr>`).join('');
 }
@@ -1252,7 +1264,7 @@ Serão criadas ${totalCotas} cotas no sistema.`))return;
   let erros=0;
   for(const r of rows){
     for(let i=0;i<r.qtd;i++){
-      const res=await upsertCota({nome:lead.nome,assessor:lead.assessor||'ALAN / ESCRITORIO',grupo:r.grupo,credito:r.credito,status:'SORTEIO / LANCE',lance1:r.lancePerc/100,informacao:'Contratado via CRM',updated_at:new Date().toISOString()});
+      const res=await upsertCota({nome:lead.nome,assessor:lead.assessor||'ALAN / ESCRITORIO',grupo:r.grupo,credito:r.credito,status:'Sorteio',lance1:r.lancePerc/100,informacao:'Contratado via CRM',updated_at:new Date().toISOString()});
       if(!res)erros++;
     }
   }
@@ -1310,12 +1322,27 @@ function removePropGrupo(i){if(propGrupos.length===1)return;propGrupos.splice(i,
 function lookupGrupo(i,val){
   propGrupos[i].grupo=val.trim();
   const d=GUIA[val.trim()]||{};
-  if(d.pr)propGrupos[i].prazo=d.pr;
-  if(d.fr!=null)propGrupos[i].fr=parseFloat((d.fr*100).toFixed(2));
-  if(d.ta!=null)propGrupos[i].taxaadm=parseFloat((d.ta*100).toFixed(2));
-  if(d.vmax){propGrupos[i].credito=d.vmax;propGrupos[i].credMax=d.vmax;}
-  if(d.vmin!=null)propGrupos[i].credMin=d.vmin;
-  renderPropGrupos();calcProp();
+  if(d.pr){
+    propGrupos[i].prazo=d.pr;
+    if(d.fr!=null)propGrupos[i].fr=parseFloat((d.fr*100).toFixed(2));
+    if(d.ta!=null)propGrupos[i].taxaadm=parseFloat((d.ta*100).toFixed(2));
+    if(d.vmax){propGrupos[i].credito=d.vmax;propGrupos[i].credMax=d.vmax;}
+    if(d.vmin!=null)propGrupos[i].credMin=d.vmin;
+    const tpLbl=d.tp?(d.tp.toUpperCase().includes('IM')||d.tp.toUpperCase().includes('RES')?'🏠 Imóvel':'🚗 Veículo'):'';
+    const infoEl=document.getElementById('pg-info-'+i);
+    const boxEl=document.getElementById('pg-box-'+i);
+    const credEl=document.getElementById('pg-cred-'+i);
+    if(infoEl)infoEl.innerHTML='<span style="color:var(--ok)">'+tpLbl+' · Prazo '+propGrupos[i].prazo+'m · FR '+propGrupos[i].fr+'% · Adm '+propGrupos[i].taxaadm+'% · '+brl(propGrupos[i].credMin,0)+' – '+brl(propGrupos[i].credMax,0)+'</span>';
+    if(boxEl){boxEl.style.background='#f0fdf4';boxEl.style.borderColor='var(--ok)';}
+    if(credEl)credEl.value=propGrupos[i].credito;
+    calcProp();
+  }else{
+    propGrupos[i].credMax=0;propGrupos[i].credMin=0;
+    const infoEl=document.getElementById('pg-info-'+i);
+    const boxEl=document.getElementById('pg-box-'+i);
+    if(infoEl)infoEl.textContent='Digite o nº do grupo para carregar dados';
+    if(boxEl){boxEl.style.background='#f8fafc';boxEl.style.borderColor='var(--bdr)';}
+  }
 }
 function renderPropGrupos(){
   const el=document.getElementById('prop-grupos-list');if(!el)return;
@@ -1325,13 +1352,13 @@ function renderPropGrupos(){
     const tpLbl=d.tp?(d.tp.toUpperCase().includes('IM')||d.tp.toUpperCase().includes('RES')?'🏠 Imóvel':'🚗 Veículo'):'';
     const info=hasD?tpLbl+' · Prazo '+g.prazo+'m · FR '+g.fr+'% · Adm '+g.taxaadm+'% · '+brl(g.credMin,0)+' – '+brl(g.credMax,0):'Digite o nº do grupo para carregar dados';
     const bg=hasD?'#f0fdf4':'#f8fafc';const bc=hasD?'var(--ok)':'var(--bdr)';const tc=hasD?'var(--ok)':'var(--txt2)';
-    return '<div style="background:'+bg+';border-radius:8px;padding:10px;margin-bottom:8px;border:1.5px solid '+bc+'">'
+    return '<div id="pg-box-'+i+'" style="background:'+bg+';border-radius:8px;padding:10px;margin-bottom:8px;border:1.5px solid '+bc+'">'
       +'<div style="display:grid;grid-template-columns:80px 1fr 56px 22px;gap:5px;align-items:center">'
       +'<input class="form-i" style="font-size:12px;padding:5px 8px;font-weight:700;letter-spacing:.5px" placeholder="Grupo" value="'+g.grupo+'" oninput="lookupGrupo('+i+',this.value)">'
-      +'<input class="form-i" style="font-size:12px;padding:5px 8px" type="number" placeholder="Crédito/cota" value="'+g.credito+'" oninput="propGrupos['+i+'].credito=parseFloat(this.value)||0;calcProp()">'
+      +'<input id="pg-cred-'+i+'" class="form-i" style="font-size:12px;padding:5px 8px" type="number" placeholder="Crédito/cota" value="'+g.credito+'" oninput="propGrupos['+i+'].credito=parseFloat(this.value)||0;calcProp()">'
       +'<input class="form-i" style="font-size:12px;padding:5px 8px;text-align:center" type="number" placeholder="Qtd" min="1" value="'+g.qtd+'" oninput="propGrupos['+i+'].qtd=parseInt(this.value)||1;calcProp()">'
       +'<button onclick="removePropGrupo('+i+')" style="background:none;border:none;cursor:pointer;color:var(--err);font-size:20px;padding:0;line-height:1" title="Remover">×</button>'
-      +'</div><div style="font-size:11px;color:'+tc+';margin-top:5px">'+info+'</div></div>';
+      +'</div><div id="pg-info-'+i+'" style="font-size:11px;color:'+tc+';margin-top:5px">'+info+'</div></div>';
   }).join('');
 }
 function renderPropSugestoes(){
@@ -1343,12 +1370,11 @@ function renderPropSugestoes(){
     const g=entry[0],hd=entry[1];
     const mn=hd.mn||[];
     const valid=mn.filter(v=>v>0);
-    if(valid.length<3)return;
+    if(valid.length<2)return;
     const avgMin=valid.reduce((a,b)=>a+b,0)/valid.length;
     const success=valid.filter(v=>lt>=v).length/valid.length;
     const d=GUIA[g]||{};
     if(!d.vmax)return;
-    if(d.sit&&d.sit!=='Andamento')return;
     scored.push({g:g,d:d,avgMin:avgMin,success:success,vagas:d.vagas||0});
   });
   scored.sort((a,b)=>b.success-a.success||b.vagas-a.vagas);
@@ -1423,7 +1449,14 @@ function calcProp(){
     }else{bdEl.style.display='none';}
   }
   renderPropSugestoes();
-  document.getElementById('cenarios-tbody').innerHTML=[15,20,25,30,35,40,45,50,60,70,80].map(p=>{
+  const prazoAvg=propGrupos.reduce((a,g)=>a+(g.prazo||192)*(g.qtd||1),0)/Math.max(totCotas,1);
+  const cenStrat=[
+    {p:0,label:'Sorteio (sem lance)'},{p:10,label:'Lance Leve'},{p:20,label:'Lance 20%'},
+    {p:25,label:'Lance 25%'},{p:30,label:'Lance 30%'},{p:35,label:'Lance 35%'},
+    {p:40,label:'Lance 40%'},{p:45,label:'Lance 45%'},{p:50,label:'Lance Agressivo'}
+  ];
+  document.getElementById('cenarios-tbody').innerHTML=cenStrat.map(strat=>{
+    const p=strat.p;
     let tPi=0,tPp=0,tLiq=0,tLtot=0;
     propGrupos.forEach(g=>{
       const nc=g.qtd||1,cred=g.credito||0,ta=g.taxaadm||0,pr=g.prazo||1,fr=g.fr||0;
@@ -1433,8 +1466,11 @@ function calcProp(){
       const pp2=pr3>0?sp2/pr3+liq2*seg/100:0;
       tPi+=pi2;tPp+=pp2;tLiq+=liq2;tLtot+=ltot2;
     });
-    const hl=p===lt?' style="background:#fff8f2"':'';
-    return '<tr'+hl+'><td><strong>'+p+'%</strong>'+(p===lt?' ◄':'')+'</td><td>'+brl(totCred*rp/100,0)+'</td><td>'+brl(totCred*Math.max(0,p-rp)/100,0)+'</td><td>'+brl(tLiq,0)+'</td><td>'+brl(tPi)+'</td><td>'+brl(tPp)+'</td></tr>';
+    const eco=tPi-tPp;
+    const totalDes=mes*tPi+tLtot+(Math.max(prazoAvg-mes,1))*tPp;
+    const hl=p===lt?' style="background:#fff8f2;font-weight:700"':'';
+    const lbl=strat.label+(p===lt?' ◄':'');
+    return '<tr'+hl+'><td>'+lbl+'</td><td><strong>'+p+'%</strong></td><td>'+brl(totCred*rp/100,0)+'</td><td>'+brl(tLiq,0)+'</td><td>'+brl(tPi)+'</td><td>'+brl(tPp)+'</td><td><span style="color:var(--ok);font-weight:700">'+brl(eco)+'</span></td><td><strong>'+brl(totalDes,0)+'</strong></td></tr>';
   }).join('');
 }
 
@@ -1443,7 +1479,7 @@ function renderProj(){
   const pm={};COTAS.forEach(r=>{const n=r.nome;if(!pm[n])pm[n]={cotas:[],assessor:r.assessor};pm[n].cotas.push(r);});
   const ps=Object.entries(pm).sort((a,b)=>b[1].cotas.length-a[1].cotas.length);
   document.getElementById('proj-cards').innerHTML=ps.map(([n,d])=>{
-    const c=d.cotas.filter(r=>r.status==='CONTEMPLADO').length;const t=d.cotas.length;const cr=d.cotas.reduce((s,r)=>s+(r.credito||0),0);const p=t>0?Math.round(c/t*100):0;
+    const c=d.cotas.filter(r=>r.status==='CONTEMPLADO'||r.status==='Contemplado').length;const t=d.cotas.length;const cr=d.cotas.reduce((s,r)=>s+(r.credito||0),0);const p=t>0?Math.round(c/t*100):0;
     return`<div class="pcard${selProj===n?' sel':''}" data-proj="${encodeURIComponent(n)}" onclick="selProjFn(decodeURIComponent(this.getAttribute('data-proj')))" ><div class="pcard-name">${n}</div><div class="pcard-meta">${t} cotas · ${atag(d.assessor)}</div><div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;font-size:11px;color:var(--txt2);margin-bottom:3px"><span>Contemplações</span><span>${c}/${t}</span></div><div class="pbar"><div class="pfill" style="width:${p}%"></div></div></div><div class="pcard-stats"><div><div class="pstat-v" style="color:var(--acc)">${t}</div><div class="pstat-l">Cotas</div></div><div><div class="pstat-v" style="color:var(--ok)">${c}</div><div class="pstat-l">Contempl.</div></div><div><div class="pstat-v" style="font-size:13px">${brl(cr,0)}</div><div class="pstat-l">Volume</div></div></div></div>`;
   }).join('')+'<div class="pcard" style="border-style:dashed;display:flex;align-items:center;justify-content:center;min-height:160px;color:var(--txt2)" onclick="openModalCota(-1)"><div style="text-align:center"><div style="font-size:26px">+</div><div style="font-size:13px;font-weight:600">Nova Cota</div></div></div>';
 }
@@ -1458,37 +1494,37 @@ function selProjFn(name){
 }
 function renderProjDetail(name){
   const cotas=COTAS.filter(r=>r.nome===name);
-  const ativas=cotas.filter(r=>r.status!=='CANCELADO');
-  const contemp=cotas.filter(r=>r.status==='CONTEMPLADO').length;
-  const cancel=cotas.filter(r=>r.status==='CANCELADO').length;
-  const lanceN=cotas.filter(r=>r.status==='LANCE').length;
-  const sorteio=cotas.filter(r=>r.status==='SORTEIO / LANCE').length;
+  const ativas=cotas.filter(r=>r.status!=='CANCELADO'&&r.status!=='Cancelado');
+  const contemp=cotas.filter(r=>r.status==='CONTEMPLADO'||r.status==='Contemplado').length;
+  const cancel=cotas.filter(r=>r.status==='CANCELADO'||r.status==='Cancelado').length;
+  const lanceN=cotas.filter(r=>r.status==='LANCE'||r.status==='Em Andamento').length;
+  const sorteio=cotas.filter(r=>r.status==='SORTEIO / LANCE'||r.status==='Sorteio').length;
   const cr=ativas.reduce((s,r)=>s+(r.credito||0),0);
   const parc=ativas.reduce((s,r)=>s+(r.parcela||0),0);
   const pct=ativas.length>0?Math.round(contemp/ativas.length*100):0;
-  const ordem={'LANCE':0,'SORTEIO / LANCE':1,'SUPLENCIA - 2 NA FRENTE':2,'CONTEMPLADO':3,'CANCELADO':4};
+  const ordem={'Em Andamento':0,'LANCE':0,'Sorteio':1,'SORTEIO / LANCE':1,'SUPLENCIA - 2 NA FRENTE':1,'Contemplado':3,'CONTEMPLADO':3,'Cancelado':4,'CANCELADO':4};
   const filtradas=projFiltro==='TODOS'?cotas:cotas.filter(r=>r.status===projFiltro);
   const sorted=filtradas.slice().sort((a,b)=>(ordem[a.status]??5)-(ordem[b.status]??5));
 
   const FILTROS=[
     {k:'TODOS',label:'Todos',n:cotas.length,cls:''},
-    {k:'LANCE',label:'⚡ Lance',n:lanceN,cls:'b-warn'},
-    {k:'SORTEIO / LANCE',label:'Sorteio/Lance',n:sorteio,cls:'b-gray'},
-    {k:'CONTEMPLADO',label:'✓ Contempl.',n:contemp,cls:'b-ok'},
-    {k:'CANCELADO',label:'✕ Cancelado',n:cancel,cls:'b-err'},
+    {k:'Sorteio',label:'Sorteio',n:cotas.filter(r=>r.status==='Sorteio'||r.status==='SORTEIO / LANCE').length,cls:'b-gray'},
+    {k:'Em Andamento',label:'⚡ Em Andamento',n:cotas.filter(r=>r.status==='Em Andamento'||r.status==='LANCE'||r.status==='SUPLENCIA - 2 NA FRENTE').length,cls:'b-warn'},
+    {k:'Contemplado',label:'✓ Contemplado',n:cotas.filter(r=>r.status==='Contemplado'||r.status==='CONTEMPLADO').length,cls:'b-ok'},
+    {k:'Cancelado',label:'✕ Cancelado',n:cotas.filter(r=>r.status==='Cancelado'||r.status==='CANCELADO').length,cls:'b-err'},
   ];
 
-  const statusOpts=['SORTEIO / LANCE','LANCE','SUPLENCIA - 2 NA FRENTE','CONTEMPLADO','CANCELADO'].map(s=>`<option>${s}</option>`).join('');
+  const statusOpts=['Sorteio','Em Andamento','Contemplado','Cancelado'].map(s=>`<option>${s}</option>`).join('');
 
   const rows=sorted.map(r=>`
-    <tr id="proj-row-${r.id}" style="${r.status==='CANCELADO'?'opacity:.45':''}" >
+    <tr id="proj-row-${r.id}" style="${r.status==='CANCELADO'||r.status==='Cancelado'?'opacity:.45':''}" >
       <td><strong>${r.grupo||'—'}</strong></td>
       <td>${r.cota||'—'}</td>
       <td>${brl(r.credito,0)}</td>
       <td>${brl(r.parcela)}</td>
       <td>
         <select class="form-i" style="padding:3px 6px;font-size:12px;min-width:140px" id="ps-${r.id}" onchange="projMarkDirty('${r.id}')">
-          ${['SORTEIO / LANCE','LANCE','SUPLENCIA - 2 NA FRENTE','CONTEMPLADO','CANCELADO'].map(s=>`<option${r.status===s?' selected':''}>` +s+`</option>`).join('')}
+          ${['Sorteio','Em Andamento','Contemplado','Cancelado'].map(s=>`<option${r.status===s||((s==='Sorteio'&&r.status==='SORTEIO / LANCE')||(s==='Em Andamento'&&(r.status==='LANCE'||r.status==='SUPLENCIA - 2 NA FRENTE'))||(s==='Contemplado'&&r.status==='CONTEMPLADO')||(s==='Cancelado'&&r.status==='CANCELADO'))?' selected':''}>` +s+`</option>`).join('')}
         </select>
       </td>
       <td><input class="form-i" style="padding:3px 6px;font-size:12px;width:70px" id="pl1-${r.id}" type="number" step="0.1" min="0" max="100" value="${r.lance1?+(r.lance1*100).toFixed(2):''}" placeholder="%" oninput="projMarkDirty('${r.id}')"></td>
@@ -1496,7 +1532,7 @@ function renderProjDetail(name){
       <td><input class="form-i" style="padding:3px 6px;font-size:12px;min-width:140px" id="ppos-${r.id}" type="text" value="${(r.posicao||'').replace(/"/g,'&quot;')}" placeholder="Posição / Info" oninput="projMarkDirty('${r.id}')"></td>
       <td style="white-space:nowrap;text-align:center">
         <button id="psave-${r.id}" class="btn btn-ok btn-sm" style="display:none" onclick="projSaveRow('${r.id}')" title="Salvar">💾 Salvar</button>
-        ${r.status!=='CONTEMPLADO'&&r.status!=='CANCELADO'?`<button class="btn btn-out btn-sm" onclick="openModalContemp('${r.id}')" title="Registrar contemplação">✓ Contempl.</button> `:''}
+        ${r.status!=='CONTEMPLADO'&&r.status!=='Contemplado'&&r.status!=='CANCELADO'&&r.status!=='Cancelado'?`<button class="btn btn-out btn-sm" onclick="openModalContemp('${r.id}')" title="Registrar contemplação">✓ Contempl.</button> `:''}
         <button class="btn btn-out btn-sm" onclick="openModalCota('${r.id}')" title="Ver / editar completo">✏️</button>
       </td>
     </tr>`).join('');
