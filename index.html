@@ -221,8 +221,8 @@ tr:hover td{background:#fafbfd}
     <div class="ni" onclick="nav('agenda',this)"><span class="ico">📅</span> Agenda <span id="badge-agenda" style="margin-left:auto;background:var(--err);color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px;display:none">0</span></div>
     <div class="ni" onclick="nav('crm',this)"><span class="ico">🎯</span> CRM / Indicações</div>
     <div class="nav-sec">Ferramentas</div>
-    <div class="ni" onclick="nav('guia',this)"><span class="ico">🏦</span> Guia de Oportunidades</div>
-    <div class="ni" onclick="nav('prop',this)"><span class="ico">📄</span> Gerar Proposta</div>
+    <div class="ni" data-admin-only="1" onclick="nav('guia',this)"><span class="ico">🏦</span> Guia de Oportunidades</div>
+    <div class="ni" data-admin-only="1" onclick="nav('prop',this)"><span class="ico">📄</span> Gerar Proposta</div>
     <div class="nav-sec">Clientes</div>
     <div class="ni" onclick="nav('proj',this)"><span class="ico">👤</span> Projetos / Cotas</div>
   </nav>
@@ -241,7 +241,7 @@ tr:hover td{background:#fafbfd}
     <div class="pg-title" id="pg-title">Dashboard</div>
     <div class="tb-acts">
       <span style="font-size:11px;color:var(--txt2)" id="sync-status">Conectando...</span>
-      <button class="btn btn-out btn-sm" onclick="openModalCota(-1)">+ Nova Cota</button>
+      <button id="topbar-nova-cota" class="btn btn-out btn-sm" onclick="openModalCota(-1)">+ Nova Cota</button>
       <button class="btn btn-pri btn-sm" onclick="nav('crm',document.querySelectorAll('.ni')[3])">+ Novo Lead</button>
     </div>
   </div>
@@ -334,6 +334,22 @@ tr:hover td{background:#fafbfd}
 
   <!-- CRM -->
   <div class="page" id="page-crm">
+        <div id="assessor-lead-card" class="card" style="display:none;margin-bottom:16px;border:2px solid var(--acc)">
+          <div class="ch"><span class="ct">📤 Enviar Lead para Admin</span><span style="font-size:12px;color:var(--txt2)">O lead será adicionado ao CRM do administrador</span></div>
+          <div class="cb">
+            <div class="g2">
+              <div class="form-g"><label class="form-l">Nome do Cliente</label><input class="form-i" id="al-nome" placeholder="Nome completo"></div>
+              <div class="form-g"><label class="form-l">Telefone / WhatsApp</label><input class="form-i" id="al-tel" placeholder="(11) 99999-9999"></div>
+            </div>
+            <div class="g2">
+              <div class="form-g"><label class="form-l">Interesse</label><select class="form-i" id="al-interesse"><option>Imóvel</option><option>Veículo</option><option>Outros</option></select></div>
+              <div class="form-g"><label class="form-l">Crédito Estimado (R$)</label><input type="number" class="form-i" id="al-credito" placeholder="Ex: 300000"></div>
+            </div>
+            <div class="form-g"><label class="form-l">Observação</label><textarea class="form-i" id="al-obs" rows="2" placeholder="Informações adicionais sobre o cliente..." style="resize:vertical"></textarea></div>
+            <button class="btn btn-pri" onclick="assessorEnviarLead()" style="margin-top:4px">📤 Enviar Lead</button>
+          </div>
+        </div>
+    <div id="crm-main-content">
     <div class="frow">
       <input class="fi fi-lg" type="text" id="crm-search" placeholder="🔍  Buscar lead..." oninput="filterCRM()">
       <select class="fi fi-md" id="crm-status-f" onchange="filterCRM()">
@@ -355,6 +371,7 @@ tr:hover td{background:#fafbfd}
         <thead><tr><th>Nome</th><th>Telefone</th><th>Indicado por</th><th>Assessor</th><th>Interesse</th><th>Valor Potencial</th><th>Status</th><th>Data</th><th>Ações</th></tr></thead>
         <tbody id="crm-tbody"></tbody>
       </table></div>
+    </div>
     </div>
   </div>
 
@@ -510,23 +527,123 @@ tr:hover td{background:#fafbfd}
             <div class="note" style="margin-top:12px">• Lances não são garantia de contemplação. &nbsp;• Simulação considera contemplação no mês informado. &nbsp;• Valores sujeitos a reajuste pelo indexador do grupo.</div>
           </div>
         </div>
-        <div class="card">
-          <div class="ch">
-            <span class="ct">📊 Comparativo de Linhas de Crédito</span>
-            <button class="btn btn-pri btn-sm" onclick="abrirApresentacao()" id="btn-ap" style="display:none">🌟 Ver Apresentação</button>
-          </div>
-          <div class="cb" style="padding-bottom:12px">
-            <div style="font-size:12px;color:var(--txt2);margin-bottom:12px">Configure as linhas de crédito alternativas para comparar com o consórcio.</div>
-            <div id="cen-lines-wrap" style="display:flex;flex-direction:column;gap:8px"></div>
-            <div class="frow" style="gap:6px;margin-top:10px;flex-wrap:wrap">
-              <button class="btn btn-out btn-sm" onclick="addCenLinePreset({nome:'Financiamento Imob. (CEF)',taxa:9.5,prazo:360,sis:'SAC',entrada:20})">🏦 Financ. CEF</button>
-              <button class="btn btn-out btn-sm" onclick="addCenLinePreset({nome:'Financiamento Imob. (Itaú)',taxa:10.9,prazo:240,sis:'SAC',entrada:20})">🏦 Financ. Itaú</button>
-              <button class="btn btn-out btn-sm" onclick="addCenLinePreset({nome:'Financiamento Veículo',taxa:15,prazo:60,sis:'PRICE',entrada:0})">🚗 Financ. Veículo</button>
-              <button class="btn btn-out btn-sm" onclick="addCenLinePreset({nome:'CDC Banco',taxa:24,prazo:48,sis:'PRICE',entrada:0})">💳 CDC</button>
-              <button class="btn btn-out btn-sm" onclick="addCenLinePreset({nome:'Crédito Pessoal',taxa:36,prazo:24,sis:'PRICE',entrada:0})">💸 Pessoal</button>
-              <button class="btn btn-out btn-sm" onclick="addCenLinePreset(null)" style="border-style:dashed">+ Personalizado</button>
+        <div class="card" id="cmp-card">
+          <div class="ch" style="flex-direction:column;align-items:stretch;gap:12px;padding-bottom:16px">
+            <div style="display:flex;align-items:center;justify-content:space-between">
+              <span class="ct">📊 Estudo Comparativo</span>
+              <button class="btn btn-pri btn-sm" onclick="abrirApresentacao()" id="btn-ap" style="display:none">🌟 Ver Apresentação</button>
             </div>
-            <div id="cen-resultado" style="margin-top:16px"></div>
+            <div style="display:flex;gap:0;border-radius:8px;overflow:hidden;border:1.5px solid var(--bdr)" id="cmp-step-bar">
+              <div id="cmpbar-1" style="flex:1;padding:8px 6px;text-align:center;font-size:11px;font-weight:700;background:var(--acc);color:#fff;cursor:pointer" onclick="cmpGoStep(1)">1. Configurações</div>
+              <div id="cmpbar-2" style="flex:1;padding:8px 6px;text-align:center;font-size:11px;font-weight:700;background:#f1f5f9;color:var(--txt2);cursor:pointer" onclick="cmpGoStep(2)">2. Consórcio</div>
+              <div id="cmpbar-3" style="flex:1;padding:8px 6px;text-align:center;font-size:11px;font-weight:700;background:#f1f5f9;color:var(--txt2);cursor:pointer" onclick="cmpGoStep(3)">3. Financiamento</div>
+              <div id="cmpbar-4" style="flex:1;padding:8px 6px;text-align:center;font-size:11px;font-weight:700;background:#f1f5f9;color:var(--txt2);cursor:pointer" onclick="cmpGoStep(4)">4. Confirmação</div>
+            </div>
+          </div>
+          <div class="cb" style="padding:0">
+            <!-- STEP 1: Configurações iniciais -->
+            <div id="cmp-s1" style="padding:18px 20px">
+              <div style="font-size:13px;font-weight:700;color:var(--txt);margin-bottom:16px">1. Configurações Iniciais</div>
+              <div style="margin-bottom:16px">
+                <div class="form-l" style="margin-bottom:8px">Bem desejado</div>
+                <div style="display:flex;gap:20px">
+                  <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px"><input type="radio" name="cmp-bem" value="imovel" checked onchange="cmpData.bem=this.value;cmpUpdateFields()"> Imóvel</label>
+                  <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px"><input type="radio" name="cmp-bem" value="veiculo" onchange="cmpData.bem=this.value;cmpUpdateFields()"> Veículo</label>
+                </div>
+              </div>
+              <div style="margin-bottom:16px">
+                <div class="form-l" style="margin-bottom:8px">Tipo de estudo</div>
+                <div style="display:flex;flex-direction:column;gap:7px">
+                  <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px"><input type="radio" name="cmp-tipo" value="cons_fin" checked onchange="cmpData.tipo=this.value;cmpUpdateFields()"> Consórcio x Financiamento</label>
+                  <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px"><input type="radio" name="cmp-tipo" value="cons_vista" onchange="cmpData.tipo=this.value;cmpUpdateFields()"> Consórcio x À vista</label>
+                  <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px"><input type="radio" name="cmp-tipo" value="cons_vista_fin" onchange="cmpData.tipo=this.value;cmpUpdateFields()"> Consórcio x À vista x Financiamento</label>
+                  <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px"><input type="radio" name="cmp-tipo" value="alav_pat" onchange="cmpData.tipo=this.value;cmpUpdateFields()"> Alavancagem Patrimonial</label>
+                  <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px"><input type="radio" name="cmp-tipo" value="alav_fin" onchange="cmpData.tipo=this.value;cmpUpdateFields()"> Alavancagem Financeira</label>
+                </div>
+              </div>
+              <div style="background:#f8fafc;border-radius:8px;padding:14px;border:1px solid var(--bdr)">
+                <div style="font-size:11px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:.4px;margin-bottom:12px">Dados de mercado para reinvestimento dos saldos</div>
+                <div class="g3">
+                  <div class="form-g" style="margin-bottom:0"><label class="form-l">CDI (% a.a.)</label><input type="number" class="form-i" id="cmp-cdi" value="14.95" step="0.01" oninput="cmpData.cdi=parseFloat(this.value)||0"></div>
+                  <div class="form-g" style="margin-bottom:0"><label class="form-l">Inflação (% a.a.)</label><input type="number" class="form-i" id="cmp-inf" value="5.35" step="0.01" oninput="cmpData.inflacao=parseFloat(this.value)||0"></div>
+                  <div class="form-g" style="margin-bottom:0"><label class="form-l">Retorno anual (%)</label><input type="number" class="form-i" id="cmp-ret" value="11.10" step="0.01" oninput="cmpData.retorno=parseFloat(this.value)||0"></div>
+                </div>
+              </div>
+              <div style="display:flex;justify-content:flex-end;margin-top:16px">
+                <button class="btn btn-pri" onclick="cmpGoStep(2)">Continuar →</button>
+              </div>
+            </div>
+            <!-- STEP 2: Dados do Consórcio -->
+            <div id="cmp-s2" style="display:none;padding:18px 20px">
+              <div style="font-size:13px;font-weight:700;color:var(--txt);margin-bottom:16px">2. Dados do Consórcio</div>
+              <div style="background:#f0fdf4;border-radius:8px;padding:14px;border:1px solid #86efac;margin-bottom:16px">
+                <div style="font-size:11px;font-weight:700;color:#15803d;text-transform:uppercase;letter-spacing:.4px;margin-bottom:12px">Consórcio</div>
+                <div class="g2">
+                  <div class="form-g"><label class="form-l">Crédito Contratado (R$)</label><input type="number" class="form-i" id="cmp-credito" placeholder="Ex: 1140000" oninput="cmpData.credito=parseFloat(this.value)||0"></div>
+                  <div class="form-g"><label class="form-l">Prazo Total (meses)</label><input type="number" class="form-i" id="cmp-prazo" placeholder="Ex: 230" oninput="cmpData.prazo=parseInt(this.value)||0"></div>
+                </div>
+                <div class="g2">
+                  <div class="form-g"><label class="form-l">Recursos Próprios (R$)</label><input type="number" class="form-i" id="cmp-rp" placeholder="Ex: 114000" oninput="cmpData.rp=parseFloat(this.value)||0;cmpCalcConsorcio()"></div>
+                  <div class="form-g"><label class="form-l">FGTS (R$)</label><input type="number" class="form-i" id="cmp-fgts" value="0" oninput="cmpData.fgts=parseFloat(this.value)||0;cmpCalcConsorcio()"></div>
+                </div>
+                <div class="g2">
+                  <div class="form-g"><label class="form-l">Lance Embutido (R$)</label><input type="number" class="form-i" id="cmp-lemb" value="0" oninput="cmpData.lanceEmbutido=parseFloat(this.value)||0;cmpCalcConsorcio()"></div>
+                  <div class="form-g"><label class="form-l">Lance Total (%)</label><input type="number" class="form-i" id="cmp-lperc" placeholder="Ex: 30" oninput="cmpData.lancePerc=parseFloat(this.value)||0;cmpCalcConsorcio()"></div>
+                </div>
+                <div style="background:#dcfce7;border-radius:6px;padding:10px 12px;display:flex;justify-content:space-between;align-items:center">
+                  <span style="font-size:12px;font-weight:700;color:#15803d">Crédito Liberado (após lance embutido)</span>
+                  <span style="font-size:16px;font-weight:800;color:#15803d" id="cmp-credliq-show">—</span>
+                </div>
+              </div>
+              <div style="display:flex;justify-content:space-between;margin-top:8px">
+                <button class="btn btn-out" onclick="cmpGoStep(1)">← Voltar</button>
+                <button class="btn btn-pri" onclick="cmpGoStep(3)">Continuar →</button>
+              </div>
+            </div>
+            <!-- STEP 3: Financiamento -->
+            <div id="cmp-s3" style="display:none;padding:18px 20px">
+              <div style="font-size:13px;font-weight:700;color:var(--txt);margin-bottom:16px">3. Dados do Financiamento / Alternativa</div>
+              <div style="background:#eff6ff;border-radius:8px;padding:14px;border:1px solid #bfdbfe;margin-bottom:16px">
+                <div style="font-size:11px;font-weight:700;color:#1d4ed8;text-transform:uppercase;letter-spacing:.4px;margin-bottom:12px">Financiamento</div>
+                <div class="g2">
+                  <div class="form-g"><label class="form-l">Valor Financiado (R$)</label><input type="number" class="form-i" id="cmp-vfin" placeholder="Ex: 684000" oninput="cmpData.valorFin=parseFloat(this.value)||0"></div>
+                  <div class="form-g"><label class="form-l">Entrada (R$)</label><input type="number" class="form-i" id="cmp-entrada" placeholder="Ex: 114000" oninput="cmpData.entrada=parseFloat(this.value)||0"></div>
+                </div>
+                <div class="g2">
+                  <div class="form-g"><label class="form-l">CET (% a.a.)</label><input type="number" class="form-i" id="cmp-cet" value="12.35" step="0.01" oninput="cmpData.cet=parseFloat(this.value)||0"></div>
+                  <div class="form-g"><label class="form-l">Período (meses)</label><input type="number" class="form-i" id="cmp-periodo" value="360" oninput="cmpData.periodo=parseInt(this.value)||0"></div>
+                </div>
+                <div class="form-g"><label class="form-l">Correção - Taxa Referencial (% a.a.)</label><input type="number" class="form-i" id="cmp-tr" value="1.00" step="0.01" oninput="cmpData.tr=parseFloat(this.value)||0"></div>
+              </div>
+              <div style="display:flex;justify-content:space-between;margin-top:8px">
+                <button class="btn btn-out" onclick="cmpGoStep(2)">← Voltar</button>
+                <button class="btn btn-pri" onclick="cmpGoStep(4)">Continuar →</button>
+              </div>
+            </div>
+            <!-- STEP 4: Confirmação -->
+            <div id="cmp-s4" style="display:none;padding:18px 20px">
+              <div style="font-size:13px;font-weight:700;color:var(--txt);margin-bottom:16px">4. Confirme as Informações</div>
+              <div id="cmp-confirm-body" style="margin-bottom:16px"></div>
+              <div class="form-g"><label class="form-l">Título do estudo (opcional)</label><input class="form-i" id="cmp-titulo" placeholder="Ex: Compra de casa em SP" oninput="cmpData.titulo=this.value"></div>
+              <div class="form-g"><label class="form-l">Comentários</label><textarea class="form-i" id="cmp-coment" rows="3" placeholder="Observações sobre o estudo..." style="resize:vertical" oninput="cmpData.comentario=this.value"></textarea></div>
+              <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;margin-bottom:16px"><input type="checkbox" id="cmp-confirm-chk"> Confirmo que os dados estão corretos</label>
+              <div style="display:flex;justify-content:space-between">
+                <button class="btn btn-out" onclick="cmpGoStep(3)">← Voltar</button>
+                <button class="btn btn-pri" onclick="cmpGerarRelatorio()">📊 Gerar Relatório</button>
+              </div>
+            </div>
+            <!-- RESULT -->
+            <div id="cmp-result" style="display:none;padding:18px 20px">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+                <div style="font-size:13px;font-weight:700;color:var(--txt)">Resultado do Estudo</div>
+                <div style="display:flex;gap:8px">
+                  <button class="btn btn-out btn-sm" onclick="cmpGoStep(1)">↩ Refazer</button>
+                  <button class="btn btn-pri btn-sm" onclick="abrirApresentacao()" id="btn-ap">🌟 Ver Apresentação</button>
+                </div>
+              </div>
+              <div id="cmp-result-body"></div>
+              <div id="cen-resultado" style="margin-top:0"></div>
+            </div>
           </div>
         </div>
         <div class="card" style="margin-top:14px">
@@ -882,6 +999,10 @@ function updateSidebarUser(u){
   document.getElementById('sb-avatar').textContent=ini;
   document.getElementById('sb-name').textContent=u.displayName||u.email.split('@')[0];
   document.getElementById('sb-role').textContent=u.isAdmin?'Administrador':'Assessor';
+  document.querySelectorAll('[data-admin-only]').forEach(el=>{el.style.display=u.isAdmin?'':'none';});
+  const nbtn=document.getElementById('topbar-nova-cota');if(nbtn)nbtn.style.display=u.isAdmin?'':'none';
+  const alCard=document.getElementById('assessor-lead-card');if(alCard)alCard.style.display=u.isAdmin?'none':'block';
+  const crmMain=document.getElementById('crm-main-content');if(crmMain)crmMain.style.display=u.isAdmin?'':'none';
 }
 
 async function loadProfile(user){
@@ -916,6 +1037,27 @@ async function doLogout(){
   document.getElementById('login-screen').style.display='flex';
   document.getElementById('login-email').value='';
   document.getElementById('login-pass').value='';
+}
+
+async function assessorEnviarLead(){
+  const nome=document.getElementById('al-nome').value.trim();
+  const tel=document.getElementById('al-tel').value.trim();
+  if(!nome){toast('Informe o nome do cliente','err');return;}
+  const payload={
+    nome,
+    telefone:tel,
+    interesse:document.getElementById('al-interesse').value,
+    credito_estimado:parseFloat(document.getElementById('al-credito').value)||null,
+    observacao:document.getElementById('al-obs').value.trim(),
+    assessor:CURRENT_USER.assessorName||CURRENT_USER.displayName,
+    status:'Novo',
+    created_at:new Date().toISOString()
+  };
+  const {error}=await sb.from('leads').insert(payload);
+  if(error){toast('Erro ao enviar: '+error.message,'err');return;}
+  toast('Lead enviado com sucesso!');
+  document.getElementById('al-nome').value='';document.getElementById('al-tel').value='';document.getElementById('al-obs').value='';document.getElementById('al-credito').value='';
+  if(CURRENT_USER.isAdmin){loadData();}
 }
 
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&document.getElementById('login-screen').style.display!=='none')doLogin();});
@@ -962,7 +1104,12 @@ async function loadData(){
     if(CURRENT_USER&&!CURRENT_USER.isAdmin&&CURRENT_USER.assessorName){
       rawCotas=rawCotas.filter(r=>r.assessor&&r.assessor.toLowerCase().includes(CURRENT_USER.assessorName.toLowerCase()));
     }
-    COTAS=rawCotas;LEADS=l||[];
+    COTAS=rawCotas;
+    let rawLeads=l||[];
+    if(CURRENT_USER&&!CURRENT_USER.isAdmin&&CURRENT_USER.assessorName){
+      rawLeads=rawLeads.filter(r=>r.assessor&&r.assessor.toLowerCase().includes(CURRENT_USER.assessorName.toLowerCase()));
+    }
+    LEADS=rawLeads;
     window._hasTaxaAdm=COTAS.length===0||'taxa_adm' in (COTAS[0]||{});
     if(!window._hasTaxaAdm){
       // coluna ainda não existe — tenta criar via upsert vazio para forçar detecção futura
@@ -1714,6 +1861,128 @@ function calcProp(){
   const consAdmCusto=totCred>0?(totSD-totCred)/totCred*100:0;
   _cenConsorcio={totCred,totPi,totPp,totLTot,totLiq,consTotal,consAdmCusto,lt,avgTa,avgFr};
   calcCenario();
+}
+
+// ═══ ESTUDO COMPARATIVO WIZARD ═══
+let cmpStep=1;
+let cmpData={bem:'imovel',tipo:'cons_fin',cdi:14.95,inflacao:5.35,retorno:11.10,credito:0,prazo:0,rp:0,fgts:0,lanceEmbutido:0,lancePerc:40,valorFin:0,entrada:0,cet:12.35,periodo:360,tr:1.0,titulo:'',comentario:''};
+
+function cmpUpdateStepBar(){
+  for(let i=1;i<=4;i++){
+    const el=document.getElementById('cmpbar-'+i);
+    if(el){el.style.background=i===cmpStep?'var(--acc)':'#f1f5f9';el.style.color=i===cmpStep?'#fff':'var(--txt2)';}
+  }
+}
+
+function cmpShowStep(s){
+  cmpStep=s;
+  [1,2,3,4].forEach(i=>{const el=document.getElementById('cmp-s'+i);if(el)el.style.display=i===s?'block':'none';});
+  const r=document.getElementById('cmp-result');if(r)r.style.display='none';
+  cmpUpdateStepBar();
+  if(s===4)cmpBuildConfirm();
+}
+
+function cmpGoStep(s){
+  // Validate step 2 minimum
+  if(s>2&&!cmpData.credito){toast('Informe o crédito contratado','err');cmpShowStep(2);return;}
+  cmpShowStep(s);
+}
+
+function cmpUpdateFields(){
+  // Auto-fill financiamento from consorcio data
+  const hasFinanc=cmpData.tipo==='cons_fin'||cmpData.tipo==='cons_vista_fin';
+  const s3=document.getElementById('cmp-s3');
+  if(s3){const lbl=s3.querySelector('div[style*="font-weight:700"]');if(lbl)lbl.textContent=hasFinanc?'3. Dados do Financiamento / Alternativa':'3. Dados Complementares';}
+}
+
+function cmpCalcConsorcio(){
+  const c=cmpData.credito||0;
+  const lemb=cmpData.lanceEmbutido||0;
+  const credLiq=c-lemb;
+  const el=document.getElementById('cmp-credliq-show');
+  if(el)el.textContent=brl(credLiq,0);
+}
+
+function cmpBuildConfirm(){
+  const d=cmpData;
+  const tipoMap={cons_fin:'Consórcio x Financiamento',cons_vista:'Consórcio x À vista',cons_vista_fin:'Consórcio x À vista x Financiamento',alav_pat:'Alavancagem Patrimonial',alav_fin:'Alavancagem Financeira'};
+  const rows=(items)=>items.map(([k,v])=>'<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--bdr)"><span style="font-size:12.5px;color:var(--txt2)">'+k+'</span><span style="font-size:12.5px;font-weight:700">'+v+'</span></div>').join('');
+  document.getElementById('cmp-confirm-body').innerHTML=
+    '<div style="margin-bottom:12px"><div style="font-size:11px;font-weight:800;text-transform:uppercase;color:var(--acc);letter-spacing:.4px;margin-bottom:6px">Configurações Iniciais</div>'+rows([['CDI',d.cdi+'% a.a.'],['Inflação',d.inflacao+'% a.a.'],['Retorno esperado',d.retorno+'% a.a.'],['Bem desejado',d.bem==='imovel'?'Imóvel':'Veículo'],['Tipo de estudo',tipoMap[d.tipo]||d.tipo]])+'</div>'
+    +'<div style="margin-bottom:12px"><div style="font-size:11px;font-weight:800;text-transform:uppercase;color:#15803d;letter-spacing:.4px;margin-bottom:6px">Consórcio</div>'+rows([['Crédito contratado',brl(d.credito,0)],['Prazo total',d.prazo+'m'],['Recursos próprios',brl(d.rp,0)],['FGTS',brl(d.fgts,0)],['Lance embutido',brl(d.lanceEmbutido,0)],['Lance %',d.lancePerc+'%'],['Crédito liberado',brl(d.credito-d.lanceEmbutido,0)]])+'</div>'
+    +(d.valorFin?'<div style="margin-bottom:12px"><div style="font-size:11px;font-weight:800;text-transform:uppercase;color:#1d4ed8;letter-spacing:.4px;margin-bottom:6px">Financiamento</div>'+rows([['Valor financiado',brl(d.valorFin,0)],['Entrada',brl(d.entrada,0)],['CET',d.cet+'% a.a.'],['Período',d.periodo+'m'],['Taxa Referencial',d.tr+'% a.a.']])+'</div>':'');
+}
+
+function cmpGerarRelatorio(){
+  if(!document.getElementById('cmp-confirm-chk').checked){toast('Confirme que os dados estão corretos','err');return;}
+  const d=cmpData;
+  // Hide all steps, show result
+  [1,2,3,4].forEach(i=>{const el=document.getElementById('cmp-s'+i);if(el)el.style.display='none';});
+  const r=document.getElementById('cmp-result');if(r)r.style.display='block';
+  cmpUpdateStepBar();
+  // Build result
+  const credito=d.credito||0;
+  const prazo=d.prazo||192;
+  const lancePerc=d.lancePerc||0;
+  const lemb=d.lanceEmbutido||0;
+  const rp=d.rp||0;
+  const fgts=d.fgts||0;
+  const lTot=credito*lancePerc/100;
+  const lRP=rp+fgts;
+  const lLC=lTot-lRP;
+  const credLiq=credito-lemb;
+  const taConsorcio=23/100,fr=3/100;
+  const sd=credito*(1+taConsorcio+fr);
+  const parcPre=sd/prazo;
+  const mesContemp=1;
+  const spPos=Math.max(0,sd-mesContemp*(sd/prazo)-lTot);
+  const parcPos=spPos/(prazo-mesContemp);
+  const totalCons=(mesContemp*parcPre+(prazo-mesContemp)*parcPos)+rp+fgts;
+  // Financiamento (SAC)
+  let parcFinIni=0,parcFinFim=0,totalFin=0;
+  if(d.valorFin&&d.cet&&d.periodo){
+    const im=d.cet/100/12;const n=d.periodo;
+    const amort=d.valorFin/n;
+    parcFinIni=amort+d.valorFin*im;
+    parcFinFim=amort+amort*im;
+    totalFin=d.entrada+(parcFinIni+parcFinFim)/2*n;
+  }
+  // Render result cards
+  const items=[];
+  items.push({nome:'🏆 Consórcio HC360',sub:'Taxa adm + FR · Sem juros',pi:parcPre,pf:parcPos,total:totalCons,entrada:rp+fgts,cetAa:(taConsorcio+fr)*100,isCons:true});
+  if(totalFin>0)items.push({nome:'🏦 Financiamento',sub:'CET '+d.cet+'% a.a. · '+d.periodo+'m',pi:parcFinIni,pf:parcFinFim,total:totalFin,entrada:d.entrada,cetAa:d.cet,isCons:false});
+  _cenItems=items;
+  const minT=Math.min(...items.map(x=>x.total));
+  const COLORS=[{bg:'#f0fdf4',border:'#10b981'},{bg:'#eff6ff',border:'#3b82f6'},{bg:'#fffbeb',border:'#f59e0b'}];
+  const totCred=credito;
+  _cenConsorcio={totCred,totPi:parcPre,totPp:parcPos,totLTot:lTot,totLiq:credLiq,consTotal:totalCons,consAdmCusto:(taConsorcio+fr)*100,lt:lancePerc,avgTa:taConsorcio*100,avgFr:fr*100};
+  document.getElementById('btn-ap').style.display='';
+  const rb=document.getElementById('cmp-result-body');
+  if(rb)rb.innerHTML='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:16px">'
+    +items.map((it,idx)=>{
+      const col=COLORS[idx%COLORS.length],isBest=it.total===minT;
+      const econ=items.find(x=>!x.isCons&&x.total>0)?items.find(x=>!x.isCons).total-it.total:0;
+      return '<div style="background:'+col.bg+';border:2px solid '+(isBest?col.border:'#e2e8f0')+';border-radius:12px;padding:16px">'
+        +(isBest?'<div style="font-size:10px;font-weight:700;color:'+col.border+';margin-bottom:6px">⭐ MELHOR CUSTO TOTAL</div>':'')
+        +'<div style="font-size:13px;font-weight:800;margin-bottom:4px">'+it.nome+'</div>'
+        +'<div style="font-size:11px;color:var(--txt2);margin-bottom:10px">'+it.sub+'</div>'
+        +'<div style="font-size:10px;color:var(--txt2)">Parcela Inicial</div><div style="font-size:15px;font-weight:700;margin-bottom:6px">'+brl(it.pi)+'</div>'
+        +'<div style="font-size:10px;color:var(--txt2)">Parcela Final</div><div style="font-size:15px;font-weight:700;margin-bottom:10px">'+brl(it.pf)+'</div>'
+        +'<div style="font-size:10px;color:var(--txt2)">Total desembolsado</div>'
+        +'<div style="font-size:20px;font-weight:900;color:'+(isBest?col.border:'var(--txt)')+'">'+brl(it.total,0)+'</div>'
+        +(isBest&&econ>0?'<div style="margin-top:6px;font-size:11px;color:'+col.border+';font-weight:700">Economia de '+brl(econ,0)+'</div>':'')
+        +'</div>';
+    }).join('')+'</div>'
+    +'<div class="tw"><table style="font-size:12px"><thead><tr><th>Modalidade</th><th>Entrada</th><th>Parcela Ini.</th><th>Parcela Fin.</th><th>Total Pago</th><th>CET a.a.</th></tr></thead><tbody>'
+    +items.map((it,idx)=>{
+      const col=COLORS[idx%COLORS.length],isBest=it.total===minT;
+      return '<tr style="background:'+(isBest?col.bg:'')+'">'
+        +'<td><strong>'+it.nome+'</strong><br><span style="font-size:10px;color:var(--txt2)">'+it.sub+'</span></td>'
+        +'<td>'+brl(it.entrada,0)+'</td><td>'+brl(it.pi)+'</td><td>'+brl(it.pf)+'</td>'
+        +'<td><strong style="color:'+(isBest?col.border:'var(--txt)')+'">'+brl(it.total,0)+'</strong></td>'
+        +'<td>'+it.cetAa.toFixed(1)+'%</td></tr>';
+    }).join('')+'</tbody></table></div>'
+    +(d.titulo?'<div style="margin-top:14px;padding:12px;background:#f8fafc;border-radius:8px;border-left:3px solid var(--acc)"><div style="font-size:11px;font-weight:700;color:var(--txt2)">Título do Estudo</div><div style="font-size:14px;font-weight:700">'+d.titulo+'</div>'+(d.comentario?'<div style="font-size:12px;color:var(--txt2);margin-top:6px">'+d.comentario+'</div>':'')+'</div>':'');
 }
 
 // ═══ COMPARATIVO LINHAS DE CRÉDITO ═══
