@@ -947,63 +947,102 @@ function renderProj(){
     return`<div class="pcard${selProj===n?' sel':''}" data-proj="${encodeURIComponent(n)}" onclick="selProjFn(decodeURIComponent(this.getAttribute('data-proj')))" ><div class="pcard-name">${n}</div><div class="pcard-meta">${t} cotas · ${atag(d.assessor)}</div><div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;font-size:11px;color:var(--txt2);margin-bottom:3px"><span>Contemplações</span><span>${c}/${t}</span></div><div class="pbar"><div class="pfill" style="width:${p}%"></div></div></div><div class="pcard-stats"><div><div class="pstat-v" style="color:var(--acc)">${t}</div><div class="pstat-l">Cotas</div></div><div><div class="pstat-v" style="color:var(--ok)">${c}</div><div class="pstat-l">Contempl.</div></div><div><div class="pstat-v" style="font-size:13px">${brl(cr,0)}</div><div class="pstat-l">Volume</div></div></div></div>`;
   }).join('')+'<div class="pcard" style="border-style:dashed;display:flex;align-items:center;justify-content:center;min-height:160px;color:var(--txt2)" onclick="openModalCota(-1)"><div style="text-align:center"><div style="font-size:26px">+</div><div style="font-size:13px;font-weight:600">Nova Cota</div></div></div>';
 }
+let projFiltro='TODOS';
 function selProjFn(name){
   selProj=name;
   document.querySelectorAll('.pcard').forEach(c=>c.classList.remove('sel'));
   event.currentTarget.classList.add('sel');
+  projFiltro='TODOS';
+  renderProjDetail(name);
+  setTimeout(()=>document.getElementById('proj-detail').scrollIntoView({behavior:'smooth',block:'start'}),50);
+}
+function renderProjDetail(name){
   const cotas=COTAS.filter(r=>r.nome===name);
   const ativas=cotas.filter(r=>r.status!=='CANCELADO');
   const contemp=cotas.filter(r=>r.status==='CONTEMPLADO').length;
   const cancel=cotas.filter(r=>r.status==='CANCELADO').length;
-  const lance=cotas.filter(r=>r.status==='LANCE').length;
+  const lanceN=cotas.filter(r=>r.status==='LANCE').length;
+  const sorteio=cotas.filter(r=>r.status==='SORTEIO / LANCE').length;
   const cr=ativas.reduce((s,r)=>s+(r.credito||0),0);
   const parc=ativas.reduce((s,r)=>s+(r.parcela||0),0);
   const pct=ativas.length>0?Math.round(contemp/ativas.length*100):0;
-  let det=`
+  const ordem={'LANCE':0,'SORTEIO / LANCE':1,'SUPLENCIA - 2 NA FRENTE':2,'CONTEMPLADO':3,'CANCELADO':4};
+  const filtradas=projFiltro==='TODOS'?cotas:cotas.filter(r=>r.status===projFiltro);
+  const sorted=filtradas.slice().sort((a,b)=>(ordem[a.status]??5)-(ordem[b.status]??5));
+
+  const FILTROS=[
+    {k:'TODOS',label:'Todos',n:cotas.length,cls:''},
+    {k:'LANCE',label:'⚡ Lance',n:lanceN,cls:'b-warn'},
+    {k:'SORTEIO / LANCE',label:'Sorteio/Lance',n:sorteio,cls:'b-gray'},
+    {k:'CONTEMPLADO',label:'✓ Contempl.',n:contemp,cls:'b-ok'},
+    {k:'CANCELADO',label:'✕ Cancelado',n:cancel,cls:'b-err'},
+  ];
+
+  const statusOpts=['SORTEIO / LANCE','LANCE','SUPLENCIA - 2 NA FRENTE','CONTEMPLADO','CANCELADO'].map(s=>`<option>${s}</option>`).join('');
+
+  const rows=sorted.map(r=>`
+    <tr id="proj-row-${r.id}" style="${r.status==='CANCELADO'?'opacity:.45':''}" >
+      <td><strong>${r.grupo||'—'}</strong></td>
+      <td>${r.cota||'—'}</td>
+      <td>${brl(r.credito,0)}</td>
+      <td>${brl(r.parcela)}</td>
+      <td>
+        <select class="form-i" style="padding:3px 6px;font-size:12px;min-width:140px" id="ps-${r.id}" onchange="projMarkDirty('${r.id}')">
+          ${['SORTEIO / LANCE','LANCE','SUPLENCIA - 2 NA FRENTE','CONTEMPLADO','CANCELADO'].map(s=>`<option${r.status===s?' selected':''}>` +s+`</option>`).join('')}
+        </select>
+      </td>
+      <td><input class="form-i" style="padding:3px 6px;font-size:12px;width:70px" id="pl1-${r.id}" type="number" step="0.1" min="0" max="100" value="${r.lance1?+(r.lance1*100).toFixed(2):''}" placeholder="%" oninput="projMarkDirty('${r.id}')"></td>
+      <td><input class="form-i" style="padding:3px 6px;font-size:12px;width:70px" id="pl2-${r.id}" type="number" step="0.1" min="0" max="100" value="${r.lance2?+(r.lance2*100).toFixed(2):''}" placeholder="%" oninput="projMarkDirty('${r.id}')"></td>
+      <td><input class="form-i" style="padding:3px 6px;font-size:12px;min-width:140px" id="ppos-${r.id}" type="text" value="${(r.posicao||'').replace(/"/g,'&quot;')}" placeholder="Posição / Info" oninput="projMarkDirty('${r.id}')"></td>
+      <td style="white-space:nowrap;text-align:center">
+        <button id="psave-${r.id}" class="btn btn-ok btn-sm" style="display:none" onclick="projSaveRow('${r.id}')" title="Salvar">💾 Salvar</button>
+        ${r.status!=='CONTEMPLADO'&&r.status!=='CANCELADO'?`<button class="btn btn-out btn-sm" onclick="openModalContemp('${r.id}')" title="Registrar contemplação">✓ Contempl.</button> `:''}
+        <button class="btn btn-out btn-sm" onclick="openModalCota('${r.id}')" title="Ver / editar completo">✏️</button>
+      </td>
+    </tr>`).join('');
+
+  document.getElementById('proj-detail').innerHTML=`
   <div class="card" style="margin-top:20px">
     <div class="ch" style="flex-wrap:wrap;gap:8px">
-      <span class="ct" style="font-size:16px">?? ${name}</span>
-      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-        ${atag(cotas[0]?.assessor)}
-        <span class="badge b-gray">${ativas.length} ativas</span>
-        <span class="badge b-ok">${contemp} contempl.</span>
-        ${lance>0?`<span class="badge b-warn">${lance} lance</span>`:''}
-        ${cancel>0?`<span class="badge b-err">${cancel} canceladas</span>`:''}
-      </div>
+      <span class="ct" style="font-size:15px">?? ${name}</span>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">${atag(cotas[0]?.assessor)}</div>
     </div>
-    <div style="padding:16px 18px;display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;border-bottom:1px solid var(--bdr)">
-      <div><div style="font-size:11px;color:var(--txt2);font-weight:700;text-transform:uppercase">Crédito Total</div><div style="font-size:20px;font-weight:800;color:var(--info)">${cr>=1e6?(cr/1e6).toFixed(2)+'M':brl(cr,0)}</div></div>
-      <div><div style="font-size:11px;color:var(--txt2);font-weight:700;text-transform:uppercase">Parcela/mês</div><div style="font-size:20px;font-weight:800;color:var(--warn)">${brl(parc)}</div></div>
-      <div><div style="font-size:11px;color:var(--txt2);font-weight:700;text-transform:uppercase">Progresso</div><div style="font-size:20px;font-weight:800;color:var(--ok)">${pct}%</div></div>
-      <div><div style="font-size:11px;color:var(--txt2);font-weight:700;text-transform:uppercase">Total de Cotas</div><div style="font-size:20px;font-weight:800">${cotas.length}</div></div>
+    <div style="padding:14px 18px;display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;border-bottom:1px solid var(--bdr)">
+      <div><div style="font-size:10px;color:var(--txt2);font-weight:700;text-transform:uppercase;margin-bottom:2px">Crédito Ativo</div><div style="font-size:22px;font-weight:800;color:var(--info)">${cr>=1e6?(cr/1e6).toFixed(2)+'M':brl(cr,0)}</div></div>
+      <div><div style="font-size:10px;color:var(--txt2);font-weight:700;text-transform:uppercase;margin-bottom:2px">Parcela/mês</div><div style="font-size:22px;font-weight:800;color:var(--warn)">${brl(parc)}</div></div>
+      <div><div style="font-size:10px;color:var(--txt2);font-weight:700;text-transform:uppercase;margin-bottom:2px">Contempladas</div><div style="font-size:22px;font-weight:800;color:var(--ok)">${contemp} <span style="font-size:13px;font-weight:500">de ${ativas.length}</span></div></div>
+      <div><div style="font-size:10px;color:var(--txt2);font-weight:700;text-transform:uppercase;margin-bottom:2px">Progresso</div><div style="font-size:22px;font-weight:800">${pct}%</div><div class="pbar" style="margin-top:4px"><div class="pfill" style="width:${pct}%"></div></div></div>
     </div>
-    <div style="padding:10px 18px;border-bottom:1px solid var(--bdr)">
-      <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--txt2);margin-bottom:4px"><span>Contemplações</span><span>${contemp} / ${ativas.length}</span></div>
-      <div class="pbar"><div class="pfill" style="width:${pct}%"></div></div>
+    <div style="padding:12px 18px;border-bottom:1px solid var(--bdr);display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+      <span style="font-size:11px;font-weight:700;color:var(--txt2);text-transform:uppercase;margin-right:4px">Filtrar:</span>
+      ${FILTROS.map(f=>`<button onclick="projFiltro='${f.k}';renderProjDetail('${name}')" style="padding:5px 12px;border-radius:20px;border:2px solid ${projFiltro===f.k?'var(--acc)':'var(--bdr)'};background:${projFiltro===f.k?'var(--acc)':'#fff'};color:${projFiltro===f.k?'#fff':'var(--txt)'};font-size:12px;font-weight:600;cursor:pointer">${f.label} ${f.n>0?`<span style="opacity:.7">(${f.n})</span>`:''}</button>`).join('')}
     </div>
     <div class="tw"><table>
-      <thead><tr><th>Grupo</th><th>Cota</th><th>Crédito</th><th>Parcela</th><th>Venc.</th><th>Status</th><th>Lance 1</th><th>Lance 2</th><th>Posição / Info</th><th style="text-align:center">Ações</th></tr></thead>
-      <tbody>${cotas.sort((a,b)=>{const o={'LANCE':0,'SORTEIO / LANCE':1,'SUPLENCIA - 2 NA FRENTE':2,'CONTEMPLADO':3,'CANCELADO':4};return(o[a.status]??5)-(o[b.status]??5);}).map(r=>`
-        <tr style="${r.status==='CANCELADO'?'opacity:.5;':''}"">
-          <td><strong>${r.grupo||'—'}</strong></td>
-          <td>${r.cota||'—'}</td>
-          <td>${brl(r.credito,0)}</td>
-          <td>${brl(r.parcela)}</td>
-          <td style="font-size:11px">${r.adesao?new Date(r.adesao).toLocaleDateString('pt-BR'):'—'}</td>
-          <td>${sbadge(r.status)}</td>
-          <td>${r.lance1?(r.lance1*100).toFixed(1)+'%':'—'}</td>
-          <td>${r.lance2?(r.lance2*100).toFixed(1)+'%':'—'}</td>
-          <td style="font-size:11px;max-width:180px;white-space:normal">${r.posicao||r.informacao||'—'}</td>
-          <td style="text-align:center;white-space:nowrap">
-            ${r.status!=='CONTEMPLADO'&&r.status!=='CANCELADO'?`<button class="btn btn-ok btn-sm" onclick="openModalContemp('${r.id}')" title="Registrar contemplação">✓</button> `:''}
-            <button class="btn btn-out btn-sm" onclick="openModalCota('${r.id}')" title="Editar cota">✏️</button>
-          </td>
-        </tr>`).join('')}
-      </tbody>
+      <thead><tr><th>Grupo</th><th>Cota</th><th>Crédito</th><th>Parcela</th><th>Status</th><th>Lance 1%</th><th>Lance 2%</th><th>Posição / Info</th><th style="text-align:center">Ações</th></tr></thead>
+      <tbody>${rows}</tbody>
     </table></div>
+    ${sorted.length===0?'<div style="padding:30px;text-align:center;color:var(--txt2)">Nenhuma cota neste filtro</div>':''}
   </div>`;
-  document.getElementById('proj-detail').innerHTML=det;
-  document.getElementById('proj-detail').scrollIntoView({behavior:'smooth',block:'start'});
+}
+function projMarkDirty(id){
+  const btn=document.getElementById('psave-'+id);
+  if(btn)btn.style.display='inline-flex';
+}
+async function projSaveRow(id){
+  const r=COTAS.find(c=>c.id===id);if(!r)return;
+  const status=document.getElementById('ps-'+id).value;
+  const l1v=document.getElementById('pl1-'+id).value;
+  const l2v=document.getElementById('pl2-'+id).value;
+  const pos=document.getElementById('ppos-'+id).value;
+  const patch={id,status,lance1:l1v?parseFloat(l1v)/100:null,lance2:l2v?parseFloat(l2v)/100:null,posicao:pos};
+  const res=await upsertCota(patch);
+  if(res){
+    Object.assign(r,patch);
+    document.getElementById('psave-'+id).style.display='none';
+    toast('Cota ${r.grupo}/${r.cota} salva!');
+    renderProjDetail(selProj);
+    initDash();
+  }
 }
 
 // ═══ MODAL UTILS ═══
