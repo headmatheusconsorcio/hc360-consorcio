@@ -414,7 +414,7 @@ tr:hover td{background:#fafbfd}
         <div class="card"><div class="ch"><span class="ct">Dados da Operação</span></div><div class="cb">
           <div class="g2" style="margin-bottom:12px">
             <div class="form-g" style="margin-bottom:0"><label class="form-l">Cliente</label><input class="form-i" id="p-cliente" placeholder="Nome do cliente"></div>
-            <div class="form-g" style="margin-bottom:0"><label class="form-l">Crédito Alvo (R$)</label><input type="number" class="form-i" id="p-cred-target" value="340000" step="10000" oninput="renderPropSugestoes()"></div>
+            <div class="form-g" style="margin-bottom:0"><label class="form-l">Crédito por Cota (R$)</label><input type="number" class="form-i" id="p-cred-target" value="340000" step="10000" oninput="syncCredAlvo(this.value)"></div>
           </div>
           <div class="dvr"></div>
           <div class="form-g">
@@ -461,26 +461,53 @@ tr:hover td{background:#fafbfd}
       <div>
         <div class="card">
           <div class="ch"><span class="ct" id="prop-title">Proposta Comercial</span><button class="btn btn-out btn-sm" onclick="window.print()">🖨️ Imprimir</button></div>
-          <div class="cb">
-            <div class="res-box">
-              <div class="res-row"><span class="res-l">Valor Total do Crédito</span><span class="res-v" id="r-cred">—</span></div>
-              <div class="res-row"><span class="res-l">Qtd. de Cotas</span><span class="res-v" id="r-cotas">—</span></div>
-              <div class="res-row"><span class="res-l">Valor por Cota</span><span class="res-v" id="r-percota">—</span></div>
-              <div class="res-row"><span class="res-l">Lance Total (%)</span><span class="res-v hl" id="r-lperc">—</span></div>
-              <div class="res-row"><span class="res-l">Lance — Recursos Próprios</span><span class="res-v" id="r-lrp">—</span></div>
-              <div class="res-row"><span class="res-l">Lance — Parte da Carta</span><span class="res-v" id="r-llc">—</span></div>
-              <div class="res-row"><span class="res-l">Lance Total (R$)</span><span class="res-v hl" id="r-ltot">—</span></div>
-              <div class="res-row"><span class="res-l">Crédito Líquido Recebido</span><span class="res-v ok" id="r-liq">—</span></div>
-              <div class="res-row" style="border-top:2px solid var(--acc);margin-top:4px;padding-top:10px"><span class="res-l" style="font-weight:700;color:var(--txt)">Saldo Devedor Total</span><span class="res-v" id="r-sd">—</span></div>
-              <div class="res-row"><span class="res-l">Parcela Pré-Contemplação</span><span class="res-v" id="r-pi">—</span></div>
-              <div class="res-row" id="r-pi-red-row" style="display:none"><span class="res-l">Parcela Pré (com redução)</span><span class="res-v" style="color:var(--warn);font-weight:700" id="r-pi-red">—</span></div>
-              <div class="res-row" style="border-top:2px solid var(--info);margin-top:4px;padding-top:10px"><span class="res-l" style="font-weight:700;color:var(--info)">Contemplação no Mês</span><span class="res-v" style="color:var(--info)" id="r-mes">—</span></div>
-              <div class="res-row"><span class="res-l">Saldo Pós-Lance</span><span class="res-v" id="r-saldo-pos">—</span></div>
-              <div class="res-row"><span class="res-l">Parcela Pós-Contemplação</span><span class="res-v ok" id="r-pp">—</span></div>
-              <div class="res-row"><span class="res-l">Custo Total (adm + FR)</span><span class="res-v" id="r-cet">—</span></div>
+          <div class="cb" style="padding:16px">
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px">
+              <div style="background:var(--sb);color:#fff;border-radius:10px;padding:14px 12px;text-align:center">
+                <div style="font-size:10px;font-weight:700;letter-spacing:.8px;opacity:.65;text-transform:uppercase;margin-bottom:5px">Crédito Total</div>
+                <div style="font-size:16px;font-weight:800" id="r-cred">—</div>
+                <div style="font-size:10px;opacity:.55;margin-top:3px"><span id="r-cotas">—</span> cotas · <span id="r-percota">—</span>/cota</div>
+              </div>
+              <div style="background:var(--acc);color:#fff;border-radius:10px;padding:14px 12px;text-align:center">
+                <div style="font-size:10px;font-weight:700;letter-spacing:.8px;opacity:.75;text-transform:uppercase;margin-bottom:5px">Lance Total</div>
+                <div style="font-size:20px;font-weight:800" id="r-lperc">—</div>
+                <div style="font-size:11px;font-weight:700;opacity:.85;margin-top:3px" id="r-ltot">—</div>
+              </div>
+              <div style="background:#059669;color:#fff;border-radius:10px;padding:14px 12px;text-align:center">
+                <div style="font-size:10px;font-weight:700;letter-spacing:.8px;opacity:.75;text-transform:uppercase;margin-bottom:5px">Créd. Líquido</div>
+                <div style="font-size:16px;font-weight:800" id="r-liq">—</div>
+                <div style="font-size:10px;opacity:.7;margin-top:3px">após lance</div>
+              </div>
             </div>
-            <div id="prop-breakdown" style="display:none;margin-top:12px"></div>
-            <div class="note">• Lances não são garantia de contemplação.<br>• Simulação considera contemplação imediata.<br>• Valores sujeitos a reajuste pelo indexador do grupo.</div>
+            <div style="background:#fff8f2;border:1.5px solid #fed7aa;border-radius:10px;padding:13px 15px;margin-bottom:12px">
+              <div style="font-size:11px;font-weight:800;color:var(--acc);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">Composição do Lance</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+                <div><div style="font-size:10px;color:var(--txt2);margin-bottom:2px">Recursos Próprios</div><div style="font-size:14px;font-weight:700;color:var(--txt)" id="r-lrp">—</div></div>
+                <div><div style="font-size:10px;color:var(--txt2);margin-bottom:2px">Parte da Carta</div><div style="font-size:14px;font-weight:700;color:var(--txt)" id="r-llc">—</div></div>
+                <div><div style="font-size:10px;color:var(--txt2);margin-bottom:2px">Saldo Devedor</div><div style="font-size:14px;font-weight:700;color:var(--txt)" id="r-sd">—</div></div>
+                <div><div style="font-size:10px;color:var(--txt2);margin-bottom:2px">Custo Total (Adm+FR)</div><div style="font-size:14px;font-weight:700;color:var(--txt)" id="r-cet">—</div></div>
+              </div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+              <div style="background:#eff6ff;border:1.5px solid #bfdbfe;border-radius:10px;padding:13px 14px">
+                <div style="font-size:11px;font-weight:800;color:#1d4ed8;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Pré-Contemplação</div>
+                <div style="font-size:10px;color:#1e40af;margin-bottom:2px">Parcela mensal</div>
+                <div style="font-size:20px;font-weight:800;color:#1d4ed8;margin-bottom:8px" id="r-pi">—</div>
+                <div id="r-pi-red-row" style="display:none">
+                  <div style="font-size:10px;color:#1e40af;margin-bottom:2px">Com redução</div>
+                  <div style="font-size:16px;font-weight:700;color:var(--warn)" id="r-pi-red">—</div>
+                </div>
+              </div>
+              <div style="background:#f0fdf4;border:1.5px solid #86efac;border-radius:10px;padding:13px 14px">
+                <div style="font-size:11px;font-weight:800;color:#15803d;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Pós-Contemplação</div>
+                <div style="font-size:10px;color:#166534;margin-bottom:2px">Contemplado no <span id="r-mes" style="font-weight:700">—</span></div>
+                <div style="font-size:20px;font-weight:800;color:#16a34a;margin-bottom:8px" id="r-pp">—</div>
+                <div style="font-size:10px;color:#166534;margin-bottom:2px">Saldo pós-lance</div>
+                <div style="font-size:13px;font-weight:700;color:#15803d" id="r-saldo-pos">—</div>
+              </div>
+            </div>
+            <div id="prop-breakdown" style="display:none;margin-top:4px"></div>
+            <div class="note" style="margin-top:12px">• Lances não são garantia de contemplação. &nbsp;• Simulação considera contemplação no mês informado. &nbsp;• Valores sujeitos a reajuste pelo indexador do grupo.</div>
           </div>
         </div>
         <div class="card">
@@ -1478,6 +1505,7 @@ function sortBrowse(col){browseSort.dir=browseSort.col===col?-browseSort.dir:1;b
 // ═══ PROPOSTA ═══
 let propGrupos=[{grupo:'',prazo:192,fr:3,taxaadm:23,credMin:0,credMax:0,credito:340000,qtd:1,mesAtual:0}];
 function updLance(){const t=parseFloat(document.getElementById('p-lance').value)||0;const rp=parseFloat(document.getElementById('p-rp').value)||0;document.getElementById('p-lc').value=Math.max(0,t-rp).toFixed(1);document.getElementById('p-lance-lbl').textContent=t.toFixed(0)+'%';}
+function syncCredAlvo(val){const v=parseFloat(val)||0;propGrupos.forEach(g=>{if(v>0)g.credito=v;});renderPropGrupos();calcProp();}
 function addPropGrupo(){propGrupos.push({grupo:'',prazo:192,fr:3,taxaadm:23,credMin:0,credMax:0,credito:340000,qtd:1,mesAtual:0});renderPropGrupos();}
 function removePropGrupo(i){if(propGrupos.length===1)return;propGrupos.splice(i,1);renderPropGrupos();calcProp();}
 function lookupGrupo(i,val){
@@ -1523,13 +1551,13 @@ function renderPropGrupos(){
     const bg=hasD?'#f0fdf4':'#f8fafc';const bc=hasD?'var(--ok)':'var(--bdr)';const tc=hasD?'var(--txt)':'var(--txt2)';
     return '<div id="pg-box-'+i+'" style="background:'+bg+';border-radius:8px;padding:10px;margin-bottom:8px;border:1.5px solid '+bc+'">'
       +'<div style="display:flex;align-items:center;gap:6px;margin-bottom:7px"><span id="pg-tp-'+i+'">'+tpBadgeHtml+'</span></div>'
-      +'<div style="display:grid;grid-template-columns:80px 65px 65px 1fr 50px 22px;gap:5px;align-items:center">'
-      +'<input class="form-i" style="font-size:12px;padding:5px 8px;font-weight:700;letter-spacing:.5px" placeholder="Grupo" value="'+g.grupo+'" oninput="lookupGrupo('+i+',this.value)">'
-      +'<input id="pg-prz-'+i+'" class="form-i" style="font-size:11px;padding:5px 4px;text-align:center;background:#f1f5f9;color:var(--txt2)" readonly value="'+(hasD?g.prazo+'m':'—')+'" title="Prazo total">'
-      +'<input id="pg-mes-'+i+'" class="form-i" style="font-size:11px;padding:5px 4px;text-align:center" type="number" min="0" placeholder="Mês atual" value="'+(g.mesAtual||'')+'" title="Mês atual do grupo (quantos meses ja passaram)" oninput="propGrupos['+i+'].mesAtual=parseInt(this.value)||0;renderPropGrupos();calcProp()">'
-      +'<input id="pg-cred-'+i+'" class="form-i" style="font-size:12px;padding:5px 8px" type="number" placeholder="Crédito/cota" value="'+g.credito+'" oninput="propGrupos['+i+'].credito=parseFloat(this.value)||0;calcProp()">'
-      +'<input class="form-i" style="font-size:12px;padding:5px 6px;text-align:center" type="number" placeholder="Qtd" min="1" value="'+g.qtd+'" oninput="propGrupos['+i+'].qtd=parseInt(this.value)||1;calcProp()">'
-      +'<button onclick="removePropGrupo('+i+')" style="background:none;border:none;cursor:pointer;color:var(--err);font-size:20px;padding:0;line-height:1" title="Remover">×</button>'
+      +'<div style="display:grid;grid-template-columns:80px 65px 65px 1fr 50px 22px;gap:5px;align-items:end">'
+      +'<div><div style="font-size:9px;font-weight:700;color:var(--txt2);text-transform:uppercase;margin-bottom:3px">Grupo</div><input class="form-i" style="font-size:13px;padding:5px 8px;font-weight:800;letter-spacing:.5px" placeholder="Nº" value="'+g.grupo+'" oninput="lookupGrupo('+i+',this.value)"></div>'
+      +'<div><div style="font-size:9px;font-weight:700;color:var(--txt2);text-transform:uppercase;margin-bottom:3px">Prazo</div><input id="pg-prz-'+i+'" class="form-i" style="font-size:11px;padding:5px 4px;text-align:center;background:#f1f5f9;color:var(--txt2)" readonly value="'+(hasD?g.prazo+'m':'—')+'"></div>'
+      +'<div><div style="font-size:9px;font-weight:700;color:var(--txt2);text-transform:uppercase;margin-bottom:3px">Mês Atual</div><input id="pg-mes-'+i+'" class="form-i" style="font-size:11px;padding:5px 4px;text-align:center" type="number" min="0" placeholder="0" value="'+(g.mesAtual||'')+'" oninput="propGrupos['+i+'].mesAtual=parseInt(this.value)||0;renderPropGrupos();calcProp()"></div>'
+      +'<div><div style="font-size:9px;font-weight:700;color:var(--txt2);text-transform:uppercase;margin-bottom:3px">Crédito por Cota (R$)</div><input id="pg-cred-'+i+'" class="form-i" style="font-size:12px;padding:5px 8px" type="number" placeholder="Valor" value="'+g.credito+'" oninput="propGrupos['+i+'].credito=parseFloat(this.value)||0;calcProp()"></div>'
+      +'<div><div style="font-size:9px;font-weight:700;color:var(--txt2);text-transform:uppercase;margin-bottom:3px">Qtd</div><input class="form-i" style="font-size:12px;padding:5px 6px;text-align:center" type="number" placeholder="1" min="1" value="'+g.qtd+'" oninput="propGrupos['+i+'].qtd=parseInt(this.value)||1;calcProp()"></div>'
+      +'<div style="padding-bottom:2px"><button onclick="removePropGrupo('+i+')" style="background:none;border:none;cursor:pointer;color:var(--err);font-size:20px;padding:0;line-height:1" title="Remover">×</button></div>'
       +'</div><div id="pg-info-'+i+'" style="font-size:11px;color:'+tc+';margin-top:5px">'+info+'</div></div>';
   }).join('');
 }
@@ -1542,7 +1570,7 @@ function renderPropSugestoes(){
   const tcEl=document.getElementById('p-cred-target');
   const targetCred=tcEl?parseFloat(tcEl.value)||0:0;
   const subEl=document.getElementById('sug-subtitle');
-  if(subEl)subEl.textContent=(targetCred?'R$ '+brl(targetCred,0)+' · ':'')+'lance '+lt.toFixed(0)+'%';
+  if(subEl)subEl.textContent=(targetCred?brl(targetCred,0)+' · ':'')+'lance '+lt.toFixed(0)+'%';
   const tbodyIm=document.getElementById('prop-sug-im');
   const tbodyRo=document.getElementById('prop-sug-ro');
   if(!tbodyIm&&!tbodyRo)return;
@@ -1627,7 +1655,7 @@ function calcProp(){
   const mesReal=Math.min(mes,prazoRef-1);
   const avgTa=totCotas?totTa/totCotas:0;const avgFr=totCotas?totFr/totCotas:0;
   const grupos=propGrupos.filter(g=>g.grupo).map(g=>g.grupo).join(', ')||'—';
-  document.getElementById('prop-title').textContent='Proposta — '+cliente+(grupos!=='—'?' · '+grupos:'');
+  document.getElementById('prop-title').textContent=(cliente||'Proposta Comercial')+(grupos!=='—'?' · '+grupos:'');
   const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
   set('r-cred',brl(totCred,0));set('r-cotas',totCotas);set('r-percota',totCotas?brl(totCred/totCotas,0):'—');
   set('r-lperc',lt.toFixed(2)+'%');set('r-lrp',brl(totLRP,0));set('r-llc',brl(totLLC,0));set('r-ltot',brl(totLTot,0));
