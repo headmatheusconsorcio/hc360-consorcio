@@ -179,7 +179,6 @@ tr:hover td{background:#fafbfd}
   <nav class="sb-nav">
     <div class="nav-sec">Principal</div>
     <div class="ni active" onclick="nav('dash',this)"><span class="ico">📊</span> Dashboard</div>
-    <div class="ni" onclick="nav('ctrl',this)"><span class="ico">📋</span> Controle de Cotas</div>
     <div class="nav-sec">Operações</div>
     <div class="ni" onclick="nav('agenda',this)"><span class="ico">📅</span> Agenda <span id="badge-agenda" style="margin-left:auto;background:var(--err);color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px;display:none">0</span></div>
     <div class="ni" onclick="nav('crm',this)"><span class="ico">🎯</span> CRM / Indicações</div>
@@ -187,7 +186,7 @@ tr:hover td{background:#fafbfd}
     <div class="ni" onclick="nav('guia',this)"><span class="ico">🏦</span> Guia de Oportunidades</div>
     <div class="ni" onclick="nav('prop',this)"><span class="ico">📄</span> Gerar Proposta</div>
     <div class="nav-sec">Clientes</div>
-    <div class="ni" onclick="nav('proj',this)"><span class="ico">👤</span> Projetos</div>
+    <div class="ni" onclick="nav('proj',this)"><span class="ico">👤</span> Projetos / Cotas</div>
   </nav>
   <div class="sb-foot">
     <div class="user-b">
@@ -224,7 +223,7 @@ tr:hover td{background:#fafbfd}
       <div class="card"><div class="ch"><span class="ct">Status das Cotas</span></div><div class="cb"><div class="chart-wrap"><canvas id="ch-status"></canvas></div></div></div>
       <div class="card"><div class="ch"><span class="ct">Distribuição por Assessor</span></div><div class="cb"><div class="chart-wrap"><canvas id="ch-assess"></canvas></div></div></div>
     </div>
-    <div class="card"><div class="ch"><span class="ct">Maiores Clientes</span></div><div class="tw"><table><thead><tr><th>Cliente</th><th>Cotas</th><th>Contempl.</th><th>Volume</th><th>Assessor</th><th>%</th></tr></thead><tbody id="dash-clients"></tbody></table></div></div>
+    <div class="card"><div class="ch"><span class="ct">Maiores Clientes</span></div><div class="tw"><table><thead><tr><th>Cliente</th><th>Cotas</th><th>Contempl.</th><th>Volume</th><th>Assessor</th><th>% Carteira</th></tr></thead><tbody id="dash-clients"></tbody></table></div></div>
     <div class="card"><div class="ch"><span class="ct">Por Assessor</span></div><div class="tw"><table><thead><tr><th>Assessor</th><th>Cotas</th><th>Contempl.</th><th>Volume</th><th>%</th></tr></thead><tbody id="dash-assess"></tbody></table></div></div>
   </div>
 
@@ -246,7 +245,17 @@ tr:hover td{background:#fafbfd}
     </div>
     <div class="card">
       <div class="tw"><table>
-        <thead><tr><th>Cliente</th><th>Grupo/Cota</th><th>Crédito</th><th>Parcela</th><th>Venc.</th><th>Assessor</th><th>Status</th><th>Lance 1</th><th>Posição</th><th>Comissão</th><th>Ações</th></tr></thead>
+        <thead><tr>
+          <th onclick="sortCtrl('nome')" style="cursor:pointer">Cliente <span id="csort-nome">⇅</span></th>
+          <th onclick="sortCtrl('grupo')" style="cursor:pointer">Grupo/Cota <span id="csort-grupo">⇅</span></th>
+          <th onclick="sortCtrl('credito')" style="cursor:pointer">Crédito <span id="csort-credito">⇅</span></th>
+          <th onclick="sortCtrl('parcela')" style="cursor:pointer">Parcela <span id="csort-parcela">⇅</span></th>
+          <th>Venc.</th>
+          <th onclick="sortCtrl('assessor')" style="cursor:pointer">Assessor <span id="csort-assessor">⇅</span></th>
+          <th onclick="sortCtrl('status')" style="cursor:pointer">Status <span id="csort-status">⇅</span></th>
+          <th onclick="sortCtrl('lance1')" style="cursor:pointer">Lance 1 <span id="csort-lance1">⇅</span></th>
+          <th>Posição</th><th>Comissão</th><th>Ações</th>
+        </tr></thead>
         <tbody id="ctrl-tbody"></tbody>
       </table></div>
       <div class="pag" id="ctrl-pag"></div>
@@ -340,7 +349,19 @@ tr:hover td{background:#fafbfd}
     <div id="guia-browse">
       <div class="card">
         <div class="ch"><span class="ct">Todos os Grupos</span><span style="font-size:12px;color:var(--txt2)" id="browse-count">560 grupos</span></div>
-        <div class="tw"><table><thead><tr><th>Grupo</th><th>Tipo</th><th>Situação</th><th>Indexador</th><th>Prazo Rest.</th><th>Próx. Assembleia</th><th>Vagas</th><th>Valor Mín.</th><th>Valor Máx.</th><th>Últ. Lance Mín.</th><th>Lance Atual</th><th>Contemp.</th></tr></thead><tbody id="browse-tbody"></tbody></table></div>
+        <div class="tw"><table><thead><tr>
+          <th onclick="sortBrowse('g')" style="cursor:pointer">Grupo <span id="bsort-g">⇅</span></th>
+          <th>Tipo</th><th>Situação</th>
+          <th onclick="sortBrowse('idx')" style="cursor:pointer">Indexador <span id="bsort-idx">⇅</span></th>
+          <th onclick="sortBrowse('pr')" style="cursor:pointer">Prazo Rest. <span id="bsort-pr">⇅</span></th>
+          <th onclick="sortBrowse('asm')" style="cursor:pointer">Próx. Assembleia <span id="bsort-asm">⇅</span></th>
+          <th onclick="sortBrowse('vagas')" style="cursor:pointer">Vagas <span id="bsort-vagas">⇅</span></th>
+          <th onclick="sortBrowse('vmin')" style="cursor:pointer">Valor Mín. <span id="bsort-vmin">⇅</span></th>
+          <th onclick="sortBrowse('vmax')" style="cursor:pointer">Valor Máx. <span id="bsort-vmax">⇅</span></th>
+          <th onclick="sortBrowse('ul_min')" style="cursor:pointer">Últ. Lance Mín. <span id="bsort-ul_min">⇅</span></th>
+          <th onclick="sortBrowse('at_min')" style="cursor:pointer">Lance Atual <span id="bsort-at_min">⇅</span></th>
+          <th onclick="sortBrowse('at_cl')" style="cursor:pointer">Contemp. <span id="bsort-at_cl">⇅</span></th>
+        </tr></thead><tbody id="browse-tbody"></tbody></table></div>
         <div class="pag" id="browse-pag"></div>
       </div>
     </div>
@@ -392,9 +413,10 @@ tr:hover td{background:#fafbfd}
               <div class="res-row"><span class="res-l">Lance — Parte da Carta</span><span class="res-v" id="r-llc">—</span></div>
               <div class="res-row"><span class="res-l">Lance Total (R$)</span><span class="res-v hl" id="r-ltot">—</span></div>
               <div class="res-row"><span class="res-l">Crédito Líquido</span><span class="res-v ok" id="r-liq">—</span></div>
+              <div class="res-row"><span class="res-l">Saldo Devedor (total a pagar)</span><span class="res-v" id="r-saldo">—</span></div>
               <div class="res-row"><span class="res-l">Parcela Inicial</span><span class="res-v" id="r-pi">—</span></div>
-              <div class="res-row"><span class="res-l">Parcela Pós-Contemplação</span><span class="res-v ok" id="r-pp">—</span></div>
-              <div class="res-row"><span class="res-l">CET estimado</span><span class="res-v" id="r-cet">—</span></div>
+              <div class="res-row"><span class="res-l">Parcela Reduzida (pós contempl.)</span><span class="res-v ok" id="r-pp">—</span></div>
+              <div class="res-row"><span class="res-l">Custo total (adm + FR)</span><span class="res-v" id="r-cet">—</span></div>
             </div>
             <div class="note">• Lances não são garantia de contemplação.<br>• Simulação considera contemplação imediata.<br>• Valores sujeitos a reajuste pelo indexador do grupo.</div>
           </div>
@@ -408,8 +430,49 @@ tr:hover td{background:#fafbfd}
 
   <!-- PROJETOS -->
   <div class="page" id="page-proj">
-    <div class="proj-grid" id="proj-cards"></div>
-    <div id="proj-detail"></div>
+    <div class="frow" style="margin-bottom:14px">
+      <div style="display:flex;gap:4px;background:#f1f5f9;border-radius:8px;padding:3px">
+        <button id="pvtoggle-cards" class="btn btn-pri btn-sm" onclick="setProjView('cards')">🗂 Por Cliente</button>
+        <button id="pvtoggle-list" class="btn btn-out btn-sm" onclick="setProjView('list')">📋 Lista Completa</button>
+      </div>
+      <div id="proj-list-filters" style="display:none;flex:1;display:none;gap:8px;flex-wrap:wrap;align-items:center">
+        <input class="fi fi-lg" type="text" id="pf-search" placeholder="🔍  Nome, grupo, cota, CPF..." oninput="filterProjList()">
+        <select class="fi fi-md" id="pf-status" onchange="filterProjList()">
+          <option value="">Todos Status</option>
+          <option>SORTEIO / LANCE</option><option>CONTEMPLADO</option><option>LANCE</option><option>SUPLENCIA - 2 NA FRENTE</option><option>Repassamos a contemplação</option><option>CANCELADO</option>
+        </select>
+        <select class="fi fi-md" id="pf-assessor" onchange="filterProjList()">
+          <option value="">Todos Assessores</option>
+          <option>ALAN / ESCRITORIO</option><option>ALE / ESCRITORIO</option><option>GLAUCO</option><option>GIL</option><option>SZPIN</option><option>Coyote</option>
+        </select>
+        <button class="btn btn-out btn-sm" onclick="clearProjList()">✕</button>
+        <button class="btn btn-ok btn-sm" onclick="openModalCota(-1)">+ Nova Cota</button>
+        <span style="margin-left:auto;font-size:12px;color:var(--txt2)" id="pf-count">—</span>
+      </div>
+    </div>
+    <div id="proj-view-cards">
+      <div class="proj-grid" id="proj-cards"></div>
+      <div id="proj-detail"></div>
+    </div>
+    <div id="proj-view-list" style="display:none">
+      <div class="card">
+        <div class="tw"><table>
+          <thead><tr>
+            <th onclick="sortProjList('nome')" style="cursor:pointer">Cliente <span id="psort-nome">⇅</span></th>
+            <th onclick="sortProjList('grupo')" style="cursor:pointer">Grupo/Cota <span id="psort-grupo">⇅</span></th>
+            <th onclick="sortProjList('credito')" style="cursor:pointer">Crédito <span id="psort-credito">⇅</span></th>
+            <th onclick="sortProjList('parcela')" style="cursor:pointer">Parcela <span id="psort-parcela">⇅</span></th>
+            <th>Venc.</th>
+            <th onclick="sortProjList('assessor')" style="cursor:pointer">Assessor <span id="psort-assessor">⇅</span></th>
+            <th onclick="sortProjList('status')" style="cursor:pointer">Status <span id="psort-status">⇅</span></th>
+            <th onclick="sortProjList('lance1')" style="cursor:pointer">Lance 1 <span id="psort-lance1">⇅</span></th>
+            <th>Posição</th><th>Comissão</th><th>Ações</th>
+          </tr></thead>
+          <tbody id="plist-tbody"></tbody>
+        </table></div>
+        <div class="pag" id="plist-pag"></div>
+      </div>
+    </div>
   </div>
 
   </div>
@@ -454,6 +517,7 @@ tr:hover td{background:#fafbfd}
       </div>
       <div class="form-g"><label class="form-l">Posição na Fila</label><input class="form-i" id="mc-pos" placeholder="Ex: 3°"></div>
       <div class="form-g"><label class="form-l">Observação</label><input class="form-i" id="mc-obs"></div>
+      <div class="form-g"><label class="form-l">Taxa Adm. Negociada (%)</label><input type="number" class="form-i" id="mc-taxa" step="0.1" placeholder="Ex: 22.5 — preencher ao fechar venda"></div>
     </div>
     <div class="mf">
       <button class="btn btn-err btn-sm" id="mc-del-btn" onclick="deleteCota()" style="display:none;margin-right:auto">🗑 Excluir</button>
@@ -557,8 +621,10 @@ const MPT={'Jan/25':'Jan/25','Feb/25':'Fev/25','Mar/25':'Mar/25','Apr/25':'Abr/2
 const mpt=m=>MPT[m]||m;
 
 let COTAS=[], LEADS=[], dashCharts={};
-let ctrlFiltered=[], ctrlPage=1;
-let browseData=Object.entries(GUIA), browsePage=1;
+let ctrlFiltered=[], ctrlPage=1, ctrlSort={col:null,dir:1};
+let browseData=Object.entries(GUIA), browsePage=1, browseSort={col:null,dir:1};
+let plistFiltered=[], plistPage=1, plistSort={col:null,dir:1};
+let projView='cards';
 let currentLead=null, currentCota=null, currentCotaId=null;
 let selProj=null, minChart=null, contChart=null;
 
@@ -569,6 +635,8 @@ const SB={'CONTEMPLADO':'<span class="badge b-ok">✓ Contemplado</span>','SORTE
 function sbadge(s){return SB[s]||`<span class="badge b-gray">${s}</span>`;}
 function atag(a){if(!a)return'';const cls=a.includes('ALAN')?'tAL':a.includes('ALE')?'tAE':a==='GLAUCO'?'tGL':(a==='GIL'||a==='Gil')?'tGI':a==='SZPIN'?'tSZ':a==='Coyote'?'tCO':'tOT';return`<span class="tag ${cls}">${a}</span>`;}
 function paginate(items,pg,pp=30){const s=(pg-1)*pp;return{items:items.slice(s,s+pp),total:items.length,pages:Math.ceil(items.length/pp)};}
+function sortArr(arr,col,dir){return arr.slice().sort((a,b)=>{const va=a[col]??'',vb=b[col]??'';if(typeof va==='number'&&typeof vb==='number')return(va-vb)*dir;return String(va).localeCompare(String(vb),'pt-BR')*dir;});}
+function sortIcon(st,col){if(st.col!==col)return'⇅';return st.dir===1?'↑':'↓';}
 function renderPag(cid,cur,tot,fn){const el=document.getElementById(cid);if(tot<=1){el.innerHTML='';return;}let h='';if(cur>1)h+=`<button class="pag-btn" onclick="${fn}(${cur-1})">‹</button>`;const st=Math.max(1,cur-2),en=Math.min(tot,st+4);for(let i=st;i<=en;i++)h+=`<button class="pag-btn${i===cur?' act':''}" onclick="${fn}(${i})">${i}</button>`;if(cur<tot)h+=`<button class="pag-btn" onclick="${fn}(${cur+1})">›</button>`;el.innerHTML=h;}
 
 function toast(msg,type='ok'){const div=document.createElement('div');div.className=`toast-item ${type}`;div.textContent=(type==='ok'?'✓ ':type==='err'?'✕ ':'')+msg;document.getElementById('toast').appendChild(div);setTimeout(()=>div.remove(),3500);}
@@ -577,8 +645,8 @@ function hideLoad(){document.getElementById('loading').classList.remove('show');
 function setSync(ok){const d=document.getElementById('sync-dot'),s=document.getElementById('sync-status');d.className='sync-dot'+(ok?' ok':' err');s.textContent=ok?'Conectado ao Supabase':'Sem conexão';}
 
 // ═══ NAV ═══
-const PGT={'dash':'Dashboard','ctrl':'Controle de Cotas','agenda':'Agenda','crm':'CRM / Indicações','guia':'Guia de Oportunidades','prop':'Gerar Proposta','proj':'Projetos'};
-function nav(id,el){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));document.getElementById('page-'+id).classList.add('active');if(el)el.classList.add('active');document.getElementById('pg-title').textContent=PGT[id];if(id==='ctrl')filterCtrl();if(id==='agenda')renderAgenda();if(id==='crm')renderCRM();if(id==='guia'){browseData=Object.entries(GUIA);renderBrowse(browseData,1);}if(id==='prop'){calcProp();updLance();}if(id==='proj')renderProj();}
+const PGT={'dash':'Dashboard','ctrl':'Controle de Cotas','agenda':'Agenda','crm':'CRM / Indicações','guia':'Guia de Oportunidades','prop':'Gerar Proposta','proj':'Projetos / Cotas'};
+function nav(id,el){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));document.getElementById('page-'+id).classList.add('active');if(el)el.classList.add('active');document.getElementById('pg-title').textContent=PGT[id]||id;if(id==='ctrl')filterCtrl();if(id==='agenda')renderAgenda();if(id==='crm')renderCRM();if(id==='guia'){browseData=Object.entries(GUIA);renderBrowse(browseData,1);}if(id==='prop'){calcProp();updLance();}if(id==='proj')renderProj();}
 
 // ═══ SUPABASE ═══
 async function loadData(){
@@ -652,11 +720,12 @@ function initDash(){
   const am={};COTAS.forEach(r=>{let a=r.assessor||'Outros';if(a==='Gil')a='GIL';if(!am[a])am[a]=0;am[a]++;});
   const ta=Object.entries(am).sort((a,b)=>b[1]-a[1]).slice(0,7);
   dashCharts.assess=new Chart(document.getElementById('ch-assess'),{type:'bar',data:{labels:ta.map(x=>x[0]),datasets:[{data:ta.map(x=>x[1]),backgroundColor:'#3b82f6',borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{beginAtZero:true}}}});
-  const cm={};COTAS.forEach(r=>{const n=r.nome;if(!cm[n])cm[n]={cotas:0,contemp:0,credito:0,assessor:r.assessor};cm[n].cotas++;if(r.status==='CONTEMPLADO')cm[n].contemp++;if(r.credito)cm[n].credito+=r.credito;});
-  const tc=Object.entries(cm).sort((a,b)=>b[1].cotas-a[1].cotas).slice(0,8);
-  document.getElementById('dash-clients').innerHTML=tc.map(([n,d])=>`<tr><td><strong>${n}</strong></td><td>${d.cotas}</td><td><span class="badge b-ok">${d.contemp}</span></td><td>${brl(d.credito,0)}</td><td>${atag(d.assessor)}</td><td>${d.cotas>0?((d.contemp/d.cotas)*100).toFixed(0)+'%':'—'}</td></tr>`).join('');
-  const amd={};COTAS.forEach(r=>{let a=r.assessor||'Outros';if(a==='Gil')a='GIL';if(!amd[a])amd[a]={cotas:0,contemp:0,credito:0};amd[a].cotas++;if(r.status==='CONTEMPLADO')amd[a].contemp++;if(r.credito)amd[a].credito+=r.credito;});
-  document.getElementById('dash-assess').innerHTML=Object.entries(amd).sort((a,b)=>b[1].cotas-a[1].cotas).slice(0,8).map(([a,d])=>`<tr><td>${atag(a)}</td><td>${d.cotas}</td><td>${d.contemp}</td><td>${brl(d.credito,0)}</td><td>${d.cotas>0?((d.contemp/d.cotas)*100).toFixed(0)+'%':'—'}</td></tr>`).join('');
+  const cm={};ativas.forEach(r=>{const n=r.nome;if(!cm[n])cm[n]={cotas:0,contemp:0,credito:0,assessor:r.assessor};cm[n].cotas++;if(r.status==='CONTEMPLADO')cm[n].contemp++;if(r.credito)cm[n].credito+=r.credito;});
+  const tc=Object.entries(cm).sort((a,b)=>b[1].credito-a[1].credito).slice(0,8);
+  const totalCarteira=cred||1;
+  document.getElementById('dash-clients').innerHTML=tc.map(([n,d])=>`<tr><td><strong>${n}</strong></td><td>${d.cotas}</td><td><span class="badge b-ok">${d.contemp}</span></td><td>${brl(d.credito,0)}</td><td>${atag(d.assessor)}</td><td><strong>${(d.credito/totalCarteira*100).toFixed(1)}%</strong></td></tr>`).join('');
+  const amd={};ativas.forEach(r=>{let a=r.assessor||'Outros';if(a==='Gil')a='GIL';if(!amd[a])amd[a]={cotas:0,contemp:0,credito:0};amd[a].cotas++;if(r.status==='CONTEMPLADO')amd[a].contemp++;if(r.credito)amd[a].credito+=r.credito;});
+  document.getElementById('dash-assess').innerHTML=Object.entries(amd).sort((a,b)=>b[1].cotas-a[1].cotas).slice(0,8).map(([a,d])=>`<tr><td>${atag(a)}</td><td>${d.cotas}</td><td>${d.contemp}</td><td>${brl(d.credito,0)}</td><td>${(d.credito/totalCarteira*100).toFixed(1)}%</td></tr>`).join('');
 }
 
 // ═══ CONTROLE ═══
@@ -671,9 +740,12 @@ function filterCtrl(){
   ctrlPage=1;renderCtrl();
 }
 function clearCtrl(){['f-search','f-status','f-assessor'].forEach(id=>document.getElementById(id).value='');filterCtrl();}
+function sortCtrl(col){ctrlSort.dir=ctrlSort.col===col?-ctrlSort.dir:1;ctrlSort.col=col;ctrlPage=1;renderCtrl();}
 function ctrlGo(p){ctrlPage=p;renderCtrl();}
 function renderCtrl(){
-  const{items,total,pages}=paginate(ctrlFiltered,ctrlPage,30);
+  const sorted=ctrlSort.col?sortArr(ctrlFiltered,ctrlSort.col,ctrlSort.dir):ctrlFiltered;
+  ['nome','grupo','credito','parcela','assessor','status','lance1'].forEach(c=>{const el=document.getElementById('csort-'+c);if(el)el.textContent=sortIcon(ctrlSort,c);});
+  const{items,total,pages}=paginate(sorted,ctrlPage,30);
   document.getElementById('ctrl-count').textContent=total+' cotas';
   document.getElementById('ctrl-tbody').innerHTML=items.map(r=>`<tr>
     <td><strong>${r.nome||'—'}</strong><br><span style="font-size:10.5px;color:var(--txt2)">${r.cpf||''}</span></td>
@@ -699,9 +771,9 @@ function openModalCota(id){
   const r=isNew?{}:COTAS.find(c=>c.id===id)||{};
   document.getElementById('modal-cota-title').textContent=isNew?'Nova Cota':`Editar — ${r.nome||''} · ${r.grupo||''}/${r.cota||''}`;
   document.getElementById('mc-del-btn').style.display=isNew?'none':'inline-flex';
-  ['nome','cpf','grupo','cota','credito','parcela','assessor','adesao','status','l1','l2','pos','obs'].forEach(k=>{
+  ['nome','cpf','grupo','cota','credito','parcela','assessor','adesao','status','l1','l2','pos','obs','taxa'].forEach(k=>{
     const el=document.getElementById('mc-'+k);
-    if(el)el.value=r[k==='l1'?'lance1':k==='l2'?'lance2':k==='obs'?'informacao':k==='pos'?'posicao':k]||'';
+    if(el)el.value=r[k==='l1'?'lance1':k==='l2'?'lance2':k==='obs'?'informacao':k==='pos'?'posicao':k==='taxa'?'taxa_adm':k]||'';
   });
   document.getElementById('mc-venc').value=r.vencimento||'';
   document.getElementById('modal-cota').classList.add('open');
@@ -722,6 +794,7 @@ async function saveCota(){
     lance2:parseFloat(document.getElementById('mc-l2').value)||null,
     posicao:document.getElementById('mc-pos').value,
     informacao:document.getElementById('mc-obs').value,
+    taxa_adm:parseFloat(document.getElementById('mc-taxa').value)||null,
     updated_at:new Date().toISOString(),
   };
   if(currentCotaId&&currentCotaId!==-1)data.id=currentCotaId;
@@ -923,18 +996,23 @@ function guiaSel(g){
 }
 function guiaClear(){document.getElementById('guia-input').value='';document.getElementById('guia-result').style.display='none';document.getElementById('guia-empty').style.display='none';document.getElementById('guia-browse').style.display='block';selGrupo=null;}
 function usarNaProposta(){if(selGrupo){const d=GUIA[selGrupo];document.getElementById('p-grupos').value=selGrupo;if(d&&d.vmax)document.getElementById('p-credito').value=d.vmax;if(d&&d.fr)document.getElementById('p-fr').value=(d.fr*100).toFixed(1);if(d&&d.pr)document.getElementById('p-prazo').value=d.pr;}nav('prop',document.querySelectorAll('.ni')[6]);calcProp();}
-function renderBrowse(data,pg){browsePage=pg;const{items,total,pages}=paginate(data,pg,40);document.getElementById('browse-count').textContent=data.length+' grupos';document.getElementById('browse-tbody').innerHTML=items.map(([g,d])=>`<tr onclick="guiaSel('${g}')" style="cursor:pointer"><td><strong style="color:var(--acc)">${g}</strong></td><td style="font-size:11px">${(d.tp||'').replace('IMÓVEIS','?? Imóveis').replace('VEÍCULOS LEVES','??').replace('VEÍCULOS PESADOS','??').replace('MOTOS','??')}</td><td><span class="badge ${d.sit==='Andamento'?'b-ok':'b-gray'}">${d.sit||'—'}</span></td><td style="font-size:11px">${d.idx||'—'}</td><td>${d.pr||'—'}m</td><td style="font-size:11px">${d.asm||'—'}</td><td>${d.vagas!=null?d.vagas:'—'}</td><td style="font-size:11px">${d.vmin?brl(d.vmin,0):'—'}</td><td style="font-size:11px">${d.vmax?brl(d.vmax,0):'—'}</td><td>${d.ul_min&&d.ul_min>0?'<span style="color:var(--ok);font-weight:700">'+pct(d.ul_min)+'</span>':'—'}</td><td>${d.at_min&&d.at_min>0?'<span style="color:var(--acc);font-weight:700">'+pct(d.at_min)+'</span>':'—'}</td><td>${d.at_cl||'—'}</td></tr>`).join('');renderPag('browse-pag',pg,pages,'browseGo');}
+function renderBrowse(data,pg){browsePage=pg;
+  let sorted=data;
+  if(browseSort.col){const c=browseSort.col;const d2=browseSort.dir;sorted=data.slice().sort(([ag,ad],[bg,bd])=>{const va=c==='g'?ag:(ad[c]??'');const vb=c==='g'?bg:(bd[c]??'');if(typeof va==='number'&&typeof vb==='number')return(va-vb)*d2;return String(va).localeCompare(String(vb),'pt-BR')*d2;});}
+  ['g','idx','pr','asm','vagas','vmin','vmax','ul_min','at_min','at_cl'].forEach(c=>{const el=document.getElementById('bsort-'+c);if(el)el.textContent=sortIcon(browseSort,c);});
+  const{items,total,pages}=paginate(sorted,pg,40);document.getElementById('browse-count').textContent=data.length+' grupos';document.getElementById('browse-tbody').innerHTML=items.map(([g,d])=>`<tr onclick="guiaSel('${g}')" style="cursor:pointer"><td><strong style="color:var(--acc)">${g}</strong></td><td style="font-size:11px">${(d.tp||'').replace('IMÓVEIS','?? Imóveis').replace('VEÍCULOS LEVES','??').replace('VEÍCULOS PESADOS','??').replace('MOTOS','??')}</td><td><span class="badge ${d.sit==='Andamento'?'b-ok':'b-gray'}">${d.sit||'—'}</span></td><td style="font-size:11px">${d.idx||'—'}</td><td>${d.pr||'—'}m</td><td style="font-size:11px">${d.asm||'—'}</td><td>${d.vagas!=null?d.vagas:'—'}</td><td style="font-size:11px">${d.vmin?brl(d.vmin,0):'—'}</td><td style="font-size:11px">${d.vmax?brl(d.vmax,0):'—'}</td><td>${d.ul_min&&d.ul_min>0?'<span style="color:var(--ok);font-weight:700">'+pct(d.ul_min)+'</span>':'—'}</td><td>${d.at_min&&d.at_min>0?'<span style="color:var(--acc);font-weight:700">'+pct(d.at_min)+'</span>':'—'}</td><td>${d.at_cl||'—'}</td></tr>`).join('');renderPag('browse-pag',pg,pages,'browseGo');}
 function browseGo(p){renderBrowse(browseData,p);}
+function sortBrowse(col){browseSort.dir=browseSort.col===col?-browseSort.dir:1;browseSort.col=col;renderBrowse(browseData,1);}
 
 // ═══ PROPOSTA ═══
 function updLance(){const t=parseFloat(document.getElementById('p-lance').value)||0;const rp=parseFloat(document.getElementById('p-rp').value)||0;document.getElementById('p-lc').value=Math.max(0,t-rp).toFixed(1);document.getElementById('p-lance-lbl').textContent=t.toFixed(0)+'%';}
 function calcProp(){
   updLance();
   const cred=parseFloat(document.getElementById('p-credito').value)||0;const nc=parseInt(document.getElementById('p-cotas').value)||1;const taxaAdm=parseFloat(document.getElementById('p-taxaadm').value)||0;const prazo=parseInt(document.getElementById('p-prazo').value)||1;const fr=parseFloat(document.getElementById('p-fr').value)||0;const seg=parseFloat(document.getElementById('p-seg').value)||0;const lt=parseFloat(document.getElementById('p-lance').value)||0;const rp=parseFloat(document.getElementById('p-rp').value)||0;const lc=Math.max(0,lt-rp);const cliente=document.getElementById('p-cliente').value||'—';const grupos=document.getElementById('p-grupos').value||'—';
-  const ct=cred*nc;const lRP=ct*rp/100;const lLC=ct*lc/100;const lTot=lRP+lLC;const credLiq=ct-lLC;const taxM=(taxaAdm/100)/prazo;const pi=ct/prazo+ct*taxM+ct*fr/100/prazo+ct*seg/100;const pp=credLiq/prazo+credLiq*taxM+credLiq*fr/100/prazo+credLiq*seg/100;const cetAA=((taxaAdm+fr)/100)/prazo*12;
+  const ct=cred*nc;const lRP=ct*rp/100;const lLC=ct*lc/100;const lTot=lRP+lLC;const credLiq=ct-lLC;const taxM=(taxaAdm/100)/prazo;const pi=ct/prazo+ct*taxM+ct*fr/100/prazo+ct*seg/100;const pp=credLiq/prazo+credLiq*taxM+credLiq*fr/100/prazo+credLiq*seg/100;const saldoDevedor=pp*prazo;const custoTotal=(taxaAdm+fr).toFixed(1)+'% ≈ '+brl(ct*(taxaAdm+fr)/100,0);
   document.getElementById('prop-title').textContent='Proposta — '+cliente+' · '+grupos;
   const set=(id,v)=>{document.getElementById(id).textContent=v;};
-  set('r-cred',brl(ct,0));set('r-cotas',nc);set('r-percota',brl(cred,0));set('r-lperc',lt.toFixed(2)+'%');set('r-lrp',brl(lRP,0));set('r-llc',brl(lLC,0));set('r-ltot',brl(lTot,0));set('r-liq',brl(credLiq,0));set('r-pi',brl(pi));set('r-pp',brl(pp));set('r-cet',(cetAA*100).toFixed(2)+'% a.a.');
+  set('r-cred',brl(ct,0));set('r-cotas',nc);set('r-percota',brl(cred,0));set('r-lperc',lt.toFixed(2)+'%');set('r-lrp',brl(lRP,0));set('r-llc',brl(lLC,0));set('r-ltot',brl(lTot,0));set('r-liq',brl(credLiq,0));set('r-saldo',brl(saldoDevedor,0));set('r-pi',brl(pi));set('r-pp',brl(pp));set('r-cet',custoTotal);
   document.getElementById('cenarios-tbody').innerHTML=[15,20,25,30,35,40,45,50,60,70,80].map(p=>{const llc2=ct*Math.max(0,p-rp)/100;const liq2=ct-llc2;const pp2=liq2/prazo+liq2*taxM+liq2*fr/100/prazo+liq2*seg/100;const hl=p===lt?' style="background:#fff8f2"':'';return`<tr${hl}><td><strong>${p}%</strong>${p===lt?' ◄':''}</td><td>${brl(ct*rp/100,0)}</td><td>${brl(llc2,0)}</td><td>${brl(liq2,0)}</td><td>${brl(pp2)}</td></tr>`;}).join('');
 }
 
@@ -1043,6 +1121,49 @@ async function projSaveRow(id){
     renderProjDetail(selProj);
     initDash();
   }
+}
+
+// ═══ PROJETOS LIST VIEW ═══
+function setProjView(v){
+  projView=v;
+  document.getElementById('proj-view-cards').style.display=v==='cards'?'block':'none';
+  document.getElementById('proj-view-list').style.display=v==='list'?'block':'none';
+  document.getElementById('proj-list-filters').style.display=v==='list'?'flex':'none';
+  document.getElementById('pvtoggle-cards').className='btn btn-sm'+(v==='cards'?' btn-pri':' btn-out');
+  document.getElementById('pvtoggle-list').className='btn btn-sm'+(v==='list'?' btn-pri':' btn-out');
+  if(v==='list'){plistFiltered=[...COTAS];plistPage=1;renderProjList();}
+}
+function filterProjList(){
+  const s=document.getElementById('pf-search').value.toLowerCase();
+  const st=document.getElementById('pf-status').value;
+  const as=document.getElementById('pf-assessor').value;
+  const na=a=>a==='Gil'?'GIL':a;
+  plistFiltered=COTAS.filter(r=>(!s||(r.nome||'').toLowerCase().includes(s)||(r.grupo||'').toString().includes(s)||(r.cota||'').toString().includes(s)||(r.cpf||'').includes(s))&&(!st||r.status===st)&&(!as||na(r.assessor)===as));
+  plistPage=1;renderProjList();
+}
+function clearProjList(){['pf-search','pf-status','pf-assessor'].forEach(id=>document.getElementById(id).value='');plistFiltered=[...COTAS];plistPage=1;renderProjList();}
+function sortProjList(col){plistSort.dir=plistSort.col===col?-plistSort.dir:1;plistSort.col=col;plistPage=1;renderProjList();}
+function plistGo(p){plistPage=p;renderProjList();}
+function renderProjList(){
+  const sorted=plistSort.col?sortArr(plistFiltered,plistSort.col,plistSort.dir):plistFiltered;
+  ['nome','grupo','credito','parcela','assessor','status','lance1'].forEach(c=>{const el=document.getElementById('psort-'+c);if(el)el.textContent=sortIcon(plistSort,c);});
+  document.getElementById('pf-count').textContent=plistFiltered.length+' cotas';
+  const{items,total,pages}=paginate(sorted,plistPage,30);
+  document.getElementById('plist-tbody').innerHTML=items.map(r=>`<tr>
+    <td><strong>${r.nome||'—'}</strong><br><span style="font-size:10.5px;color:var(--txt2)">${r.cpf||''}</span></td>
+    <td>${r.grupo||'—'} / ${r.cota||'—'}</td>
+    <td>${brl(r.credito,0)}</td><td>${brl(r.parcela)}</td>
+    <td style="font-size:11px">${r.vencimento?'dia '+r.vencimento:'—'}</td>
+    <td>${atag(r.assessor)}</td><td>${sbadge(r.status)}</td>
+    <td>${r.lance1?brl(r.lance1,0):'—'}</td>
+    <td style="font-size:11px;color:var(--txt2)">${r.posicao||'—'}</td>
+    <td>${r.comissao==='PAGO'?'<span class="badge b-ok">✓ Pago</span>':'<span class="badge b-warn">Pend.</span>'}</td>
+    <td style="display:flex;gap:4px">
+      <button class="btn btn-out btn-sm" onclick="openModalCota('${r.id}')">✏️</button>
+      <button class="btn btn-ok btn-sm" onclick="openModalContemp('${r.id}')" title="Contemplar">✓</button>
+    </td>
+  </tr>`).join('');
+  renderPag('plist-pag',plistPage,pages,'plistGo');
 }
 
 // ═══ MODAL UTILS ═══
