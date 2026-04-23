@@ -402,6 +402,21 @@ tr:hover td{background:#fafbfd}
             <div class="form-g"><label class="form-l">Rec. Próprios (%)</label><input type="number" class="form-i" id="p-rp" value="10" step="1" oninput="calcProp()"></div>
             <div class="form-g"><label class="form-l">Parte da Carta (%)</label><input type="number" class="form-i" id="p-lc" value="30" readonly style="background:#f8fafc;color:var(--txt2)"></div>
           </div>
+          <div class="dvr"></div>
+          <div class="g2" style="margin-bottom:0">
+            <div class="form-g">
+              <label class="form-l">Mês de Contemplação</label>
+              <input type="number" class="form-i" id="p-mes" value="1" min="1" oninput="calcProp()" placeholder="Ex: 6 = 6º mês">
+            </div>
+            <div class="form-g">
+              <label class="form-l">Redução Pré-Contempl.</label>
+              <select class="form-i" id="p-red" onchange="calcProp()">
+                <option value="0">Sem redução</option>
+                <option value="30">30% de redução</option>
+                <option value="50">50% de redução</option>
+              </select>
+            </div>
+          </div>
           <button class="btn btn-pri" style="width:100%;margin-top:10px;justify-content:center" onclick="calcProp()">Calcular</button>
         </div></div>
       </div>
@@ -417,17 +432,20 @@ tr:hover td{background:#fafbfd}
               <div class="res-row"><span class="res-l">Lance — Recursos Próprios</span><span class="res-v" id="r-lrp">—</span></div>
               <div class="res-row"><span class="res-l">Lance — Parte da Carta</span><span class="res-v" id="r-llc">—</span></div>
               <div class="res-row"><span class="res-l">Lance Total (R$)</span><span class="res-v hl" id="r-ltot">—</span></div>
-              <div class="res-row"><span class="res-l">Crédito Líquido</span><span class="res-v ok" id="r-liq">—</span></div>
-              <div class="res-row"><span class="res-l">Saldo Devedor (total a pagar)</span><span class="res-v" id="r-saldo">—</span></div>
-              <div class="res-row"><span class="res-l">Parcela Inicial</span><span class="res-v" id="r-pi">—</span></div>
-              <div class="res-row"><span class="res-l">Parcela Reduzida (pós contempl.)</span><span class="res-v ok" id="r-pp">—</span></div>
-              <div class="res-row"><span class="res-l">Custo total (adm + FR)</span><span class="res-v" id="r-cet">—</span></div>
+              <div class="res-row"><span class="res-l">Crédito Líquido Recebido</span><span class="res-v ok" id="r-liq">—</span></div>
+              <div class="res-row" style="border-top:2px solid var(--acc);margin-top:4px;padding-top:10px"><span class="res-l" style="font-weight:700;color:var(--txt)">Saldo Devedor Total</span><span class="res-v" id="r-sd">—</span></div>
+              <div class="res-row"><span class="res-l">Parcela Pré-Contemplação</span><span class="res-v" id="r-pi">—</span></div>
+              <div class="res-row" id="r-pi-red-row" style="display:none"><span class="res-l">Parcela Pré (com redução)</span><span class="res-v" style="color:var(--warn);font-weight:700" id="r-pi-red">—</span></div>
+              <div class="res-row" style="border-top:2px solid var(--info);margin-top:4px;padding-top:10px"><span class="res-l" style="font-weight:700;color:var(--info)">Contemplação no Mês</span><span class="res-v" style="color:var(--info)" id="r-mes">—</span></div>
+              <div class="res-row"><span class="res-l">Saldo Pós-Lance</span><span class="res-v" id="r-saldo-pos">—</span></div>
+              <div class="res-row"><span class="res-l">Parcela Pós-Contemplação</span><span class="res-v ok" id="r-pp">—</span></div>
+              <div class="res-row"><span class="res-l">Custo Total (adm + FR)</span><span class="res-v" id="r-cet">—</span></div>
             </div>
             <div class="note">• Lances não são garantia de contemplação.<br>• Simulação considera contemplação imediata.<br>• Valores sujeitos a reajuste pelo indexador do grupo.</div>
           </div>
         </div>
         <div class="card"><div class="ch"><span class="ct">Cenários</span></div>
-          <div class="tw"><table><thead><tr><th>Lance %</th><th>Rec. Próprios</th><th>Parte Carta</th><th>Crédito Líquido</th><th>Parcela Pós</th></tr></thead><tbody id="cenarios-tbody"></tbody></table></div>
+          <div class="tw"><table><thead><tr><th>Lance %</th><th>Rec. Próprios</th><th>Parte Carta</th><th>Crédito Líquido</th><th>Parcela Pré</th><th>Parcela Pós</th></tr></thead><tbody id="cenarios-tbody"></tbody></table></div>
         </div>
       </div>
     </div>
@@ -1282,12 +1300,49 @@ function sortBrowse(col){browseSort.dir=browseSort.col===col?-browseSort.dir:1;b
 function updLance(){const t=parseFloat(document.getElementById('p-lance').value)||0;const rp=parseFloat(document.getElementById('p-rp').value)||0;document.getElementById('p-lc').value=Math.max(0,t-rp).toFixed(1);document.getElementById('p-lance-lbl').textContent=t.toFixed(0)+'%';}
 function calcProp(){
   updLance();
-  const cred=parseFloat(document.getElementById('p-credito').value)||0;const nc=parseInt(document.getElementById('p-cotas').value)||1;const taxaAdm=parseFloat(document.getElementById('p-taxaadm').value)||0;const prazo=parseInt(document.getElementById('p-prazo').value)||1;const fr=parseFloat(document.getElementById('p-fr').value)||0;const seg=parseFloat(document.getElementById('p-seg').value)||0;const lt=parseFloat(document.getElementById('p-lance').value)||0;const rp=parseFloat(document.getElementById('p-rp').value)||0;const lc=Math.max(0,lt-rp);const cliente=document.getElementById('p-cliente').value||'—';const grupos=document.getElementById('p-grupos').value||'—';
-  const ct=cred*nc;const lRP=ct*rp/100;const lLC=ct*lc/100;const lTot=lRP+lLC;const credLiq=ct-lLC;const taxM=(taxaAdm/100)/prazo;const pi=ct/prazo+ct*taxM+ct*fr/100/prazo+ct*seg/100;const pp=credLiq/prazo+credLiq*taxM+credLiq*fr/100/prazo+credLiq*seg/100;const saldoDevedor=pp*prazo;const custoTotal=(taxaAdm+fr).toFixed(1)+'% ≈ '+brl(ct*(taxaAdm+fr)/100,0);
+  const cred=parseFloat(document.getElementById('p-credito').value)||0;
+  const nc=parseInt(document.getElementById('p-cotas').value)||1;
+  const taxaAdm=parseFloat(document.getElementById('p-taxaadm').value)||0;
+  const prazo=parseInt(document.getElementById('p-prazo').value)||1;
+  const fr=parseFloat(document.getElementById('p-fr').value)||0;
+  const seg=parseFloat(document.getElementById('p-seg').value)||0;
+  const lt=parseFloat(document.getElementById('p-lance').value)||0;
+  const rp=parseFloat(document.getElementById('p-rp').value)||0;
+  const lc=Math.max(0,lt-rp);
+  const mes=Math.max(1,parseInt(document.getElementById('p-mes').value)||1);
+  const red=parseFloat(document.getElementById('p-red').value)||0;
+  const cliente=document.getElementById('p-cliente').value||'—';
+  const grupos=document.getElementById('p-grupos').value||'—';
+  const ct=cred*nc;
+  const lRP=ct*rp/100;
+  const lLC=ct*lc/100;
+  const lTot=lRP+lLC;
+  const credLiq=ct-lLC;
+  const sd=ct*(1+taxaAdm/100+fr/100);
+  const amortM=sd/prazo;
+  const pi=amortM+ct*seg/100;
+  const piRed=pi*(1-red/100);
+  const mesReal=Math.min(mes,prazo-1);
+  const amortPago=mesReal*amortM;
+  const saldoPos=Math.max(0,sd-amortPago-lTot);
+  const prazoRest=prazo-mesReal;
+  const pp=prazoRest>0?saldoPos/prazoRest+credLiq*seg/100:0;
+  const custoTotal=(taxaAdm+fr).toFixed(1)+'% ≈ '+brl(ct*(taxaAdm+fr)/100,0);
   document.getElementById('prop-title').textContent='Proposta — '+cliente+' · '+grupos;
   const set=(id,v)=>{document.getElementById(id).textContent=v;};
-  set('r-cred',brl(ct,0));set('r-cotas',nc);set('r-percota',brl(cred,0));set('r-lperc',lt.toFixed(2)+'%');set('r-lrp',brl(lRP,0));set('r-llc',brl(lLC,0));set('r-ltot',brl(lTot,0));set('r-liq',brl(credLiq,0));set('r-saldo',brl(saldoDevedor,0));set('r-pi',brl(pi));set('r-pp',brl(pp));set('r-cet',custoTotal);
-  document.getElementById('cenarios-tbody').innerHTML=[15,20,25,30,35,40,45,50,60,70,80].map(p=>{const llc2=ct*Math.max(0,p-rp)/100;const liq2=ct-llc2;const pp2=liq2/prazo+liq2*taxM+liq2*fr/100/prazo+liq2*seg/100;const hl=p===lt?' style="background:#fff8f2"':'';return`<tr${hl}><td><strong>${p}%</strong>${p===lt?' ◄':''}</td><td>${brl(ct*rp/100,0)}</td><td>${brl(llc2,0)}</td><td>${brl(liq2,0)}</td><td>${brl(pp2)}</td></tr>`;}).join('');
+  set('r-cred',brl(ct,0));set('r-cotas',nc);set('r-percota',brl(cred,0));
+  set('r-lperc',lt.toFixed(2)+'%');set('r-lrp',brl(lRP,0));set('r-llc',brl(lLC,0));set('r-ltot',brl(lTot,0));
+  set('r-liq',brl(credLiq,0));set('r-sd',brl(sd,0));
+  set('r-pi',brl(pi));set('r-pi-red',brl(piRed));
+  document.getElementById('r-pi-red-row').style.display=red>0?'flex':'none';
+  set('r-mes',mesReal+'º mês');set('r-saldo-pos',brl(saldoPos,0));set('r-pp',brl(pp));set('r-cet',custoTotal);
+  document.getElementById('cenarios-tbody').innerHTML=[15,20,25,30,35,40,45,50,60,70,80].map(p=>{
+    const llc2=ct*Math.max(0,p-rp)/100;const liq2=ct-llc2;const ltot2=ct*rp/100+llc2;
+    const sp2=Math.max(0,sd-amortPago-ltot2);
+    const pp2=prazoRest>0?sp2/prazoRest+liq2*seg/100:0;
+    const hl=p===lt?' style="background:#fff8f2"':'';
+    return`<tr${hl}><td><strong>${p}%</strong>${p===lt?' ◄':''}</td><td>${brl(ct*rp/100,0)}</td><td>${brl(llc2,0)}</td><td>${brl(liq2,0)}</td><td>${brl(pi)}</td><td>${brl(pp2)}</td></tr>`;
+  }).join('');
 }
 
 // ═══ PROJETOS ═══
