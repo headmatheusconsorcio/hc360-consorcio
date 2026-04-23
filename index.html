@@ -485,47 +485,94 @@ tr:hover td{background:#fafbfd}
 
 <!-- MODAL SIMULAÇÃO -->
 <div class="moverlay" id="modal-sim">
-  <div class="modal" style="width:820px;max-width:96vw">
-    <div class="mh">
-      <span class="mt" id="sim-title">📊 Proposta — </span>
-      <button class="mc" onclick="closeModal('modal-sim')">✕</button>
-    </div>
-    <div class="mb" style="gap:8px">
-      <div class="frow" style="margin-bottom:0;gap:8px">
-        <div class="ac-wrap" style="flex:1">
-          <input class="fi" style="width:100%" type="text" id="sim-input" placeholder="🔍  Buscar grupo (ex: 40001, 58, 240...)  — Lance, prazo, tipo..." oninput="simAC()" onkeydown="simKey(event)">
-          <div class="ac-list" id="sim-ac"></div>
-        </div>
-        <select class="fi" id="sim-tipo-f" style="width:130px">
-          <option value="">Todos</option><option value="Im">Imóveis</option><option value="Ro">Rodas</option>
-        </select>
-        <button class="btn btn-out btn-sm" onclick="simClear()">✕</button>
+  <div class="modal" style="width:860px;max-width:96vw">
+    <div class="mh" style="flex-direction:column;align-items:flex-start;gap:8px">
+      <div style="display:flex;width:100%;align-items:center;justify-content:space-between">
+        <span class="mt" id="sim-title">📊 Proposta</span>
+        <button class="mc" onclick="closeModal('modal-sim')">✕</button>
       </div>
-      <div style="font-size:11px;color:var(--txt2);margin-bottom:4px">Clique no grupo para adicionar à composição</div>
-      <div style="overflow-x:auto">
-        <table id="sim-table" style="font-size:12.5px">
-          <thead><tr>
-            <th>Grupo</th><th>Tipo</th><th>Crédito (R$)</th><th>Qtd. Cotas</th><th>Lance (%)</th><th>Parcela Est.</th><th>Subtotal Crédito</th><th></th>
+      <div style="display:flex;gap:6px;align-items:center">
+        <span id="sim-ind-1" style="padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;background:var(--acc);color:#fff">1 Parâmetros</span>
+        <span style="color:var(--txt2);font-size:12px">›</span>
+        <span id="sim-ind-2" style="padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;background:var(--bdr);color:var(--txt2)">2 Grupos Encontrados</span>
+        <span style="color:var(--txt2);font-size:12px">›</span>
+        <span id="sim-ind-3" style="padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;background:var(--bdr);color:var(--txt2)">3 Simulação</span>
+      </div>
+    </div>
+    <!-- STEP 1: Parâmetros -->
+    <div id="sim-s1" class="mb" style="gap:10px">
+      <div class="form-g" style="margin-bottom:0">
+        <label class="form-l">Caso do cliente (descreva livremente)</label>
+        <textarea class="form-i" id="sim-caso" rows="2" style="resize:none" placeholder="Ex: Empresário SP, quer imóvel de ~R$340k, tem 30% de lance disponível, quer contemplar rápido, prefere grupos com bastante vaga..."></textarea>
+      </div>
+      <div class="g2" style="margin-bottom:0">
+        <div class="form-g" style="margin-bottom:0"><label class="form-l">Tipo de Bem</label>
+          <select class="form-i" id="sim-ptipo">
+            <option value="">Todos os tipos</option><option value="Im">🏠 Imóveis</option><option value="Ve">🚗 Veículos Leves</option><option value="Pe">🚛 Veículos Pesados</option><option value="Mo">🏍 Motos</option>
+          </select>
+        </div>
+        <div class="form-g" style="margin-bottom:0"><label class="form-l">Qtd. de Cotas Desejada</label>
+          <input type="number" class="form-i" id="sim-pqtd" value="1" min="1" placeholder="Ex: 3">
+        </div>
+      </div>
+      <div class="g2" style="margin-bottom:0">
+        <div class="form-g" style="margin-bottom:0"><label class="form-l">Crédito Mínimo (R$)</label><input type="number" class="form-i" id="sim-pcmin" placeholder="Ex: 200000"></div>
+        <div class="form-g" style="margin-bottom:0"><label class="form-l">Crédito Máximo (R$)</label><input type="number" class="form-i" id="sim-pcmax" placeholder="Ex: 350000"></div>
+      </div>
+      <div class="g2" style="margin-bottom:0">
+        <div class="form-g" style="margin-bottom:0"><label class="form-l">Lance Disponível (%)</label><input type="number" class="form-i" id="sim-plance" placeholder="Ex: 30" step="1" min="0" max="100"></div>
+        <div class="form-g" style="margin-bottom:0"><label class="form-l">Prazo Máx. Aceito (meses)</label><input type="number" class="form-i" id="sim-pprazo" placeholder="Vazio = qualquer prazo"></div>
+      </div>
+      <button class="btn btn-pri" style="width:100%;justify-content:center;padding:11px" onclick="simBuscarGrupos()">🔍 Buscar Grupos no GUIA Itaú</button>
+    </div>
+    <!-- STEP 2: Grupos sugeridos -->
+    <div id="sim-s2" class="mb" style="display:none;gap:8px">
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <span style="font-size:13px;font-weight:700">Grupos encontrados:</span>
+        <span class="badge b-info" id="sim-g-count">0</span>
+        <span style="font-size:11.5px;color:var(--txt2)" id="sim-g-sub"></span>
+        <button class="btn btn-out btn-sm" style="margin-left:auto" onclick="simGoStep(1)">← Ajustar filtros</button>
+      </div>
+      <div style="overflow-x:auto;max-height:360px;overflow-y:auto;border:1px solid var(--bdr);border-radius:8px">
+        <table style="font-size:12px">
+          <thead style="position:sticky;top:0;background:#f8fafc;z-index:2"><tr>
+            <th style="padding:8px 10px"><input type="checkbox" id="sim-chkall" checked onchange="simCheckAll(this.checked)"></th>
+            <th style="padding:8px 10px">Grupo</th><th style="padding:8px 10px">Tipo</th>
+            <th style="padding:8px 10px">Crédito</th><th style="padding:8px 10px">Lance Mín.</th>
+            <th style="padding:8px 10px">Vagas</th><th style="padding:8px 10px">Próx. Asm.</th>
+            <th style="padding:8px 10px">Compatib.</th><th style="padding:8px 10px">Qtd</th>
           </tr></thead>
-          <tbody id="sim-tbody"><tr><td colspan="8" style="text-align:center;color:var(--txt2);padding:20px">Adicione grupos pelo campo acima</td></tr></tbody>
+          <tbody id="sim-g-tbody"></tbody>
         </table>
       </div>
-      <div style="background:#f8fafc;border-radius:10px;border:1.5px solid var(--bdr);padding:14px;margin-top:4px">
+      <button class="btn btn-pri" style="width:100%;justify-content:center;padding:11px" onclick="simAddSelecionados()">Adicionar Selecionados à Simulação →</button>
+    </div>
+    <!-- STEP 3: Simulação -->
+    <div id="sim-s3" class="mb" style="display:none;gap:8px">
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <span style="font-size:13px;font-weight:700">Composição da Proposta</span>
+        <button class="btn btn-out btn-sm" style="margin-left:auto" onclick="simGoStep(2)">← Ver grupos</button>
+        <button class="btn btn-out btn-sm" onclick="simGoStep(1)">+ Buscar mais</button>
+      </div>
+      <div style="overflow-x:auto">
+        <table style="font-size:12.5px">
+          <thead><tr><th>Grupo</th><th>Tipo</th><th>Crédito (R$)</th><th>Qtd.</th><th>Lance (%)</th><th>Parcela Est./mês</th><th>Subtotal</th><th></th></tr></thead>
+          <tbody id="sim-tbody"><tr><td colspan="8" style="text-align:center;color:var(--txt2);padding:20px">Nenhum grupo adicionado</td></tr></tbody>
+        </table>
+      </div>
+      <div style="background:#f8fafc;border-radius:10px;border:1.5px solid var(--bdr);padding:14px">
         <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
-          <div><div style="font-size:10px;font-weight:700;color:var(--txt2);text-transform:uppercase;margin-bottom:2px">Total de Cotas</div><div style="font-size:20px;font-weight:800" id="sim-tot-cotas">0</div></div>
-          <div><div style="font-size:10px;font-weight:700;color:var(--txt2);text-transform:uppercase;margin-bottom:2px">Crédito Total</div><div style="font-size:20px;font-weight:800;color:var(--info)" id="sim-tot-cred">R$ 0</div></div>
-          <div><div style="font-size:10px;font-weight:700;color:var(--txt2);text-transform:uppercase;margin-bottom:2px">Lance Total Est.</div><div style="font-size:20px;font-weight:800;color:var(--warn)" id="sim-tot-lance">R$ 0</div></div>
-          <div><div style="font-size:10px;font-weight:700;color:var(--txt2);text-transform:uppercase;margin-bottom:2px">Parcela Total/mês</div><div style="font-size:20px;font-weight:800;color:var(--acc)" id="sim-tot-parc">R$ 0</div></div>
+          <div><div style="font-size:10px;font-weight:700;color:var(--txt2);text-transform:uppercase;margin-bottom:2px">Total Cotas</div><div style="font-size:20px;font-weight:800" id="sim-tot-cotas">0</div></div>
+          <div><div style="font-size:10px;font-weight:700;color:var(--txt2);text-transform:uppercase;margin-bottom:2px">Crédito Total</div><div style="font-size:20px;font-weight:800;color:var(--info)" id="sim-tot-cred">—</div></div>
+          <div><div style="font-size:10px;font-weight:700;color:var(--txt2);text-transform:uppercase;margin-bottom:2px">Lance Total Est.</div><div style="font-size:20px;font-weight:800;color:var(--warn)" id="sim-tot-lance">—</div></div>
+          <div><div style="font-size:10px;font-weight:700;color:var(--txt2);text-transform:uppercase;margin-bottom:2px">Parcela Total/mês</div><div style="font-size:20px;font-weight:800;color:var(--acc)" id="sim-tot-parc">—</div></div>
         </div>
       </div>
-      <div class="form-g" style="margin-bottom:0"><label class="form-l">Observações da proposta</label><textarea class="form-i" id="sim-obs" rows="2" style="resize:none" placeholder="Estratégia, condições especiais, próximos passos..."></textarea></div>
+      <div class="form-g" style="margin-bottom:0"><label class="form-l">Estratégia / Observações</label><textarea class="form-i" id="sim-obs" rows="2" style="resize:none" placeholder="Condições negociadas, estratégia de lance, próximos passos..."></textarea></div>
     </div>
     <div class="mf" style="justify-content:space-between">
       <button class="btn btn-out" onclick="closeModal('modal-sim')">Fechar</button>
-      <div style="display:flex;gap:8px">
-        <button class="btn btn-out btn-sm" onclick="simSalvar()">💾 Salvar Rascunho</button>
-        <button class="btn btn-ok" onclick="simFechar()" id="sim-fechar-btn">✓ Confirmar → Criar Cotas</button>
-      </div>
+      <div id="sim-footer-acts" style="display:flex;gap:8px"></div>
     </div>
   </div>
 </div>
@@ -963,6 +1010,17 @@ function renderAgenda(){
 }
 
 // ═══ CRM ═══
+let dragLead=null;
+function dragStartLead(e,id){dragLead=id;e.dataTransfer.effectAllowed='move';e.currentTarget.style.opacity='.5';setTimeout(()=>{if(document.querySelector(`[data-lid="${id}"]`))document.querySelector(`[data-lid="${id}"]`).style.opacity='1';},0);}
+async function dragDropLead(e,stage){
+  e.preventDefault();
+  if(!dragLead)return;
+  const lead=LEADS.find(l=>l.id===dragLead);
+  if(!lead||lead.status===stage){dragLead=null;return;}
+  const res=await upsertLead({id:dragLead,status:stage,updated_at:new Date().toISOString()});
+  if(res){Object.assign(lead,res);toast(`${lead.nome} → ${stage}`);filterCRM();}
+  dragLead=null;
+}
 const PIPE_STAGES=['Novo','Em contato','Proposta enviada','Negociando','Fechado','Perdido'];
 const PIPE_COLORS={'Novo':'#3b82f6','Em contato':'#f59e0b','Proposta enviada':'#e87722','Negociando':'#8b5cf6','Fechado':'#10b981','Perdido':'#ef4444'};
 let leadsFiltered=[];
@@ -980,11 +1038,24 @@ function renderCRM(){
   document.getElementById('crm-pipeline').innerHTML=PIPE_STAGES.map(stage=>{
     const items=leadsFiltered.filter(l=>l.status===stage);
     const total=items.reduce((s,l)=>s+(l.valor_potencial||0),0);
-    return`<div class="pipe-col">
+    const hasSim=stage==='Proposta enviada'||stage==='Negociando'||stage==='Fechado';
+    return`<div class="pipe-col" ondragover="event.preventDefault();this.style.background='#e0e7ff'" ondragleave="this.style.background=''" ondrop="dragDropLead(event,'${stage}');this.style.background=''">
       <div class="pipe-hdr"><span style="width:10px;height:10px;border-radius:50%;background:${PIPE_COLORS[stage]};display:inline-block"></span>${stage} <span class="badge b-gray" style="margin-left:auto">${items.length}</span></div>
       ${total>0?`<div style="font-size:11px;color:var(--txt2);margin-bottom:8px">${brl(total,0)}</div>`:''}
-      ${items.slice(0,5).map(l=>{const hasSim=l.observacao&&l.observacao.startsWith('SIM:');return`<div class="pipe-card"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:6px"><div onclick="openModalLead('${l.id}')" style="flex:1;cursor:pointer"><div class="pipe-card-name">${l.nome||'—'}</div><div class="pipe-card-meta">${l.interesse||''}${l.valor_potencial?' · '+brl(l.valor_potencial,0):''}${l.indicado_por?'<br>via '+l.indicado_por:''}</div></div><button class="btn btn-sm" style="background:${hasSim?'var(--ok)':'var(--acc)'};color:#fff;padding:3px 7px;font-size:11px;white-space:nowrap" onclick="openModalSim('${l.id}')">${hasSim?'📋 Ver':'📊'}</button></div></div>`;}).join('')}
-      ${items.length>5?`<div style="font-size:11px;color:var(--txt2);text-align:center;padding:6px">+${items.length-5} mais</div>`:''}
+      ${items.slice(0,6).map(l=>{
+        const lHasSim=l.observacao&&l.observacao.startsWith('SIM:');
+        return`<div class="pipe-card" draggable="true" data-lid="${l.id}" ondragstart="dragStartLead(event,'${l.id}')">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:6px">
+            <div onclick="openModalLead('${l.id}')" style="flex:1;cursor:pointer">
+              <div class="pipe-card-name">${l.nome||'—'}</div>
+              <div class="pipe-card-meta">${l.interesse||''}${l.valor_potencial?' · '+brl(l.valor_potencial,0):''}${l.indicado_por?'<br>via '+l.indicado_por:''}</div>
+            </div>
+            <button class="btn btn-sm" style="background:${lHasSim?'var(--ok)':'var(--acc)'};color:#fff;padding:3px 7px;font-size:11px;white-space:nowrap;flex-shrink:0" onclick="openModalSim('${l.id}')">${lHasSim?'📋':'📊'}</button>
+          </div>
+          ${lHasSim&&stage==='Proposta enviada'?`<button class="btn btn-ok btn-sm" style="width:100%;margin-top:6px;justify-content:center" onclick="simFecharNegocio('${l.id}')">✓ Fechar Negócio</button>`:''}
+        </div>`;
+      }).join('')}
+      ${items.length>6?`<div style="font-size:11px;color:var(--txt2);text-align:center;padding:6px">+${items.length-6} mais</div>`:''}
     </div>`;
   }).join('');
   // Table
@@ -1034,64 +1105,102 @@ async function deleteLead(){
 }
 
 // ═══ SIMULAÇÃO / PROPOSTA ═══
-let simLead=null, simRows=[];
+let simLead=null,simRows=[],simSuggestions=[],simStep=1;
+const simTpLabel=t=>t.replace('IMÓVEIS','🏠').replace('IMÓVEL','🏠').replace('VEÍCULOS LEVES','🚗').replace('VEÍCULOS PESADOS','🚛').replace('MOTOS','🏍');
 function openModalSim(leadId){
   simLead=LEADS.find(l=>l.id===leadId);
   if(!simLead)return;
   document.getElementById('sim-title').textContent='📊 Proposta — '+(simLead.nome||'Lead');
-  // Carregar simulação salva
   const obs=simLead.observacao||'';
   if(obs.startsWith('SIM:')){
-    try{const d=JSON.parse(obs.slice(4));simRows=d.rows||[];document.getElementById('sim-obs').value=d.nota||'';}catch(e){simRows=[];}
-  }else{simRows=[];document.getElementById('sim-obs').value='';}
-  document.getElementById('sim-input').value='';
-  document.getElementById('sim-ac').classList.remove('open');
-  renderSimTable();
+    try{const d=JSON.parse(obs.slice(4));simRows=d.rows||[];document.getElementById('sim-obs').value=d.nota||'';simGoStep(3);}
+    catch(e){simRows=[];simGoStep(1);}
+  }else{simRows=[];['sim-caso','sim-pcmin','sim-pcmax','sim-plance','sim-pprazo'].forEach(id=>document.getElementById(id).value='');document.getElementById('sim-pqtd').value=1;document.getElementById('sim-ptipo').value='';simGoStep(1);}
   document.getElementById('modal-sim').classList.add('open');
 }
-function simAC(){
-  const q=document.getElementById('sim-input').value.trim().toLowerCase();
-  const tipo=document.getElementById('sim-tipo-f').value;
-  const ac=document.getElementById('sim-ac');
-  if(q.length<1){ac.classList.remove('open');return;}
-  const matches=Object.entries(GUIA).filter(([g,d])=>{
-    const tOk=!tipo||(tipo==='Im'?(d.tp||'').includes('Im'):(!(d.tp||'').includes('Im')&&!(d.tp||'').includes('MOT')));
-    return tOk&&(g.toString().startsWith(q)||(d.tp||'').toLowerCase().includes(q));
-  }).slice(0,10);
-  if(!matches.length){ac.classList.remove('open');return;}
-  ac.innerHTML=matches.map(([g,d])=>{
-    const minPct=d.at_min&&d.at_min>0?(d.at_min*100).toFixed(1)+'%':'—';
-    const vagas=d.vagas!=null?d.vagas:'?';
-    return`<div class="ac-item" onclick="simAddGrupo('${g}')" style="display:flex;justify-content:space-between;align-items:center">
-      <div><strong style="color:var(--acc)">${g}</strong> <span style="font-size:11px;color:var(--txt2)">${(d.tp||'').replace('IMÓVEIS','🏠 Im').replace('VEÍCULOS LEVES','🚗').replace('VEÍCULOS PESADOS','🚛').replace('MOTOS','🏍')}</span></div>
-      <div style="font-size:11px;color:var(--txt2);text-align:right">Lance: <strong>${minPct}</strong> · Vagas: <strong>${vagas}</strong> · ${d.vmax?brl(d.vmax,0):'—'}</div>
-    </div>`;
-  }).join('');
-  ac.classList.add('open');
+function simGoStep(n){
+  simStep=n;
+  [1,2,3].forEach(i=>{
+    document.getElementById('sim-s'+i).style.display=i===n?'flex':'none';
+    const ind=document.getElementById('sim-ind-'+i);
+    ind.style.background=i<n?'#d1fae5':i===n?'var(--acc)':'var(--bdr)';
+    ind.style.color=i===n?'#fff':i<n?'#065f46':'var(--txt2)';
+  });
+  const fa=document.getElementById('sim-footer-acts');
+  if(n===1)fa.innerHTML='';
+  else if(n===2)fa.innerHTML=`<button class="btn btn-pri" onclick="simAddSelecionados()">Adicionar Selecionados →</button>`;
+  else fa.innerHTML=`<button class="btn btn-out btn-sm" onclick="simSalvar()">💾 Salvar Proposta</button>`;
 }
-function simKey(e){if(e.key==='Escape')document.getElementById('sim-ac').classList.remove('open');}
-function simClear(){document.getElementById('sim-input').value='';document.getElementById('sim-ac').classList.remove('open');}
-function simAddGrupo(g){
-  const d=GUIA[g];if(!d)return;
-  simRows.push({grupo:g,tipo:(d.tp||''),credito:d.vmax||340000,qtd:1,lancePerc:d.at_min&&d.at_min>0?+(d.at_min*100).toFixed(1):30,prazo:d.pr||192,taxaAdm:23,fr:d.fr!=null?+(d.fr*100).toFixed(1):3});
-  document.getElementById('sim-input').value='';document.getElementById('sim-ac').classList.remove('open');
-  renderSimTable();
+function simBuscarGrupos(){
+  const tipo=document.getElementById('sim-ptipo').value;
+  const cmin=parseFloat(document.getElementById('sim-pcmin').value)||0;
+  const cmax=parseFloat(document.getElementById('sim-pcmax').value)||Infinity;
+  const lance=parseFloat(document.getElementById('sim-plance').value)||100;
+  const prazo=parseInt(document.getElementById('sim-pprazo').value)||9999;
+  const qtdDes=parseInt(document.getElementById('sim-pqtd').value)||1;
+  simSuggestions=Object.entries(GUIA).filter(([g,d])=>{
+    const tOk=!tipo||(tipo==='Im'?(d.tp||'').toUpperCase().includes('IMÓV'):tipo==='Ve'?(d.tp||'').toUpperCase().includes('LEVE'):tipo==='Pe'?(d.tp||'').toUpperCase().includes('PESAD'):(d.tp||'').toUpperCase().includes('MOT'));
+    const cOk=(d.vmax==null||d.vmax>=cmin)&&(d.vmin==null||cmax===Infinity||d.vmin<=cmax);
+    const vOk=d.sit==='Andamento';
+    const lOk=!d.at_min||d.at_min*100<=lance+8;
+    const pOk=!d.pr||d.pr<=prazo;
+    return tOk&&cOk&&vOk&&lOk&&pOk;
+  }).map(([g,d])=>{
+    const vagasScore=d.vagas!=null?Math.min(d.vagas*3,30):10;
+    const lanceScore=d.at_min&&lance>0?Math.max(0,(lance-d.at_min*100)*0.8):5;
+    const asmScore=d.asm?Math.max(0,30-Math.round((new Date(d.asm)-new Date())/(1000*60*60*24))*0.5):0;
+    return{g,d,score:vagasScore+lanceScore+asmScore,selected:true,qtd:qtdDes};
+  }).sort((a,b)=>b.score-a.score).slice(0,40);
+  if(!simSuggestions.length){toast('Nenhum grupo encontrado com esses parâmetros. Tente ampliar os filtros.','err');return;}
+  renderSimGrupos();
+  simGoStep(2);
+  document.getElementById('sim-g-sub').textContent=`Tipo: ${tipo||'todos'} · Lance até ${lance}% · Crédito R$${cmin?brl(cmin,0):0}–${cmax===Infinity?'∞':brl(cmax,0)}`;
+}
+function renderSimGrupos(){
+  document.getElementById('sim-g-count').textContent=simSuggestions.length+' grupos';
+  const maxScore=simSuggestions[0]?.score||1;
+  document.getElementById('sim-g-tbody').innerHTML=simSuggestions.map((item,i)=>{
+    const{g,d,score,selected,qtd}=item;
+    const minPct=d.at_min&&d.at_min>0?(d.at_min*100).toFixed(1)+'%':'—';
+    const vagas=d.vagas!=null?`<strong style="color:${d.vagas>5?'var(--ok)':d.vagas>0?'var(--warn)':'var(--err)'}">${d.vagas}</strong>`:'?';
+    const bar=Math.round(score/maxScore*60);
+    const asm=d.asm?d.asm.split('-').slice(1).reverse().join('/'):'—';
+    return`<tr style="${selected?'':'opacity:.45'}">
+      <td style="padding:5px 10px"><input type="checkbox" ${selected?'checked':''} onchange="simSuggestions[${i}].selected=this.checked;this.closest('tr').style.opacity=this.checked?'1':'.45'"></td>
+      <td style="padding:5px 10px"><strong style="color:var(--acc);font-size:13px">${g}</strong></td>
+      <td style="padding:5px 10px;font-size:11px;white-space:nowrap">${simTpLabel(d.tp||'')}</td>
+      <td style="padding:5px 10px;font-size:12px">${d.vmax?brl(d.vmax,0):'—'}</td>
+      <td style="padding:5px 10px"><span style="color:var(--ok);font-weight:700">${minPct}</span></td>
+      <td style="padding:5px 10px">${vagas}</td>
+      <td style="padding:5px 10px;font-size:11px">${asm}</td>
+      <td style="padding:5px 10px"><div style="height:5px;width:${bar}px;background:var(--acc);border-radius:3px;opacity:.7"></div></td>
+      <td style="padding:5px 10px"><input type="number" style="width:42px;border:1.5px solid var(--bdr);border-radius:6px;padding:2px 4px;font-size:12px;text-align:center" value="${qtd}" min="1" onchange="simSuggestions[${i}].qtd=Math.max(1,+this.value)||1"></td>
+    </tr>`;
+  }).join('');
+}
+function simCheckAll(v){simSuggestions.forEach((s,i)=>{s.selected=v;});renderSimGrupos();document.getElementById('sim-chkall').checked=v;}
+function simAddSelecionados(){
+  const sel=simSuggestions.filter(s=>s.selected);
+  if(!sel.length){toast('Selecione ao menos um grupo','err');return;}
+  sel.forEach((${g,d,qtd})=>{
+    if(!simRows.find(r=>r.grupo===g)){
+      simRows.push({grupo:g,tipo:d.tp||'',credito:d.vmax||340000,qtd,lancePerc:d.at_min&&d.at_min>0?+(d.at_min*100).toFixed(1):30,prazo:d.pr||192,taxaAdm:23,fr:d.fr!=null?+(d.fr*100).toFixed(1):3});
+    }
+  });
+  renderSimTable();simGoStep(3);
 }
 function renderSimTable(){
-  if(!simRows.length){
-    document.getElementById('sim-tbody').innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--txt2);padding:20px">Adicione grupos pelo campo acima</td></tr>';
-    calcSimTotals();return;
-  }
+  if(!simRows.length){document.getElementById('sim-tbody').innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--txt2);padding:24px">Nenhum grupo adicionado</td></tr>';calcSimTotals();return;}
   document.getElementById('sim-tbody').innerHTML=simRows.map((r,i)=>{
-    const parcEst=(r.credito*(1-r.lancePerc/100))/r.prazo*(1+(r.taxaAdm/100)+r.fr/100)*r.qtd;
+    const parcEst=r.credito*(1-r.lancePerc/100)/r.prazo*(1+(r.taxaAdm/100)+r.fr/100)*r.qtd;
     return`<tr>
       <td><strong style="color:var(--acc)">${r.grupo}</strong></td>
-      <td style="font-size:11px;max-width:100px;overflow:hidden;text-overflow:ellipsis">${r.tipo.replace('IMÓVEIS','🏠').replace('VEÍCULOS LEVES','🚗').replace('VEÍCULOS PESADOS','🚛').replace('MOTOS','🏍')}</td>
-      <td><input class="form-i" type="number" style="width:110px;padding:3px 6px;font-size:12px" value="${r.credito}" oninput="simRows[${i}].credito=+this.value;calcSimTotals()"></td>
-      <td><input class="form-i" type="number" style="width:55px;padding:3px 6px;font-size:12px" min="1" value="${r.qtd}" oninput="simRows[${i}].qtd=Math.max(1,+this.value)||1;calcSimTotals()"></td>
-      <td><input class="form-i" type="number" style="width:65px;padding:3px 6px;font-size:12px" step="0.1" min="0" max="100" value="${r.lancePerc}" oninput="simRows[${i}].lancePerc=+this.value;calcSimTotals()"></td>
-      <td style="font-size:12px;font-weight:700;color:var(--warn)">${brl(parcEst)}</td>
-      <td style="font-size:12px;font-weight:700;color:var(--info)">${brl(r.credito*r.qtd,0)}</td>
+      <td style="font-size:11px">${simTpLabel(r.tipo)}</td>
+      <td><input class="form-i" type="number" style="width:110px;padding:4px 6px;font-size:12px" value="${r.credito}" oninput="simRows[${i}].credito=+this.value;calcSimTotals()"></td>
+      <td><input class="form-i" type="number" style="width:50px;padding:4px 6px;font-size:12px" min="1" value="${r.qtd}" oninput="simRows[${i}].qtd=Math.max(1,+this.value)||1;calcSimTotals()"></td>
+      <td><input class="form-i" type="number" style="width:65px;padding:4px 6px;font-size:12px" step="0.1" min="0" max="100" value="${r.lancePerc}" oninput="simRows[${i}].lancePerc=+this.value;calcSimTotals()"></td>
+      <td style="font-weight:700;color:var(--warn)">${brl(parcEst)}</td>
+      <td style="font-weight:700;color:var(--info)">${brl(r.credito*r.qtd,0)}</td>
       <td><button class="btn btn-err btn-sm" style="padding:2px 8px" onclick="simRows.splice(${i},1);renderSimTable()">✕</button></td>
     </tr>`;
   }).join('');
@@ -1108,32 +1217,34 @@ function calcSimTotals(){
   document.getElementById('sim-tot-parc').textContent=brl(totParc);
 }
 async function simSalvar(){
-  if(!simLead)return;
-  const payload={rows:simRows,nota:document.getElementById('sim-obs').value,ts:new Date().toISOString()};
-  const res=await upsertLead({id:simLead.id,observacao:'SIM:'+JSON.stringify(payload),updated_at:new Date().toISOString()});
-  if(res){Object.assign(simLead,res);toast('Proposta salva no lead!');renderCRM();}
+  if(!simLead||!simRows.length){toast('Adicione grupos antes de salvar','err');return;}
+  const payload={rows:simRows,nota:document.getElementById('sim-obs').value,caso:document.getElementById('sim-caso').value,ts:new Date().toISOString()};
+  const res=await upsertLead({id:simLead.id,observacao:'SIM:'+JSON.stringify(payload),status:'Proposta enviada',updated_at:new Date().toISOString()});
+  if(res){Object.assign(simLead,res);toast('Proposta salva! Lead → Proposta enviada');renderCRM();}
 }
-async function simFechar(){
-  if(!simRows.length){toast('Adicione pelo menos um grupo','err');return;}
-  if(!confirm(`Confirmar? Serão criadas ${simRows.reduce((s,r)=>s+r.qtd,0)} cotas para ${simLead?.nome} e o lead será marcado como Fechado.`))return;
+async function simFecharNegocio(leadId){
+  const lead=LEADS.find(l=>l.id===leadId);
+  if(!lead)return;
+  const obs=lead.observacao||'';
+  if(!obs.startsWith('SIM:')){toast('Nenhuma proposta salva para este lead','err');return;}
+  let rows=[];
+  try{rows=JSON.parse(obs.slice(4)).rows||[];}catch(e){toast('Erro ao ler proposta','err');return;}
+  const totalCotas=rows.reduce((s,r)=>s+r.qtd,0);
+  if(!confirm(`Fechar negócio com ${lead.nome}?
+Serão criadas ${totalCotas} cotas no sistema.`))return;
   showLoad();
-  const assessor=simLead?.assessor||'ALAN / ESCRITORIO';
-  const nome=simLead?.nome||'';
   let erros=0;
-  for(const r of simRows){
+  for(const r of rows){
     for(let i=0;i<r.qtd;i++){
-      const cotaData={nome,assessor,grupo:r.grupo,credito:r.credito,status:'SORTEIO / LANCE',lance1:r.lancePerc/100,informacao:'Criada via proposta CRM',updated_at:new Date().toISOString()};
-      const res=await upsertCota(cotaData);
+      const res=await upsertCota({nome:lead.nome,assessor:lead.assessor||'ALAN / ESCRITORIO',grupo:r.grupo,credito:r.credito,status:'SORTEIO / LANCE',lance1:r.lancePerc/100,informacao:'Contratado via CRM',updated_at:new Date().toISOString()});
       if(!res)erros++;
     }
   }
-  // Atualizar lead para Fechado
-  await upsertLead({id:simLead.id,status:'Fechado',updated_at:new Date().toISOString()});
+  await upsertLead({id:leadId,status:'Fechado',updated_at:new Date().toISOString()});
   hideLoad();
-  if(erros===0){
-    toast(`${simRows.reduce((s,r)=>s+r.qtd,0)} cotas criadas! Lead fechado.`,'ok');
-    closeModal('modal-sim');initDash();filterCtrl();renderCRM();renderProj();
-  }else{toast(`Concluído com ${erros} erro(s)`,erros>0?'err':'ok');}
+  if(erros===0)toast(`${totalCotas} cotas criadas! Lead fechado.`,'ok');
+  else toast(`Concluído com ${erros} erro(s)`,'err');
+  initDash();filterCtrl();renderCRM();renderProj();
 }
 
 // ═══ GUIA ═══
