@@ -5,17 +5,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>HC360 — Gestão de Consórcio</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Raleway:wght@300;400;600;700;800&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
-  --sb:#1b2a3b;--sb2:#226866;--sb3:#1a4f4d;
+  --sb:#2C3E50;--sb2:#226866;--sb3:#1a4f4d;
   --acc:#D6AF5C;--acc2:#b8923a;
   --ok:#10b981;--warn:#f59e0b;--err:#ef4444;--info:#3b82f6;
-  --txt:#1a2332;--txt2:#6b7a90;--bdr:#e4e8ef;
-  --bg:#f4f6f9;--card:#ffffff;--card2:#f8f9fb
+  --txt:#2C3E50;--txt2:#515151;--bdr:#e2e6ed;
+  --bg:#F0EDE6;--card:#ffffff;--card2:#f8f6f2;
+  --cream:#FFF3DD
 }
 body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--txt);display:flex;min-height:100vh;font-size:14px;line-height:1.55}
 
@@ -29,27 +30,27 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 .login-btn:hover{background:var(--sb3)}
 
 /* ── SIDEBAR ────────────────────────────────── */
-.sb{width:224px;min-height:100vh;background:var(--sb);display:flex;flex-direction:column;position:fixed;top:0;left:0;z-index:100}
-.sb-logo{padding:24px 20px 22px;border-bottom:1px solid rgba(255,255,255,.07);display:flex;align-items:center}
-.sb-nav{flex:1;padding:6px 0 12px;overflow-y:auto}
-.nav-sec{padding:16px 18px 5px;color:rgba(255,255,255,.28);font-size:9px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase}
-.ni{display:flex;align-items:center;gap:10px;padding:9px 18px;color:rgba(255,255,255,.58);font-size:13px;font-weight:500;cursor:pointer;transition:all .16s;border-left:3px solid transparent;user-select:none;margin:1px 8px;border-radius:0 8px 8px 0}
-.ni:hover{background:rgba(255,255,255,.07);color:rgba(255,255,255,.9)}
-.ni.active{background:rgba(34,104,102,.45);color:#fff;border-left-color:var(--acc);font-weight:600}
-.ni .ico{font-size:14px;width:18px;text-align:center;flex-shrink:0}
-.sb-foot{padding:14px 18px 18px;border-top:1px solid rgba(255,255,255,.07)}
-.avatar{width:34px;height:34px;border-radius:50%;background:var(--acc);display:flex;align-items:center;justify-content:center;color:var(--sb);font-weight:800;font-size:13px;flex-shrink:0}
+.sb{width:220px;min-height:100vh;background:var(--sb);display:flex;flex-direction:column;position:fixed;top:0;left:0;z-index:100}
+.sb-logo{padding:20px 18px 16px;border-bottom:1px solid rgba(255,255,255,.08)}
+.sb-nav{flex:1;padding:4px 0 10px;overflow-y:auto}
+.nav-sec{padding:14px 16px 4px;color:rgba(255,255,255,.3);font-size:9px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase}
+.ni{display:flex;align-items:center;gap:9px;padding:8px 16px;color:rgba(255,255,255,.6);font-size:13px;font-weight:500;cursor:pointer;transition:all .16s;border-left:3px solid transparent;user-select:none;margin:1px 0;white-space:nowrap;overflow:hidden}
+.ni:hover{background:rgba(255,255,255,.07);color:rgba(255,255,255,.92)}
+.ni.active{background:rgba(34,104,102,.4);color:#fff;border-left-color:var(--acc);font-weight:600}
+.ni .ico{font-size:13px;width:18px;text-align:center;flex-shrink:0}
+.sb-foot{padding:12px 16px 16px;border-top:1px solid rgba(255,255,255,.08)}
+.avatar{width:32px;height:32px;border-radius:50%;background:var(--acc);display:flex;align-items:center;justify-content:center;color:var(--sb);font-weight:800;font-size:13px;flex-shrink:0}
 .user-b{display:flex;align-items:center;gap:9px}
-.u-name{color:#fff;font-size:13px;font-weight:600}.u-role{color:rgba(255,255,255,.38);font-size:10px;margin-top:1px}
-.sync-dot{width:8px;height:8px;border-radius:50%;background:var(--warn);margin-left:auto;flex-shrink:0;transition:background .3s;border:1.5px solid rgba(255,255,255,.2)}
+.u-name{color:#fff;font-size:12.5px;font-weight:600}.u-role{color:rgba(255,255,255,.4);font-size:10px;margin-top:1px}
+.sync-dot{width:8px;height:8px;border-radius:50%;background:var(--warn);margin-left:auto;flex-shrink:0;transition:background .3s}
 .sync-dot.ok{background:var(--ok)}.sync-dot.err{background:var(--err)}
 
 /* ── MAIN AREA ──────────────────────────────── */
-.main{margin-left:224px;flex:1;display:flex;flex-direction:column;min-height:100vh}
-.topbar{background:#fff;border-bottom:1px solid var(--bdr);padding:0 30px;height:62px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;box-shadow:0 1px 8px rgba(0,0,0,.05)}
-.pg-title{font-size:18px;font-weight:700;font-family:'Playfair Display',Georgia,serif;color:var(--sb)}
+.main{margin-left:220px;flex:1;display:flex;flex-direction:column;min-height:100vh}
+.topbar{background:#fff;border-bottom:1px solid var(--bdr);padding:0 28px;height:58px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;box-shadow:0 1px 6px rgba(0,0,0,.06)}
+.pg-title{font-size:17px;font-weight:700;font-family:'Raleway',Georgia,serif;color:var(--sb);letter-spacing:.3px}
 .tb-acts{display:flex;align-items:center;gap:10px}
-.content{padding:28px 32px;flex:1}
+.content{padding:24px 28px;flex:1}
 .page{display:none}.page.active{display:block}
 
 /* ── BUTTONS ────────────────────────────────── */
@@ -68,20 +69,20 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 @keyframes spin{to{transform:rotate(360deg)}}
 
 /* ── KPI CARDS ──────────────────────────────── */
-.kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px;margin-bottom:26px}
-.kpi{background:var(--card);border-radius:12px;padding:22px 24px 20px;border:1px solid var(--bdr);display:flex;flex-direction:column;gap:6px;box-shadow:0 2px 8px rgba(0,0,0,.05)}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(172px,1fr));gap:14px;margin-bottom:24px}
+.kpi{background:var(--card);border-radius:10px;padding:18px 20px 16px;border:1px solid var(--bdr);display:flex;flex-direction:column;gap:5px;box-shadow:0 1px 5px rgba(0,0,0,.06)}
 .kpi.a{border-left:4px solid var(--acc)}.kpi.s{border-left:4px solid var(--ok)}.kpi.i{border-left:4px solid var(--sb2)}.kpi.w{border-left:4px solid var(--warn)}.kpi.e{border-left:4px solid var(--err)}
-.kpi-lbl{font-size:10px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:1px}
-.kpi-val{font-size:38px;font-weight:800;color:var(--txt);line-height:1.05;font-family:'Playfair Display',Georgia,serif;margin:2px 0}
-.kpi-sub{font-size:12px;color:var(--txt2)}
+.kpi-lbl{font-size:10px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:1.2px}
+.kpi-val{font-size:36px;font-weight:800;color:var(--txt);line-height:1.05;font-family:'Raleway','Playfair Display',Georgia,serif;margin:3px 0 2px}
+.kpi-sub{font-size:11.5px;color:var(--txt2)}
 
 /* ── SECTION TITLE ──────────────────────────── */
 .sec-title{font-size:12px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:1px;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--bdr)}
 
 /* ── CARD ───────────────────────────────────── */
-.card{background:var(--card);border-radius:12px;border:1px solid var(--bdr);overflow:hidden;margin-bottom:20px;box-shadow:0 2px 8px rgba(0,0,0,.05)}
-.ch{padding:16px 22px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;background:var(--card)}
-.ct{font-size:14px;font-weight:700;color:var(--txt)}.cb{padding:22px}
+.card{background:var(--card);border-radius:10px;border:1px solid var(--bdr);overflow:hidden;margin-bottom:18px;box-shadow:0 1px 5px rgba(0,0,0,.06)}
+.ch{padding:14px 20px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;background:var(--card)}
+.ct{font-size:13.5px;font-weight:700;color:var(--txt);font-family:'Raleway',sans-serif;letter-spacing:.2px}.cb{padding:20px}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:20px}
 .g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px;margin-bottom:20px}
 
@@ -322,7 +323,7 @@ tr:hover td{background:#f0f7f6}
 <div class="login-screen" id="login-screen">
   <div class="login-box">
     <div class="login-logo">
-      <img src="data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMjMwIDU4IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgogIDxwb2x5Z29uIHBvaW50cz0iMiw1MCAxOSwxMCAzNiw1MCIgZmlsbD0iIzFiMmEzYiIvPgogIDxwb2x5Z29uIHBvaW50cz0iMjIsOCAzMyw4IDQ2LDUwIDM1LDUwIiBmaWxsPSJub25lIiBzdHJva2U9IiMxYjJhM2IiIHN0cm9rZS13aWR0aD0iMi40IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CiAgPHBvbHlnb24gcG9pbnRzPSIzMiw4IDQyLDggNTUsNTAgNDUsNTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzFiMmEzYiIgc3Ryb2tlLXdpZHRoPSIyLjQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KICA8dGV4dCB4PSI2NiIgeT0iNDQiIGZvbnQtZmFtaWx5PSJJbnRlcixIZWx2ZXRpY2Esc2Fucy1zZXJpZiIgZm9udC13ZWlnaHQ9IjcwMCIgZm9udC1zaXplPSIzMCIgZmlsbD0iIzFiMmEzYiI+SEM8L3RleHQ+CiAgPHRleHQgeD0iMTA0IiB5PSI0NCIgZm9udC1mYW1pbHk9IkludGVyLEhlbHZldGljYSxzYW5zLXNlcmlmIiBmb250LXdlaWdodD0iMzAwIiBmb250LXNpemU9IjMwIiBmaWxsPSIjMWIyYTNiIj4zNjA8L3RleHQ+Cjwvc3ZnPg==" alt="HC360" style="width:200px;max-width:85%;margin-bottom:8px">
+      <img src="data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMjQwIDUyIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxwb2x5Z29uIHBvaW50cz0iMiw0NiAxNiw2IDMwLDQ2IiBmaWxsPSIjMkMzRTUwIi8+PHBvbHlnb24gcG9pbnRzPSIyNCw0NiAzMCw0NiA0NCw2IDM4LDYiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzJDM0U1MCIgc3Ryb2tlLXdpZHRoPSIyLjIiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48cG9seWdvbiBwb2ludHM9IjMyLDQ2IDM4LDQ2IDUyLDYgNDYsNiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMkMzRTUwIiBzdHJva2Utd2lkdGg9IjIuMiIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPjx0ZXh0IHg9IjYyIiB5PSIzOCIgZm9udC1mYW1pbHk9IlJhbGV3YXksSW50ZXIsc2Fucy1zZXJpZiIgZm9udC13ZWlnaHQ9IjgwMCIgZm9udC1zaXplPSIyNiIgZmlsbD0iIzJDM0U1MCIgbGV0dGVyLXNwYWNpbmc9IjEiPkhDPC90ZXh0Pjx0ZXh0IHg9Ijk3IiB5PSIzOCIgZm9udC1mYW1pbHk9IlJhbGV3YXksSW50ZXIsc2Fucy1zZXJpZiIgZm9udC13ZWlnaHQ9IjMwMCIgZm9udC1zaXplPSIyNiIgZmlsbD0iIzJDM0U1MCI+MzYwPC90ZXh0Pjwvc3ZnPg==" alt="HC360" style="width:200px;max-width:85%;margin-bottom:8px">
       <div class="login-logo-s">Gestão de Consórcio</div>
     </div>
     <div class="login-err" id="login-err"></div>
@@ -341,7 +342,7 @@ tr:hover td{background:#f0f7f6}
 <div class="sb-overlay" id="sb-overlay" onclick="toggleSidebar()"></div>
 <aside class="sb" id="sidebar">
   <div class="sb-logo">
-    <img src="data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMjMwIDU4IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgogIDxwb2x5Z29uIHBvaW50cz0iMiw1MCAxOSwxMCAzNiw1MCIgZmlsbD0iI0YyRTRDOCIvPgogIDxwb2x5Z29uIHBvaW50cz0iMjIsOCAzMyw4IDQ2LDUwIDM1LDUwIiBmaWxsPSJub25lIiBzdHJva2U9IiNGMkU0QzgiIHN0cm9rZS13aWR0aD0iMi40IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CiAgPHBvbHlnb24gcG9pbnRzPSIzMiw4IDQyLDggNTUsNTAgNDUsNTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI0YyRTRDOCIgc3Ryb2tlLXdpZHRoPSIyLjQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KICA8dGV4dCB4PSI2NiIgeT0iNDQiIGZvbnQtZmFtaWx5PSJJbnRlcixIZWx2ZXRpY2Esc2Fucy1zZXJpZiIgZm9udC13ZWlnaHQ9IjcwMCIgZm9udC1zaXplPSIzMCIgZmlsbD0iI0YyRTRDOCI+SEM8L3RleHQ+CiAgPHRleHQgeD0iMTA0IiB5PSI0NCIgZm9udC1mYW1pbHk9IkludGVyLEhlbHZldGljYSxzYW5zLXNlcmlmIiBmb250LXdlaWdodD0iMzAwIiBmb250LXNpemU9IjMwIiBmaWxsPSIjRjJFNEM4Ij4zNjA8L3RleHQ+Cjwvc3ZnPg==" alt="HC360" style="width:160px;max-width:90%">
+    <img src="data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMjQwIDUyIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxwb2x5Z29uIHBvaW50cz0iMiw0NiAxNiw2IDMwLDQ2IiBmaWxsPSIjRkZGM0REIi8+PHBvbHlnb24gcG9pbnRzPSIyNCw0NiAzMCw0NiA0NCw2IDM4LDYiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI0ZGRjNERCIgc3Ryb2tlLXdpZHRoPSIyLjIiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48cG9seWdvbiBwb2ludHM9IjMyLDQ2IDM4LDQ2IDUyLDYgNDYsNiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjRkZGM0REIiBzdHJva2Utd2lkdGg9IjIuMiIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPjx0ZXh0IHg9IjYyIiB5PSIzOCIgZm9udC1mYW1pbHk9IlJhbGV3YXksSW50ZXIsc2Fucy1zZXJpZiIgZm9udC13ZWlnaHQ9IjgwMCIgZm9udC1zaXplPSIyNiIgZmlsbD0iI0ZGRjNERCIgbGV0dGVyLXNwYWNpbmc9IjEiPkhDPC90ZXh0Pjx0ZXh0IHg9Ijk3IiB5PSIzOCIgZm9udC1mYW1pbHk9IlJhbGV3YXksSW50ZXIsc2Fucy1zZXJpZiIgZm9udC13ZWlnaHQ9IjMwMCIgZm9udC1zaXplPSIyNiIgZmlsbD0iI0ZGRjNERCI+MzYwPC90ZXh0Pjwvc3ZnPg==" alt="HC360" style="width:160px;max-width:90%">
   </div>
   <nav class="sb-nav">
     <div class="nav-sec">Principal</div>
@@ -385,11 +386,11 @@ tr:hover td{background:#f0f7f6}
     <div class="kpi-grid" id="dash-kpis">
       <div class="kpi a"><div class="kpi-lbl">Total de Cotas</div><div class="kpi-val" id="kpi-total">—</div><div class="kpi-sub">carteira do escritório</div></div>
       <div class="kpi s"><div class="kpi-lbl">Contempladas</div><div class="kpi-val" id="kpi-contemp">—</div><div class="kpi-sub" id="kpi-contemp-sub">—</div></div>
-      <div class="kpi i"><div class="kpi-lbl">Crédito em Carteira</div><div class="kpi-val" id="kpi-cred" style="font-size:19px">—</div><div class="kpi-sub">valor total das cartas</div></div>
+      <div class="kpi i"><div class="kpi-lbl">Crédito em Carteira</div><div class="kpi-val" id="kpi-cred">—</div><div class="kpi-sub">valor total das cartas</div></div>
       <div class="kpi w"><div class="kpi-lbl">Lance Ativo</div><div class="kpi-val" id="kpi-lance">—</div><div class="kpi-sub">ofertas neste mês</div></div>
       <div class="kpi"><div class="kpi-lbl">Aguardando</div><div class="kpi-val" id="kpi-aguard">—</div><div class="kpi-sub">sem oferta de lance</div></div>
       <div class="kpi"><div class="kpi-lbl">Leads no CRM</div><div class="kpi-val" id="kpi-leads">—</div><div class="kpi-sub">indicações ativas</div></div>
-      <div class="kpi" style="border-top:3px solid var(--err)"><div class="kpi-lbl">Canceladas</div><div class="kpi-val" id="kpi-cancel" style="color:var(--err)">—</div><div class="kpi-sub" id="kpi-cancel-sub">excluídas da carteira</div></div>
+      <div class="kpi e"><div class="kpi-lbl">Canceladas</div><div class="kpi-val" id="kpi-cancel" style="color:var(--err)">—</div><div class="kpi-sub" id="kpi-cancel-sub">excluídas da carteira</div></div>
     </div>
     <div class="g2">
       <div class="card"><div class="ch"><span class="ct">Status das Cotas</span></div><div class="cb"><div class="chart-wrap"><canvas id="ch-status"></canvas></div></div></div>
