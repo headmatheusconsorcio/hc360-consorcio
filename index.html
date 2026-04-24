@@ -1658,15 +1658,15 @@ tr:hover td{background:#f0f7f6}
         </div>
       </div>
       <div class="g2" style="margin-bottom:0">
-        <div class="form-g"><label class="form-l">Valor da Carta (R$)</label><input type="number" class="form-i" id="mc-credito" placeholder="Valor original contratado"></div>
-        <div class="form-g"><label class="form-l">Carta Atualizada (R$)</label><input type="number" class="form-i" id="mc-carta-atual" placeholder="Valor atual após INCC"></div>
+        <div class="form-g"><label class="form-l">Valor da Carta (R$)</label><input type="text" inputmode="numeric" class="form-i mc-brl" id="mc-credito" placeholder="Ex: 340.065,00"></div>
+        <div class="form-g"><label class="form-l">Carta Atualizada (R$)</label><input type="text" inputmode="numeric" class="form-i mc-brl" id="mc-carta-atual" placeholder="Ex: 343.920,00"></div>
       </div>
       <div class="g2" style="margin-bottom:0">
-        <div class="form-g"><label class="form-l">Parcela Atual (R$)</label><input type="number" class="form-i" id="mc-parcela"></div>
-        <div class="form-g"><label class="form-l">Lance Pago (R$)</label><input type="number" class="form-i" id="mc-lance-val" placeholder="Valor total pago no lance" oninput="mcCalcLancePct()"></div>
+        <div class="form-g"><label class="form-l">Parcela Atual (R$)</label><input type="text" inputmode="numeric" class="form-i mc-brl" id="mc-parcela" placeholder="Ex: 3.733,00"></div>
+        <div class="form-g"><label class="form-l">Lance Pago (R$)</label><input type="text" inputmode="numeric" class="form-i mc-brl" id="mc-lance-val" placeholder="Ex: 136.000,00" oninput="mcCalcLancePct()"></div>
       </div>
       <div class="g2" style="margin-bottom:0">
-        <div class="form-g"><label class="form-l">Saldo Devedor (R$)</label><input type="number" class="form-i" id="mc-saldo" placeholder="Saldo devedor atual"></div>
+        <div class="form-g"><label class="form-l">Saldo Devedor (R$)</label><input type="text" inputmode="numeric" class="form-i mc-brl" id="mc-saldo" placeholder="Ex: 224.058,00"></div>
         <div class="form-g"><label class="form-l">Última Oferta de Lance (%)</label><input type="number" class="form-i" id="mc-l1" step="0.1" placeholder="Ex: 30.5"></div>
       </div>
       <div class="g2" style="margin-bottom:0">
@@ -1947,6 +1947,7 @@ let selProj=null, minChart=null, contChart=null;
 
 // ═══ UTILS ═══
 const brl=(v,d=2)=>{if(v==null||v==='')return'—';const n=Number(v);if(isNaN(n))return'—';const s=n.toFixed(d);const[i,dec]=s.split('.');const fmt=i.replace(/\B(?=(\d{3})+(?!\d))/g,'.');return'R$ '+fmt+(d>0?','+dec:'');}
+const parseBrl=s=>{if(s===''||s==null)return null;const n=parseFloat(String(s).replace(/\./g,'').replace(',','.'));return isNaN(n)?null:n;};
 const pct=(v,d=2)=>v==null?'—':(Number(v)*100).toFixed(d)+'%';
 const SB={'Contemplado':'<span class="badge b-ok">✓ Contemplado</span>','CONTEMPLADO':'<span class="badge b-ok">✓ Contemplado</span>','Sorteio':'<span class="badge b-gray">Sorteio</span>','SORTEIO / LANCE':'<span class="badge b-gray">Sorteio</span>','Em Andamento':'<span class="badge b-warn">⚡ Em Andamento</span>','LANCE':'<span class="badge b-warn">⚡ Em Andamento</span>','SUPLENCIA - 2 NA FRENTE':'<span class="badge b-warn">⚡ Em Andamento</span>','Cancelado':'<span class="badge b-err">✕ Cancelado</span>','CANCELADO':'<span class="badge b-err">✕ Cancelado</span>','Repassamos a contemplação':'<span class="badge b-info">Repassado</span>'};
 function sbadge(s){return SB[s]||`<span class="badge b-gray">${s}</span>`;}
@@ -2115,17 +2116,20 @@ function openModalCota(id){
   const r=isNew?{}:COTAS.find(c=>String(c.id)===String(id))||{};
   document.getElementById('modal-cota-title').textContent=isNew?'Nova Cota':`Editar — ${r.nome||''} · ${r.grupo||''}/${r.cota||''}`;
   document.getElementById('mc-del-btn').style.display=isNew?'none':'inline-flex';
+  const brlFields=['credito','parcela'];
   ['nome','cpf','grupo','cota','credito','parcela','assessor','adesao','status','taxa'].forEach(k=>{
-    const el=document.getElementById('mc-'+k);
-    if(el)el.value=r[k==='taxa'?'taxa_adm':k]||'';
+    const el=document.getElementById('mc-'+k);if(!el)return;
+    const raw=r[k==='taxa'?'taxa_adm':k];
+    el.value=brlFields.includes(k)?(raw?brl(raw).replace('R$ ',''):''):(raw||'');
   });
   const l1El=document.getElementById('mc-l1');
   if(l1El)l1El.value=r.lance1?+(r.lance1*100).toFixed(1):'';
   document.getElementById('mc-venc').value=r.vencimento||'';
-  document.getElementById('mc-saldo').value=r.saldo_devedor||'';
-  document.getElementById('mc-lance-val').value=r.lance_total||'';
+  const fmtBrl=v=>v?brl(v).replace('R$ ',''):'';
+  document.getElementById('mc-saldo').value=fmtBrl(r.saldo_devedor);
+  document.getElementById('mc-lance-val').value=fmtBrl(r.lance_total);
   document.getElementById('mc-data-contemp').value=r.data_contemplada||'';
-  document.getElementById('mc-carta-atual').value=r.carta_atualizada||'';
+  document.getElementById('mc-carta-atual').value=fmtBrl(r.carta_atualizada);
   document.getElementById('mc-tipo-bem').value=r.tipo_bem||'';
   const rawInfo=r.informacao||'';
   const asmMatch=rawInfo.match(/\[ASM:([^\]]+)\]/);
@@ -2139,17 +2143,17 @@ async function saveCota(){
     cpf:document.getElementById('mc-cpf').value,
     grupo:document.getElementById('mc-grupo').value,
     cota:document.getElementById('mc-cota').value,
-    credito:parseFloat(document.getElementById('mc-credito').value)||null,
-    parcela:parseFloat(document.getElementById('mc-parcela').value)||null,
+    credito:parseBrl(document.getElementById('mc-credito').value),
+    parcela:parseBrl(document.getElementById('mc-parcela').value),
     vencimento:parseInt(document.getElementById('mc-venc').value)||null,
     assessor:document.getElementById('mc-assessor').value,
     adesao:document.getElementById('mc-adesao').value||null,
     status:document.getElementById('mc-status').value,
     lance1:(v=>v?parseFloat(v)/100:null)(document.getElementById('mc-l1').value),
-    saldo_devedor:parseFloat(document.getElementById('mc-saldo').value)||null,
-    lance_total:parseFloat(document.getElementById('mc-lance-val').value)||null,
+    saldo_devedor:parseBrl(document.getElementById('mc-saldo').value),
+    lance_total:parseBrl(document.getElementById('mc-lance-val').value),
     data_contemplada:document.getElementById('mc-data-contemp').value||null,
-    carta_atualizada:parseFloat(document.getElementById('mc-carta-atual').value)||null,
+    carta_atualizada:parseBrl(document.getElementById('mc-carta-atual').value),
     tipo_bem:document.getElementById('mc-tipo-bem').value||null,
     informacao:(()=>{const obs=document.getElementById('mc-obs').value.trim();const asm=document.getElementById('mc-asm').value;return obs+(asm?' [ASM:'+asm+']':'');})(),
     updated_at:new Date().toISOString(),
@@ -2161,8 +2165,8 @@ async function saveCota(){
   if(res){toast('Cota salva com sucesso!');closeModal('modal-cota');filterCtrl();initDash();renderAgenda();renderProj();}
 }
 function mcCalcLancePct(){
-  const cr=parseFloat(document.getElementById('mc-credito').value)||0;
-  const lv=parseFloat(document.getElementById('mc-lance-val').value)||0;
+  const cr=parseBrl(document.getElementById('mc-credito').value)||0;
+  const lv=parseBrl(document.getElementById('mc-lance-val').value)||0;
   const l1=document.getElementById('mc-l1');
   if(cr>0&&lv>0){l1.value=(lv/cr*100).toFixed(1);}
 }
