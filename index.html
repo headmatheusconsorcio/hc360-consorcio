@@ -481,6 +481,15 @@ tr:hover td{background:#f0f7f6}
             <button class="btn btn-pri" onclick="assessorEnviarLead()" style="margin-top:4px">📤 Enviar Lead</button>
           </div>
         </div>
+        <!-- Painel assessor: acompanhamento dos próprios leads -->
+        <div id="assessor-tracking-card" class="card" style="display:none;margin-bottom:16px">
+          <div class="ch" style="background:#f0fdf4">
+            <span class="ct" style="color:var(--teal)">📊 Meus Leads — Acompanhamento</span>
+            <span id="assessor-tracking-count" class="badge b-ok">0</span>
+            <button class="btn btn-out btn-sm" style="margin-left:auto" onclick="loadData().then(renderAssessorTracking)">🔄 Atualizar</button>
+          </div>
+          <div id="assessor-tracking-body"></div>
+        </div>
     <div id="crm-main-content">
     <div class="frow">
       <input class="fi fi-lg" type="text" id="crm-search" placeholder="🔍  Buscar lead..." oninput="filterCRM()">
@@ -488,11 +497,13 @@ tr:hover td{background:#f0f7f6}
         <option value="">Todos os Status</option>
         <option>Novo</option><option>Em contato</option><option>Proposta enviada</option><option>Negociando</option><option>Fechado</option><option>Perdido</option>
       </select>
+      <span id="crm-assessor-f-wrap">
       <select class="fi fi-md" id="crm-assessor-f" onchange="filterCRM()">
         <option value="">Todos Assessores</option>
         <option>ALAN / ESCRITORIO</option><option>ALE / ESCRITORIO</option><option>GLAUCO</option><option>GIL</option><option>SZPIN</option><option>Coyote</option>
       </select>
-      <button class="btn btn-pri btn-sm" onclick="openModalLead(null)">+ Novo Lead</button>
+      </span>
+      <button class="btn btn-pri btn-sm" data-admin-only onclick="openModalLead(null)">+ Novo Lead</button>
     </div>
 
     <div class="pipeline" id="crm-pipeline"></div>
@@ -1274,8 +1285,11 @@ function updateSidebarUser(u){
   document.querySelectorAll('[data-admin-only]').forEach(el=>{el.style.display=u.isAdmin?'':'none';});
   const nbtn=document.getElementById('topbar-nova-cota');if(nbtn)nbtn.style.display=u.isAdmin?'':'none';
   const alCard=document.getElementById('assessor-lead-card');if(alCard)alCard.style.display=u.isAdmin?'none':'block';
-  const crmMain=document.getElementById('crm-main-content');if(crmMain)crmMain.style.display=u.isAdmin?'':'none';
+  const crmMain=document.getElementById('crm-main-content');if(crmMain)crmMain.style.display='';
+  // Filtros admin-only no CRM
+  const assessorFRow=document.getElementById('crm-assessor-f-wrap');if(assessorFRow)assessorFRow.style.display=u.isAdmin?'':'none';
   if(u.isAdmin)setTimeout(renderAssessorLeads,800);
+  else setTimeout(renderAssessorTracking,800);
 }
 
 async function loadProfile(user){
@@ -1334,6 +1348,40 @@ async function assessorEnviarLead(){
   toast('Lead enviado com sucesso ao admin!');
   document.getElementById('al-nome').value='';document.getElementById('al-tel').value='';document.getElementById('al-obs').value='';document.getElementById('al-credito').value='';
   renderAssessorLeads();
+  renderAssessorTracking();
+}
+
+function renderAssessorTracking(){
+  if(!CURRENT_USER||CURRENT_USER.isAdmin)return;
+  const card=document.getElementById('assessor-tracking-card');
+  const body=document.getElementById('assessor-tracking-body');
+  const badge=document.getElementById('assessor-tracking-count');
+  if(!card||!body)return;
+  const aName=CURRENT_USER.assessorName||CURRENT_USER.displayName;
+  const meus=LEADS.filter(l=>l.assessor===aName||l.indicado_por===aName).sort((a,b)=>new Date(b.updated_at||b.created_at||0)-new Date(a.updated_at||a.created_at||0));
+  badge.textContent=meus.length+' leads';
+  card.style.display=meus.length?'':'none';
+  if(!meus.length)return;
+  const staBg={'Novo':'#dbeafe','Em contato':'#fef3c7','Proposta enviada':'#fde68a','Negociando':'#ede9fe','Fechado':'#d1fae5','Perdido':'#fee2e2'};
+  const staTx={'Novo':'#1d4ed8','Em contato':'#92400e','Proposta enviada':'#78350f','Negociando':'#5b21b6','Fechado':'#065f46','Perdido':'#991b1b'};
+  body.innerHTML=`<div style="padding:14px;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px">
+  ${meus.map(l=>{
+    const sta=l.status||'Novo';
+    const hasSim=l.observacao&&l.observacao.startsWith('SIM:');
+    let simInfo='';
+    if(hasSim){try{const d=JSON.parse(l.observacao.slice(4));const tot=d.rows?d.rows.reduce((s,r)=>s+r.credito*r.qtd,0):0;simInfo=`<div style="font-size:11px;color:var(--ok);font-weight:600;margin-top:4px">📋 Proposta: ${tot>=1e6?(tot/1e6).toFixed(2)+'M':'R$ '+(tot||0).toLocaleString('pt-BR')} · ${d.rows?d.rows.reduce((s,r)=>s+r.qtd,0):0} cotas</div>`}catch(e){}}
+    const dt=l.updated_at?new Date(l.updated_at).toLocaleDateString('pt-BR'):l.created_at?new Date(l.created_at).toLocaleDateString('pt-BR'):'—';
+    return`<div style="background:var(--card2);border-radius:10px;padding:14px;border:1.5px solid var(--bdr);border-left:4px solid ${staBg[sta]||'var(--bdr)'}">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:6px">
+        <div style="font-weight:700;font-size:13.5px">${l.nome||'—'}</div>
+        <span style="padding:2px 8px;border-radius:20px;font-size:10.5px;font-weight:700;background:${staBg[sta]||'#f1f5f9'};color:${staTx[sta]||'#475569'};white-space:nowrap">${sta}</span>
+      </div>
+      <div style="font-size:11.5px;color:var(--txt2)">${l.interesse||''}${l.valor_potencial?' · R$ '+(l.valor_potencial||0).toLocaleString('pt-BR',{minimumFractionDigits:0}):''}${l.telefone?'<br>📱 '+l.telefone:''}</div>
+      ${simInfo}
+      <div style="font-size:10px;color:var(--txt2);margin-top:6px">Atualizado: ${dt}</div>
+    </div>`;
+  }).join('')}
+  </div>`;
 }
 
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&document.getElementById('login-screen').style.display!=='none')doLogin();});
@@ -1695,8 +1743,16 @@ function sortCRM(col){crmSort.dir=crmSort.col===col?-crmSort.dir:1;crmSort.col=c
 function filterCRM(){
   const s=document.getElementById('crm-search').value.toLowerCase();
   const st=document.getElementById('crm-status-f').value;
-  const as=document.getElementById('crm-assessor-f').value;
-  leadsFiltered=LEADS.filter(l=>(!s||(l.nome||'').toLowerCase().includes(s)||(l.indicado_por||'').toLowerCase().includes(s))&&(!st||l.status===st)&&(!as||l.assessor===as));
+  const asEl=document.getElementById('crm-assessor-f');
+  const as=asEl?asEl.value:'';
+  // Assessores só veem seus próprios leads
+  const aName=CURRENT_USER&&!CURRENT_USER.isAdmin?(CURRENT_USER.assessorName||CURRENT_USER.displayName):'';
+  leadsFiltered=LEADS.filter(l=>
+    (!s||(l.nome||'').toLowerCase().includes(s)||(l.indicado_por||'').toLowerCase().includes(s))
+    &&(!st||l.status===st)
+    &&(!as||l.assessor===as)
+    &&(!aName||l.assessor===aName||l.indicado_por===aName)
+  );
   renderCRM();
 }
 function renderAssessorLeads(){
