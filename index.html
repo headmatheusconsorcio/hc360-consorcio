@@ -533,7 +533,7 @@ tr:hover td{background:#f0f7f6}
       <input class="fi fi-lg" type="text" id="crm-search" placeholder="🔍  Buscar lead..." oninput="filterCRM()">
       <select class="fi fi-md" id="crm-status-f" onchange="filterCRM()">
         <option value="">Todos os Status</option>
-        <option>Novo</option><option>Em contato</option><option>Proposta enviada</option><option>Negociando</option><option>Fechado</option><option>Perdido</option>
+        <option>Novo Lead</option><option>Qualificando</option><option>Simulação</option><option>Proposta Enviada</option><option>Em Negociação</option><option>Aguard. Docs</option><option>Cota Aberta</option><option>Perdido</option>
       </select>
       <span id="crm-assessor-f-wrap">
       <select class="fi fi-md" id="crm-assessor-f" onchange="filterCRM()">
@@ -1706,7 +1706,7 @@ tr:hover td{background:#f0f7f6}
         </div>
         <div class="form-g"><label class="form-l">Status</label>
           <select class="form-i" id="ml-status">
-            <option>Novo</option><option>Em contato</option><option>Proposta enviada</option><option>Negociando</option><option>Fechado</option><option>Perdido</option>
+            <option>Novo Lead</option><option>Qualificando</option><option>Simulação</option><option>Proposta Enviada</option><option>Em Negociação</option><option>Aguard. Docs</option><option>Cota Aberta</option><option>Perdido</option>
           </select>
         </div>
       </div>
@@ -1832,8 +1832,8 @@ function renderAssessorTracking(){
   badge.textContent=meus.length+' leads';
   card.style.display=meus.length?'':'none';
   if(!meus.length)return;
-  const staBg={'Novo':'#dbeafe','Em contato':'#fef3c7','Proposta enviada':'#fde68a','Negociando':'#ede9fe','Fechado':'#d1fae5','Perdido':'#fee2e2'};
-  const staTx={'Novo':'#1d4ed8','Em contato':'#92400e','Proposta enviada':'#78350f','Negociando':'#5b21b6','Fechado':'#065f46','Perdido':'#991b1b'};
+  const staBg={'Novo Lead':'#dbeafe','Qualificando':'#fef3c7','Simulação':'#fef9c3','Proposta Enviada':'#ede9fe','Em Negociação':'#e0e7ff','Aguard. Docs':'#ccfbf1','Cota Aberta':'#d1fae5','Perdido':'#fee2e2'};
+  const staTx={'Novo Lead':'#1d4ed8','Qualificando':'#92400e','Simulação':'#78350f','Proposta Enviada':'#5b21b6','Em Negociação':'#3730a3','Aguard. Docs':'#065f46','Cota Aberta':'#065f46','Perdido':'#991b1b'};
   body.innerHTML=`<div style="padding:14px;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px">
   ${meus.map(l=>{
     const sta=l.status||'Novo';
@@ -1950,11 +1950,13 @@ async function deleteLeadDB(id){
 
 // ═══ DASHBOARD ═══
 function initDash(){
-  const ativas=COTAS.filter(r=>r.status!=='CANCELADO');
-  const canceladas=COTAS.filter(r=>r.status==='CANCELADO');
-  const contemp=ativas.filter(r=>r.status==='CONTEMPLADO'||r.status==='Contemplado').length;
-  const lance=ativas.filter(r=>r.status==='LANCE'||r.status==='Em Andamento').length;
-  const aguard=ativas.filter(r=>r.status==='SORTEIO / LANCE'||r.status==='Sorteio').length;
+  const isCancel=s=>(s||'').toUpperCase()==='CANCELADO';
+  const isContemp=s=>(s||'').toUpperCase()==='CONTEMPLADO';
+  const ativas=COTAS.filter(r=>!isCancel(r.status));
+  const canceladas=COTAS.filter(r=>isCancel(r.status));
+  const contemp=ativas.filter(r=>isContemp(r.status)).length;
+  const lance=ativas.filter(r=>(r.status||'').toUpperCase()==='LANCE'||(r.status||'')==='Em Andamento').length;
+  const aguard=ativas.filter(r=>(r.status||'').toUpperCase()==='SORTEIO / LANCE'||(r.status||'')==='Sorteio').length;
   const cred=ativas.reduce((s,r)=>s+(r.credito||0),0);
   const credCancel=canceladas.reduce((s,r)=>s+(r.credito||0),0);
   document.getElementById('kpi-total').textContent=ativas.length;
@@ -1972,11 +1974,11 @@ function initDash(){
   const am={};COTAS.forEach(r=>{let a=r.assessor||'Outros';if(a==='Gil')a='GIL';if(!am[a])am[a]=0;am[a]++;});
   const ta=Object.entries(am).sort((a,b)=>b[1]-a[1]).slice(0,7);
   dashCharts.assess=new Chart(document.getElementById('ch-assess'),{type:'bar',data:{labels:ta.map(x=>x[0]),datasets:[{data:ta.map(x=>x[1]),backgroundColor:'#3b82f6',borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{beginAtZero:true}}}});
-  const cm={};ativas.forEach(r=>{const n=r.nome;if(!cm[n])cm[n]={cotas:0,contemp:0,credito:0,assessor:r.assessor};cm[n].cotas++;if(r.status==='CONTEMPLADO')cm[n].contemp++;if(r.credito)cm[n].credito+=r.credito;});
+  const cm={};ativas.forEach(r=>{const n=r.nome;if(!cm[n])cm[n]={cotas:0,contemp:0,credito:0,assessor:r.assessor};cm[n].cotas++;if(isContemp(r.status))cm[n].contemp++;if(r.credito)cm[n].credito+=r.credito;});
   const tc=Object.entries(cm).sort((a,b)=>b[1].credito-a[1].credito).slice(0,8);
   const totalCarteira=cred||1;
   document.getElementById('dash-clients').innerHTML=tc.map(([n,d])=>`<tr><td><strong>${n}</strong></td><td>${d.cotas}</td><td><span class="badge b-ok">${d.contemp}</span></td><td>${brl(d.credito,0)}</td><td>${atag(d.assessor)}</td><td><strong>${(d.credito/totalCarteira*100).toFixed(1)}%</strong></td></tr>`).join('');
-  const amd={};ativas.forEach(r=>{let a=r.assessor||'Outros';if(a==='Gil')a='GIL';if(!amd[a])amd[a]={cotas:0,contemp:0,credito:0};amd[a].cotas++;if(r.status==='CONTEMPLADO')amd[a].contemp++;if(r.credito)amd[a].credito+=r.credito;});
+  const amd={};ativas.forEach(r=>{let a=r.assessor||'Outros';if(a==='Gil')a='GIL';if(!amd[a])amd[a]={cotas:0,contemp:0,credito:0};amd[a].cotas++;if(isContemp(r.status))amd[a].contemp++;if(r.credito)amd[a].credito+=r.credito;});
   document.getElementById('dash-assess').innerHTML=Object.entries(amd).sort((a,b)=>b[1].cotas-a[1].cotas).slice(0,8).map(([a,d])=>`<tr style="cursor:pointer" onclick="navToAssessor('${a}')" title="Ver clientes de ${a}"><td>${atag(a)}</td><td>${d.cotas}</td><td>${d.contemp}</td><td>${brl(d.credito,0)}</td><td style="font-weight:700">${(d.credito/totalCarteira*100).toFixed(1)}%</td></tr>`).join('');
 }
 function navToAssessor(assessorName){
@@ -2206,8 +2208,8 @@ async function dragDropLead(e,stage){
   if(res){Object.assign(lead,res);toast(`${lead.nome} → ${stage}`);filterCRM();}
   dragLead=null;
 }
-const PIPE_STAGES=['Novo','Em contato','Proposta enviada','Negociando','Fechado','Perdido'];
-const PIPE_COLORS={'Novo':'#3b82f6','Em contato':'#f59e0b','Proposta enviada':'#D6AF5C','Negociando':'#8b5cf6','Fechado':'#10b981','Perdido':'#ef4444'};
+const PIPE_STAGES=['Novo Lead','Qualificando','Simulação','Proposta Enviada','Em Negociação','Aguard. Docs','Cota Aberta','Perdido'];
+const PIPE_COLORS={'Novo Lead':'#3b82f6','Qualificando':'#f59e0b','Simulação':'#D6AF5C','Proposta Enviada':'#8b5cf6','Em Negociação':'#6366f1','Aguard. Docs':'#226866','Cota Aberta':'#10b981','Perdido':'#ef4444'};
 let leadsFiltered=[], crmSort={col:null,dir:1};
 function sortCRM(col){crmSort.dir=crmSort.col===col?-crmSort.dir:1;crmSort.col=col;renderCRM();}
 function filterCRM(){
@@ -2238,7 +2240,7 @@ function renderAssessorLeads(){
   tbody.innerHTML=assLeads.map(l=>{
     const dt=l.created_at?new Date(l.created_at).toLocaleDateString('pt-BR'):'—';
     const sta=l.status||'Novo';
-    const staCls=sta==='Fechado'?'b-ok':sta==='Perdido'?'b-err':sta==='Novo'?'b-ora':'b-warn';
+    const staCls=sta==='Cota Aberta'?'b-ok':sta==='Perdido'?'b-err':sta==='Novo Lead'?'b-ora':'b-warn';
     return `<tr>
       <td><strong>${l.nome||'—'}</strong></td>
       <td style="font-size:11px">${l.telefone||'—'}</td>
@@ -2263,7 +2265,7 @@ function renderCRM(){
   document.getElementById('crm-pipeline').innerHTML=PIPE_STAGES.map(stage=>{
     const items=leadsFiltered.filter(l=>l.status===stage);
     const total=items.reduce((s,l)=>s+(l.valor_potencial||0),0);
-    const hasSim=stage==='Proposta enviada'||stage==='Negociando'||stage==='Fechado';
+    const hasSim=stage==='Proposta Enviada'||stage==='Em Negociação'||stage==='Aguard. Docs'||stage==='Cota Aberta';
     return`<div class="pipe-col" ondragover="event.preventDefault();this.style.background='#e0e7ff'" ondragleave="this.style.background=''" ondrop="dragDropLead(event,'${stage}');this.style.background=''">
       <div class="pipe-hdr"><span style="width:10px;height:10px;border-radius:50%;background:${PIPE_COLORS[stage]};display:inline-block"></span>${stage} <span class="badge b-gray" style="margin-left:auto">${items.length}</span></div>
       ${total>0?`<div style="font-size:11px;color:var(--txt2);margin-bottom:8px">${brl(total,0)}</div>`:''}
@@ -2277,7 +2279,7 @@ function renderCRM(){
             </div>
             <button class="btn btn-sm" style="background:${lHasSim?'var(--ok)':'var(--acc)'};color:#fff;padding:3px 7px;font-size:11px;white-space:nowrap;flex-shrink:0" onclick="openModalSim('${l.id}')">${lHasSim?'📋':'📊'}</button>
           </div>
-          ${lHasSim&&stage==='Proposta enviada'?`<button class="btn btn-ok btn-sm" style="width:100%;margin-top:6px;justify-content:center" onclick="simFecharNegocio('${l.id}')">✓ Fechar Negócio</button>`:''}
+          ${lHasSim&&(stage==='Proposta Enviada'||stage==='Em Negociação')?`<button class="btn btn-ok btn-sm" style="width:100%;margin-top:6px;justify-content:center" onclick="simFecharNegocio('${l.id}')">✓ Fechar Negócio</button>`:''}
         </div>`;
       }).join('')}
       ${items.length>6?`<div style="font-size:11px;color:var(--txt2);text-align:center;padding:6px">+${items.length-6} mais</div>`:''}
@@ -2616,8 +2618,8 @@ function calcSimTotals(){
 async function simSalvar(){
   if(!simLead||!simRows.length){toast('Adicione grupos antes de salvar','err');return;}
   const payload={rows:simRows,nota:document.getElementById('sim-obs').value,caso:document.getElementById('sim-caso').value,ts:new Date().toISOString()};
-  const res=await upsertLead({id:simLead.id,observacao:'SIM:'+JSON.stringify(payload),status:'Proposta enviada',updated_at:new Date().toISOString()});
-  if(res){Object.assign(simLead,res);toast('Proposta salva! Lead → Proposta enviada');renderCRM();}
+  const res=await upsertLead({id:simLead.id,observacao:'SIM:'+JSON.stringify(payload),status:'Proposta Enviada',updated_at:new Date().toISOString()});
+  if(res){Object.assign(simLead,res);toast('Proposta salva! Lead → Proposta Enviada');renderCRM();}
 }
 async function simFecharNegocio(leadId){
   const lead=LEADS.find(l=>l.id===leadId);
@@ -2637,9 +2639,9 @@ Serão criadas ${totalCotas} cotas no sistema.`))return;
       if(!res)erros++;
     }
   }
-  await upsertLead({id:leadId,status:'Fechado',updated_at:new Date().toISOString()});
+  await upsertLead({id:leadId,status:'Cota Aberta',updated_at:new Date().toISOString()});
   hideLoad();
-  if(erros===0)toast(`${totalCotas} cotas criadas! Lead fechado.`,'ok');
+  if(erros===0)toast(`${totalCotas} cotas criadas! Lead → Cota Aberta.`,'ok');
   else toast(`Concluído com ${erros} erro(s)`,'err');
   initDash();filterCtrl();renderCRM();renderProj();
 }
@@ -2647,7 +2649,7 @@ Serão criadas ${totalCotas} cotas no sistema.`))return;
 // ═══ GUIA ═══
 let selGrupo=null;
 function guiaFilter(){const tipo=document.getElementById('guia-tipo').value;browseData=Object.entries(GUIA).filter(([g,d])=>!tipo||tipo==='Im'?(d.sheet||'').includes('Im'):!(d.sheet||'').includes('Im'));document.getElementById('browse-count').textContent=browseData.length+' grupos';renderBrowse(browseData,1);}
-function guiaAC(){const q=document.getElementById('guia-input').value.trim();const list=document.getElementById('ac-list');if(q.length<1){list.classList.remove('open');return;}const m=Object.entries(GUIA).filter(([g])=>g.toString().startsWith(q)).slice(0,12);if(!m.length){list.classList.remove('open');return;}list.innerHTML=m.map(([g,d])=>`<div class="ac-item" onclick="guiaSel('${g}')" ><strong>${g}</strong> — ${d.tp||''} · ${d.idx||''} · ${d.pr||'?'}m · Vagas: ${d.vagas!=null?d.vagas:'?'}</div>`).join('');list.classList.add('open');}
+function guiaAC(){const q=document.getElementById('guia-input').value.trim();const list=document.getElementById('ac-list');if(q.length<1){list.classList.remove('open');return;}const m=Object.entries(GUIA).filter(([g])=>g.toString().startsWith(q)).slice(0,12);if(!m.length){list.classList.remove('open');return;}list.innerHTML=m.map(([g,d])=>`<div class="ac-item" onclick="guiaSel('${g}')" ><strong>${g}</strong> — ${d.tp||'Imóvel'}${d.pr?' · '+d.pr+'m':''}${d.vagas!=null?' · '+d.vagas+' vagas':''}</div>`).join('');list.classList.add('open');}
 function guiaKey(e){if(e.key==='Enter')guiaSearch();if(e.key==='Escape')document.getElementById('ac-list').classList.remove('open');}
 function guiaSearch(){const q=document.getElementById('guia-input').value.trim();document.getElementById('ac-list').classList.remove('open');const m=Object.entries(GUIA).find(([g])=>g.toString()===q);if(m)guiaSel(m[0]);else{document.getElementById('guia-result').style.display='none';document.getElementById('guia-browse').style.display='none';document.getElementById('guia-empty').style.display='block';}}
 function guiaSel(g){
@@ -3734,14 +3736,19 @@ function setProjView(v){
   document.getElementById('proj-list-filters').style.display=v==='list'?'flex':'none';
   document.getElementById('pvtoggle-cards').className='btn btn-sm'+(v==='cards'?' btn-pri':' btn-out');
   document.getElementById('pvtoggle-list').className='btn btn-sm'+(v==='list'?' btn-pri':' btn-out');
-  if(v==='list'){plistFiltered=[...COTAS];plistPage=1;renderProjList();}
+  if(v==='list'){plistPage=1;filterProjList();}
 }
 function filterProjList(){
-  const s=document.getElementById('pf-search').value.toLowerCase();
-  const st=document.getElementById('pf-status').value;
-  const as=document.getElementById('pf-assessor').value;
+  const s=(document.getElementById('pf-search')?.value||'').toLowerCase().trim();
+  const st=(document.getElementById('pf-status')?.value||'');
+  const as=(document.getElementById('pf-assessor')?.value||'');
   const na=a=>a==='Gil'?'GIL':a;
-  plistFiltered=COTAS.filter(r=>(!s||(r.nome||'').toLowerCase().includes(s)||(r.grupo||'').toString().includes(s)||(r.cota||'').toString().includes(s)||(r.cpf||'').includes(s))&&(!st||r.status===st)&&(!as||na(r.assessor)===as));
+  const normSt2=x=>{const u=(x||'').toUpperCase();if(u==='CONTEMPLADO')return'Contemplado';if(u==='CANCELADO')return'Cancelado';if(u==='LANCE'||u==='SUPLENCIA - 2 NA FRENTE')return'Em Andamento';if(u==='SORTEIO / LANCE')return'Sorteio';return x;};
+  plistFiltered=COTAS.filter(r=>
+    (!s||(r.nome||'').toLowerCase().includes(s)||(r.grupo||'').toString().includes(s)||(r.cota||'').toString().includes(s)||(r.cpf||'').includes(s))
+    &&(!st||normSt2(r.status)===st)
+    &&(!as||na(r.assessor)===as)
+  );
   plistPage=1;renderProjList();
 }
 function clearProjList(){['pf-search','pf-status','pf-assessor'].forEach(id=>document.getElementById(id).value='');plistFiltered=[...COTAS];plistPage=1;renderProjList();}
@@ -3841,13 +3848,13 @@ function renderOportunidades(){
           <span style="font-size:20px;font-weight:900;color:var(--acc);font-family:'Playfair Display',serif">${g}</span>
           <div>
             <div style="color:#fff;font-size:13px;font-weight:700">${d.vmax?brl(d.vmax,0):d.vmin?'A partir de '+brl(d.vmin,0):'—'}</div>
-            <div style="color:rgba(255,255,255,.55);font-size:11px">${d.pr||'?'}m · ${(d.tp||'').split(' ')[0]}</div>
+            <div style="color:rgba(255,255,255,.55);font-size:11px">${d.pr?d.pr+'m':''}${d.pr&&d.tp?' · ':''}${(d.tp||'').split(' ')[0]}</div>
           </div>
         </div>
         <div style="display:flex;gap:14px;align-items:center">
           <div style="text-align:center">
             <div style="color:rgba(255,255,255,.5);font-size:9.5px;text-transform:uppercase;letter-spacing:.5px">Vagas</div>
-            <div style="color:${(d.vagas||0)>20?'#6ee7b7':(d.vagas||0)>5?'var(--warn)':'#fca5a5'};font-size:16px;font-weight:800">${d.vagas||'?'}</div>
+            <div style="color:${(d.vagas||0)>20?'#6ee7b7':(d.vagas||0)>5?'var(--warn)':'#fca5a5'};font-size:16px;font-weight:800">${d.vagas!=null?d.vagas:'—'}</div>
           </div>
           <div style="text-align:center">
             <div style="color:rgba(255,255,255,.5);font-size:9.5px;text-transform:uppercase;letter-spacing:.5px">Méd. Mín.</div>
