@@ -2657,7 +2657,7 @@ function guiaSel(g){
   const d=GUIA[g];if(!d)return;selGrupo=g;
   document.getElementById('guia-result').style.display='block';document.getElementById('guia-browse').style.display='none';document.getElementById('guia-empty').style.display='none';
   document.getElementById('guia-hist-title').textContent='Histórico do Grupo '+g;
-  const chips=[{l:'Grupo',v:g,s:d.tp||'Itaú'},{l:'Indexador',v:d.idx||'—',s:'correção'},{l:'Prazo Rest.',v:(d.pr||'?')+' meses',s:'de '+(d.po||'?')+' orig.'},{l:'Próx. Assembleia',v:d.asm?d.asm.slice(5).split('-').reverse().join('/'):'—',s:''},{l:'Vagas',v:d.vagas!=null?d.vagas:'—',s:'cap. '+(d.cap||'?'),hl:true},{l:'Valor Mín.',v:d.vmin?brl(d.vmin,0):'—',s:''},{l:'Valor Máx.',v:d.vmax?brl(d.vmax,0):'—',s:''},{l:'Últ. Lance Mín.',v:d.ul_min&&d.ul_min>0?pct(d.ul_min):'—',s:'ant.'},{l:'Lance Atual Mín.',v:d.at_min&&d.at_min>0?pct(d.at_min):'—',s:'atual',hl:true},{l:'Contemp. Atual',v:d.at_cl||'0',s:''},{l:'F. Reserva',v:d.fr!=null?pct(d.fr):'—',s:''},{l:'Parc. Reduz.',v:d.pr_red==='S'?'Sim':'Não',s:''},];
+  const chips=[{l:'Grupo',v:g,s:d.tp||'Itaú'},{l:'Indexador',v:d.idx||'—',s:'correção'},{l:'Prazo Rest.',v:d.pr?d.pr+' meses':'—',s:d.po?'de '+d.po+' orig.':''},{l:'Próx. Assembleia',v:d.asm?d.asm.slice(5).split('-').reverse().join('/'):'—',s:''},{l:'Vagas',v:d.vagas!=null?d.vagas:'—',s:d.cap?'cap. '+d.cap:'',hl:true},{l:'Valor Mín.',v:d.vmin?brl(d.vmin,0):'—',s:''},{l:'Valor Máx.',v:d.vmax?brl(d.vmax,0):'—',s:''},{l:'Últ. Lance Mín.',v:d.ul_min&&d.ul_min>0?pct(d.ul_min):'—',s:'ant.'},{l:'Lance Atual Mín.',v:d.at_min&&d.at_min>0?pct(d.at_min):'—',s:'atual',hl:true},{l:'Contemp. Atual',v:d.at_cl||'0',s:''},{l:'F. Reserva',v:d.fr!=null?pct(d.fr):'—',s:''},{l:'Parc. Reduz.',v:d.pr_red==='S'?'Sim':'Não',s:''},];
   document.getElementById('guia-chips').innerHTML=chips.map(c=>`<div class="chip${c.hl?' hl':''}"><div class="chip-l">${c.l}</div><div class="chip-v">${c.v}</div>${c.s?`<div class="chip-s">${c.s}</div>`:''}</div>`).join('');
   const hg=HIST.groups[g]||HIST.groups[parseInt(g)];const months=HIST.months.map(mpt);
   const mn=hg?hg.min.map(v=>v||0):Array(months.length).fill(0);const ct=hg?hg.cont.map(v=>v||0):Array(months.length).fill(0);const mx=hg&&hg.max?hg.max:[];
@@ -2748,7 +2748,7 @@ function renderOportunidades(){
           <span style="font-size:18px">${medal}</span>
         </div>
         <div style="font-size:26px;font-weight:900;letter-spacing:-.5px">Grupo ${o.g}</div>
-        <div style="font-size:13px;opacity:.8;margin-top:2px">${o.cred>=1e6?(o.cred/1e6).toFixed(2)+'M':brl(o.cred,0)} · ${o.prazo}m</div>
+        <div style="font-size:13px;opacity:.8;margin-top:2px">${o.cred>=1e6?(o.cred/1e6).toFixed(2)+'M':brl(o.cred,0)}${o.d.pr?' · '+o.d.pr+'m':''}</div>
       </div>
       <div style="padding:14px 16px">
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
@@ -2788,7 +2788,7 @@ function renderOportunidades(){
         <td><strong style="color:var(--acc2)">${o.g}</strong></td>
         <td style="font-size:11px">${o.isIm?'🏠 Imóvel':'🚗 Rodas'}</td>
         <td>${o.cred?brl(o.cred,0):'—'}</td>
-        <td>${o.prazo}m</td>
+        <td>${o.d.pr?o.d.pr+'m':'—'}</td>
         <td><span style="color:var(--ok);font-weight:700">${o.d.at_min?(o.d.at_min*100).toFixed(1)+'%':'—'}</span></td>
         <td><span style="color:var(--acc2);font-weight:700">${o.lanceMed>0?o.lanceMed.toFixed(1)+'%':'—'}</span></td>
         <td><strong style="color:${(o.d.vagas||0)>20?'var(--ok)':(o.d.vagas||0)>5?'var(--warn)':'var(--err)'}">${o.d.vagas??'—'}</strong></td>
@@ -2821,7 +2821,7 @@ function renderCarrSlide(){
   document.getElementById('carr-tipo-icon').textContent=o.isIm?'🏠':'🚗';
   document.getElementById('carr-tipo-label').textContent=o.isIm?'Imóvel':'Automóvel · '+o.d.tp;
   document.getElementById('carr-cred').textContent=o.cred>=1e6?(o.cred/1e6).toFixed(2)+'M':brl(o.cred,0);
-  document.getElementById('carr-prazo').textContent=o.prazo+'m';
+  document.getElementById('carr-prazo').textContent=o.d.pr?o.d.pr+'m':'—';
   document.getElementById('carr-lance').textContent=o.lanceMed>0?o.lanceMed.toFixed(1)+'%':'—';
   document.getElementById('carr-vagas').textContent=(o.d.vagas??'—')+(o.avgCont>0?' ('+o.avgCont.toFixed(1)+'/mês)':'');
   document.getElementById('carr-compat').textContent=compat+'%';
