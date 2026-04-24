@@ -1998,7 +1998,7 @@ function openModalSim(leadId){
   if(obs.startsWith('SIM:')){
     try{const d=JSON.parse(obs.slice(4));simRows=d.rows||[];document.getElementById('sim-obs').value=d.nota||'';simGoStep(3);}
     catch(e){simRows=[];simGoStep(1);}
-  }else{simRows=[];['sim-credito-liq','sim-credito','sim-lance-rp','sim-limite-parc'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});document.getElementById('sim-pqtd').value=1;simSetFinalidade('Im');simSetToggle('sim-lance-emb','nao');simSetToggle('sim-parc-red','nao');document.getElementById('sim-prazo-min').value='0';document.getElementById('sim-prazo-max').value='200';document.getElementById('sim-lancepct-info').style.display='none';const sc=document.getElementById('sim-credito');if(sc){sc.style.background='var(--card2)';sc.readOnly=true;}simGoStep(1);}
+  }else{simRows=[];['sim-credito-liq','sim-credito','sim-lance-rp','sim-limite-parc'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});simSetFinalidade('Im');simSetToggle('sim-lance-emb','nao');simSetToggle('sim-parc-red','nao');document.getElementById('sim-prazo-min').value='0';document.getElementById('sim-prazo-max').value='200';document.getElementById('sim-lancepct-info').style.display='none';const sc=document.getElementById('sim-credito');if(sc){sc.style.background='var(--card2)';sc.readOnly=true;}simGoStep(1);}
   document.getElementById('modal-sim').classList.add('open');
 }
 function simGoStep(n){
