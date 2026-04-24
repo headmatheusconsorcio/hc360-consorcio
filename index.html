@@ -2241,8 +2241,7 @@ async function confirmarPagamento(id){
   if(!parc){toast('Parcela não preenchida — edite a cota primeiro.','warn');return;}
   const msg=`Confirmar pagamento de ${brl(parc)} para ${r.nome}?
 
-Saldo Devedor: ${brl(sd)} → ${brl(Math.max(0,sd-parc))}${pr?'
-Prazo restante: '+(pr-1)+' meses':''}`;
+Saldo Devedor: ${brl(sd)} → ${brl(Math.max(0,sd-parc))}${pr?'\nPrazo restante: '+(pr-1)+' meses':''}`;
   if(!confirm(msg))return;
   const updates={saldo_devedor:Math.max(0,sd-parc),updated_at:new Date().toISOString()};
   if(pr>0)updates.prazo_restante=pr-1;
