@@ -692,6 +692,15 @@ tr:hover td{background:#f0f7f6}
 
   <!-- PROPOSTA -->
   <div class="page" id="page-prop">
+    <!-- Step bar -->
+    <div style="display:flex;gap:0;border-radius:10px;overflow:hidden;border:1.5px solid var(--bdr);margin-bottom:20px;background:var(--card2)" id="prop-step-bar">
+      <div id="propbar-1" style="flex:1;padding:10px 8px;text-align:center;font-size:12px;font-weight:700;background:var(--acc);color:#fff;cursor:pointer" onclick="propGoStep(1)">1 · Configurar</div>
+      <div id="propbar-2" style="flex:1;padding:10px 8px;text-align:center;font-size:12px;font-weight:700;color:var(--txt2);cursor:pointer" onclick="propGoStep(2)">2 · Proposta Final</div>
+      <div id="propbar-3" style="flex:1;padding:10px 8px;text-align:center;font-size:12px;font-weight:700;color:var(--txt2);cursor:pointer" onclick="propGoStep(3)">3 · Comparativo</div>
+    </div>
+
+    <!-- STEP 1: Configurar -->
+    <div id="prop-s1">
     <div class="prop-grid">
       <div>
         <div class="card"><div class="ch"><span class="ct">Dados da Operação</span></div><div class="cb">
@@ -741,57 +750,105 @@ tr:hover td{background:#f0f7f6}
           </tr></thead><tbody id="prop-sug-ro"><tr><td colspan="8" style="text-align:center;color:var(--txt2);padding:10px">Calculando...</td></tr></tbody></table></div>
         </div>
       </div>
+      <!-- filler right col step 1: mini preview -->
       <div>
-        <div class="card">
-          <div class="ch"><span class="ct" id="prop-title">Proposta Comercial</span><button class="btn btn-out btn-sm" onclick="window.print()">🖨️ Imprimir</button></div>
-          <div class="cb" style="padding:16px">
-            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px">
-              <div style="background:var(--sb);color:#fff;border-radius:10px;padding:14px 12px;text-align:center">
-                <div style="font-size:10px;font-weight:700;letter-spacing:.8px;opacity:.65;text-transform:uppercase;margin-bottom:5px">Crédito Total</div>
-                <div style="font-size:16px;font-weight:800" id="r-cred">—</div>
-                <div style="font-size:10px;opacity:.55;margin-top:3px"><span id="r-cotas">—</span> cotas · <span id="r-percota">—</span>/cota</div>
-              </div>
-              <div style="background:var(--acc);color:#fff;border-radius:10px;padding:14px 12px;text-align:center">
-                <div style="font-size:10px;font-weight:700;letter-spacing:.8px;opacity:.75;text-transform:uppercase;margin-bottom:5px">Lance Total</div>
-                <div style="font-size:20px;font-weight:800" id="r-lperc">—</div>
-                <div style="font-size:11px;font-weight:700;opacity:.85;margin-top:3px" id="r-ltot">—</div>
-              </div>
-              <div style="background:#059669;color:#fff;border-radius:10px;padding:14px 12px;text-align:center">
-                <div style="font-size:10px;font-weight:700;letter-spacing:.8px;opacity:.75;text-transform:uppercase;margin-bottom:5px">Créd. Líquido</div>
-                <div style="font-size:16px;font-weight:800" id="r-liq">—</div>
-                <div style="font-size:10px;opacity:.7;margin-top:3px">após lance</div>
-              </div>
+        <div class="card" style="position:sticky;top:16px">
+          <div class="ch"><span class="ct">📋 Resumo da Composição</span></div>
+          <div class="cb" id="prop-mini-preview" style="font-size:13px;color:var(--txt2);text-align:center;padding:30px">Configure os grupos ao lado para visualizar o resumo.</div>
+        </div>
+        <div style="margin-top:14px;text-align:center">
+          <button class="btn btn-pri" style="width:100%;padding:13px;font-size:14px" onclick="propGoStep(2);calcProp();renderPropSugestoes()">Ver Proposta Final →</button>
+        </div>
+      </div>
+    </div>
+    </div>
+
+    <!-- STEP 2: Proposta Final redesenhada -->
+    <div id="prop-s2" style="display:none">
+    <div style="max-width:900px;margin:0 auto">
+      <!-- Documento proposta -->
+      <div class="card" style="overflow:hidden">
+        <!-- Header branding -->
+        <div style="background:linear-gradient(135deg,var(--sb) 0%,var(--teal) 100%);padding:24px 28px;color:#fff">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+            <div>
+              <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;opacity:.7;margin-bottom:4px">HC360 Consórcio · Proposta Comercial</div>
+              <div style="font-size:24px;font-weight:900" id="prop-doc-cliente">—</div>
+              <div style="font-size:13px;opacity:.75;margin-top:2px" id="prop-doc-data">—</div>
             </div>
-            <div style="background:#fdf6e3;border:1.5px solid #e8d09a;border-radius:10px;padding:13px 15px;margin-bottom:12px">
-              <div style="font-size:11px;font-weight:800;color:var(--acc);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">Composição do Lance</div>
-              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-                <div><div style="font-size:10px;color:var(--txt2);margin-bottom:2px">Recursos Próprios</div><div style="font-size:14px;font-weight:700;color:var(--txt)" id="r-lrp">—</div></div>
-                <div><div style="font-size:10px;color:var(--txt2);margin-bottom:2px">Parte da Carta</div><div style="font-size:14px;font-weight:700;color:var(--txt)" id="r-llc">—</div></div>
-                <div><div style="font-size:10px;color:var(--txt2);margin-bottom:2px">Saldo Devedor</div><div style="font-size:14px;font-weight:700;color:var(--txt)" id="r-sd">—</div></div>
-                <div><div style="font-size:10px;color:var(--txt2);margin-bottom:2px">Custo Total (Adm+FR)</div><div style="font-size:14px;font-weight:700;color:var(--txt)" id="r-cet">—</div></div>
-              </div>
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-out btn-sm" style="background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.3);color:#fff" onclick="propGoStep(1)">← Editar</button>
+              <button class="btn btn-out btn-sm" style="background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.3);color:#fff" onclick="window.print()">🖨 Imprimir</button>
             </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
-              <div style="background:#eff6ff;border:1.5px solid #bfdbfe;border-radius:10px;padding:13px 14px">
-                <div style="font-size:11px;font-weight:800;color:#1d4ed8;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Pré-Contemplação</div>
-                <div style="font-size:10px;color:#1e40af;margin-bottom:2px">Parcela mensal</div>
-                <div style="font-size:20px;font-weight:800;color:#1d4ed8;margin-bottom:8px" id="r-pi">—</div>
-                <div id="r-pi-red-row" style="display:none">
-                  <div style="font-size:10px;color:#1e40af;margin-bottom:2px">Com redução</div>
-                  <div style="font-size:16px;font-weight:700;color:var(--warn)" id="r-pi-red">—</div>
-                </div>
-              </div>
-              <div style="background:#f0fdf4;border:1.5px solid #86efac;border-radius:10px;padding:13px 14px">
-                <div style="font-size:11px;font-weight:800;color:#15803d;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Pós-Contemplação</div>
-                <div style="font-size:10px;color:#166534;margin-bottom:2px">Contemplado no <span id="r-mes" style="font-weight:700">—</span></div>
-                <div style="font-size:20px;font-weight:800;color:#16a34a;margin-bottom:8px" id="r-pp">—</div>
-                <div style="font-size:10px;color:#166534;margin-bottom:2px">Saldo pós-lance</div>
-                <div style="font-size:13px;font-weight:700;color:#15803d" id="r-saldo-pos">—</div>
-              </div>
-            </div>
-            <div id="prop-breakdown" style="display:none;margin-top:4px"></div>
-            <div class="note" style="margin-top:12px">• Lances não são garantia de contemplação. &nbsp;• Simulação considera contemplação no mês informado. &nbsp;• Valores sujeitos a reajuste pelo indexador do grupo.</div>
           </div>
+        </div>
+        <!-- KPIs principais -->
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:0;border-bottom:1px solid var(--bdr)">
+          <div style="padding:18px 20px;border-right:1px solid var(--bdr);text-align:center">
+            <div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--txt2);letter-spacing:.5px;margin-bottom:6px">Crédito Total</div>
+            <div style="font-size:22px;font-weight:900;color:var(--sb)" id="r-cred">—</div>
+            <div style="font-size:11px;color:var(--txt2);margin-top:2px"><span id="r-cotas">—</span> cotas · <span id="r-percota">—</span>/cota</div>
+          </div>
+          <div style="padding:18px 20px;border-right:1px solid var(--bdr);text-align:center">
+            <div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--txt2);letter-spacing:.5px;margin-bottom:6px">Lance Total</div>
+            <div style="font-size:22px;font-weight:900;color:var(--acc)" id="r-lperc">—</div>
+            <div style="font-size:11px;color:var(--txt2);margin-top:2px" id="r-ltot">—</div>
+          </div>
+          <div style="padding:18px 20px;border-right:1px solid var(--bdr);text-align:center">
+            <div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--txt2);letter-spacing:.5px;margin-bottom:6px">Crédito Líquido</div>
+            <div style="font-size:22px;font-weight:900;color:var(--ok)" id="r-liq">—</div>
+            <div style="font-size:11px;color:var(--txt2);margin-top:2px">após lance</div>
+          </div>
+          <div style="padding:18px 20px;text-align:center">
+            <div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--txt2);letter-spacing:.5px;margin-bottom:6px">Parcela Pré-Contempl.</div>
+            <div style="font-size:22px;font-weight:900;color:var(--info)" id="r-pi">—</div>
+            <div style="font-size:11px;color:var(--txt2);margin-top:2px" id="r-pi-red-row">—</div>
+          </div>
+        </div>
+        <!-- Corpo da proposta -->
+        <div style="padding:24px 28px">
+          <div class="g2" style="margin-bottom:20px">
+            <!-- Composição do lance -->
+            <div style="background:#fdf6e3;border:1.5px solid #e8d09a;border-radius:12px;padding:18px">
+              <div style="font-size:11px;font-weight:800;color:var(--acc);text-transform:uppercase;letter-spacing:.5px;margin-bottom:14px">💰 Composição do Lance</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                <div><div style="font-size:10px;color:var(--txt2);margin-bottom:3px">Recursos Próprios</div><div style="font-size:16px;font-weight:700" id="r-lrp">—</div></div>
+                <div><div style="font-size:10px;color:var(--txt2);margin-bottom:3px">Parte da Carta</div><div style="font-size:16px;font-weight:700" id="r-llc">—</div></div>
+                <div><div style="font-size:10px;color:var(--txt2);margin-bottom:3px">Saldo Devedor</div><div style="font-size:16px;font-weight:700" id="r-sd">—</div></div>
+                <div><div style="font-size:10px;color:var(--txt2);margin-bottom:3px">Custo Total (Adm+FR)</div><div style="font-size:16px;font-weight:700" id="r-cet">—</div></div>
+              </div>
+            </div>
+            <!-- Pós-contemplação -->
+            <div style="background:#f0fdf4;border:1.5px solid #86efac;border-radius:12px;padding:18px">
+              <div style="font-size:11px;font-weight:800;color:#15803d;text-transform:uppercase;letter-spacing:.5px;margin-bottom:14px">✅ Pós-Contemplação</div>
+              <div style="font-size:10px;color:#166534;margin-bottom:4px">Contemplado no mês <span id="r-mes" style="font-weight:800;font-size:13px">—</span></div>
+              <div style="font-size:28px;font-weight:900;color:#16a34a;margin-bottom:10px" id="r-pp">—</div>
+              <div style="font-size:10px;color:#166534;margin-bottom:3px">Saldo pós-lance</div>
+              <div style="font-size:16px;font-weight:700;color:#15803d" id="r-saldo-pos">—</div>
+            </div>
+          </div>
+          <!-- Detalhes por grupo -->
+          <div id="prop-breakdown" style="margin-bottom:20px"></div>
+          <!-- Nota legal -->
+          <div class="note">• Lances não são garantia de contemplação. &nbsp;• Simulação considera contemplação no mês informado. &nbsp;• Valores sujeitos a reajuste pelo indexador do grupo.</div>
+        </div>
+      </div>
+
+      <!-- Estratégias de lance abaixo da proposta -->
+      <div class="card" style="margin-top:14px">
+        <div class="ch"><span class="ct">Estratégias de Lance</span><span style="font-size:11px;color:var(--txt2)" id="cen-sub">por mês de contemplação</span></div>
+        <div class="tw"><table style="font-size:12px"><thead><tr><th>Estratégia</th><th>Lance %</th><th>Rec. Próprios</th><th>Crédito Líq.</th><th>Parcela Pré</th><th>Parcela Pós</th><th>Economia/mês</th><th>Total Desembolso</th></tr></thead><tbody id="estrat-tbody"></tbody></table></div>
+      </div>
+    </div>
+    </div>
+
+    <!-- STEP 3: Comparativo -->
+    <div id="prop-s3" style="display:none">
+    <div class="prop-grid">
+      <div>
+        <div class="card" style="position:sticky;top:16px">
+          <div class="ch"><span class="ct">📋 Configuração Atual</span><button class="btn btn-out btn-sm" onclick="propGoStep(1)">← Editar</button></div>
+          <div class="cb" id="prop-s3-mini" style="font-size:12.5px;color:var(--txt2)">Configure na etapa 1.</div>
         </div>
         <div class="card" id="cmp-card">
           <div class="ch" style="flex-direction:column;align-items:stretch;gap:12px;padding-bottom:16px">
@@ -912,11 +969,8 @@ tr:hover td{background:#f0f7f6}
             </div>
           </div>
         </div>
-        <div class="card" style="margin-top:14px">
-          <div class="ch"><span class="ct">Estratégias de Lance</span><span style="font-size:11px;color:var(--txt2)" id="cen-sub">por mês de contemplação</span></div>
-          <div class="tw"><table style="font-size:12px"><thead><tr><th>Estratégia</th><th>Lance %</th><th>Rec. Próprios</th><th>Crédito Líq.</th><th>Parcela Pré</th><th>Parcela Pós</th><th>Economia/mês</th><th>Total Desembolso</th></tr></thead><tbody id="estrat-tbody"></tbody></table></div>
-        </div>
       </div>
+    </div>
     </div>
   </div>
 
@@ -2424,6 +2478,23 @@ document.addEventListener('keydown',e=>{
 });
 
 // ═══ PROPOSTA ═══
+function propGoStep(n){
+  [1,2,3].forEach(i=>{
+    const s=document.getElementById('prop-s'+i);if(s)s.style.display=i===n?'':'none';
+    const b=document.getElementById('propbar-'+i);
+    if(b){b.style.background=i===n?'var(--acc)':'var(--card2)';b.style.color=i===n?'#fff':'var(--txt2)';}
+  });
+  if(n===2||n===3){calcProp();renderPropSugestoes();}
+  if(n===3){
+    const mini=document.getElementById('prop-s3-mini');
+    if(mini){
+      const cli=document.getElementById('p-cliente').value||'—';
+      const gs=propGrupos.filter(g=>g.grupo).map(g=>'Grupo '+g.grupo+(g.qtd>1?' x'+g.qtd:'')).join(', ')||'Nenhum grupo';
+      const lt=document.getElementById('p-lance').value||'—';
+      mini.innerHTML='<strong>'+cli+'</strong><br><span style="color:var(--txt)">'+gs+'</span><br><span style="color:var(--acc);font-weight:600">Lance: '+lt+'%</span>';
+    }
+  }
+}
 let propGrupos=[{grupo:'',prazo:192,fr:3,taxaadm:23,credMin:0,credMax:0,credito:340000,qtd:1,mesAtual:0}];
 function updLance(){const t=parseFloat(document.getElementById('p-lance').value)||0;const rp=parseFloat(document.getElementById('p-rp').value)||0;document.getElementById('p-lc').value=Math.max(0,t-rp).toFixed(1);document.getElementById('p-lance-lbl').textContent=t.toFixed(0)+'%';}
 function syncCredAlvo(val){const v=parseFloat(val)||0;propGrupos.forEach(g=>{if(v>0)g.credito=v;});renderPropGrupos();calcProp();}
@@ -2576,13 +2647,19 @@ function calcProp(){
   const mesReal=Math.min(mes,prazoRef-1);
   const avgTa=totCotas?totTa/totCotas:0;const avgFr=totCotas?totFr/totCotas:0;
   const grupos=propGrupos.filter(g=>g.grupo).map(g=>g.grupo).join(', ')||'—';
-  document.getElementById('prop-title').textContent=(cliente||'Proposta Comercial')+(grupos!=='—'?' · '+grupos:'');
+  const propTitleEl=document.getElementById('prop-title');if(propTitleEl)propTitleEl.textContent=(cliente||'Proposta Comercial')+(grupos!=='—'?' · '+grupos:'');
+  // Preenche header do documento proposta
+  const docCli=document.getElementById('prop-doc-cliente');if(docCli)docCli.textContent=cliente||'Cliente';
+  const docDt=document.getElementById('prop-doc-data');if(docDt)docDt.textContent=new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'})+' · '+grupos;
+  // Mini preview step 1
+  const mini=document.getElementById('prop-mini-preview');
+  if(mini&&totCred>0){mini.innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;text-align:left"><div><div style="font-size:10px;color:var(--txt2);text-transform:uppercase;margin-bottom:2px">Crédito Total</div><div style="font-size:18px;font-weight:800;color:var(--sb)">${brl(totCred,0)}</div></div><div><div style="font-size:10px;color:var(--txt2);text-transform:uppercase;margin-bottom:2px">Cotas</div><div style="font-size:18px;font-weight:800">${totCotas}</div></div><div><div style="font-size:10px;color:var(--txt2);text-transform:uppercase;margin-bottom:2px">Lance Total</div><div style="font-size:18px;font-weight:800;color:var(--acc)">${lt.toFixed(1)}%</div></div><div><div style="font-size:10px;color:var(--txt2);text-transform:uppercase;margin-bottom:2px">Parcela Pré</div><div style="font-size:18px;font-weight:800;color:var(--info)">${brl(totPi)}</div></div></div>`;}
   const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
   set('r-cred',brl(totCred,0));set('r-cotas',totCotas);set('r-percota',totCotas?brl(totCred/totCotas,0):'—');
   set('r-lperc',lt.toFixed(2)+'%');set('r-lrp',brl(totLRP,0));set('r-llc',brl(totLLC,0));set('r-ltot',brl(totLTot,0));
   set('r-liq',brl(totLiq,0));set('r-sd',brl(totSD,0));
   set('r-pi',brl(totPi));set('r-pi-red',brl(piRed));
-  const prRow=document.getElementById('r-pi-red-row');if(prRow)prRow.style.display=red>0?'flex':'none';
+  const prRow=document.getElementById('r-pi-red-row');if(prRow)prRow.textContent=red>0?'Com redução: '+brl(piRed):'—';
   set('r-mes',mesReal+'º mês');set('r-saldo-pos',brl(totSP,0));set('r-pp',brl(totPp));
   set('r-cet',(avgTa+avgFr).toFixed(1)+'% ≈ '+brl(totSD-totCred,0));
   const bdEl=document.getElementById('prop-breakdown');
