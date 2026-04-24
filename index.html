@@ -1497,14 +1497,14 @@ function renderAssessorTracking(){
     const sta=l.status||'Novo';
     const hasSim=l.observacao&&l.observacao.startsWith('SIM:');
     let simInfo='';
-    if(hasSim){try{const d=JSON.parse(l.observacao.slice(4));const tot=d.rows?d.rows.reduce((s,r)=>s+r.credito*r.qtd,0):0;simInfo=`<div style="font-size:11px;color:var(--ok);font-weight:600;margin-top:4px">📋 Proposta: ${tot>=1e6?(tot/1e6).toFixed(2)+'M':'R$ '+(tot||0).toLocaleString('pt-BR')} · ${d.rows?d.rows.reduce((s,r)=>s+r.qtd,0):0} cotas</div>`}catch(e){}}
+    if(hasSim){try{const d=JSON.parse(l.observacao.slice(4));const tot=d.rows?d.rows.reduce((s,r)=>s+r.credito*r.qtd,0):0;simInfo=`<div style="font-size:11px;color:var(--ok);font-weight:600;margin-top:4px">📋 Proposta: ${brl(tot,0)} · ${d.rows?d.rows.reduce((s,r)=>s+r.qtd,0):0} cotas</div>`}catch(e){}}
     const dt=l.updated_at?new Date(l.updated_at).toLocaleDateString('pt-BR'):l.created_at?new Date(l.created_at).toLocaleDateString('pt-BR'):'—';
     return`<div style="background:var(--card2);border-radius:10px;padding:14px;border:1.5px solid var(--bdr);border-left:4px solid ${staBg[sta]||'var(--bdr)'}">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:6px">
         <div style="font-weight:700;font-size:13.5px">${l.nome||'—'}</div>
         <span style="padding:2px 8px;border-radius:20px;font-size:10.5px;font-weight:700;background:${staBg[sta]||'#f1f5f9'};color:${staTx[sta]||'#475569'};white-space:nowrap">${sta}</span>
       </div>
-      <div style="font-size:11.5px;color:var(--txt2)">${l.interesse||''}${l.valor_potencial?' · R$ '+(l.valor_potencial||0).toLocaleString('pt-BR',{minimumFractionDigits:0}):''}${l.telefone?'<br>📱 '+l.telefone:''}</div>
+      <div style="font-size:11.5px;color:var(--txt2)">${l.interesse||''}${l.valor_potencial?' · '+brl(l.valor_potencial,0):''}${l.telefone?'<br>📱 '+l.telefone:''}</div>
       ${simInfo}
       <div style="font-size:10px;color:var(--txt2);margin-top:6px">Atualizado: ${dt}</div>
     </div>`;
@@ -1764,7 +1764,7 @@ function calcContemp(){
   const lancePropr=parseFloat(document.getElementById('cc-lance-proprio').value)||0;
   const lanceEmb=Math.max(0,lanceTotal-lancePropr);
   document.getElementById('cc-pct').value=carta>0&&lanceTotal>0?(lanceTotal/carta*100).toFixed(2)+'%':'—';
-  document.getElementById('cc-lance-embutido').value=lanceEmb>0?'R$ '+lanceEmb.toLocaleString('pt-BR',{minimumFractionDigits:0,maximumFractionDigits:0}):'—';
+  document.getElementById('cc-lance-embutido').value=lanceEmb>0?brl(lanceEmb,0):'—';
   const atualizada=carta-lanceEmb;
   const saldo=atualizada*1.07;
   const r=currentCotaId?COTAS.find(c=>c.id===currentCotaId):null;
@@ -1788,7 +1788,7 @@ async function saveContemp(){
   const pctLance=carta>0&&lanceTotal>0?lanceTotal/carta:null;
   showLoad();
   await sb.from('contemplacoes').insert({grupo:r.grupo,cota:r.cota,nome:r.nome,data_contemplacao:data,tipo,lance_pago:lanceTotal||null,lance_proprio:lancePropr||null,lance_embutido:lanceEmb||null,carta_valor:carta,carta_atualizada:atualizada,saldo_devedor:saldo,parcela_nova:novaParcela});
-  const updated={...r,status:'CONTEMPLADO',carta_atualizada:atualizada,saldo_devedor:saldo,parcela:novaParcela,lance_total:lanceTotal||null,lance_proprio:lancePropr||null,tipo_contemp:tipo,data_contemplada:data||null,lance1:pctLance,informacao:`Contemplado em ${data.split('-').reverse().join('/')} via ${tipo}${lanceTotal?' | Lance: R$'+lanceTotal.toLocaleString('pt-BR',{minimumFractionDigits:0,maximumFractionDigits:0}):''}`   ,updated_at:new Date().toISOString()};
+  const updated={...r,status:'CONTEMPLADO',carta_atualizada:atualizada,saldo_devedor:saldo,parcela:novaParcela,lance_total:lanceTotal||null,lance_proprio:lancePropr||null,tipo_contemp:tipo,data_contemplada:data||null,lance1:pctLance,informacao:`Contemplado em ${data.split('-').reverse().join('/')} via ${tipo}${lanceTotal?' | Lance: '+brl(lanceTotal,0):''}`   ,updated_at:new Date().toISOString()};
   const res=await upsertCota(updated);
   hideLoad();
   if(res){toast('Contemplação registrada! Cota atualizada.','ok');closeModal('modal-contemp');filterCtrl();initDash();renderAgenda();}
@@ -3171,8 +3171,8 @@ function renderProjDash(name){
   const nL=en.filter(r=>isL(r.status)).length; const crL=en.filter(r=>isL(r.status)).reduce((s,r)=>s+(r.credito||0),0);
   const nSp=en.filter(r=>isSup(r.status)).length; const crSp=en.filter(r=>isSup(r.status)).reduce((s,r)=>s+(r.credito||0),0);
   const pctAm=totPago+totSaldo>0?Math.round(totPago/(totPago+totSaldo)*100):0;
-  function fb(v){return v>=1e6?'R$ '+(v/1e6).toFixed(2).replace('.',',')+'M':v>=1e3?'R$ '+Math.round(v/1e3)+'k':'R$ '+(v||0).toLocaleString('pt-BR')}
-  function ff(v){return'R$ '+(v||0).toLocaleString('pt-BR',{minimumFractionDigits:0,maximumFractionDigits:0})}
+  function fb(v){return v>=1e6?'R$ '+(v/1e6).toFixed(2).replace('.',',')+'M':brl(v,0)}
+  function ff(v){return brl(v,0)}
   const stOrd={Contemplado:0,CONTEMPLADO:0,'Em Andamento':1,LANCE:1,'SORTEIO / LANCE':2,Sorteio:2,'SUPLENCIA - 2 NA FRENTE':3};
   const stBg={Contemplado:'#d1fae5',CONTEMPLADO:'#d1fae5','Em Andamento':'#fef3c7',LANCE:'#fef3c7',Sorteio:'#dbeafe','SORTEIO / LANCE':'#dbeafe','SUPLENCIA - 2 NA FRENTE':'#ede9fe'};
   const stTx={Contemplado:'#065f46',CONTEMPLADO:'#065f46','Em Andamento':'#92400e',LANCE:'#92400e',Sorteio:'#1d4ed8','SORTEIO / LANCE':'#1d4ed8','SUPLENCIA - 2 NA FRENTE':'#5b21b6'};
@@ -3273,7 +3273,7 @@ function renderProjDash(name){
         labels:['Contemplado','Sorteio','Lance/Andamento','Suplência'],
         datasets:[{label:'Crédito',data:[crC,crS,crL,crSp],backgroundColor:['#226866','#3b82f6','#D6AF5C','#8b5cf6'],borderRadius:6,borderSkipped:false}]
       },
-      options:{responsive:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>' '+fb(ctx.parsed.y)}}},scales:{
+      options:{responsive:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>' '+brl(ctx.parsed.y,0)}}},scales:{
         x:{grid:{display:false},ticks:{font:{size:11}}},
         y:{grid:{color:'rgba(0,0,0,.04)'},border:{dash:[4,4]},ticks:{font:{size:11},callback:v=>v>=1e6?(v/1e6).toFixed(1)+'M':v>=1e3?Math.round(v/1e3)+'k':v}}
       }}
