@@ -351,6 +351,7 @@ tr:hover td{background:#f0f7f6}
     <div class="ni" onclick="nav('crm',this)"><span class="ico">🎯</span> CRM / Indicações</div>
     <div class="nav-sec">Ferramentas</div>
     <div class="ni" data-admin-only="1" onclick="nav('guia',this)"><span class="ico">🏦</span> Guia de Oportunidades</div>
+    <div class="ni" data-admin-only="1" onclick="nav('oport',this)"><span class="ico">🌟</span> Oportunidades</div>
     <div class="ni" data-admin-only="1" onclick="nav('prop',this)"><span class="ico">📄</span> Gerar Proposta</div>
     <div class="nav-sec">Clientes</div>
     <div class="ni" onclick="nav('proj',this)"><span class="ico">👤</span> Projetos / Cotas</div>
@@ -539,6 +540,107 @@ tr:hover td{background:#f0f7f6}
     </div>
   </div>
 
+  <!-- OPORTUNIDADES -->
+  <div class="page" id="page-oport">
+    <!-- Header -->
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:20px">
+      <div>
+        <div style="font-size:22px;font-weight:800;color:var(--sb);font-family:'Playfair Display',serif">🌟 Oportunidades da Semana</div>
+        <div style="font-size:12.5px;color:var(--txt2);margin-top:3px">Top grupos por assertividade de lance · Dados GUIA Itaú · Atualizado automaticamente</div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <div class="toggle-group" id="oport-tipo-toggle">
+          <button class="toggle-btn act" data-val="" onclick="ortSetTipo(this,'')">Todos</button>
+          <button class="toggle-btn" data-val="Im" onclick="ortSetTipo(this,'Im')">🏠 Imóveis</button>
+          <button class="toggle-btn" data-val="Ro" onclick="ortSetTipo(this,'Ro')">🚗 Rodas</button>
+        </div>
+        <button class="btn btn-pri btn-sm" onclick="openCarrossel()">🎠 Carrossel de Divulgação</button>
+      </div>
+    </div>
+    <!-- Grid de oportunidades -->
+    <div id="oport-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-bottom:24px"></div>
+    <!-- Seção inferior: tabela completa -->
+    <div class="card">
+      <div class="ch">
+        <span class="ct">📋 Todos os Grupos em Andamento</span>
+        <span style="font-size:12px;color:var(--txt2)" id="oport-all-count">—</span>
+        <button class="btn btn-out btn-sm" style="margin-left:auto" onclick="nav('guia',document.querySelector('.ni[onclick*=guia]'))">🔍 Analisar grupo →</button>
+      </div>
+      <div class="tw"><table style="font-size:12px">
+        <thead><tr>
+          <th>Grupo</th><th>Tipo</th><th>Crédito</th><th>Prazo</th>
+          <th>Lance Mín. Atual</th><th>Média 6m</th><th>Vagas</th><th>Contempl./mês</th><th>Score</th>
+        </tr></thead>
+        <tbody id="oport-all-tbody"></tbody>
+      </table></div>
+    </div>
+  </div>
+
+  <!-- CARROSSEL OVERLAY -->
+  <div id="carrossel-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;display:none;align-items:center;justify-content:center">
+    <div style="width:min(520px,95vw);position:relative">
+      <!-- Close -->
+      <button onclick="closeCarrossel()" style="position:absolute;top:-40px;right:0;background:none;border:none;color:#fff;font-size:24px;cursor:pointer">✕</button>
+      <!-- Card do carrossel -->
+      <div id="carr-card" style="background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.4)">
+        <!-- Gradiente topo -->
+        <div id="carr-header" style="background:linear-gradient(135deg,#2C3E50 0%,#226866 100%);padding:24px 28px 20px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+            <span style="font-size:11px;font-weight:700;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:1px">HC360 Consórcio · Oportunidade da Semana</span>
+            <span id="carr-num" style="font-size:11px;color:rgba(255,255,255,.5)">1/1</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px">
+            <div id="carr-tipo-icon" style="font-size:36px">🏠</div>
+            <div>
+              <div id="carr-grupo" style="font-size:28px;font-weight:900;color:#fff;line-height:1">Grupo —</div>
+              <div id="carr-tipo-label" style="font-size:13px;color:rgba(255,255,255,.7);margin-top:2px">Imóvel</div>
+            </div>
+          </div>
+        </div>
+        <!-- Dados -->
+        <div style="padding:20px 28px">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px">
+            <div style="background:#f8fafc;border-radius:10px;padding:12px 14px">
+              <div style="font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;margin-bottom:4px">Crédito</div>
+              <div id="carr-cred" style="font-size:20px;font-weight:800;color:#1e293b">—</div>
+            </div>
+            <div style="background:#f8fafc;border-radius:10px;padding:12px 14px">
+              <div style="font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;margin-bottom:4px">Prazo</div>
+              <div id="carr-prazo" style="font-size:20px;font-weight:800;color:#1e293b">—</div>
+            </div>
+            <div style="background:#ecfdf5;border-radius:10px;padding:12px 14px">
+              <div style="font-size:10px;font-weight:700;color:#065f46;text-transform:uppercase;margin-bottom:4px">Lance Mínimo</div>
+              <div id="carr-lance" style="font-size:20px;font-weight:800;color:#059669">—</div>
+            </div>
+            <div style="background:#fff7ed;border-radius:10px;padding:12px 14px">
+              <div style="font-size:10px;font-weight:700;color:#92400e;text-transform:uppercase;margin-bottom:4px">Vagas Disponíveis</div>
+              <div id="carr-vagas" style="font-size:20px;font-weight:800;color:#d97706">—</div>
+            </div>
+          </div>
+          <div id="carr-bar-wrap" style="background:#f1f5f9;border-radius:10px;padding:12px 14px;margin-bottom:16px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+              <span style="font-size:11px;font-weight:700;color:#475569">Assertividade de Lance</span>
+              <span id="carr-compat" style="font-size:14px;font-weight:800;color:#2C3E50">—%</span>
+            </div>
+            <div style="height:8px;background:#e2e8f0;border-radius:4px;overflow:hidden">
+              <div id="carr-bar" style="height:100%;background:linear-gradient(90deg,#226866,#D6AF5C);border-radius:4px;width:0%;transition:width .5s"></div>
+            </div>
+          </div>
+          <div style="font-size:11px;color:#94a3b8;text-align:center">📊 Baseado em 6 meses de histórico GUIA Itaú</div>
+        </div>
+      </div>
+      <!-- Navegação -->
+      <div style="display:flex;align-items:center;justify-content:center;gap:16px;margin-top:20px">
+        <button onclick="carrPrev()" style="background:rgba(255,255,255,.15);border:none;color:#fff;border-radius:50%;width:44px;height:44px;font-size:20px;cursor:pointer">‹</button>
+        <div id="carr-dots" style="display:flex;gap:6px"></div>
+        <button onclick="carrNext()" style="background:rgba(255,255,255,.15);border:none;color:#fff;border-radius:50%;width:44px;height:44px;font-size:20px;cursor:pointer">›</button>
+      </div>
+      <div style="text-align:center;margin-top:12px">
+        <span style="font-size:11px;color:rgba(255,255,255,.5)">Tire um print para compartilhar · Navegue com as setas ou teclado</span>
+      </div>
+    </div>
+  </div>
+
   <!-- GUIA -->
   <div class="page" id="page-guia">
     <div class="card"><div class="cb">
@@ -564,34 +666,6 @@ tr:hover td{background:#f0f7f6}
       <div class="card">
         <div class="ch"><span class="ct" id="guia-hist-title">Histórico</span><button class="btn btn-pri btn-sm" onclick="usarNaProposta()">Usar na Proposta →</button></div>
         <div class="tw"><table><thead><tr><th>Mês</th><th>Lance Mín.</th><th>Lance Máx.</th><th>Contemplados</th></tr></thead><tbody id="guia-hist-body"></tbody></table></div>
-      </div>
-    </div>
-    <!-- OPORTUNIDADES DA SEMANA -->
-    <div id="guia-oportunidades" style="margin-bottom:20px">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
-        <div>
-          <div style="font-size:18px;font-weight:800;color:var(--sb);font-family:'Playfair Display',serif">🌟 Oportunidades da Semana</div>
-          <div style="font-size:12px;color:var(--txt2);margin-top:2px">Melhores grupos por perfil · Lance médio últimos 12 meses · Dados GUIA Itaú</div>
-        </div>
-        <button class="btn btn-out btn-sm" onclick="document.getElementById('guia-oportunidades').style.display='none';document.getElementById('guia-browse').scrollIntoView()">Ver todos os grupos ↓</button>
-      </div>
-      <div class="g2" style="margin-bottom:16px">
-        <div>
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
-            <span style="font-size:20px">🏠</span>
-            <span style="font-size:14px;font-weight:700;color:var(--sb)">Top Imóveis</span>
-            <span class="badge b-teal" id="oport-im-badge">—</span>
-          </div>
-          <div id="oport-im"></div>
-        </div>
-        <div>
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
-            <span style="font-size:20px">🚗</span>
-            <span style="font-size:14px;font-weight:700;color:var(--sb)">Top Automóveis</span>
-            <span class="badge b-teal" id="oport-ro-badge">—</span>
-          </div>
-          <div id="oport-ro"></div>
-        </div>
       </div>
     </div>
     <div id="guia-browse">
@@ -1411,10 +1485,10 @@ function hideLoad(){document.getElementById('loading').classList.remove('show');
 function setSync(ok){const d=document.getElementById('sync-dot'),s=document.getElementById('sync-status');d.className='sync-dot'+(ok?' ok':' err');s.textContent=ok?'Conectado ao Supabase':'Sem conexão';}
 
 // ═══ NAV ═══
-const PGT={'dash':'Dashboard','ctrl':'Controle de Cotas','agenda':'Agenda','crm':'CRM / Indicações','guia':'Guia de Oportunidades','prop':'Gerar Proposta','proj':'Projetos / Cotas'};
+const PGT={'dash':'Dashboard','ctrl':'Controle de Cotas','agenda':'Agenda','crm':'CRM / Indicações','guia':'Guia de Oportunidades','oport':'Oportunidades','prop':'Gerar Proposta','proj':'Projetos / Cotas'};
 function toggleSidebar(){const sb=document.getElementById('sidebar');const ov=document.getElementById('sb-overlay');sb.classList.toggle('mob-open');ov.classList.toggle('open');}
 function nav(id,el){if(window.innerWidth<=700){const sb=document.getElementById('sidebar');const ov=document.getElementById('sb-overlay');sb.classList.remove('mob-open');ov.classList.remove('open');}
-document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));document.getElementById('page-'+id).classList.add('active');if(el)el.classList.add('active');document.getElementById('pg-title').textContent=PGT[id]||id;if(id==='ctrl')filterCtrl();if(id==='agenda')renderAgenda();if(id==='crm')renderCRM();if(id==='guia'){browseData=Object.entries(GUIA);renderBrowse(browseData,1);document.getElementById('guia-oportunidades').style.display='';renderOportunidades();}if(id==='prop'){renderPropGrupos();calcProp();updLance();}if(id==='proj')renderProj();}
+document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));document.getElementById('page-'+id).classList.add('active');if(el)el.classList.add('active');document.getElementById('pg-title').textContent=PGT[id]||id;if(id==='ctrl')filterCtrl();if(id==='agenda')renderAgenda();if(id==='crm')renderCRM();if(id==='guia'){browseData=Object.entries(GUIA);renderBrowse(browseData,1);}if(id==='oport'){ortData=buildOrtData();renderOportunidades();}if(id==='prop'){renderPropGrupos();calcProp();updLance();}if(id==='proj')renderProj();}
 
 // ═══ SUPABASE ═══
 async function loadData(){
@@ -2212,6 +2286,142 @@ function renderBrowse(data,pg){browsePage=pg;
   const{items,total,pages}=paginate(sorted,pg,40);document.getElementById('browse-count').textContent=data.length+' grupos';document.getElementById('browse-tbody').innerHTML=items.map(([g,d])=>`<tr onclick="guiaSel('${g}')" style="cursor:pointer"><td><strong style="color:var(--acc)">${g}</strong></td><td style="font-size:11px">${(d.tp||'').replace('IMÓVEIS','?? Imóveis').replace('VEÍCULOS LEVES','??').replace('VEÍCULOS PESADOS','??').replace('MOTOS','??')}</td><td><span class="badge ${d.sit==='Andamento'?'b-ok':'b-gray'}">${d.sit||'—'}</span></td><td style="font-size:11px">${d.idx||'—'}</td><td>${d.pr||'—'}m</td><td style="font-size:11px">${d.asm||'—'}</td><td>${d.vagas!=null?d.vagas:'—'}</td><td style="font-size:11px">${d.vmin?brl(d.vmin,0):'—'}</td><td style="font-size:11px">${d.vmax?brl(d.vmax,0):'—'}</td><td>${d.ul_min&&d.ul_min>0?'<span style="color:var(--ok);font-weight:700">'+pct(d.ul_min)+'</span>':'—'}</td><td>${d.at_min&&d.at_min>0?'<span style="color:var(--acc);font-weight:700">'+pct(d.at_min)+'</span>':'—'}</td><td>${d.at_cl||'—'}</td></tr>`).join('');renderPag('browse-pag',pg,pages,'browseGo');}
 function browseGo(p){renderBrowse(browseData,p);}
 function sortBrowse(col){browseSort.dir=browseSort.col===col?-browseSort.dir:1;browseSort.col=col;renderBrowse(browseData,1);}
+
+// ═══ OPORTUNIDADES ═══
+let ortTipo='', ortData=[], carrIdx=0;
+function ortSetTipo(btn,val){
+  ortTipo=val;
+  document.querySelectorAll('#oport-tipo-toggle .toggle-btn').forEach(b=>b.classList.toggle('act',b===btn));
+  renderOportunidades();
+}
+function buildOrtData(){
+  const TAX_ADM=23,FR=3;
+  return Object.entries(GUIA).filter(([g,d])=>d.sit==='Andamento').map(([g,d])=>{
+    const h=simHist6mo(g);
+    const hd=HIST.groups[g]||HIST.groups[parseInt(g)]||{};
+    const cont6=(hd.cont||[]).slice(-6).filter(v=>v>0);
+    const avgCont=cont6.length?cont6.reduce((a,b)=>a+b,0)/cont6.length:0;
+    const cred=d.vmax||d.vmin||0;
+    const prazo=d.pr||120;
+    const lanceMed=h.avgMin?h.avgMin*100:d.at_min?d.at_min*100:30;
+    // Score composto: vagas + contemplados + lance baixo = melhor
+    let score=Math.min((d.vagas||0)*2,40)+Math.min(avgCont*3,20)+Math.max(0,40-(lanceMed||40));
+    const isIm=(d.tp||'').toUpperCase().includes('IM');
+    const isRo=!isIm;
+    return{g,d,h,cred,prazo,lanceMed,avgCont,score,isIm,isRo};
+  }).sort((a,b)=>b.score-a.score);
+}
+function renderOportunidades(){
+  if(!ortData.length)ortData=buildOrtData();
+  const filtered=ortTipo==='Im'?ortData.filter(o=>o.isIm):ortTipo==='Ro'?ortData.filter(o=>o.isRo):ortData;
+  const top=filtered.slice(0,12);
+  const maxScore=top[0]?.score||1;
+  const grid=document.getElementById('oport-grid');
+  if(!grid)return;
+  grid.innerHTML=top.map((o,i)=>{
+    const compat=Math.min(100,Math.round(o.score/maxScore*100));
+    const compatColor=compat>=80?'#059669':compat>=55?'#d97706':'#dc2626';
+    const medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':'';
+    const tpIcon=o.isIm?'🏠':'🚗';
+    const lanceFmt=o.lanceMed>0?o.lanceMed.toFixed(1)+'%':'—';
+    const contFmt=o.avgCont>0?o.avgCont.toFixed(1)+'/mês':'—';
+    return`<div style="background:var(--card);border-radius:14px;border:1.5px solid var(--bdr);overflow:hidden;cursor:pointer;transition:box-shadow .2s;box-shadow:0 2px 8px rgba(0,0,0,.05)" onmouseover="this.style.boxShadow='0 8px 24px rgba(0,0,0,.12)'" onmouseout="this.style.boxShadow='0 2px 8px rgba(0,0,0,.05)'" onclick="guiaSel('${o.g}');nav('guia',document.querySelector('.ni[onclick*=guia]'))">
+      <div style="background:linear-gradient(135deg,var(--sb) 0%,var(--teal) 100%);padding:14px 16px;color:#fff">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+          <span style="font-size:11px;opacity:.7;font-weight:600;text-transform:uppercase;letter-spacing:.5px">${tpIcon} ${o.isIm?'Imóvel':'Automóvel'}</span>
+          <span style="font-size:18px">${medal}</span>
+        </div>
+        <div style="font-size:26px;font-weight:900;letter-spacing:-.5px">Grupo ${o.g}</div>
+        <div style="font-size:13px;opacity:.8;margin-top:2px">${o.cred>=1e6?(o.cred/1e6).toFixed(2)+'M':brl(o.cred,0)} · ${o.prazo}m</div>
+      </div>
+      <div style="padding:14px 16px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+          <div style="text-align:center;background:#f0fdf4;border-radius:8px;padding:8px">
+            <div style="font-size:10px;font-weight:700;color:#064e3b;text-transform:uppercase;margin-bottom:2px">Lance Mín.</div>
+            <div style="font-size:18px;font-weight:800;color:#059669">${lanceFmt}</div>
+          </div>
+          <div style="text-align:center;background:#fff7ed;border-radius:8px;padding:8px">
+            <div style="font-size:10px;font-weight:700;color:#78350f;text-transform:uppercase;margin-bottom:2px">Vagas</div>
+            <div style="font-size:18px;font-weight:800;color:#d97706">${o.d.vagas??'—'}</div>
+          </div>
+        </div>
+        <div style="margin-bottom:10px">
+          <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px">
+            <span style="color:var(--txt2)">Assertividade</span>
+            <span style="font-weight:700;color:${compatColor}">${compat}%</span>
+          </div>
+          <div style="height:6px;background:var(--bdr);border-radius:3px;overflow:hidden">
+            <div style="height:100%;width:${compat}%;background:${compatColor};border-radius:3px"></div>
+          </div>
+        </div>
+        <div style="font-size:11px;color:var(--txt2);display:flex;justify-content:space-between">
+          <span>Contempl.: <strong>${contFmt}</strong></span>
+          <span style="color:var(--acc);font-weight:600">Ver histórico →</span>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+  // Tabela completa
+  const tbody=document.getElementById('oport-all-tbody');
+  const countEl=document.getElementById('oport-all-count');
+  if(tbody){
+    tbody.innerHTML=filtered.slice(0,50).map(o=>{
+      const compat=Math.min(100,Math.round(o.score/(ortData[0]?.score||1)*100));
+      const cc=compat>=70?'var(--ok)':compat>=40?'var(--warn)':'var(--err)';
+      return`<tr onclick="guiaSel('${o.g}');nav('guia',document.querySelector('.ni[onclick*=guia]'))" style="cursor:pointer">
+        <td><strong style="color:var(--acc2)">${o.g}</strong></td>
+        <td style="font-size:11px">${o.isIm?'🏠 Imóvel':'🚗 Rodas'}</td>
+        <td>${o.cred?brl(o.cred,0):'—'}</td>
+        <td>${o.prazo}m</td>
+        <td><span style="color:var(--ok);font-weight:700">${o.d.at_min?(o.d.at_min*100).toFixed(1)+'%':'—'}</span></td>
+        <td><span style="color:var(--acc2);font-weight:700">${o.lanceMed>0?o.lanceMed.toFixed(1)+'%':'—'}</span></td>
+        <td><strong style="color:${(o.d.vagas||0)>20?'var(--ok)':(o.d.vagas||0)>5?'var(--warn)':'var(--err)'}">${o.d.vagas??'—'}</strong></td>
+        <td>${o.avgCont>0?o.avgCont.toFixed(1):'—'}</td>
+        <td><div style="display:flex;align-items:center;gap:5px"><div style="height:5px;width:${Math.round(compat*.6)}px;background:${cc};border-radius:3px"></div><span style="font-size:10.5px;font-weight:700;color:${cc}">${compat}%</span></div></td>
+      </tr>`;
+    }).join('');
+    if(countEl)countEl.textContent=filtered.length+' grupos';
+  }
+}
+/* ── CARROSSEL ── */
+function openCarrossel(){
+  if(!ortData.length)ortData=buildOrtData();
+  const filtered=ortTipo==='Im'?ortData.filter(o=>o.isIm):ortTipo==='Ro'?ortData.filter(o=>o.isRo):ortData;
+  ortCarrData=filtered.slice(0,10);
+  carrIdx=0;
+  const ov=document.getElementById('carrossel-overlay');
+  ov.style.display='flex';
+  renderCarrSlide();
+}
+function closeCarrossel(){document.getElementById('carrossel-overlay').style.display='none';}
+let ortCarrData=[];
+function renderCarrSlide(){
+  const o=ortCarrData[carrIdx];if(!o)return;
+  const total=ortCarrData.length;
+  const maxScore=ortCarrData[0]?.score||1;
+  const compat=Math.min(100,Math.round(o.score/maxScore*100));
+  document.getElementById('carr-num').textContent=(carrIdx+1)+'/'+total;
+  document.getElementById('carr-grupo').textContent='Grupo '+o.g;
+  document.getElementById('carr-tipo-icon').textContent=o.isIm?'🏠':'🚗';
+  document.getElementById('carr-tipo-label').textContent=o.isIm?'Imóvel':'Automóvel · '+o.d.tp;
+  document.getElementById('carr-cred').textContent=o.cred>=1e6?(o.cred/1e6).toFixed(2)+'M':brl(o.cred,0);
+  document.getElementById('carr-prazo').textContent=o.prazo+'m';
+  document.getElementById('carr-lance').textContent=o.lanceMed>0?o.lanceMed.toFixed(1)+'%':'—';
+  document.getElementById('carr-vagas').textContent=(o.d.vagas??'—')+(o.avgCont>0?' ('+o.avgCont.toFixed(1)+'/mês)':'');
+  document.getElementById('carr-compat').textContent=compat+'%';
+  setTimeout(()=>{const bar=document.getElementById('carr-bar');if(bar)bar.style.width=compat+'%';},50);
+  // Dots
+  document.getElementById('carr-dots').innerHTML=ortCarrData.map((_,i)=>`<div style="width:${i===carrIdx?20:8}px;height:8px;border-radius:4px;background:${i===carrIdx?'#fff':'rgba(255,255,255,.3)'};transition:width .3s;cursor:pointer" onclick="carrIdx=${i};renderCarrSlide()"></div>`).join('');
+}
+function carrNext(){carrIdx=(carrIdx+1)%ortCarrData.length;renderCarrSlide();}
+function carrPrev(){carrIdx=(carrIdx-1+ortCarrData.length)%ortCarrData.length;renderCarrSlide();}
+document.addEventListener('keydown',e=>{
+  if(document.getElementById('carrossel-overlay')?.style.display==='flex'){
+    if(e.key==='ArrowRight')carrNext();
+    if(e.key==='ArrowLeft')carrPrev();
+    if(e.key==='Escape')closeCarrossel();
+  }
+});
 
 // ═══ PROPOSTA ═══
 let propGrupos=[{grupo:'',prazo:192,fr:3,taxaadm:23,credMin:0,credMax:0,credito:340000,qtd:1,mesAtual:0}];
