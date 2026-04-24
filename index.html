@@ -463,6 +463,7 @@ tr:hover td{background:#f0f7f6}
           <th onclick="sortCtrl('assessor')" style="cursor:pointer">Assessor <span id="csort-assessor" class="sort-ico">⇅</span></th>
           <th onclick="sortCtrl('status')" style="cursor:pointer">Status <span id="csort-status" class="sort-ico">⇅</span></th>
           <th onclick="sortCtrl('lance1')" style="cursor:pointer">Lance <span id="csort-lance1" class="sort-ico">⇅</span></th>
+          <th onclick="sortCtrl('saldo_devedor')" style="cursor:pointer">Saldo Dev. <span id="csort-saldo_devedor" class="sort-ico">⇅</span></th>
           <th>Comissão</th><th>Ações</th>
         </tr></thead>
         <tbody id="ctrl-tbody"></tbody>
@@ -485,12 +486,28 @@ tr:hover td{background:#f0f7f6}
     </div>
     <div class="g2">
       <div class="card">
-        <div class="ch"><span class="ct">📅 Próximas Assembleias</span></div>
-        <div class="cb" id="agenda-assembleias"><div style="color:var(--txt2);font-size:13px;text-align:center;padding:20px">Carregando...</div></div>
+        <div class="ch"><span class="ct">📅 Próximas Assembleias</span><span id="agenda-asm-count" class="badge b-info" style="margin-left:8px">0</span></div>
+        <div style="padding:6px 14px;border-bottom:1px solid var(--bdr);display:flex;gap:6px;align-items:center">
+          <input class="form-i" id="asm-filter" placeholder="🔍 Filtrar cliente..." style="flex:1;padding:5px 9px;font-size:12px;margin:0" oninput="renderAgendaAsm()">
+          <select class="form-i" id="asm-sort" style="width:120px;padding:5px 7px;font-size:12px;margin:0" onchange="renderAgendaAsm()">
+            <option value="date">Data ↑</option><option value="date-desc">Data ↓</option>
+            <option value="nome">Nome A-Z</option><option value="nome-desc">Nome Z-A</option>
+            <option value="cotas">Cotas ↓</option>
+          </select>
+        </div>
+        <div class="cb" id="agenda-assembleias" style="max-height:320px;overflow-y:auto"><div style="color:var(--txt2);font-size:13px;text-align:center;padding:20px">Carregando...</div></div>
       </div>
       <div class="card">
-        <div class="ch"><span class="ct">💰 Parcelas Vencendo (30 dias)</span></div>
-        <div class="cb" id="agenda-parcelas"><div style="color:var(--txt2);font-size:13px;text-align:center;padding:20px">Carregando...</div></div>
+        <div class="ch"><span class="ct">💰 Parcelas Vencendo (30 dias)</span><span id="agenda-parc-count" class="badge b-warn" style="margin-left:8px">0</span></div>
+        <div style="padding:6px 14px;border-bottom:1px solid var(--bdr);display:flex;gap:6px;align-items:center">
+          <input class="form-i" id="parc-filter" placeholder="🔍 Filtrar cliente..." style="flex:1;padding:5px 9px;font-size:12px;margin:0" oninput="renderAgendaParc()">
+          <select class="form-i" id="parc-sort" style="width:120px;padding:5px 7px;font-size:12px;margin:0" onchange="renderAgendaParc()">
+            <option value="dias">Venc. ↑</option><option value="dias-desc">Venc. ↓</option>
+            <option value="nome">Nome A-Z</option><option value="nome-desc">Nome Z-A</option>
+            <option value="valor">Parcela ↑</option><option value="valor-desc">Parcela ↓</option>
+          </select>
+        </div>
+        <div class="cb" id="agenda-parcelas" style="max-height:320px;overflow-y:auto"><div style="color:var(--txt2);font-size:13px;text-align:center;padding:20px">Carregando...</div></div>
       </div>
     </div>
     <div class="card">
@@ -1658,16 +1675,16 @@ tr:hover td{background:#f0f7f6}
         </div>
       </div>
       <div class="g2" style="margin-bottom:0">
-        <div class="form-g"><label class="form-l">Valor da Carta (R$)</label><input type="text" inputmode="numeric" class="form-i mc-brl" id="mc-credito" placeholder="Ex: 340.065,00"></div>
+        <div class="form-g"><label class="form-l">Valor da Carta (R$)</label><input type="text" inputmode="numeric" class="form-i mc-brl" id="mc-credito" placeholder="Ex: 340.065,00" oninput="mcRecalc('cred')"></div>
         <div class="form-g"><label class="form-l">Carta Atualizada (R$)</label><input type="text" inputmode="numeric" class="form-i mc-brl" id="mc-carta-atual" placeholder="Ex: 343.920,00"></div>
       </div>
       <div class="g2" style="margin-bottom:0">
         <div class="form-g"><label class="form-l">Parcela Atual (R$)</label><input type="text" inputmode="numeric" class="form-i mc-brl" id="mc-parcela" placeholder="Ex: 3.733,00"></div>
-        <div class="form-g"><label class="form-l">Lance Pago (R$)</label><input type="text" inputmode="numeric" class="form-i mc-brl" id="mc-lance-val" placeholder="Ex: 136.000,00" oninput="mcCalcLancePct()"></div>
+        <div class="form-g"><label class="form-l">Lance Pago (R$)</label><input type="text" inputmode="numeric" class="form-i mc-brl" id="mc-lance-val" placeholder="Ex: 136.000,00" oninput="mcRecalc('val')"></div>
       </div>
       <div class="g2" style="margin-bottom:0">
         <div class="form-g"><label class="form-l">Saldo Devedor (R$)</label><input type="text" inputmode="numeric" class="form-i mc-brl" id="mc-saldo" placeholder="Ex: 224.058,00"></div>
-        <div class="form-g"><label class="form-l">Última Oferta de Lance (%)</label><input type="number" class="form-i" id="mc-l1" step="0.1" placeholder="Ex: 30.5"></div>
+        <div class="form-g"><label class="form-l">Oferta de Lance (%)</label><input type="number" class="form-i" id="mc-l1" step="0.1" placeholder="Ex: 30.5" oninput="mcRecalc('pct')"></div>
       </div>
       <div class="g2" style="margin-bottom:0">
         <div class="form-g"><label class="form-l">Data de Contemplação</label><input type="date" class="form-i" id="mc-data-contemp"></div>
@@ -1683,7 +1700,20 @@ tr:hover td{background:#f0f7f6}
       </div>
       <div class="g2" style="margin-bottom:0">
         <div class="form-g"><label class="form-l">Data da Assembleia</label><input type="date" class="form-i" id="mc-asm"></div>
-        <div class="form-g"><label class="form-l">Taxa Adm. Negociada (%)</label><input type="number" class="form-i" id="mc-taxa" step="0.1" placeholder="Ex: 22.5"></div>
+        <div class="form-g"><label class="form-l">Taxa Adm. Total (%)</label><input type="number" class="form-i" id="mc-taxa" step="0.01" placeholder="Ex: 11.26" oninput="mcRecalc('taxa')"></div>
+      </div>
+      <div class="g2" style="margin-bottom:0">
+        <div class="form-g"><label class="form-l">Fundo de Reserva (%)</label><input type="number" class="form-i" id="mc-fundo" step="0.01" placeholder="Ex: 3.0" value="3" oninput="mcRecalc('taxa')"></div>
+        <div class="form-g"><label class="form-l">Prazo Total (meses)</label><input type="number" class="form-i" id="mc-prazo" min="1" placeholder="Ex: 192" oninput="mcRecalc('prazo')"></div>
+      </div>
+      <div class="form-g" style="margin-bottom:8px"><label class="form-l">Prazo Restante (meses)</label><input type="number" class="form-i" id="mc-prazo-rest" min="0" placeholder="Ex: 67" oninput="mcRecalc('prazo')"></div>
+      <div style="background:#f0fdf4;border-radius:8px;padding:12px 14px;margin-bottom:8px;border:1px solid #bbf7d0">
+        <div style="font-size:10px;font-weight:700;color:#166534;text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px">Resumo Calculado (automático)</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+          <div><div style="font-size:10px;color:#166534;margin-bottom:2px">Saldo Total (c/ taxas)</div><div style="font-size:14px;font-weight:700;color:var(--sb2)" id="mc-calc-saldo-total">—</div></div>
+          <div><div style="font-size:10px;color:#166534;margin-bottom:2px">Parcela Pré-Contempl.</div><div style="font-size:14px;font-weight:700;color:var(--sb)" id="mc-calc-parc-pre">—</div></div>
+          <div><div style="font-size:10px;color:#166534;margin-bottom:2px">Parcela Pós-Contempl.</div><div style="font-size:14px;font-weight:700;color:var(--ok)" id="mc-calc-parc-pos">—</div></div>
+        </div>
       </div>
       <div class="form-g"><label class="form-l">Observação / Informação</label><input class="form-i" id="mc-obs"></div>
     </div>
@@ -2090,7 +2120,7 @@ function sortCtrl(col){ctrlSort.dir=ctrlSort.col===col?-ctrlSort.dir:1;ctrlSort.
 function ctrlGo(p){ctrlPage=p;renderCtrl();}
 function renderCtrl(){
   const sorted=ctrlSort.col?sortArr(ctrlFiltered,ctrlSort.col,ctrlSort.dir):ctrlFiltered;
-  ['nome','grupo','credito','parcela','assessor','status','lance1'].forEach(c=>{const el=document.getElementById('csort-'+c);if(el)el.textContent=sortIcon(ctrlSort,c);});
+  ['nome','grupo','credito','parcela','assessor','status','lance1','saldo_devedor'].forEach(c=>{const el=document.getElementById('csort-'+c);if(el)el.textContent=sortIcon(ctrlSort,c);});
   const{items,total,pages}=paginate(sorted,ctrlPage,30);
   document.getElementById('ctrl-count').textContent=total+' cotas';
   document.getElementById('ctrl-tbody').innerHTML=items.map(r=>`<tr>
@@ -2100,10 +2130,11 @@ function renderCtrl(){
     <td style="font-size:11px">${r.vencimento?'dia '+r.vencimento:'—'}</td>
     <td>${atag(r.assessor)}</td><td>${sbadge(r.status)}</td>
     <td>${r.lance1?(+(r.lance1*100).toFixed(1)+'%'):'—'}</td>
+    <td style="font-size:12px">${r.saldo_devedor?brl(r.saldo_devedor,0):'—'}</td>
     <td>${r.comissao==='PAGO'?'<span class="badge b-ok">✓ Pago</span>':'<span class="badge b-warn">Pend.</span>'}</td>
-    <td style="display:flex;gap:4px">
+    <td style="display:flex;gap:4px;flex-wrap:wrap">
       <button class="btn btn-out btn-sm" onclick="openModalCota('${r.id}')">✏️</button>
-      <button class="btn btn-ok btn-sm" onclick="openModalContemp('${r.id}')" title="Contemplar">✓</button>
+      ${(r.status==='Contemplado'||r.status==='CONTEMPLADO')?`<button class="btn btn-sm" onclick="confirmarPagamento('${r.id}')" title="Confirmar pagamento mensal" style="background:#0ea5e9;color:#fff;border:none">✔ Pago</button>`:`<button class="btn btn-ok btn-sm" onclick="openModalContemp('${r.id}')" title="Contemplar">✓</button>`}
     </td>
   </tr>`).join('');
   renderPag('ctrl-pag',ctrlPage,pages,'ctrlGo');
@@ -2131,6 +2162,11 @@ function openModalCota(id){
   document.getElementById('mc-data-contemp').value=r.data_contemplada||'';
   document.getElementById('mc-carta-atual').value=fmtBrl(r.carta_atualizada);
   document.getElementById('mc-tipo-bem').value=r.tipo_bem||'';
+  document.getElementById('mc-fundo').value=r.fundo_reserva!=null?r.fundo_reserva:3;
+  document.getElementById('mc-prazo').value=r.prazo_total||'';
+  document.getElementById('mc-prazo-rest').value=r.prazo_restante||'';
+  ['mc-calc-saldo-total','mc-calc-parc-pre','mc-calc-parc-pos'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent='—';});
+  if(r.credito)setTimeout(()=>mcRecalc('init'),50);
   const rawInfo=r.informacao||'';
   const asmMatch=rawInfo.match(/\[ASM:([^\]]+)\]/);
   document.getElementById('mc-asm').value=asmMatch?asmMatch[1]:'';
@@ -2155,6 +2191,9 @@ async function saveCota(){
     data_contemplada:document.getElementById('mc-data-contemp').value||null,
     carta_atualizada:parseBrl(document.getElementById('mc-carta-atual').value),
     tipo_bem:document.getElementById('mc-tipo-bem').value||null,
+    fundo_reserva:parseFloat(document.getElementById('mc-fundo').value)||3,
+    prazo_total:parseInt(document.getElementById('mc-prazo').value)||null,
+    prazo_restante:parseInt(document.getElementById('mc-prazo-rest').value)||null,
     informacao:(()=>{const obs=document.getElementById('mc-obs').value.trim();const asm=document.getElementById('mc-asm').value;return obs+(asm?' [ASM:'+asm+']':'');})(),
     updated_at:new Date().toISOString(),
   };
@@ -2164,11 +2203,51 @@ async function saveCota(){
   hideLoad();
   if(res){toast('Cota salva com sucesso!');closeModal('modal-cota');filterCtrl();initDash();renderAgenda();renderProj();}
 }
-function mcCalcLancePct(){
+function mcRecalc(src){
   const cr=parseBrl(document.getElementById('mc-credito').value)||0;
-  const lv=parseBrl(document.getElementById('mc-lance-val').value)||0;
-  const l1=document.getElementById('mc-l1');
-  if(cr>0&&lv>0){l1.value=(lv/cr*100).toFixed(1);}
+  const taxa=parseFloat(document.getElementById('mc-taxa').value)||0;
+  const fundo=parseFloat(document.getElementById('mc-fundo').value)||3;
+  const prazo=parseInt(document.getElementById('mc-prazo').value)||0;
+  const prazoRest=parseInt(document.getElementById('mc-prazo-rest').value)||0;
+  // Saldo total = crédito + taxa adm + fundo de reserva (sobre o crédito contratado)
+  const saldoTotal=cr*(1+taxa/100+fundo/100);
+  // Lance: % sempre sobre crédito contratado; gera amortização no saldo total
+  let lv=parseBrl(document.getElementById('mc-lance-val').value)||0;
+  if(src==='pct'){
+    const pct=parseFloat(document.getElementById('mc-l1').value)||0;
+    lv=cr*pct/100;
+    if(lv>0)document.getElementById('mc-lance-val').value=brl(lv).replace('R$ ','');
+  }else if(cr>0&&lv>0){
+    document.getElementById('mc-l1').value=(lv/cr*100).toFixed(2);
+  }
+  // Saldo devedor = saldo total - lance pago (amortização)
+  const saldoAtual=Math.max(0,saldoTotal-lv);
+  if(cr>0)document.getElementById('mc-saldo').value=brl(saldoAtual).replace('R$ ','');
+  // Parcela pré = saldo total / prazo total (pré-contemplação)
+  // Parcela pós = saldo remanescente / prazo restante (pós-contemplação)
+  const stEl=document.getElementById('mc-calc-saldo-total');
+  const ppEl=document.getElementById('mc-calc-parc-pre');
+  const posEl=document.getElementById('mc-calc-parc-pos');
+  if(stEl)stEl.textContent=cr>0?brl(saldoTotal):'—';
+  if(ppEl)ppEl.textContent=(cr>0&&prazo>0)?brl(saldoTotal/prazo):'—';
+  if(posEl)posEl.textContent=(saldoAtual>0&&prazoRest>0)?brl(saldoAtual/prazoRest):'—';
+}
+async function confirmarPagamento(id){
+  const r=COTAS.find(c=>String(c.id)===String(id));
+  if(!r)return;
+  const parc=r.parcela||0;
+  const sd=r.saldo_devedor||0;
+  const pr=r.prazo_restante||null;
+  if(!parc){toast('Parcela não preenchida — edite a cota primeiro.','warn');return;}
+  const msg=`Confirmar pagamento de ${brl(parc)} para ${r.nome}?
+
+Saldo Devedor: ${brl(sd)} → ${brl(Math.max(0,sd-parc))}${pr?'
+Prazo restante: '+(pr-1)+' meses':''}`;
+  if(!confirm(msg))return;
+  const updates={saldo_devedor:Math.max(0,sd-parc),updated_at:new Date().toISOString()};
+  if(pr>0)updates.prazo_restante=pr-1;
+  showLoad();const res=await upsertCota({id,...updates});hideLoad();
+  if(res){toast('Pagamento confirmado! Saldo atualizado.','ok');filterCtrl();renderAgenda();renderProj();}
 }
 async function deleteCota(){
   if(!confirm('Excluir esta cota?'))return;
@@ -2228,61 +2307,120 @@ async function saveContemp(){
 }
 
 // ═══ AGENDA ═══
+let _parcVencAll=[], _asmListAll=[];
+
+function calcProxAssembleia(vencDia){
+  const v=parseInt(vencDia);
+  let rs,re;
+  if(v===5){rs=10;re=15;}
+  else if(v===15){rs=22;re=25;}
+  else if(v===18||v===20){rs=26;re=29;}
+  else return null;
+  const hoje=new Date();hoje.setHours(0,0,0,0);
+  const mid=Math.round((rs+re)/2);
+  let ano=hoje.getFullYear(),mes=hoje.getMonth();
+  let d=new Date(ano,mes,mid);
+  if(d<hoje)d=new Date(ano,mes+1,mid);
+  const mm=String(d.getMonth()+1).padStart(2,'0');
+  return{date:d,label:`${rs} a ${re}/${mm}/${d.getFullYear()}`,diffDias:Math.round((d-hoje)/(1000*60*60*24)),source:'calc'};
+}
+
 function renderAgenda(){
   const hoje=new Date();hoje.setHours(0,0,0,0);
-  const em7=new Date(hoje);em7.setDate(hoje.getDate()+7);
-  const em30=new Date(hoje);em30.setDate(hoje.getDate()+30);
+  const isDay1=hoje.getDate()===1;
 
-  // Parcelas vencendo
-  const parcVenc=[];
+  // Parcelas vencendo (não contempladas)
+  _parcVencAll=[];
   COTAS.filter(r=>r.vencimento&&r.status!=='CONTEMPLADO'&&r.status!=='Contemplado').forEach(r=>{
     const d=new Date(hoje.getFullYear(),hoje.getMonth(),r.vencimento);
     if(d<hoje)d.setMonth(d.getMonth()+1);
     const diff=Math.round((d-hoje)/(1000*60*60*24));
-    parcVenc.push({...r,proxVenc:d,diffDias:diff});
+    _parcVencAll.push({...r,proxVenc:d,diffDias:diff});
   });
-  parcVenc.sort((a,b)=>a.diffDias-b.diffDias);
+  _parcVencAll.sort((a,b)=>a.diffDias-b.diffDias);
 
-  const urgentes=parcVenc.filter(r=>r.diffDias<=3);
-  const semana=parcVenc.filter(r=>r.diffDias>3&&r.diffDias<=7);
+  // Assembleias: agrupa por grupo; usa [ASM:] tag se existir, senão calcula pelo vencimento
+  const grpMap={};
+  COTAS.filter(r=>r.status!=='CONTEMPLADO'&&r.status!=='Contemplado'&&r.grupo).forEach(r=>{
+    const g=String(r.grupo);
+    let asmInfo=null;
+    if(r.informacao&&r.informacao.includes('[ASM:')){
+      const m=r.informacao.match(/\[ASM:([^\]]+)\]/);
+      if(m){const d=new Date(m[1]);asmInfo={date:d,label:m[1].split('-').reverse().join('/'),diffDias:Math.round((d-hoje)/(1000*60*60*24)),source:'manual'};}
+    }
+    if(!asmInfo&&r.vencimento)asmInfo=calcProxAssembleia(r.vencimento);
+    if(!asmInfo)return;
+    if(!grpMap[g])grpMap[g]={asm:asmInfo,cotas:[]};
+    else if(asmInfo.source==='manual'&&grpMap[g].asm.source!=='manual')grpMap[g].asm=asmInfo;
+    grpMap[g].cotas.push(r);
+  });
+  _asmListAll=Object.entries(grpMap).map(([g,d])=>{return{grupo:g,...d};});
+  _asmListAll.sort((a,b)=>a.asm.diffDias-b.asm.diffDias);
 
-  document.getElementById('agenda-urgente-count').textContent=urgentes.length;
-  const badgeAg=document.getElementById('badge-agenda');
-  if(urgentes.length>0){badgeAg.style.display='inline-block';badgeAg.textContent=urgentes.length;}else{badgeAg.style.display='none';}
-
+  // Urgentes: parcelas ≤5 dias + assembleias ≤5 dias + alerta dia 1
+  const urgParc=_parcVencAll.filter(r=>r.diffDias<=5);
+  const urgAsm=_asmListAll.filter(r=>r.asm.diffDias>=0&&r.asm.diffDias<=5);
   const agItem=(r,cor)=>`<div class="agenda-item"><div class="agenda-dot ${cor}"></div><div style="flex:1"><div class="agenda-title">${r.nome} — ${r.grupo||''}/${r.cota||''}</div><div class="agenda-sub">${brl(r.parcela)} · ${atag(r.assessor)}</div></div><div class="agenda-date">dia ${r.vencimento}<br><span style="color:${r.diffDias<=0?'var(--err)':r.diffDias<=3?'var(--warn)':'var(--ok)'};font-size:12px;font-weight:700">${r.diffDias<=0?'VENCIDA':r.diffDias===0?'HOJE':r.diffDias+'d'}</span></div></div>`;
 
-  document.getElementById('agenda-urgente').innerHTML=urgentes.length?urgentes.map(r=>agItem(r,r.diffDias<=0?'err':'warn')).join(''):'<div style="color:var(--txt2);font-size:13px;padding:8px">Nenhuma urgência ✓</div>';
-  document.getElementById('agenda-semana').innerHTML=semana.length?semana.slice(0,8).map(r=>agItem(r,'warn')).join(''):'<div style="color:var(--txt2);font-size:13px;padding:8px">Nada esta semana ✓</div>';
+  let urgHTML='';
+  if(isDay1)urgHTML+=`<div class="agenda-item" style="background:#fffbeb"><div class="agenda-dot warn"></div><div style="flex:1"><div class="agenda-title" style="color:var(--warn)">📋 Emitir Notas Fiscais de Comissionamento</div><div class="agenda-sub">1º do mês — verificar todas as comissões a receber</div></div><div class="agenda-date" style="color:var(--warn);font-weight:700">HOJE</div></div>`;
+  urgHTML+=urgParc.map(r=>agItem(r,r.diffDias<=0?'err':'warn')).join('');
+  urgHTML+=urgAsm.map(d=>`<div class="agenda-item"><div class="agenda-dot warn"></div><div style="flex:1"><div class="agenda-title">🏛 AGO Grupo ${d.grupo} — ${d.cotas.length} cota(s)</div><div class="agenda-sub">${d.cotas.slice(0,3).map(r=>r.nome).join(', ')}</div></div><div class="agenda-date" style="font-size:11px">${d.asm.label}<br><span style="color:var(--warn);font-weight:700">${d.asm.diffDias}d</span></div></div>`).join('');
 
-  // Assembleias dos grupos em carteira
-  const grpAsm={};
-  COTAS.filter(r=>r.status!=='CONTEMPLADO'&&r.status!=='Contemplado'&&r.grupo).forEach(r=>{
-    const g=r.grupo.toString().replace(/^0+/,'');
-    if(!grpAsm[g]){const gd=GUIA[g]||GUIA[r.grupo];if(gd&&gd.asm)grpAsm[g]={asm:gd.asm,grupos:[]};else return;}
-    if(grpAsm[g])grpAsm[g].grupos.push(r);
-  });
-  COTAS.filter(r=>r.informacao&&r.informacao.includes('[ASM:')).forEach(r=>{
-    const m=r.informacao.match(/\[ASM:([^\]]+)\]/);if(!m)return;
-    const asmDateStr=m[1];const gk='asm_'+r.id;
-    if(!grpAsm[gk])grpAsm[gk]={asm:asmDateStr,grupos:[],custom:true};
-    else grpAsm[gk].grupos.push(r);
-    if(!grpAsm[gk].grupos.length)grpAsm[gk].grupos=[r];
-  });
-  const asmList=Object.entries(grpAsm).sort((a,b)=>a[1].asm.localeCompare(b[1].asm));
-  document.getElementById('agenda-assembleias').innerHTML=asmList.length?asmList.slice(0,8).map(([g,d])=>{
-    const asmDate=new Date(d.asm);const diff=Math.round((asmDate-hoje)/(1000*60*60*24));
-    const cor=diff<0?'err':diff<=3?'warn':diff<=7?'info':'ok';
-    return`<div class="agenda-item"><div class="agenda-dot ${cor}"></div><div style="flex:1"><div class="agenda-title">Grupo ${g} — ${d.grupos.length} cota(s)</div><div class="agenda-sub">${d.grupos.slice(0,3).map(r=>r.nome).join(', ')}</div></div><div class="agenda-date">${d.asm.split('-').reverse().join('/')}<br><span style="font-size:11px;color:var(--txt2)">${diff<0?'passou':diff+'d'}</span></div></div>`;
-  }).join(''):'<div style="color:var(--txt2);font-size:13px;padding:8px">Sem assembleias identificadas</div>';
+  const urgTotal=urgParc.length+urgAsm.length+(isDay1?1:0);
+  document.getElementById('agenda-urgente-count').textContent=urgTotal;
+  const badgeAg=document.getElementById('badge-agenda');
+  if(urgTotal>0){badgeAg.style.display='inline-block';badgeAg.textContent=urgTotal;}else{badgeAg.style.display='none';}
+  document.getElementById('agenda-urgente').innerHTML=urgHTML||'<div style="color:var(--txt2);font-size:13px;padding:8px">Nenhuma urgência ✓</div>';
 
-  // Parcelas 30 dias
-  document.getElementById('agenda-parcelas').innerHTML=parcVenc.filter(r=>r.diffDias<=30).slice(0,8).map(r=>agItem(r,r.diffDias<=3?'err':r.diffDias<=7?'warn':'info')).join('')||'<div style="color:var(--txt2);font-size:13px;padding:8px">Nenhuma nos próximos 30 dias</div>';
+  // Esta semana (6-14 dias)
+  const semParc=_parcVencAll.filter(r=>r.diffDias>5&&r.diffDias<=14);
+  document.getElementById('agenda-semana').innerHTML=semParc.length?semParc.map(r=>agItem(r,'warn')).join(''):'<div style="color:var(--txt2);font-size:13px;padding:8px">Nada nesta semana ✓</div>';
+
+  // Counts
+  document.getElementById('agenda-asm-count').textContent=_asmListAll.length;
+  document.getElementById('agenda-parc-count').textContent=_parcVencAll.filter(r=>r.diffDias<=30).length;
 
   // Sem lance
   const semLance=COTAS.filter(r=>(r.status==='SORTEIO / LANCE'||r.status==='Sorteio')&&!r.lance1);
   document.getElementById('agenda-semlance-count').textContent=semLance.length;
   document.getElementById('agenda-semlance').innerHTML=semLance.slice(0,20).map(r=>`<tr><td><strong>${r.nome}</strong></td><td>${r.grupo||'—'}/${r.cota||'—'}</td><td>${brl(r.credito,0)}</td><td>${brl(r.parcela)}</td><td>${atag(r.assessor)}</td><td style="font-size:11px;color:var(--txt2)">${r.adesao?r.adesao:'—'}</td><td><button class="btn btn-warn btn-sm" onclick="openModalContemp('${r.id}')" style="background:var(--warn);color:#fff">⚡ Contemplar</button></td></tr>`).join('');
+
+  renderAgendaAsm();
+  renderAgendaParc();
+}
+
+function renderAgendaAsm(){
+  const filtro=(document.getElementById('asm-filter')||{value:''}).value.toLowerCase().trim();
+  const sortV=(document.getElementById('asm-sort')||{value:'date'}).value;
+  let list=filtro?_asmListAll.filter(d=>d.cotas.some(r=>(r.nome||'').toLowerCase().includes(filtro))):_asmListAll;
+  if(sortV==='date-desc')list=[...list].sort((a,b)=>b.asm.diffDias-a.asm.diffDias);
+  else if(sortV==='nome')list=[...list].sort((a,b)=>(a.cotas[0]?.nome||'').localeCompare(b.cotas[0]?.nome||'','pt-BR'));
+  else if(sortV==='nome-desc')list=[...list].sort((a,b)=>(b.cotas[0]?.nome||'').localeCompare(a.cotas[0]?.nome||'','pt-BR'));
+  else if(sortV==='cotas')list=[...list].sort((a,b)=>b.cotas.length-a.cotas.length);
+  else list=[...list].sort((a,b)=>a.asm.diffDias-b.asm.diffDias);
+  const el=document.getElementById('agenda-assembleias');if(!el)return;
+  el.innerHTML=list.length?list.map(d=>{
+    const cor=d.asm.diffDias<0?'err':d.asm.diffDias<=5?'warn':d.asm.diffDias<=14?'info':'ok';
+    const src=d.asm.source==='manual'?'':'<span style="font-size:10px;color:var(--txt2);margin-left:4px">(calculado)</span>';
+    return`<div class="agenda-item"><div class="agenda-dot ${cor}"></div><div style="flex:1"><div class="agenda-title">Grupo ${d.grupo} — ${d.cotas.length} cota(s)${src}</div><div class="agenda-sub">${d.cotas.slice(0,3).map(r=>r.nome).join(', ')}</div></div><div class="agenda-date" style="font-size:11px;text-align:right">${d.asm.label}<br><span style="color:${cor==='err'?'var(--err)':cor==='warn'?'var(--warn)':'var(--txt2)'};font-weight:700">${d.asm.diffDias<0?'passou':d.asm.diffDias+'d'}</span></div></div>`;
+  }).join(''):'<div style="color:var(--txt2);font-size:13px;padding:8px">Nenhuma assembleia encontrada</div>';
+}
+
+function renderAgendaParc(){
+  const filtro=(document.getElementById('parc-filter')||{value:''}).value.toLowerCase().trim();
+  const sortV=(document.getElementById('parc-sort')||{value:'dias'}).value;
+  let list=_parcVencAll.filter(r=>r.diffDias<=30);
+  if(filtro)list=list.filter(r=>(r.nome||'').toLowerCase().includes(filtro));
+  if(sortV==='dias-desc')list=[...list].sort((a,b)=>b.diffDias-a.diffDias);
+  else if(sortV==='nome')list=[...list].sort((a,b)=>(a.nome||'').localeCompare(b.nome||'','pt-BR'));
+  else if(sortV==='nome-desc')list=[...list].sort((a,b)=>(b.nome||'').localeCompare(a.nome||'','pt-BR'));
+  else if(sortV==='valor')list=[...list].sort((a,b)=>(a.parcela||0)-(b.parcela||0));
+  else if(sortV==='valor-desc')list=[...list].sort((a,b)=>(b.parcela||0)-(a.parcela||0));
+  else list=[...list].sort((a,b)=>a.diffDias-b.diffDias);
+  const el=document.getElementById('agenda-parcelas');if(!el)return;
+  const agItem=(r,cor)=>`<div class="agenda-item"><div class="agenda-dot ${cor}"></div><div style="flex:1"><div class="agenda-title">${r.nome} — ${r.grupo||''}/${r.cota||''}</div><div class="agenda-sub">${brl(r.parcela)} · ${atag(r.assessor)}</div></div><div class="agenda-date">dia ${r.vencimento}<br><span style="color:${r.diffDias<=0?'var(--err)':r.diffDias<=3?'var(--warn)':'var(--ok)'};font-size:12px;font-weight:700">${r.diffDias<=0?'VENCIDA':r.diffDias===0?'HOJE':r.diffDias+'d'}</span></div></div>`;
+  el.innerHTML=list.length?list.map(r=>agItem(r,r.diffDias<=3?'err':r.diffDias<=7?'warn':'info')).join(''):'<div style="color:var(--txt2);font-size:13px;padding:8px">Nenhuma nos próximos 30 dias</div>';
 }
 
 // ═══ CRM ═══
