@@ -1946,7 +1946,7 @@ let currentLead=null, currentCota=null, currentCotaId=null;
 let selProj=null, minChart=null, contChart=null;
 
 // ═══ UTILS ═══
-const brl=(v,d=2)=>v==null?'—':'R$ '+Number(v).toLocaleString('pt-BR',{minimumFractionDigits:d,maximumFractionDigits:d});
+const brl=(v,d=2)=>{if(v==null||v==='')return'—';const n=Number(v);if(isNaN(n))return'—';const s=n.toFixed(d);const[i,dec]=s.split('.');const fmt=i.replace(/\B(?=(\d{3})+(?!\d))/g,'.');return'R$ '+fmt+(d>0?','+dec:'');}
 const pct=(v,d=2)=>v==null?'—':(Number(v)*100).toFixed(d)+'%';
 const SB={'Contemplado':'<span class="badge b-ok">✓ Contemplado</span>','CONTEMPLADO':'<span class="badge b-ok">✓ Contemplado</span>','Sorteio':'<span class="badge b-gray">Sorteio</span>','SORTEIO / LANCE':'<span class="badge b-gray">Sorteio</span>','Em Andamento':'<span class="badge b-warn">⚡ Em Andamento</span>','LANCE':'<span class="badge b-warn">⚡ Em Andamento</span>','SUPLENCIA - 2 NA FRENTE':'<span class="badge b-warn">⚡ Em Andamento</span>','Cancelado':'<span class="badge b-err">✕ Cancelado</span>','CANCELADO':'<span class="badge b-err">✕ Cancelado</span>','Repassamos a contemplação':'<span class="badge b-info">Repassado</span>'};
 function sbadge(s){return SB[s]||`<span class="badge b-gray">${s}</span>`;}
