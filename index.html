@@ -511,7 +511,17 @@ tr:hover td{background:#f0f7f6}
     <div class="card">
       <div class="ch"><span class="ct">Todos os Leads</span><span id="crm-count" class="badge b-info">0</span></div>
       <div class="tw"><table>
-        <thead><tr><th>Nome</th><th>Telefone</th><th>Indicado por</th><th>Assessor</th><th>Interesse</th><th>Valor Potencial</th><th>Status</th><th>Data</th><th>Ações</th></tr></thead>
+        <thead><tr>
+          <th onclick="sortCRM('nome')" style="cursor:pointer">Nome <span id="lsort-nome" class="sort-ico">⇅</span></th>
+          <th>Telefone</th>
+          <th onclick="sortCRM('indicado_por')" style="cursor:pointer">Indicado por <span id="lsort-indicado_por" class="sort-ico">⇅</span></th>
+          <th onclick="sortCRM('assessor')" style="cursor:pointer">Assessor <span id="lsort-assessor" class="sort-ico">⇅</span></th>
+          <th onclick="sortCRM('interesse')" style="cursor:pointer">Interesse <span id="lsort-interesse" class="sort-ico">⇅</span></th>
+          <th onclick="sortCRM('valor_potencial')" style="cursor:pointer">Valor Potencial <span id="lsort-valor_potencial" class="sort-ico">⇅</span></th>
+          <th onclick="sortCRM('status')" style="cursor:pointer">Status <span id="lsort-status" class="sort-ico">⇅</span></th>
+          <th onclick="sortCRM('created_at')" style="cursor:pointer">Data <span id="lsort-created_at" class="sort-ico">⇅</span></th>
+          <th>Ações</th>
+        </tr></thead>
         <tbody id="crm-tbody"></tbody>
       </table></div>
     </div>
@@ -922,18 +932,18 @@ tr:hover td{background:#f0f7f6}
       </div>
       <div class="g2" style="margin-bottom:0">
         <div class="form-g" style="margin-bottom:0">
-          <label class="form-l">Valor do Crédito (R$) <span style="color:var(--err)">*</span></label>
-          <input type="number" class="form-i" id="sim-credito" placeholder="Ex: 340000" step="10000" oninput="simCalcLancePct()">
+          <label class="form-l">Crédito Líquido (R$) — o que o cliente precisa <span style="color:var(--err)">*</span></label>
+          <input type="number" class="form-i" id="sim-credito-liq" placeholder="Ex: 238000" step="10000" oninput="simCalcCredito()">
         </div>
         <div class="form-g" style="margin-bottom:0">
-          <label class="form-l">Qtd. de Cotas Desejada</label>
-          <input type="number" class="form-i" id="sim-pqtd" value="1" min="1">
+          <label class="form-l">Crédito Contratado (R$) — valor da carta <span style="font-size:10px;color:var(--sb2)">(auto se embutido)</span></label>
+          <input type="number" class="form-i" id="sim-credito" placeholder="Auto" step="10000" oninput="simCalcLancePct()" style="background:var(--card2)" readonly>
         </div>
       </div>
       <div class="g2" style="margin-bottom:0">
         <div class="form-g" style="margin-bottom:0">
-          <label class="form-l">Lance — Recurso Próprio (R$)</label>
-          <input type="number" class="form-i" id="sim-lance-rp" placeholder="Ex: 100000" oninput="simCalcLancePct()">
+          <label class="form-l">Qtd. de Cotas Desejada</label>
+          <input type="number" class="form-i" id="sim-pqtd" value="1" min="1">
         </div>
         <div class="form-g" style="margin-bottom:0">
           <label class="form-l">Limite de Parcela (R$/mês)</label>
@@ -942,12 +952,18 @@ tr:hover td{background:#f0f7f6}
       </div>
       <div class="g2" style="margin-bottom:0">
         <div class="form-g" style="margin-bottom:0">
-          <label class="form-l">Lance Embutido</label>
+          <label class="form-l">Lance Embutido <span style="font-size:10px;color:var(--sb2)">(sempre 30%)</span></label>
           <div class="toggle-group" id="sim-lance-emb">
-            <button class="toggle-btn act" data-val="nao" onclick="simSetToggle('sim-lance-emb','nao')">Não</button>
-            <button class="toggle-btn" data-val="sim" onclick="simSetToggle('sim-lance-emb','sim')">Sim</button>
+            <button class="toggle-btn act" data-val="nao" onclick="simSetToggle('sim-lance-emb','nao');simCalcCredito()">Não</button>
+            <button class="toggle-btn" data-val="sim" onclick="simSetToggle('sim-lance-emb','sim');simCalcCredito()">Sim</button>
           </div>
         </div>
+        <div class="form-g" style="margin-bottom:0">
+          <label class="form-l">Lance — Recurso Próprio (R$)</label>
+          <input type="number" class="form-i" id="sim-lance-rp" placeholder="Ex: 100000" oninput="simCalcLancePct()">
+        </div>
+      </div>
+      <div class="g2" style="margin-bottom:0">
         <div class="form-g" style="margin-bottom:0">
           <label class="form-l">Parcela Reduzida (pré-contemp.)</label>
           <div class="toggle-group" id="sim-parc-red">
@@ -1083,7 +1099,12 @@ tr:hover td{background:#f0f7f6}
         <div class="form-g"><label class="form-l">Dia Vencimento</label><input type="number" class="form-i" id="mc-venc" min="1" max="31"></div>
       </div>
       <div class="g2" style="margin-bottom:0">
+        <div class="form-g"><label class="form-l">Saldo Devedor (R$)</label><input type="number" class="form-i" id="mc-saldo" placeholder="Valor atual do saldo"></div>
+        <div class="form-g"><label class="form-l">Valor do Lance (R$)</label><input type="number" class="form-i" id="mc-lance-val" placeholder="Valor total pago no lance" oninput="mcCalcLancePct()"></div>
+      </div>
+      <div class="g2" style="margin-bottom:0">
         <div class="form-g"><label class="form-l">Última Oferta de Lance (%)</label><input type="number" class="form-i" id="mc-l1" step="0.1" placeholder="Ex: 30.5"></div>
+        <div class="form-g"><label class="form-l">Data Contemplada</label><input type="date" class="form-i" id="mc-data-contemp"></div>
       </div>
       <div class="g2" style="margin-bottom:0">
         <div class="form-g"><label class="form-l">Data da Assembleia</label><input type="date" class="form-i" id="mc-asm"></div>
@@ -1141,16 +1162,22 @@ tr:hover td{background:#f0f7f6}
         <div class="form-g"><label class="form-l">Data da Contemplação</label><input type="date" class="form-i" id="cc-data"></div>
       </div>
       <div class="g2" style="margin-bottom:0">
-        <div class="form-g"><label class="form-l">Tipo</label>
-          <select class="form-i" id="cc-tipo">
-            <option value="Lance">Lance</option><option value="Sorteio">Sorteio</option>
+        <div class="form-g"><label class="form-l">Tipo de Contemplação</label>
+          <select class="form-i" id="cc-tipo" onchange="calcContemp()">
+            <option value="Sorteio">🎲 Sorteio</option>
+            <option value="Lance Livre">⚡ Lance Livre</option>
+            <option value="Lance Fixo">🔒 Lance Fixo</option>
           </select>
         </div>
-        <div class="form-g"><label class="form-l">Lance Pago (R$)</label><input type="number" class="form-i" id="cc-lance" placeholder="0 se sorteio" oninput="calcContemp()"></div>
+        <div class="form-g"><label class="form-l">Valor da Carta (R$)</label><input type="number" class="form-i" id="cc-carta" oninput="calcContemp()" readonly style="background:var(--card2)"></div>
       </div>
       <div class="g2" style="margin-bottom:0">
-        <div class="form-g"><label class="form-l">Valor da Carta (R$)</label><input type="number" class="form-i" id="cc-carta" oninput="calcContemp()" readonly style="background:var(--card2)"></div>
-        <div class="form-g"><label class="form-l">% Lance sobre a Carta</label><input class="form-i" id="cc-pct" readonly style="background:var(--card2)"></div>
+        <div class="form-g"><label class="form-l">Valor Total do Lance (R$)</label><input type="number" class="form-i" id="cc-lance" placeholder="0 se sorteio" oninput="calcContemp()"></div>
+        <div class="form-g"><label class="form-l">Lance — Recurso Próprio (R$)</label><input type="number" class="form-i" id="cc-lance-proprio" placeholder="0 se embutido total" oninput="calcContemp()"></div>
+      </div>
+      <div class="g2" style="margin-bottom:0">
+        <div class="form-g"><label class="form-l">% Lance Total sobre a Carta</label><input class="form-i" id="cc-pct" readonly style="background:var(--card2)"></div>
+        <div class="form-g"><label class="form-l">Lance Embutido (auto)</label><input class="form-i" id="cc-lance-embutido" readonly style="background:var(--card2)"></div>
       </div>
       <div class="dvr"></div>
       <div style="font-size:12px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px">Valores Calculados Automaticamente</div>
@@ -1307,7 +1334,7 @@ let currentLead=null, currentCota=null, currentCotaId=null;
 let selProj=null, minChart=null, contChart=null;
 
 // ═══ UTILS ═══
-const brl=(v,d=2)=>v==null?'—':'R '+Number(v).toLocaleString('pt-BR',{minimumFractionDigits:d,maximumFractionDigits:d});
+const brl=(v,d=2)=>v==null?'—':'R$ '+Number(v).toLocaleString('pt-BR',{minimumFractionDigits:d,maximumFractionDigits:d});
 const pct=(v,d=2)=>v==null?'—':(Number(v)*100).toFixed(d)+'%';
 const SB={'Contemplado':'<span class="badge b-ok">✓ Contemplado</span>','CONTEMPLADO':'<span class="badge b-ok">✓ Contemplado</span>','Sorteio':'<span class="badge b-gray">Sorteio</span>','SORTEIO / LANCE':'<span class="badge b-gray">Sorteio</span>','Em Andamento':'<span class="badge b-warn">⚡ Em Andamento</span>','LANCE':'<span class="badge b-warn">⚡ Em Andamento</span>','SUPLENCIA - 2 NA FRENTE':'<span class="badge b-warn">⚡ Em Andamento</span>','Cancelado':'<span class="badge b-err">✕ Cancelado</span>','CANCELADO':'<span class="badge b-err">✕ Cancelado</span>','Repassamos a contemplação':'<span class="badge b-info">Repassado</span>'};
 function sbadge(s){return SB[s]||`<span class="badge b-gray">${s}</span>`;}
@@ -1419,7 +1446,17 @@ function initDash(){
   const totalCarteira=cred||1;
   document.getElementById('dash-clients').innerHTML=tc.map(([n,d])=>`<tr><td><strong>${n}</strong></td><td>${d.cotas}</td><td><span class="badge b-ok">${d.contemp}</span></td><td>${brl(d.credito,0)}</td><td>${atag(d.assessor)}</td><td><strong>${(d.credito/totalCarteira*100).toFixed(1)}%</strong></td></tr>`).join('');
   const amd={};ativas.forEach(r=>{let a=r.assessor||'Outros';if(a==='Gil')a='GIL';if(!amd[a])amd[a]={cotas:0,contemp:0,credito:0};amd[a].cotas++;if(r.status==='CONTEMPLADO')amd[a].contemp++;if(r.credito)amd[a].credito+=r.credito;});
-  document.getElementById('dash-assess').innerHTML=Object.entries(amd).sort((a,b)=>b[1].cotas-a[1].cotas).slice(0,8).map(([a,d])=>`<tr><td>${atag(a)}</td><td>${d.cotas}</td><td>${d.contemp}</td><td>${brl(d.credito,0)}</td><td>${(d.credito/totalCarteira*100).toFixed(1)}%</td></tr>`).join('');
+  document.getElementById('dash-assess').innerHTML=Object.entries(amd).sort((a,b)=>b[1].cotas-a[1].cotas).slice(0,8).map(([a,d])=>`<tr style="cursor:pointer" onclick="navToAssessor('${a}')" title="Ver clientes de ${a}"><td>${atag(a)}</td><td>${d.cotas}</td><td>${d.contemp}</td><td>${brl(d.credito,0)}</td><td style="font-weight:700">${(d.credito/totalCarteira*100).toFixed(1)}%</td></tr>`).join('');
+}
+function navToAssessor(assessorName){
+  // Navega para Projetos e filtra por assessor — mostra clientes consolidados
+  const ni=document.querySelector('.ni[onclick*="proj"]');
+  nav('proj',ni);
+  setProjView('list');
+  setTimeout(()=>{
+    const asel=document.getElementById('pf-assessor');
+    if(asel){asel.value=assessorName;filterProjList();}
+  },150);
 }
 
 // ═══ CONTROLE ═══
@@ -1471,6 +1508,9 @@ function openModalCota(id){
   const l1El=document.getElementById('mc-l1');
   if(l1El)l1El.value=r.lance1?+(r.lance1*100).toFixed(1):'';
   document.getElementById('mc-venc').value=r.vencimento||'';
+  document.getElementById('mc-saldo').value=r.saldo_devedor||'';
+  document.getElementById('mc-lance-val').value=r.lance_total||'';
+  document.getElementById('mc-data-contemp').value=r.data_contemplada||'';
   const rawInfo=r.informacao||'';
   const asmMatch=rawInfo.match(/\[ASM:([^\]]+)\]/);
   document.getElementById('mc-asm').value=asmMatch?asmMatch[1]:'';
@@ -1490,6 +1530,9 @@ async function saveCota(){
     adesao:document.getElementById('mc-adesao').value||null,
     status:document.getElementById('mc-status').value,
     lance1:(v=>v?parseFloat(v)/100:null)(document.getElementById('mc-l1').value),
+    saldo_devedor:parseFloat(document.getElementById('mc-saldo').value)||null,
+    lance_total:parseFloat(document.getElementById('mc-lance-val').value)||null,
+    data_contemplada:document.getElementById('mc-data-contemp').value||null,
     informacao:(()=>{const obs=document.getElementById('mc-obs').value.trim();const asm=document.getElementById('mc-asm').value;return obs+(asm?' [ASM:'+asm+']':'');})(),
     updated_at:new Date().toISOString(),
   };
@@ -1497,7 +1540,13 @@ async function saveCota(){
   showLoad();
   const res=await upsertCota(data);
   hideLoad();
-  if(res){toast('Cota salva com sucesso!');closeModal('modal-cota');filterCtrl();initDash();renderAgenda();}
+  if(res){toast('Cota salva com sucesso!');closeModal('modal-cota');filterCtrl();initDash();renderAgenda();renderProj();}
+}
+function mcCalcLancePct(){
+  const cr=parseFloat(document.getElementById('mc-credito').value)||0;
+  const lv=parseFloat(document.getElementById('mc-lance-val').value)||0;
+  const l1=document.getElementById('mc-l1');
+  if(cr>0&&lv>0){l1.value=(lv/cr*100).toFixed(1);}
 }
 async function deleteCota(){
   if(!confirm('Excluir esta cota?'))return;
@@ -1514,16 +1563,20 @@ function openModalContemp(id){
   document.getElementById('cc-data').value=new Date().toISOString().slice(0,10);
   document.getElementById('cc-carta').value=r.credito||0;
   document.getElementById('cc-lance').value='';
+  document.getElementById('cc-lance-proprio').value='';
   document.getElementById('cc-pct').value='';
+  document.getElementById('cc-lance-embutido').value='';
   calcContemp();
   document.getElementById('modal-contemp').classList.add('open');
 }
 function calcContemp(){
   const carta=parseFloat(document.getElementById('cc-carta').value)||0;
-  const lance=parseFloat(document.getElementById('cc-lance').value)||0;
-  const pctV=carta>0?(lance/carta*100).toFixed(2)+'%':'—';
-  document.getElementById('cc-pct').value=pctV;
-  const atualizada=carta-lance;
+  const lanceTotal=parseFloat(document.getElementById('cc-lance').value)||0;
+  const lancePropr=parseFloat(document.getElementById('cc-lance-proprio').value)||0;
+  const lanceEmb=Math.max(0,lanceTotal-lancePropr);
+  document.getElementById('cc-pct').value=carta>0&&lanceTotal>0?(lanceTotal/carta*100).toFixed(2)+'%':'—';
+  document.getElementById('cc-lance-embutido').value=lanceEmb>0?'R$ '+lanceEmb.toLocaleString('pt-BR',{minimumFractionDigits:0,maximumFractionDigits:0}):'—';
+  const atualizada=carta-lanceEmb;
   const saldo=atualizada*1.07;
   const r=currentCotaId?COTAS.find(c=>c.id===currentCotaId):null;
   const parcAtual=r&&r.parcela?r.parcela:0;
@@ -1535,17 +1588,18 @@ function calcContemp(){
 async function saveContemp(){
   const r=COTAS.find(c=>c.id===currentCotaId);if(!r)return;
   const carta=parseFloat(document.getElementById('cc-carta').value)||0;
-  const lance=parseFloat(document.getElementById('cc-lance').value)||0;
+  const lanceTotal=parseFloat(document.getElementById('cc-lance').value)||0;
+  const lancePropr=parseFloat(document.getElementById('cc-lance-proprio').value)||0;
+  const lanceEmb=Math.max(0,lanceTotal-lancePropr);
   const tipo=document.getElementById('cc-tipo').value;
   const data=document.getElementById('cc-data').value;
-  const atualizada=carta-lance;
+  const atualizada=carta-lanceEmb;
   const saldo=atualizada*1.07;
   const novaParcela=r.parcela&&carta>0?r.parcela*(atualizada/carta):atualizada/120;
+  const pctLance=carta>0&&lanceTotal>0?lanceTotal/carta:null;
   showLoad();
-  // Salvar contemplação no histórico
-  await sb.from('contemplacoes').insert({grupo:r.grupo,cota:r.cota,nome:r.nome,data_contemplacao:data,tipo,lance_pago:lance||null,carta_valor:carta,carta_atualizada:atualizada,saldo_devedor:saldo,parcela_nova:novaParcela});
-  // Atualizar cota
-  const updated={...r,status:'CONTEMPLADO',carta_atualizada:atualizada,saldo_devedor:saldo,parcela:novaParcela,informacao:`Contemplado em ${data.split('-').reverse().join('/')} via ${tipo}`,updated_at:new Date().toISOString()};
+  await sb.from('contemplacoes').insert({grupo:r.grupo,cota:r.cota,nome:r.nome,data_contemplacao:data,tipo,lance_pago:lanceTotal||null,lance_proprio:lancePropr||null,lance_embutido:lanceEmb||null,carta_valor:carta,carta_atualizada:atualizada,saldo_devedor:saldo,parcela_nova:novaParcela});
+  const updated={...r,status:'CONTEMPLADO',carta_atualizada:atualizada,saldo_devedor:saldo,parcela:novaParcela,lance_total:lanceTotal||null,lance_proprio:lancePropr||null,tipo_contemp:tipo,data_contemplada:data||null,lance1:pctLance,informacao:`Contemplado em ${data.split('-').reverse().join('/')} via ${tipo}${lanceTotal?' | Lance: R$'+lanceTotal.toLocaleString('pt-BR',{minimumFractionDigits:0,maximumFractionDigits:0}):''}`   ,updated_at:new Date().toISOString()};
   const res=await upsertCota(updated);
   hideLoad();
   if(res){toast('Contemplação registrada! Cota atualizada.','ok');closeModal('modal-contemp');filterCtrl();initDash();renderAgenda();}
@@ -1623,7 +1677,8 @@ async function dragDropLead(e,stage){
 }
 const PIPE_STAGES=['Novo','Em contato','Proposta enviada','Negociando','Fechado','Perdido'];
 const PIPE_COLORS={'Novo':'#3b82f6','Em contato':'#f59e0b','Proposta enviada':'#D6AF5C','Negociando':'#8b5cf6','Fechado':'#10b981','Perdido':'#ef4444'};
-let leadsFiltered=[];
+let leadsFiltered=[], crmSort={col:null,dir:1};
+function sortCRM(col){crmSort.dir=crmSort.col===col?-crmSort.dir:1;crmSort.col=col;renderCRM();}
 function filterCRM(){
   const s=document.getElementById('crm-search').value.toLowerCase();
   const st=document.getElementById('crm-status-f').value;
@@ -1660,6 +1715,9 @@ function renderAssessorLeads(){
 
 function renderCRM(){
   leadsFiltered=leadsFiltered.length?leadsFiltered:[...LEADS];
+  const crmSorted=crmSort.col?sortArr(leadsFiltered,crmSort.col,crmSort.dir):leadsFiltered;
+  ['nome','indicado_por','assessor','interesse','valor_potencial','status','created_at'].forEach(c=>{const el=document.getElementById('lsort-'+c);if(el)el.textContent=sortIcon(crmSort,c);});
+  leadsFiltered=crmSorted;
   document.getElementById('crm-count').textContent=leadsFiltered.length+' leads';
   renderAssessorLeads();
   // Pipeline
@@ -1743,7 +1801,7 @@ function openModalSim(leadId){
   if(obs.startsWith('SIM:')){
     try{const d=JSON.parse(obs.slice(4));simRows=d.rows||[];document.getElementById('sim-obs').value=d.nota||'';simGoStep(3);}
     catch(e){simRows=[];simGoStep(1);}
-  }else{simRows=[];['sim-credito','sim-lance-rp','sim-limite-parc'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});document.getElementById('sim-pqtd').value=1;simSetFinalidade('Im');simSetToggle('sim-lance-emb','nao');simSetToggle('sim-parc-red','nao');document.getElementById('sim-prazo-min').value='0';document.getElementById('sim-prazo-max').value='200';document.getElementById('sim-lancepct-info').style.display='none';simGoStep(1);}
+  }else{simRows=[];['sim-credito-liq','sim-credito','sim-lance-rp','sim-limite-parc'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});document.getElementById('sim-pqtd').value=1;simSetFinalidade('Im');simSetToggle('sim-lance-emb','nao');simSetToggle('sim-parc-red','nao');document.getElementById('sim-prazo-min').value='0';document.getElementById('sim-prazo-max').value='200';document.getElementById('sim-lancepct-info').style.display='none';const sc=document.getElementById('sim-credito');if(sc){sc.style.background='var(--card2)';sc.readOnly=true;}simGoStep(1);}
   document.getElementById('modal-sim').classList.add('open');
 }
 function simGoStep(n){
@@ -1769,12 +1827,29 @@ function simSetToggle(groupId,val){
 function simGetToggle(groupId){
   const el=document.querySelector('#'+groupId+' .toggle-btn.act');return el?el.dataset.val:'';
 }
+function simCalcCredito(){
+  const liq=parseFloat(document.getElementById('sim-credito-liq').value)||0;
+  const emb=simGetToggle('sim-lance-emb')==='sim';
+  const cont=emb&&liq>0?Math.round(liq/0.70):liq;
+  const el=document.getElementById('sim-credito');
+  if(el){el.value=cont||'';el.style.background=emb?'#f0fdf4':'var(--card2)';}
+  simCalcLancePct();
+}
 function simCalcLancePct(){
   const cr=parseFloat(document.getElementById('sim-credito').value)||0;
   const rp=parseFloat(document.getElementById('sim-lance-rp').value)||0;
+  const liq=parseFloat(document.getElementById('sim-credito-liq').value)||0;
+  const emb=simGetToggle('sim-lance-emb')==='sim';
   const info=document.getElementById('sim-lancepct-info');
-  if(cr>0&&rp>0){const pct=(rp/cr*100).toFixed(1);document.getElementById('sim-lancepct-val').textContent=brl(rp,0)+' = '+pct+'%';info.style.display='block';}
-  else{info.style.display='none';}
+  const lanceEmb=emb&&cr>0?cr*0.30:0;
+  const lanceTotal=rp+(emb?lanceEmb:0);
+  if(cr>0&&(rp>0||emb)){
+    let txt=brl(rp,0)+' próprio';
+    if(emb)txt+=` + ${brl(lanceEmb,0)} embutido = ${(lanceTotal/cr*100).toFixed(1)}% total`;
+    else txt+=` = ${(rp/cr*100).toFixed(1)}%`;
+    document.getElementById('sim-lancepct-val').textContent=txt;
+    info.style.display='block';
+  }else{info.style.display='none';}
 }
 /* ── HELPER: 6-month hist averages ─── */
 function simHist6mo(g){
@@ -2550,7 +2625,8 @@ function renderProjDetail(name){
   const pct=ativas.length>0?Math.round(contemp/ativas.length*100):0;
   const isCancelada=r=>r.status==='Cancelado'||r.status==='CANCELADO';
   const ordem={'Em Andamento':0,'LANCE':0,'Sorteio':1,'SORTEIO / LANCE':1,'SUPLENCIA - 2 NA FRENTE':1,'Contemplado':3,'CONTEMPLADO':3,'Cancelado':4,'CANCELADO':4};
-  const filtradas=projFiltro==='TODOS'?cotas:cotas.filter(r=>r.status===projFiltro);
+  const normSt=s=>{const m={'SORTEIO / LANCE':'Sorteio','LANCE':'Em Andamento','SUPLENCIA - 2 NA FRENTE':'Em Andamento','CONTEMPLADO':'Contemplado','CANCELADO':'Cancelado'};return m[s]||s;};
+  const filtradas=projFiltro==='TODOS'?cotas:cotas.filter(r=>normSt(r.status)===projFiltro);
   const ativas2=filtradas.filter(r=>!isCancelada(r)).slice().sort((a,b)=>(ordem[a.status]??5)-(ordem[b.status]??5));
   const canceladas2=filtradas.filter(r=>isCancelada(r));
   const sorted=[...ativas2,...canceladas2];
