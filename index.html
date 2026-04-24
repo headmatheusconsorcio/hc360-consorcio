@@ -2699,7 +2699,7 @@ function renderBrowse(data,pg){browsePage=pg;
   let sorted=data;
   if(browseSort.col){const c=browseSort.col;const d2=browseSort.dir;sorted=data.slice().sort(([ag,ad],[bg,bd])=>{const va=c==='g'?ag:(ad[c]??'');const vb=c==='g'?bg:(bd[c]??'');if(typeof va==='number'&&typeof vb==='number')return(va-vb)*d2;return String(va).localeCompare(String(vb),'pt-BR')*d2;});}
   ['g','idx','pr','asm','vagas','vmin','vmax','ul_min','at_min','at_cl'].forEach(c=>{const el=document.getElementById('bsort-'+c);if(el)el.textContent=sortIcon(browseSort,c);});
-  const{items,total,pages}=paginate(sorted,pg,40);document.getElementById('browse-count').textContent=data.length+' grupos';document.getElementById('browse-tbody').innerHTML=items.map(([g,d])=>`<tr onclick="guiaSel('${g}')" style="cursor:pointer"><td><strong style="color:var(--acc)">${g}</strong></td><td style="font-size:11px">${(d.tp||'').replace('IMÓVEIS','?? Imóveis').replace('VEÍCULOS LEVES','??').replace('VEÍCULOS PESADOS','??').replace('MOTOS','??')}</td><td><span class="badge ${d.sit==='Andamento'?'b-ok':'b-gray'}">${d.sit||'—'}</span></td><td style="font-size:11px">${d.idx||'—'}</td><td>${d.pr||'—'}m</td><td style="font-size:11px">${d.asm||'—'}</td><td>${d.vagas!=null?d.vagas:'—'}</td><td style="font-size:11px">${d.vmin?brl(d.vmin,0):'—'}</td><td style="font-size:11px">${d.vmax?brl(d.vmax,0):'—'}</td><td>${d.ul_min&&d.ul_min>0?'<span style="color:var(--ok);font-weight:700">'+pct(d.ul_min)+'</span>':'—'}</td><td>${d.at_min&&d.at_min>0?'<span style="color:var(--acc);font-weight:700">'+pct(d.at_min)+'</span>':'—'}</td><td>${d.at_cl||'—'}</td></tr>`).join('');renderPag('browse-pag',pg,pages,'browseGo');}
+  const{items,total,pages}=paginate(sorted,pg,40);document.getElementById('browse-count').textContent=data.length+' grupos';document.getElementById('browse-tbody').innerHTML=items.map(([g,d])=>`<tr onclick="guiaSel('${g}')" style="cursor:pointer"><td><strong style="color:var(--acc)">${g}</strong></td><td style="font-size:11px">${(()=>{const t=(d.tp||'').toUpperCase();if(t.includes('IM'))return'Imóvel';if(t.includes('MOTO'))return'Moto';if(t.includes('PESADO'))return'Veículo Pesado';if(t.includes('LEVE')||t.includes('VEÍ'))return'Veículo';return d.tp||'—';})()}</td><td><span class="badge ${d.sit==='Andamento'?'b-ok':'b-gray'}">${d.sit||'—'}</span></td><td style="font-size:11px">${d.idx||'—'}</td><td>${d.pr||'—'}m</td><td style="font-size:11px">${d.asm||'—'}</td><td>${d.vagas!=null?d.vagas:'—'}</td><td style="font-size:11px">${d.vmin?brl(d.vmin,0):'—'}</td><td style="font-size:11px">${d.vmax?brl(d.vmax,0):'—'}</td><td>${d.ul_min&&d.ul_min>0?'<span style="color:var(--ok);font-weight:700">'+pct(d.ul_min)+'</span>':'—'}</td><td>${d.at_min&&d.at_min>0?'<span style="color:var(--acc);font-weight:700">'+pct(d.at_min)+'</span>':'—'}</td><td>${d.at_cl||'—'}</td></tr>`).join('');renderPag('browse-pag',pg,pages,'browseGo');}
 function browseGo(p){renderBrowse(browseData,p);}
 function sortBrowse(col){browseSort.dir=browseSort.col===col?-browseSort.dir:1;browseSort.col=col;renderBrowse(browseData,1);}
 
@@ -2738,13 +2738,13 @@ function renderOportunidades(){
     const compat=Math.min(100,Math.round(o.score/maxScore*100));
     const compatColor=compat>=80?'#059669':compat>=55?'#d97706':'#dc2626';
     const medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':'';
-    const tpIcon=o.isIm?'🏠':'🚗';
+    const tpIcon='';
     const lanceFmt=o.lanceMed>0?o.lanceMed.toFixed(1)+'%':'—';
     const contFmt=o.avgCont>0?o.avgCont.toFixed(1)+'/mês':'—';
     return`<div style="background:var(--card);border-radius:14px;border:1.5px solid var(--bdr);overflow:hidden;cursor:pointer;transition:box-shadow .2s;box-shadow:0 2px 8px rgba(0,0,0,.05)" onmouseover="this.style.boxShadow='0 8px 24px rgba(0,0,0,.12)'" onmouseout="this.style.boxShadow='0 2px 8px rgba(0,0,0,.05)'" onclick="guiaSel('${o.g}');nav('guia',document.querySelector('.ni[onclick*=guia]'))">
       <div style="background:linear-gradient(135deg,var(--sb) 0%,var(--teal) 100%);padding:14px 16px;color:#fff">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-          <span style="font-size:11px;opacity:.7;font-weight:600;text-transform:uppercase;letter-spacing:.5px">${tpIcon} ${o.isIm?'Imóvel':'Automóvel'}</span>
+          <span style="font-size:11px;opacity:.7;font-weight:600;text-transform:uppercase;letter-spacing:.5px">${o.isIm?'Imóvel':'Automóvel'}</span>
           <span style="font-size:18px">${medal}</span>
         </div>
         <div style="font-size:26px;font-weight:900;letter-spacing:-.5px">Grupo ${o.g}</div>
@@ -2786,7 +2786,7 @@ function renderOportunidades(){
       const cc=compat>=70?'var(--ok)':compat>=40?'var(--warn)':'var(--err)';
       return`<tr onclick="guiaSel('${o.g}');nav('guia',document.querySelector('.ni[onclick*=guia]'))" style="cursor:pointer">
         <td><strong style="color:var(--acc2)">${o.g}</strong></td>
-        <td style="font-size:11px">${o.isIm?'🏠 Imóvel':'🚗 Rodas'}</td>
+        <td style="font-size:11px">${o.isIm?'Imóvel':'Veículo'}</td>
         <td>${o.cred?brl(o.cred,0):'—'}</td>
         <td>${o.d.pr?o.d.pr+'m':'—'}</td>
         <td><span style="color:var(--ok);font-weight:700">${o.d.at_min?(o.d.at_min*100).toFixed(1)+'%':'—'}</span></td>
@@ -2818,7 +2818,7 @@ function renderCarrSlide(){
   const compat=Math.min(100,Math.round(o.score/maxScore*100));
   document.getElementById('carr-num').textContent=(carrIdx+1)+'/'+total;
   document.getElementById('carr-grupo').textContent='Grupo '+o.g;
-  document.getElementById('carr-tipo-icon').textContent=o.isIm?'🏠':'🚗';
+  document.getElementById('carr-tipo-icon').textContent=o.isIm?'??':'??';
   document.getElementById('carr-tipo-label').textContent=o.isIm?'Imóvel':'Automóvel · '+o.d.tp;
   document.getElementById('carr-cred').textContent=o.cred>=1e6?(o.cred/1e6).toFixed(2)+'M':brl(o.cred,0);
   document.getElementById('carr-prazo').textContent=o.d.pr?o.d.pr+'m':'—';
