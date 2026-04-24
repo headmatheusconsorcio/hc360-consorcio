@@ -933,21 +933,32 @@ tr:hover td{background:#f0f7f6}
       <div class="g2" style="margin-bottom:0">
         <div class="form-g" style="margin-bottom:0">
           <label class="form-l">Crédito Líquido (R$) — o que o cliente precisa <span style="color:var(--err)">*</span></label>
-          <input type="number" class="form-i" id="sim-credito-liq" placeholder="Ex: 238000" step="10000" oninput="simCalcCredito()">
+          <input type="number" class="form-i" id="sim-credito-liq" placeholder="Ex: 238000" step="10000" oninput="simCalcCredito();simFmtHint('sim-credito-liq','sim-credito-liq-hint')">
+          <span id="sim-credito-liq-hint" style="font-size:11px;color:var(--sb2);font-weight:600;margin-top:2px;display:block"></span>
         </div>
         <div class="form-g" style="margin-bottom:0">
           <label class="form-l">Crédito Contratado (R$) — valor da carta <span style="font-size:10px;color:var(--sb2)">(auto se embutido)</span></label>
-          <input type="number" class="form-i" id="sim-credito" placeholder="Auto" step="10000" oninput="simCalcLancePct()" style="background:var(--card2)" readonly>
+          <input type="number" class="form-i" id="sim-credito" placeholder="Auto" step="10000" oninput="simCalcLancePct();simFmtHint('sim-credito','sim-credito-hint')" style="background:var(--card2)" readonly>
+          <span id="sim-credito-hint" style="font-size:11px;color:var(--info);font-weight:600;margin-top:2px;display:block"></span>
         </div>
       </div>
       <div class="g2" style="margin-bottom:0">
         <div class="form-g" style="margin-bottom:0">
-          <label class="form-l">Qtd. de Cotas Desejada</label>
-          <input type="number" class="form-i" id="sim-pqtd" value="1" min="1">
+          <label class="form-l">Mês que pretende contemplar</label>
+          <select class="form-i" id="sim-mes-contemp">
+            <option value="0">Sem preferência</option>
+            <option value="3">Próximos 3 meses</option>
+            <option value="6">Próximos 6 meses</option>
+            <option value="12">Em até 12 meses</option>
+            <option value="18">Em até 18 meses</option>
+            <option value="24">Em até 24 meses</option>
+            <option value="36">Em até 36 meses</option>
+          </select>
         </div>
         <div class="form-g" style="margin-bottom:0">
           <label class="form-l">Limite de Parcela (R$/mês)</label>
-          <input type="number" class="form-i" id="sim-limite-parc" placeholder="Ex: 2500">
+          <input type="number" class="form-i" id="sim-limite-parc" placeholder="Ex: 2500" oninput="simFmtHint('sim-limite-parc','sim-limite-parc-hint')">
+          <span id="sim-limite-parc-hint" style="font-size:11px;color:var(--txt2);font-weight:600;margin-top:2px;display:block"></span>
         </div>
       </div>
       <div class="g2" style="margin-bottom:0">
@@ -960,7 +971,8 @@ tr:hover td{background:#f0f7f6}
         </div>
         <div class="form-g" style="margin-bottom:0">
           <label class="form-l">Lance — Recurso Próprio (R$)</label>
-          <input type="number" class="form-i" id="sim-lance-rp" placeholder="Ex: 100000" oninput="simCalcLancePct()">
+          <input type="number" class="form-i" id="sim-lance-rp" placeholder="Ex: 100000" oninput="simCalcLancePct();simFmtHint('sim-lance-rp','sim-lance-rp-hint')">
+          <span id="sim-lance-rp-hint" style="font-size:11px;color:var(--warn);font-weight:600;margin-top:2px;display:block"></span>
         </div>
       </div>
       <div class="g2" style="margin-bottom:0">
@@ -1021,6 +1033,7 @@ tr:hover td{background:#f0f7f6}
         <span style="font-size:11.5px;color:var(--txt2)" id="sim-g-sub"></span>
         <button class="btn btn-out btn-sm" style="margin-left:auto" onclick="simGoStep(1)">← Ajustar filtros</button>
       </div>
+      <div id="sim-comp-banner" style="display:none;background:#fef3c7;border:1px solid #f59e0b;border-radius:8px;padding:10px 14px;font-size:12.5px;color:#92400e;gap:8px;align-items:center"></div>
       <div style="overflow-x:auto;max-height:360px;overflow-y:auto;border:1px solid var(--bdr);border-radius:8px">
         <table style="font-size:12px">
           <thead style="position:sticky;top:0;background:var(--card2);z-index:2"><tr>
@@ -1817,6 +1830,13 @@ function simGoStep(n){
   else if(n===2)fa.innerHTML=`<button class="btn btn-pri" onclick="simAddSelecionados()">Adicionar Selecionados →</button>`;
   else fa.innerHTML=`<button class="btn btn-out btn-sm" onclick="simSalvar()">💾 Salvar Proposta</button>`;
 }
+/* ── HELPER: format hint below input ── */
+function simFmtHint(inputId,hintId){
+  const v=parseFloat(document.getElementById(inputId)?.value)||0;
+  const el=document.getElementById(hintId);
+  if(!el)return;
+  el.textContent=v>0?brl(v,0):'';
+}
 /* ── HELPER: toggle buttons ────────── */
 function simSetFinalidade(val){
   document.querySelectorAll('#sim-finalidade .toggle-btn').forEach(b=>b.classList.toggle('act',b.dataset.val===val));
@@ -1875,66 +1895,121 @@ function simBuscarGrupos(){
   const prazoMin=parseInt(document.getElementById('sim-prazo-min').value)||0;
   const prazoMax=parseInt(document.getElementById('sim-prazo-max').value)||9999;
   const finalidade=simGetToggle('sim-finalidade');
-  const qtdDes=parseInt(document.getElementById('sim-pqtd').value)||1;
-  const lanceRPpct=lanceRP>0?(lanceRP/credito*100):100;
-  const lanceEmbPct=lanceEmb?15:0;
+  const mesContemp=parseInt(document.getElementById('sim-mes-contemp').value)||0;
+  const lanceRPpct=lanceRP>0?(lanceRP/credito*100):0;
+  const lanceEmbPct=lanceEmb?30:0;
   const lanceTotalPct=lanceRPpct+lanceEmbPct;
-  const cLo=credito*0.6,cHi=credito*1.5;
   const TAX_ADM=23,FR=3;
-  const scored=Object.entries(GUIA).filter(([g,d])=>{
-    if(d.sit!=='Andamento')return false;
-    if((d.vagas||0)<=0&&d.sit!=='Andamento')return false;
-    const tpUp=(d.tp||'').toUpperCase();
-    if(finalidade==='Im'&&!tpUp.includes('IMÓV'))return false;
-    if(finalidade==='Ve'&&!tpUp.includes('LEVE')&&!tpUp.includes('MOT')&&!tpUp.includes('PESAD'))return false;
-    const cred=d.vmax||d.vmin||0;
-    if(cred>0&&(cred<cLo||cred>cHi))return false;
-    const h=simHist6mo(g);
-    const lanceMedPct=h.avgMin?h.avgMin*100:d.at_min?d.at_min*100:30;
-    if(lanceMedPct>lanceTotalPct+8)return false;
-    const prazo=d.pr||120;
-    if(prazoMin>0&&prazo<prazoMin)return false;
-    if(prazoMax>0&&prazoMax<9999&&prazo>prazoMax)return false;
-    const parcBruta=(cred*(1+TAX_ADM/100+FR/100))/prazo;
-    const parcEff=parcRed?parcBruta*0.30:parcBruta;
-    if(parcEff>limParc)return false;
-    return true;
-  }).map(([g,d])=>{
+
+  // Função de score para qualquer grupo
+  function calcScore(g,d){
     const h=simHist6mo(g);
     const prazo=d.pr||120;
     const cred=d.vmax||d.vmin||credito;
     const parcBruta=(cred*(1+TAX_ADM/100+FR/100))/prazo;
     const parcEff=parcRed?parcBruta*0.30:parcBruta;
     const lanceMedPct=h.avgMin?h.avgMin*100:d.at_min?d.at_min*100:30;
-    let score=0;
-    score+=Math.min((d.vagas||0)*2,40);
+    // Vagas disponíveis (maior = melhor)
+    let score=Math.min((d.vagas||0)*2,40);
+    // Lance compatível (quanto mais margem de lance, melhor)
     score+=Math.max(0,(lanceTotalPct-lanceMedPct)*1.5);
+    // Prazo preferido
     const prazoPref=prazoMin>0&&prazoMax<9999?Math.round((prazoMin+prazoMax)/2):0;
     if(prazoPref>0)score+=Math.max(0,20-Math.abs(prazo-prazoPref)*0.2);
-    const cDist=credito>0?Math.abs(cred-credito)/credito:0;
-    score-=cDist*20;
-    return{g,d,h,prazo,cred,parcEff,lanceMedPct,score,selected:true,qtd:qtdDes};
+    // Mês de contemplação: quanto mais rápido o histórico de contemplados, melhor
+    if(mesContemp>0){
+      const hd=HIST.groups[g]||HIST.groups[parseInt(g)]||{};
+      const cont=hd.cont||[];
+      const avg6=cont.slice(-6).filter(v=>v>0);
+      const avgCont=avg6.length?avg6.reduce((a,b)=>a+b,0)/avg6.length:0;
+      // Estimativa: meses até contemplar ≈ vagas / avgCont por mês
+      const vagas=d.vagas||1;
+      const mesesEst=avgCont>0?vagas/avgCont:prazo;
+      if(mesesEst<=mesContemp)score+=30;
+      else score+=Math.max(0,15-(mesesEst-mesContemp)*0.5);
+    }
+    // Contemplados recentes (mais ativo = melhor)
+    const hd2=HIST.groups[g]||HIST.groups[parseInt(g)]||{};
+    const cont6=(hd2.cont||[]).slice(-6).filter(v=>v>0);
+    const avgCont6=cont6.length?cont6.reduce((a,b)=>a+b,0)/cont6.length:0;
+    score+=Math.min(avgCont6*3,15);
+    return{h,prazo,cred,parcEff,lanceMedPct,score};
+  }
+
+  const cLo=credito*0.6,cHi=credito*1.5;
+  // Tenta filtro normal primeiro
+  let pool=Object.entries(GUIA).filter(([g,d])=>{
+    if(d.sit!=='Andamento')return false;
+    const tpUp=(d.tp||'').toUpperCase();
+    if(finalidade==='Im'&&!tpUp.includes('IMÓV'))return false;
+    if(finalidade==='Ve'&&!tpUp.includes('LEVE')&&!tpUp.includes('MOT')&&!tpUp.includes('PESAD'))return false;
+    const cred=d.vmax||d.vmin||0;
+    if(cred>0&&(cred<cLo||cred>cHi))return false;
+    if(prazoMin>0&&(d.pr||120)<prazoMin)return false;
+    if(prazoMax>0&&prazoMax<9999&&(d.pr||120)>prazoMax)return false;
+    const {lanceMedPct,parcEff}=calcScore(g,d);
+    if(lanceTotalPct>0&&lanceMedPct>lanceTotalPct+8)return false;
+    if(parcEff>limParc)return false;
+    return true;
+  });
+
+  // Modo composição: valor muito alto para uma carta única
+  let modoComposicao=false;
+  let qtdSugeridaGlobal=1;
+  if(pool.length===0){
+    // Expande busca para grupos menores e sugere múltiplas cotas
+    modoComposicao=true;
+    pool=Object.entries(GUIA).filter(([g,d])=>{
+      if(d.sit!=='Andamento')return false;
+      const tpUp=(d.tp||'').toUpperCase();
+      if(finalidade==='Im'&&!tpUp.includes('IMÓV'))return false;
+      if(finalidade==='Ve'&&!tpUp.includes('LEVE')&&!tpUp.includes('MOT')&&!tpUp.includes('PESAD'))return false;
+      if(prazoMin>0&&(d.pr||120)<prazoMin)return false;
+      if(prazoMax>0&&prazoMax<9999&&(d.pr||120)>prazoMax)return false;
+      const cred=d.vmax||d.vmin||0;
+      if(cred<=0)return false;
+      // Aceita grupos com crédito entre 5% e 100% do crédito desejado
+      return cred>=credito*0.05&&cred<=credito;
+    });
+  }
+
+  const scored=pool.map(([g,d])=>{
+    const sc=calcScore(g,d);
+    // Em modo composição: calcular qtd sugerida para chegar no valor
+    const cred=d.vmax||d.vmin||credito;
+    const qtdSug=modoComposicao?Math.ceil(credito/cred):1;
+    return{g,d,...sc,selected:true,qtd:qtdSug,modoComposicao};
   }).sort((a,b)=>b.score-a.score);
-  if(!scored.length){toast('Nenhum grupo encontrado. Tente ajustar o crédito ou limite de parcela.','err');return;}
+
+  if(!scored.length){toast('Nenhum grupo encontrado. Tente ampliar o prazo ou remover o limite de parcela.','err');return;}
+
   const chosen=[],usedPrazos=[];
   for(const item of scored){
-    if(chosen.length>=5)break;
+    if(chosen.length>=8)break;
     const pBucket=Math.round(item.prazo/24);
     if(!usedPrazos.includes(pBucket)){usedPrazos.push(pBucket);chosen.push({...item,selected:true});}
   }
   for(const item of scored){
-    if(chosen.length>=5)break;
+    if(chosen.length>=8)break;
     if(!chosen.find(c=>c.g===item.g))chosen.push({...item,selected:true});
   }
   simSuggestions=chosen;
-  renderSimGrupos();
+  renderSimGrupos(modoComposicao,credito);
   simGoStep(2);
   const fl=finalidade==='Im'?'Imóvel':finalidade==='Ve'?'Veículo':'Todos';
-  document.getElementById('sim-g-sub').textContent=`${fl} · Crédito ${brl(credito,0)} · Lance RP ${lanceRPpct.toFixed(0)}%${lanceEmb?' + embutido':''}${limParc<Infinity?' · Parcela ≤ '+brl(limParc,0):''}`;
+  const mcLabel=mesContemp>0?` · Contemplar em ${mesContemp}m`:'';
+  document.getElementById('sim-g-sub').textContent=`${fl} · Crédito ${brl(credito,0)}${lanceRPpct>0?' · Lance RP '+lanceRPpct.toFixed(0)+'%':''}${lanceEmb?' + embutido':''}${limParc<Infinity?' · Parcela ≤ '+brl(limParc,0):''}${mcLabel}`;
+  if(modoComposicao)toast('⚡ Modo composição: crédito alto. Sugerindo junção de cotas para atingir R$ '+brl(credito,0).replace('R$ ',''),'info');
 }
-function renderSimGrupos(){
+function renderSimGrupos(modoComp,creditoAlvo){
   document.getElementById('sim-g-count').textContent=simSuggestions.length+' grupos';
   const maxScore=simSuggestions[0]?.score||1;
+  // Banner modo composição
+  const bannerEl=document.getElementById('sim-comp-banner');
+  if(modoComp&&creditoAlvo){
+    if(bannerEl){bannerEl.style.display='flex';bannerEl.innerHTML=`<span>⚡ <strong>Modo Composição</strong> — Crédito alvo ${brl(creditoAlvo,0)}. Qtd. sugerida calculada por grupo para atingir o valor. Ajuste as quantidades abaixo.</span>`;}
+  }else if(bannerEl)bannerEl.style.display='none';
+
   document.getElementById('sim-g-tbody').innerHTML=simSuggestions.map((item,i)=>{
     const{g,d,h,prazo,cred,parcEff,lanceMedPct,score,selected,qtd}=item;
     const minH=h.absMin!=null?(h.absMin*100).toFixed(1)+'%':'—';
@@ -1943,6 +2018,11 @@ function renderSimGrupos(){
     const vagas=d.vagas!=null?`<strong style="color:${d.vagas>20?'var(--ok)':d.vagas>5?'var(--warn)':'var(--err)'}">${d.vagas}</strong>`:'?';
     const compat=Math.min(100,Math.round(score/maxScore*100));
     const compatColor=compat>=70?'var(--ok)':compat>=40?'var(--warn)':'var(--err)';
+    const credTotal=cred*(qtd||1);
+    // Contemplados médios últimos 6 meses
+    const hd=HIST.groups[g]||HIST.groups[parseInt(g)]||{};
+    const cont6=(hd.cont||[]).slice(-6).filter(v=>v>0);
+    const avgCont=cont6.length?(cont6.reduce((a,b)=>a+b,0)/cont6.length).toFixed(1):'—';
     return`<tr style="${selected?'':'opacity:.45'}">
       <td style="padding:6px 10px"><input type="checkbox" ${selected?'checked':''} onchange="simSuggestions[${i}].selected=this.checked;this.closest('tr').style.opacity=this.checked?'1':'.45'"></td>
       <td style="padding:6px 10px"><strong style="color:var(--acc2);font-size:13.5px">${g}</strong></td>
@@ -1952,10 +2032,18 @@ function renderSimGrupos(){
       <td style="padding:6px 10px"><span style="color:var(--ok);font-weight:700">${minH}</span></td>
       <td style="padding:6px 10px"><span style="color:var(--acc2);font-weight:700">${avgH}</span></td>
       <td style="padding:6px 10px"><span style="color:var(--err);font-weight:700">${maxH}</span></td>
-      <td style="padding:6px 10px">${vagas}</td>
+      <td style="padding:6px 10px">${vagas}<small style="display:block;color:var(--txt2);font-size:10px">${avgCont}/mês</small></td>
       <td style="padding:6px 10px;font-weight:700;color:var(--sb2)">${brl(parcEff)}</td>
-      <td style="padding:6px 10px"><div style="display:flex;align-items:center;gap:5px"><div style="height:5px;width:${Math.round(compat*0.5)}px;background:${compatColor};border-radius:3px"></div><span style="font-size:10.5px;font-weight:700;color:${compatColor}">${compat}%</span></div></td>
-      <td style="padding:6px 10px"><input type="number" style="width:42px;border:1.5px solid var(--bdr);border-radius:6px;padding:2px 4px;font-size:12px;text-align:center" value="${qtd}" min="1" onchange="simSuggestions[${i}].qtd=Math.max(1,+this.value)||1"></td>
+      <td style="padding:6px 10px">
+        <div style="display:flex;align-items:center;gap:5px">
+          <div style="height:5px;width:${Math.round(compat*0.5)}px;background:${compatColor};border-radius:3px"></div>
+          <span style="font-size:10.5px;font-weight:700;color:${compatColor}">${compat}%</span>
+        </div>
+      </td>
+      <td style="padding:6px 10px">
+        <input type="number" style="width:48px;border:1.5px solid var(--bdr);border-radius:6px;padding:2px 4px;font-size:12px;text-align:center;font-weight:700" value="${qtd}" min="1" onchange="simSuggestions[${i}].qtd=Math.max(1,+this.value)||1;this.nextElementSibling.textContent=brl((simSuggestions[${i}].cred||0)*(simSuggestions[${i}].qtd||1),0)">
+        <small style="display:block;color:var(--info);font-size:10px;margin-top:1px">${brl(credTotal,0)}</small>
+      </td>
     </tr>`;
   }).join('');
 }
