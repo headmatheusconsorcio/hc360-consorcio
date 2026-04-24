@@ -239,6 +239,37 @@ tr:hover td{background:#f0f7f6}
 .sb-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:99}
 .sb-overlay.open{display:block}
 
+/* ── PÓS-CONTEMPLAÇÃO ───────────────────────── */
+.fat-hero{background:linear-gradient(135deg,var(--sb) 0%,var(--sb2) 100%);border-radius:12px;padding:32px 36px;color:#fff;margin-bottom:24px;position:relative;overflow:hidden}
+.fat-hero::after{content:'';position:absolute;right:-40px;top:-40px;width:220px;height:220px;border-radius:50%;background:rgba(255,255,255,.05)}
+.fat-hero-title{font-size:22px;font-weight:800;font-family:'Raleway',sans-serif;margin-bottom:6px}
+.fat-hero-sub{font-size:14px;opacity:.75;max-width:600px;line-height:1.6}
+.fat-steps{display:flex;gap:0;margin-bottom:28px;overflow-x:auto;padding-bottom:4px}
+.fat-step{flex:1;min-width:96px;display:flex;flex-direction:column;align-items:center;position:relative}
+.fat-step:not(:last-child)::after{content:'';position:absolute;top:20px;left:60%;width:80%;height:2px;background:var(--bdr);z-index:0}
+.fat-step-num{width:40px;height:40px;border-radius:50%;background:var(--card2);border:2px solid var(--bdr);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:var(--txt2);z-index:1;transition:all .2s;flex-shrink:0}
+.fat-step.done .fat-step-num{background:var(--ok);border-color:var(--ok);color:#fff}
+.fat-step.active .fat-step-num{background:var(--acc);border-color:var(--acc);color:#fff;box-shadow:0 0 0 4px rgba(214,175,92,.2)}
+.fat-step-label{font-size:10px;font-weight:600;color:var(--txt2);text-align:center;margin-top:7px;line-height:1.3;padding:0 4px}
+.fat-step.active .fat-step-label{color:var(--acc);font-weight:700}
+.fat-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px}
+.fat-tab{padding:8px 16px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:1.5px solid var(--bdr);background:#fff;color:var(--txt2);transition:all .16s;white-space:nowrap}
+.fat-tab.act{background:var(--sb);border-color:var(--sb);color:#fff}
+.fat-finalidade{display:none}.fat-finalidade.act{display:block}
+.fat-section{margin-bottom:20px}
+.fat-section-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--txt2);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--bdr)}
+.fat-doc-list{display:flex;flex-direction:column;gap:6px}
+.fat-doc{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;background:var(--card2);border-radius:8px;border:1px solid var(--bdr);font-size:13px;color:var(--txt);line-height:1.4}
+.fat-doc-icon{font-size:15px;flex-shrink:0;margin-top:1px}
+.fat-doc.alert{background:#fef3c7;border-color:#fde68a;}
+.fat-doc.block{background:#fee2e2;border-color:#fca5a5;}
+.fat-doc.special{background:#ede9fe;border-color:#c4b5fd;}
+.fat-rule{display:flex;align-items:flex-start;gap:12px;padding:12px 16px;border-radius:9px;border-left:4px solid var(--acc);background:var(--cream);margin-bottom:8px;font-size:13px;line-height:1.5}
+.fat-rule.warn{border-left-color:var(--warn);background:#fef9ec}
+.fat-rule.err{border-left-color:var(--err);background:#fef2f2}
+.fat-rule.ok{border-left-color:var(--ok);background:#f0fdf8}
+.fat-imp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px}
+.fat-imp{display:flex;align-items:center;gap:8px;padding:9px 13px;background:#fff5f5;border:1px solid #fca5a5;border-radius:8px;font-size:12.5px;color:#991b1b}
 /* ── PROJ DASHBOARD ─────────────────────────── */
 .pd-tabs{display:flex;gap:4px;background:var(--card2);border-radius:9px;padding:3px;border:1px solid var(--bdr);align-items:center}
 .pd-tab{padding:7px 16px;border-radius:7px;font-size:12.5px;font-weight:600;cursor:pointer;border:none;background:transparent;color:var(--txt2);transition:all .18s;font-family:'Inter',sans-serif}
@@ -360,6 +391,7 @@ tr:hover td{background:#f0f7f6}
     <div class="ni" data-admin-only="1" onclick="nav('prop',this)"><span class="ico">📄</span> Gerar Proposta</div>
     <div class="nav-sec">Clientes</div>
     <div class="ni" onclick="nav('proj',this)"><span class="ico">👤</span> Projetos / Cotas</div>
+    <div class="ni" onclick="nav('fat',this)"><span class="ico">📋</span> Pós-Contemplação</div>
   </nav>
   <div class="sb-foot">
     <div class="user-b">
@@ -979,6 +1011,311 @@ tr:hover td{background:#f0f7f6}
     </div>
   </div>
 
+  <!-- PÓS-CONTEMPLAÇÃO -->
+  <div class="page" id="page-fat">
+
+    <!-- Hero -->
+    <div class="fat-hero">
+      <div class="fat-hero-title">Esteira Pós-Contemplação — Itaú Consórcio</div>
+      <div class="fat-hero-sub">Guia completo do processo de faturamento após a contemplação da cota. Acompanhe as 9 etapas, os documentos necessários por finalidade e as regras do imóvel.</div>
+    </div>
+
+    <!-- Stepper 9 etapas -->
+    <div class="card">
+      <div class="ch"><span class="ct">As 9 Etapas do Processo</span></div>
+      <div class="cb">
+        <div class="fat-steps" id="fat-stepper">
+          <div class="fat-step active"><div class="fat-step-num">1</div><div class="fat-step-label">Formulário e Documentação</div></div>
+          <div class="fat-step"><div class="fat-step-num">2</div><div class="fat-step-label">Avaliação do Crédito</div></div>
+          <div class="fat-step"><div class="fat-step-num">3</div><div class="fat-step-label">Análise da Documentação</div></div>
+          <div class="fat-step"><div class="fat-step-num">4</div><div class="fat-step-label">Avaliação do Imóvel</div></div>
+          <div class="fat-step"><div class="fat-step-num">5</div><div class="fat-step-label">Confirmação de Valores</div></div>
+          <div class="fat-step"><div class="fat-step-num">6</div><div class="fat-step-label">Elaboração do Contrato</div></div>
+          <div class="fat-step"><div class="fat-step-num">7</div><div class="fat-step-label">Envio para Registro</div></div>
+          <div class="fat-step"><div class="fat-step-num">8</div><div class="fat-step-label">Devolução do Contrato</div></div>
+          <div class="fat-step"><div class="fat-step-num">9</div><div class="fat-step-label">Pagamento dos Valores</div></div>
+        </div>
+        <p style="font-size:12px;color:var(--txt2);text-align:center;margin-top:8px">Clique em uma etapa para destacá-la</p>
+      </div>
+    </div>
+
+    <div class="g2" style="align-items:start">
+      <!-- Checklist por finalidade -->
+      <div style="grid-column:1">
+        <div class="card">
+          <div class="ch"><span class="ct">Documentos por Finalidade</span></div>
+          <div class="cb">
+            <div class="fat-tabs">
+              <div class="fat-tab act" onclick="fatTab('aq',this)">Aquisição</div>
+              <div class="fat-tab" onclick="fatTab('aqfgts',this)">+ FGTS</div>
+              <div class="fat-tab" onclick="fatTab('iq',this)">+ IQ</div>
+              <div class="fat-tab" onclick="fatTab('iqfgts',this)">IQ + FGTS</div>
+              <div class="fat-tab" onclick="fatTab('remb',this)">Reembolso</div>
+              <div class="fat-tab" onclick="fatTab('quit',this)">Quitação Própria</div>
+              <div class="fat-tab" onclick="fatTab('ref',this)">Reforma</div>
+              <div class="fat-tab" onclick="fatTab('constr',this)">Construção</div>
+            </div>
+
+            <!-- AQUISIÇÃO -->
+            <div class="fat-finalidade act" id="fat-aq">
+              <div class="fat-section">
+                <div class="fat-section-title">🏠 Comprador Pessoa Física</div>
+                <div class="fat-doc-list">
+                  <div class="fat-doc"><span class="fat-doc-icon">📝</span>Formulário eletrônico de dados cadastrais (portal Itaú)</div>
+                  <div class="fat-doc"><span class="fat-doc-icon">💍</span>Comprovante do estado civil (união estável → declaração)</div>
+                </div>
+              </div>
+              <div class="fat-section">
+                <div class="fat-section-title">🏢 Comprador Pessoa Jurídica</div>
+                <div class="fat-doc-list">
+                  <div class="fat-doc"><span class="fat-doc-icon">📝</span>Formulário eletrônico de dados cadastrais</div>
+                  <div class="fat-doc"><span class="fat-doc-icon">📄</span><div><b>S/A ou Cooperativa:</b> Estatuto Social + Ata de Eleição da diretoria</div></div>
+                  <div class="fat-doc"><span class="fat-doc-icon">📄</span><div><b>Ltda. / ME:</b> Contrato Social com carimbo da Junta Comercial</div></div>
+                  <div class="fat-doc"><span class="fat-doc-icon">📄</span><div><b>Empresa Individual:</b> Declaração de Firma Mercantil Individual</div></div>
+                </div>
+              </div>
+              <div class="fat-section">
+                <div class="fat-section-title">🤝 Vendedor — mesmos documentos acima (PF ou PJ)</div>
+              </div>
+              <div class="fat-section">
+                <div class="fat-section-title">🏡 Imóvel</div>
+                <div class="fat-doc-list">
+                  <div class="fat-doc alert"><span class="fat-doc-icon">⚠️</span><div>Matrícula emitida há <b>menos de 30 dias</b> com certidão negativa de ônus</div></div>
+                  <div class="fat-doc"><span class="fat-doc-icon">📋</span>IPTU (carnê ou certidão) com endereço, metragem e nº contribuinte</div>
+                  <div class="fat-doc special"><span class="fat-doc-icon">🗺️</span><div><b>Lote/Terreno:</b> Planta do Loteamento com carimbo da Prefeitura</div></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- AQUISIÇÃO + FGTS -->
+            <div class="fat-finalidade" id="fat-aqfgts">
+              <div class="fat-section">
+                <div class="fat-section-title">🏠 Comprador Pessoa Física</div>
+                <div class="fat-doc-list">
+                  <div class="fat-doc"><span class="fat-doc-icon">📝</span>Formulário eletrônico de dados cadastrais</div>
+                  <div class="fat-doc"><span class="fat-doc-icon">💍</span>Comprovante do estado civil</div>
+                </div>
+              </div>
+              <div class="fat-section">
+                <div class="fat-section-title">💰 FGTS</div>
+                <div class="fat-doc-list">
+                  <div class="fat-doc"><span class="fat-doc-icon">📝</span>Formulário Autorização para Movimentação de Conta Vinculada ao FGTS</div>
+                  <div class="fat-doc"><span class="fat-doc-icon">📊</span>Declaração IR do último exercício</div>
+                  <div class="fat-doc"><span class="fat-doc-icon">🏦</span>Extrato atualizado do FGTS (fgts.gov.br ou CEF)</div>
+                  <div class="fat-doc special"><span class="fat-doc-icon">💑</span>Casado/União Estável: IR do cônjuge/convivente também</div>
+                </div>
+              </div>
+              <div class="fat-section">
+                <div class="fat-section-title">🤝 Vendedor — PF ou PJ (mesmos docs da Aquisição)</div>
+              </div>
+              <div class="fat-section">
+                <div class="fat-section-title">🏡 Imóvel</div>
+                <div class="fat-doc-list">
+                  <div class="fat-doc alert"><span class="fat-doc-icon">⚠️</span>Matrícula emitida há <b>menos de 30 dias</b> com certidão negativa de ônus</div>
+                  <div class="fat-doc"><span class="fat-doc-icon">📋</span>IPTU com endereço, metragem e nº contribuinte</div>
+                </div>
+              </div>
+              <div class="fat-doc block" style="margin-top:10px"><span class="fat-doc-icon">🚫</span><b>FGTS não pode ser usado em:</b> Terreno, Reforma ou Construção</div>
+            </div>
+
+            <!-- IQ -->
+            <div class="fat-finalidade" id="fat-iq">
+              <div class="fat-section">
+                <div class="fat-section-title">🏠 Comprador — PF ou PJ (mesmos docs da Aquisição)</div>
+              </div>
+              <div class="fat-section">
+                <div class="fat-section-title">🤝 Vendedor — PF ou PJ (mesmos docs da Aquisição)</div>
+              </div>
+              <div class="fat-section">
+                <div class="fat-section-title">🔄 Interveniente Quitante</div>
+                <div class="fat-doc-list">
+                  <div class="fat-doc special"><span class="fat-doc-icon">🏦</span>O Itaú verificará qual instituição é credora do financiamento do vendedor. Documentos adicionais podem ser solicitados durante a análise. Acompanhe pelo portal.</div>
+                </div>
+              </div>
+              <div class="fat-section">
+                <div class="fat-section-title">🏡 Imóvel</div>
+                <div class="fat-doc-list">
+                  <div class="fat-doc alert"><span class="fat-doc-icon">⚠️</span>Matrícula emitida há <b>menos de 30 dias</b> com certidão negativa de ônus</div>
+                  <div class="fat-doc"><span class="fat-doc-icon">📋</span>IPTU com endereço, metragem e nº contribuinte</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- IQ + FGTS -->
+            <div class="fat-finalidade" id="fat-iqfgts">
+              <div class="fat-section">
+                <div class="fat-section-title">🏠 Comprador PF</div>
+                <div class="fat-doc-list">
+                  <div class="fat-doc"><span class="fat-doc-icon">📝</span>Formulário eletrônico + comprovante estado civil</div>
+                </div>
+              </div>
+              <div class="fat-section">
+                <div class="fat-section-title">💰 FGTS</div>
+                <div class="fat-doc-list">
+                  <div class="fat-doc"><span class="fat-doc-icon">📝</span>Formulário Autorização Movimentação FGTS</div>
+                  <div class="fat-doc"><span class="fat-doc-icon">📊</span>Declaração IR do último exercício</div>
+                  <div class="fat-doc"><span class="fat-doc-icon">🏦</span>Extrato atualizado do FGTS</div>
+                </div>
+              </div>
+              <div class="fat-section">
+                <div class="fat-section-title">🔄 Interveniente Quitante</div>
+                <div class="fat-doc special"><span class="fat-doc-icon">🏦</span>Documentos adicionais conforme análise do Itaú</div>
+              </div>
+              <div class="fat-section">
+                <div class="fat-section-title">🤝 Vendedor — PF ou PJ (mesmos docs da Aquisição)</div>
+              </div>
+              <div class="fat-section">
+                <div class="fat-section-title">🏡 Imóvel</div>
+                <div class="fat-doc-list">
+                  <div class="fat-doc alert"><span class="fat-doc-icon">⚠️</span>Matrícula < 30 dias + IPTU</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- REEMBOLSO -->
+            <div class="fat-finalidade" id="fat-remb">
+              <div class="fat-section">
+                <div class="fat-section-title">💸 Comprovante de Pagamento Antecipado</div>
+                <div class="fat-doc-list">
+                  <div class="fat-doc alert"><span class="fat-doc-icon">🧾</span>Comprovante de transferência bancária do pagamento já feito ao vendedor</div>
+                </div>
+              </div>
+              <div class="fat-section">
+                <div class="fat-section-title">🏠 Comprador e Vendedor — PF ou PJ (mesmos docs da Aquisição)</div>
+              </div>
+              <div class="fat-section">
+                <div class="fat-section-title">🏡 Imóvel</div>
+                <div class="fat-doc-list">
+                  <div class="fat-doc alert"><span class="fat-doc-icon">⚠️</span>Matrícula < 30 dias com certidão negativa + IPTU</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- QUITAÇÃO PRÓPRIA -->
+            <div class="fat-finalidade" id="fat-quit">
+              <div class="fat-section">
+                <div class="fat-section-title">👤 Consorciado — PF ou PJ (mesmos docs da Aquisição)</div>
+              </div>
+              <div class="fat-section">
+                <div class="fat-section-title">🔄 Imóvel com Financiamento em Andamento</div>
+                <div class="fat-doc special"><span class="fat-doc-icon">🏦</span>Itaú identificará a instituição credora na análise. Documentos adicionais conforme particularidades.</div>
+              </div>
+              <div class="fat-section">
+                <div class="fat-section-title">🏡 Imóvel</div>
+                <div class="fat-doc-list">
+                  <div class="fat-doc alert"><span class="fat-doc-icon">⚠️</span>Matrícula < 30 dias com certidão negativa + IPTU</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- REFORMA -->
+            <div class="fat-finalidade" id="fat-ref">
+              <div class="fat-section">
+                <div class="fat-section-title">👤 Consorciado — PF ou PJ (mesmos docs da Aquisição)</div>
+              </div>
+              <div class="fat-section">
+                <div class="fat-section-title">🏡 Imóvel</div>
+                <div class="fat-doc-list">
+                  <div class="fat-doc alert"><span class="fat-doc-icon">⚠️</span>Matrícula < 30 dias com certidão negativa + IPTU</div>
+                </div>
+              </div>
+              <div class="fat-section">
+                <div class="fat-section-title">🔨 Obra</div>
+                <div class="fat-doc-list">
+                  <div class="fat-doc"><span class="fat-doc-icon">📐</span>Projeto de Arquitetura aprovado e assinado pela Prefeitura</div>
+                  <div class="fat-doc"><span class="fat-doc-icon">🏗️</span>Alvará de Construção/Reforma dentro da validade</div>
+                  <div class="fat-doc"><span class="fat-doc-icon">📅</span>Cronograma físico-financeiro com data de início e fim</div>
+                </div>
+              </div>
+              <div class="fat-doc block" style="margin-top:10px"><span class="fat-doc-icon">🚫</span>FGTS <b>não pode</b> ser utilizado em reformas</div>
+            </div>
+
+            <!-- CONSTRUÇÃO -->
+            <div class="fat-finalidade" id="fat-constr">
+              <div class="fat-section">
+                <div class="fat-section-title">👤 Consorciado — PF ou PJ (mesmos docs da Aquisição)</div>
+              </div>
+              <div class="fat-section">
+                <div class="fat-section-title">🏡 Terreno</div>
+                <div class="fat-doc-list">
+                  <div class="fat-doc alert"><span class="fat-doc-icon">⚠️</span>Matrícula < 30 dias com certidão negativa + IPTU</div>
+                </div>
+              </div>
+              <div class="fat-section">
+                <div class="fat-section-title">🏗️ Obra</div>
+                <div class="fat-doc-list">
+                  <div class="fat-doc"><span class="fat-doc-icon">📐</span>Projeto de Arquitetura aprovado pela Prefeitura</div>
+                  <div class="fat-doc"><span class="fat-doc-icon">🏗️</span>Alvará de Construção dentro da validade</div>
+                  <div class="fat-doc"><span class="fat-doc-icon">📅</span>Cronograma físico-financeiro com data de início e fim</div>
+                </div>
+              </div>
+              <div class="fat-doc block" style="margin-top:10px"><span class="fat-doc-icon">🚫</span>FGTS <b>não pode</b> ser utilizado em construção em terreno</div>
+            </div>
+
+            <!-- SITUAÇÕES ESPECIAIS (comum a todas) -->
+            <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--bdr)">
+              <div class="fat-section-title">⚡ Situações Especiais (adicionais conforme o caso)</div>
+              <div class="fat-doc-list">
+                <div class="fat-doc special"><span class="fat-doc-icon">📜</span><div><b>Procuração do comprador/vendedor:</b> Instrumento público do cartório de notas com poderes específicos para o imóvel e para representar a Itaú Consórcios. <b>Se > 90 dias: translado atualizado.</b></div></div>
+                <div class="fat-doc special"><span class="fat-doc-icon">⚖️</span><div><b>Espólio / Interdito / Menor de 18 anos:</b> Alvará judicial com menos de 1 ano</div></div>
+                <div class="fat-doc special"><span class="fat-doc-icon">🏛️</span><div><b>Imóvel em Aforamento:</b> Comprovante de pagamento do Laudêmio + Certidão Autorizativa de Transferência</div></div>
+                <div class="fat-doc special"><span class="fat-doc-icon">🌾</span><div><b>Produtor rural ou funcionários registrados:</b> CND INSS (cópia simples)</div></div>
+                <div class="fat-doc special"><span class="fat-doc-icon">👨‍👩‍👧</span><div><b>Venda de pais para filho(a):</b> Declaração de Existência ou Inexistência de Herdeiros (modelo próprio)</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Coluna direita: Regras + Impedimentos -->
+      <div style="display:flex;flex-direction:column;gap:18px">
+
+        <!-- Regras críticas -->
+        <div class="card">
+          <div class="ch"><span class="ct">📌 Regras Críticas do Imóvel</span></div>
+          <div class="cb" style="display:flex;flex-direction:column;gap:8px">
+            <div class="fat-rule warn"><span style="font-size:18px">⏱️</span><div><b>Matrícula válida por 30 dias</b> — deve ser emitida há menos de 30 dias com certidão negativa de ônus, ações pessoais e reipersecutórias.</div></div>
+            <div class="fat-rule warn"><span style="font-size:18px">📜</span><div><b>Procuração válida por 90 dias</b> — se emitida há mais de 90 dias, exige translado atualizado.</div></div>
+            <div class="fat-rule"><span style="font-size:18px">📐</span><div><b>Área idêntica</b> — metragem do terreno e construção deve ser exatamente a registrada na matrícula E no IPTU. Divergência paralisa o processo.</div></div>
+            <div class="fat-rule"><span style="font-size:18px">🔒</span><div><b>Alienação fiduciária</b> — o imóvel fica como garantia até quitação do saldo devedor. Valor deve ser suficiente para cobrir o saldo.</div></div>
+            <div class="fat-rule"><span style="font-size:18px">🏷️</span><div><b>Endereço idêntico</b> em todos os documentos (matrícula, IPTU, formulário). Imóvel deve ter delimitação física: muro, grade ou cerca.</div></div>
+            <div class="fat-rule"><span style="font-size:18px">📑</span><div><b>Averbações obrigatórias</b> na matrícula: construção/demolição, estado civil (divórcio + partilha), óbito + partilha. Todos os proprietários listados devem constar na matrícula.</div></div>
+            <div class="fat-rule ok"><span style="font-size:18px">💰</span><div><b>Custos do consorciado:</b> ITBI (pago na Prefeitura) + Despesas cartorárias (Cartório de Registro de Imóveis e Cartório de Notas).</div></div>
+          </div>
+        </div>
+
+        <!-- Imóveis NÃO aceitos -->
+        <div class="card">
+          <div class="ch"><span class="ct">🚫 Imóveis NÃO Aceitos pelo Itaú</span></div>
+          <div class="cb">
+            <div class="fat-imp-grid">
+              <div class="fat-imp">🪵 Pré-fabricado / madeira</div>
+              <div class="fat-imp">🏭 Galpão / armazém / barracão</div>
+              <div class="fat-imp">🏛️ Patrimônio histórico</div>
+              <div class="fat-imp">🚗 Estacionamento</div>
+              <div class="fat-imp">🌿 Área de preservação permanente</div>
+              <div class="fat-imp">🌊 Área de alagamento</div>
+              <div class="fat-imp">☣️ Solo contaminado (posto, cemitério, hospital)</div>
+              <div class="fat-imp">⚠️ Atividade com produtos perigosos</div>
+              <div class="fat-imp">📋 Sem averbação da construção</div>
+              <div class="fat-imp">🔨 Em processo de leilão</div>
+              <div class="fat-imp">⛪ Templos / Igrejas</div>
+              <div class="fat-imp">🌱 Rural sem garantia urbana adicional</div>
+              <div class="fat-imp">🪶 Áreas indígenas</div>
+              <div class="fat-imp">⚡ Locais de risco</div>
+              <div class="fat-imp">🏗️ Na planta (sem habite-se)</div>
+              <div class="fat-imp">🎁 Doação de pagamento</div>
+              <div class="fat-imp">🛤️ Servidão administrativa</div>
+              <div class="fat-imp">🏗️ Estrutura metálica / similar</div>
+            </div>
+            <div class="note" style="margin-top:14px">⚠️ <b>Imóvel Rural:</b> permitido somente se o imóvel rural estiver com documentação regular E for dado um imóvel urbano como garantia adicional (mesmo titular, documentação regular).</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
   <!-- PROJETOS -->
   <div class="page" id="page-proj">
     <div class="frow" style="margin-bottom:14px">
@@ -1544,7 +1881,7 @@ function hideLoad(){document.getElementById('loading').classList.remove('show');
 function setSync(ok){const d=document.getElementById('sync-dot'),s=document.getElementById('sync-status');d.className='sync-dot'+(ok?' ok':' err');s.textContent=ok?'Conectado ao Supabase':'Sem conexão';}
 
 // ═══ NAV ═══
-const PGT={'dash':'Dashboard','ctrl':'Controle de Cotas','agenda':'Agenda','crm':'CRM / Indicações','guia':'Guia de Oportunidades','oport':'Oportunidades','prop':'Gerar Proposta','proj':'Projetos / Cotas'};
+const PGT={'dash':'Dashboard','ctrl':'Controle de Cotas','agenda':'Agenda','crm':'CRM / Indicações','guia':'Guia de Oportunidades','oport':'Oportunidades','prop':'Gerar Proposta','proj':'Projetos / Cotas','fat':'Pós-Contemplação'};
 function toggleSidebar(){const sb=document.getElementById('sidebar');const ov=document.getElementById('sb-overlay');sb.classList.toggle('mob-open');ov.classList.toggle('open');}
 function nav(id,el){if(window.innerWidth<=700){const sb=document.getElementById('sidebar');const ov=document.getElementById('sb-overlay');sb.classList.remove('mob-open');ov.classList.remove('open');}
 document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));document.getElementById('page-'+id).classList.add('active');if(el)el.classList.add('active');document.getElementById('pg-title').textContent=PGT[id]||id;if(id==='ctrl')filterCtrl();if(id==='agenda')renderAgenda();if(id==='crm')renderCRM();if(id==='guia'){browseData=Object.entries(GUIA);renderBrowse(browseData,1);}if(id==='oport'){ortData=buildOrtData();renderOportunidades();}if(id==='prop'){renderPropGrupos();calcProp();updLance();}if(id==='proj')renderProj();}
@@ -2328,6 +2665,24 @@ function guiaSel(g){
   document.getElementById('guia-hist-body').innerHTML=HIST.months.map((m,i)=>`<tr><td>${mpt(m)}</td><td>${mn[i]>0?'<span style="color:var(--ok);font-weight:700">'+mn[i].toFixed(2)+'%</span>':'—'}</td><td>${mx[i]&&mx[i]>0?'<span style="color:var(--err);font-weight:700">'+mx[i].toFixed(2)+'%</span>':'—'}</td><td>${ct[i]>0?ct[i]:'—'}</td></tr>`).join('');
 }
 function guiaClear(){document.getElementById('guia-input').value='';document.getElementById('guia-result').style.display='none';document.getElementById('guia-empty').style.display='none';document.getElementById('guia-browse').style.display='block';selGrupo=null;}
+/* ── PÓS-CONTEMPLAÇÃO ────────────────────── */
+function fatTab(id,el){
+  document.querySelectorAll('.fat-finalidade').forEach(d=>d.classList.remove('act'));
+  document.querySelectorAll('.fat-tab').forEach(t=>t.classList.remove('act'));
+  const d=document.getElementById('fat-'+id);if(d)d.classList.add('act');
+  if(el)el.classList.add('act');
+}
+(function(){
+  const steps=document.querySelectorAll('.fat-step');
+  steps.forEach((s,i)=>s.addEventListener('click',()=>{
+    steps.forEach((ss,ii)=>{
+      ss.classList.remove('active','done');
+      if(ii<i)ss.classList.add('done');
+      else if(ii===i)ss.classList.add('active');
+    });
+  }));
+})();
+/* ── ─────────────────────────────────────── */
 function usarNaProposta(){
   if(selGrupo){
     if(!propGrupos.some(pg=>pg.grupo===selGrupo)){
