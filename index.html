@@ -2629,7 +2629,8 @@ function renderProjDetail(name){
   const filtradas=projFiltro==='TODOS'?cotas:cotas.filter(r=>normSt(r.status)===projFiltro);
   const ativas2=filtradas.filter(r=>!isCancelada(r)).slice().sort((a,b)=>(ordem[a.status]??5)-(ordem[b.status]??5));
   const canceladas2=filtradas.filter(r=>isCancelada(r));
-  const sorted=[...ativas2,...canceladas2];
+  let sorted=[...ativas2,...canceladas2];
+  if(projDetailSort.col){sorted=sortArr([...filtradas],projDetailSort.col,projDetailSort.dir);}
 
   const FILTROS=[
     {k:'TODOS',label:'Todos',n:cotas.length,cls:''},
@@ -2662,8 +2663,9 @@ function renderProjDetail(name){
     </tr>`;
   }
   const nCan=canceladas2.length;
-  const sepRow=nCan&&projFiltro==='TODOS'?'<tr><td colspan="7" style="background:#fee2e2;color:#991b1b;font-size:11px;font-weight:700;padding:6px 13px;letter-spacing:.4px;text-transform:uppercase">✕ Canceladas ('+nCan+')</td></tr>':'';
-  const rows=ativas2.map(mkRow).join('')+sepRow+canceladas2.map(mkRow).join('');
+  const sepRow=!projDetailSort.col&&nCan&&projFiltro==='TODOS'?'<tr><td colspan="7" style="background:#fee2e2;color:#991b1b;font-size:11px;font-weight:700;padding:6px 13px;letter-spacing:.4px;text-transform:uppercase">✕ Canceladas ('+nCan+')</td></tr>':'';
+  const rows=projDetailSort.col?sorted.map(mkRow).join(''):ativas2.map(mkRow).join('')+sepRow+canceladas2.map(mkRow).join('');
+  setTimeout(()=>{['grupo','cota','credito','parcela','status','lance1'].forEach(c=>{const el=document.getElementById('pdsort-'+c);if(el)el.textContent=sortIcon(projDetailSort,c);});},0);
 
   destroyPdCharts();
   document.getElementById('proj-detail').innerHTML=`
@@ -2688,7 +2690,15 @@ function renderProjDetail(name){
       ${FILTROS.map(f=>`<button onclick="projFiltro='${f.k}';renderProjDetail('${name}')" style="padding:5px 12px;border-radius:20px;border:2px solid ${projFiltro===f.k?'var(--acc)':'var(--bdr)'};background:${projFiltro===f.k?'var(--acc)':'#fff'};color:${projFiltro===f.k?'#fff':'var(--txt)'};font-size:12px;font-weight:600;cursor:pointer">${f.label} ${f.n>0?`<span style="opacity:.7">(${f.n})</span>`:''}</button>`).join('')}
     </div>
     <div class="tw"><table>
-      <thead><tr><th>Grupo</th><th>Cota</th><th>Crédito</th><th>Parcela</th><th>Status</th><th>Lance %</th><th style="text-align:center">Ações</th></tr></thead>
+      <thead><tr>
+        <th onclick="sortProjDetail('grupo')" style="cursor:pointer">Grupo <span id="pdsort-grupo" class="sort-ico">⇅</span></th>
+        <th onclick="sortProjDetail('cota')" style="cursor:pointer">Cota <span id="pdsort-cota" class="sort-ico">⇅</span></th>
+        <th onclick="sortProjDetail('credito')" style="cursor:pointer">Crédito <span id="pdsort-credito" class="sort-ico">⇅</span></th>
+        <th onclick="sortProjDetail('parcela')" style="cursor:pointer">Parcela <span id="pdsort-parcela" class="sort-ico">⇅</span></th>
+        <th onclick="sortProjDetail('status')" style="cursor:pointer">Status <span id="pdsort-status" class="sort-ico">⇅</span></th>
+        <th onclick="sortProjDetail('lance1')" style="cursor:pointer">Lance % <span id="pdsort-lance1" class="sort-ico">⇅</span></th>
+        <th style="text-align:center">Ações</th>
+      </tr></thead>
       <tbody>${rows}</tbody>
     </table></div>
     ${sorted.length===0?'<div style="padding:30px;text-align:center;color:var(--txt2)">Nenhuma cota neste filtro</div>':''}
@@ -2698,6 +2708,8 @@ function renderProjDetail(name){
 
 // ═══ PROJ DASHBOARD ═══
 let projDetailTab='table';
+let projDetailSort={col:null,dir:1};
+function sortProjDetail(col){projDetailSort.dir=projDetailSort.col===col?-projDetailSort.dir:1;projDetailSort.col=col;renderProjDetail(selProj);}
 let pdCharts={};
 function destroyPdCharts(){Object.values(pdCharts).forEach(c=>{try{c&&c.destroy()}catch(e){}}); pdCharts={};}
 function renderProjDash(name){
