@@ -1638,8 +1638,40 @@ tr:hover td{background:#f0f7f6}
         <div class="form-g"><label class="form-l">Cota</label><input class="form-i" id="mc-cota"></div>
       </div>
       <div class="g2" style="margin-bottom:0">
-        <div class="form-g"><label class="form-l">Crédito (R$)</label><input type="number" class="form-i" id="mc-credito"></div>
-        <div class="form-g"><label class="form-l">Parcela (R$)</label><input type="number" class="form-i" id="mc-parcela"></div>
+        <div class="form-g"><label class="form-l">Tipo do Bem</label>
+          <select class="form-i" id="mc-tipo-bem">
+            <option value="">Selecione...</option>
+            <option>Imóvel Residencial</option>
+            <option>Imóvel Comercial</option>
+            <option>Imóvel Misto</option>
+            <option>Terreno Urbano</option>
+            <option>Terreno Rural</option>
+            <option>Veículo Leve</option>
+            <option>Veículo Pesado</option>
+            <option>Moto</option>
+          </select>
+        </div>
+        <div class="form-g"><label class="form-l">Status da Cota</label>
+          <select class="form-i" id="mc-status">
+            <option>Sorteio</option><option>Em Andamento</option><option>Contemplado</option><option>Cancelado</option>
+          </select>
+        </div>
+      </div>
+      <div class="g2" style="margin-bottom:0">
+        <div class="form-g"><label class="form-l">Valor da Carta (R$)</label><input type="number" class="form-i" id="mc-credito" placeholder="Valor original contratado"></div>
+        <div class="form-g"><label class="form-l">Carta Atualizada (R$)</label><input type="number" class="form-i" id="mc-carta-atual" placeholder="Valor atual após INCC"></div>
+      </div>
+      <div class="g2" style="margin-bottom:0">
+        <div class="form-g"><label class="form-l">Parcela Atual (R$)</label><input type="number" class="form-i" id="mc-parcela"></div>
+        <div class="form-g"><label class="form-l">Lance Pago (R$)</label><input type="number" class="form-i" id="mc-lance-val" placeholder="Valor total pago no lance" oninput="mcCalcLancePct()"></div>
+      </div>
+      <div class="g2" style="margin-bottom:0">
+        <div class="form-g"><label class="form-l">Saldo Devedor (R$)</label><input type="number" class="form-i" id="mc-saldo" placeholder="Saldo devedor atual"></div>
+        <div class="form-g"><label class="form-l">Última Oferta de Lance (%)</label><input type="number" class="form-i" id="mc-l1" step="0.1" placeholder="Ex: 30.5"></div>
+      </div>
+      <div class="g2" style="margin-bottom:0">
+        <div class="form-g"><label class="form-l">Data de Contemplação</label><input type="date" class="form-i" id="mc-data-contemp"></div>
+        <div class="form-g"><label class="form-l">Data Venc. (dia do mês)</label><input type="number" class="form-i" id="mc-venc" min="1" max="31" placeholder="Ex: 15"></div>
       </div>
       <div class="g2" style="margin-bottom:0">
         <div class="form-g"><label class="form-l">Assessor</label>
@@ -1650,26 +1682,10 @@ tr:hover td{background:#f0f7f6}
         <div class="form-g"><label class="form-l">Data de Adesão</label><input type="date" class="form-i" id="mc-adesao"></div>
       </div>
       <div class="g2" style="margin-bottom:0">
-        <div class="form-g"><label class="form-l">Status</label>
-          <select class="form-i" id="mc-status">
-            <option>Sorteio</option><option>Em Andamento</option><option>Contemplado</option><option>Cancelado</option>
-          </select>
-        </div>
-        <div class="form-g"><label class="form-l">Dia Vencimento</label><input type="number" class="form-i" id="mc-venc" min="1" max="31"></div>
-      </div>
-      <div class="g2" style="margin-bottom:0">
-        <div class="form-g"><label class="form-l">Saldo Devedor (R$)</label><input type="number" class="form-i" id="mc-saldo" placeholder="Valor atual do saldo"></div>
-        <div class="form-g"><label class="form-l">Valor do Lance (R$)</label><input type="number" class="form-i" id="mc-lance-val" placeholder="Valor total pago no lance" oninput="mcCalcLancePct()"></div>
-      </div>
-      <div class="g2" style="margin-bottom:0">
-        <div class="form-g"><label class="form-l">Última Oferta de Lance (%)</label><input type="number" class="form-i" id="mc-l1" step="0.1" placeholder="Ex: 30.5"></div>
-        <div class="form-g"><label class="form-l">Data Contemplada</label><input type="date" class="form-i" id="mc-data-contemp"></div>
-      </div>
-      <div class="g2" style="margin-bottom:0">
         <div class="form-g"><label class="form-l">Data da Assembleia</label><input type="date" class="form-i" id="mc-asm"></div>
         <div class="form-g"><label class="form-l">Taxa Adm. Negociada (%)</label><input type="number" class="form-i" id="mc-taxa" step="0.1" placeholder="Ex: 22.5"></div>
       </div>
-      <div class="form-g"><label class="form-l">Observação</label><input class="form-i" id="mc-obs"></div>
+      <div class="form-g"><label class="form-l">Observação / Informação</label><input class="form-i" id="mc-obs"></div>
     </div>
     <div class="mf">
       <button class="btn btn-err btn-sm" id="mc-del-btn" onclick="deleteCota()" style="display:none;margin-right:auto">🗑 Excluir</button>
@@ -2109,6 +2125,8 @@ function openModalCota(id){
   document.getElementById('mc-saldo').value=r.saldo_devedor||'';
   document.getElementById('mc-lance-val').value=r.lance_total||'';
   document.getElementById('mc-data-contemp').value=r.data_contemplada||'';
+  document.getElementById('mc-carta-atual').value=r.carta_atualizada||'';
+  document.getElementById('mc-tipo-bem').value=r.tipo_bem||'';
   const rawInfo=r.informacao||'';
   const asmMatch=rawInfo.match(/\[ASM:([^\]]+)\]/);
   document.getElementById('mc-asm').value=asmMatch?asmMatch[1]:'';
@@ -2131,6 +2149,8 @@ async function saveCota(){
     saldo_devedor:parseFloat(document.getElementById('mc-saldo').value)||null,
     lance_total:parseFloat(document.getElementById('mc-lance-val').value)||null,
     data_contemplada:document.getElementById('mc-data-contemp').value||null,
+    carta_atualizada:parseFloat(document.getElementById('mc-carta-atual').value)||null,
+    tipo_bem:document.getElementById('mc-tipo-bem').value||null,
     informacao:(()=>{const obs=document.getElementById('mc-obs').value.trim();const asm=document.getElementById('mc-asm').value;return obs+(asm?' [ASM:'+asm+']':'');})(),
     updated_at:new Date().toISOString(),
   };
