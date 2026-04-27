@@ -2259,25 +2259,21 @@ async function confirmarPagamento(id){
   const r=COTAS.find(c=>String(c.id)===String(id));
   if(!r)return;
   const isC=r.status==='Contemplado'||r.status==='CONTEMPLADO'||r.status==='Faturado';
-  // Parcela efetiva: usa parcela_pos para contemplados, parcela para ativos
+  // Parcela efetiva: parcela_pos para contemplados/faturados, parcela para ativos
   const parcPaga=isC?(r.parcela_pos||r.parcela||0):(r.parcela||0);
-  // Saldo devedor: usa campo ou fallback para carta atualizada/crédito
-  const sd=r.saldo_devedor||(r.carta_atualizada||r.credito||0);
+  const sd=r.saldo_devedor||0;
   const pr=r.prazo_restante||0;
   if(!parcPaga){toast('Parcela não preenchida — edite a cota primeiro.','warn');return;}
   if(pr<=0){toast('Prazo restante = 0. Cota já quitada.','warn');return;}
-  // ── Fundo Comum: única parcela que amortiza o saldo devedor ─────────────
-  // Fonte: Contratos Itaú (PF Conv, PF Reduzida, PJ) — o FC total = 100% do
-  // crédito distribuído ao longo do prazo. Para pós-contemplação é exato
-  // (banco divide o saldo pelo prazo restante). Para pré é boa aproximação
-  // das fases tardias onde a taxa antecipada já foi paga (a fase inicial
-  // tem FC menor, ~0.3%, mas representa apenas os primeiros 3-4 meses).
-  const fc=sd>0&&pr>0?sd/pr:0;
-  const novoSaldo=Math.max(0,sd-fc);
+  // ── Modelo B validado contra contrato Itaú PJ (Grupo 040010) ────────────
+  // saldo_devedor = crédito × (1 + taxa_adm% + fundo_reserva%) - lance
+  // Cada parcela paga abate o saldo pelo valor INTEGRAL da parcela, pois a
+  // própria parcela já embute FC + taxa adm + fundo reserva. Soma de todas
+  // as parcelas = saldo inicial → saldo chega a zero na última parcela.
+  // Validado: Σ67 parcelas contrato = R$390.295,01 = crédito × 1,1426 ✓
+  const novoSaldo=Math.max(0,sd-parcPaga);
   const msg=`Confirmar pagamento de ${brl(parcPaga)} para ${r.nome}?
 
-` +
-    `Amortização (Fundo Comum): ${brl(fc,0)}
 ` +
     `Saldo Devedor: ${brl(sd,0)} → ${brl(novoSaldo,0)}
 ` +
