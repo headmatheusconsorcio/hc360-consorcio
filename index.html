@@ -295,11 +295,11 @@ tr:hover td{background:#f0f7f6}
 .pd-st-cr{font-size:12px;font-weight:700;color:var(--sb2)}
 .pd-st-bar{height:3px;border-radius:2px;margin-top:10px;background:var(--bdr)}
 /* Charts */
-.pd-chart-row{display:grid;grid-template-columns:280px 1fr;gap:12px;margin-bottom:14px}
+.pd-chart-row{display:grid;grid-template-columns:260px 1fr;gap:12px;margin-bottom:14px;align-items:start}
 .pd-chart-card{background:#fff;border-radius:12px;padding:20px;border:1px solid var(--bdr)}
 .pd-chart-card h4{font-size:13px;font-weight:700;color:var(--txt);margin-bottom:3px}
-.pd-chart-card p{font-size:11.5px;color:var(--txt2);margin-bottom:16px}
-.pd-donut-wrap{position:relative;max-width:170px;margin:0 auto 16px}
+.pd-chart-card p{font-size:11.5px;color:var(--txt2);margin-bottom:14px}
+.pd-donut-wrap{position:relative;width:160px;height:160px;margin:0 auto 14px}
 .pd-donut-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none}
 .pd-dc-val{font-family:'Raleway',sans-serif;font-size:20px;font-weight:800;color:var(--txt);line-height:1}
 .pd-dc-lbl{font-size:10px;color:var(--txt2);margin-top:3px;font-weight:600;text-transform:uppercase;letter-spacing:.4px}
@@ -3888,7 +3888,7 @@ function renderProjDash(name){
         <h4>Composição do Crédito</h4>
         <p>Contemplado vs Em Andamento pelo valor de crédito</p>
         <div class="pd-donut-wrap">
-          <canvas id="pd-donut" height="180"></canvas>
+          <canvas id="pd-donut" style="width:100%;height:100%"></canvas>
           <div class="pd-donut-center"><div class="pd-dc-val">${pctContemp}%</div><div class="pd-dc-lbl">contemplado</div></div>
         </div>
         <div class="pd-leg">
@@ -3897,10 +3897,12 @@ function renderProjDash(name){
           ${nSp>0?`<div class="pd-leg-item"><div class="pd-leg-dot" style="background:#8b5cf6"></div><span style="color:var(--txt2);flex:1">Suplência</span><span class="pd-leg-v">${fb(crSp)}</span></div>`:''}
         </div>
       </div>
-      <div class="pd-chart-card">
+      <div class="pd-chart-card" style="display:flex;flex-direction:column">
         <h4>Crédito por Status</h4>
         <p>Distribuição do valor de crédito por situação atual</p>
-        <canvas id="pd-status-bar" height="220"></canvas>
+        <div style="flex:1;min-height:0;height:180px;position:relative">
+          <canvas id="pd-status-bar" style="width:100%;height:100%"></canvas>
+        </div>
       </div>
     </div>
     <div style="font-size:13.5px;font-weight:700;margin-bottom:10px;color:var(--sb)">📋 Portfólio Detalhado</div>
@@ -3927,7 +3929,7 @@ function renderProjDash(name){
     if(dc&&totCr>0){pdCharts.donut=new Chart(dc.getContext('2d'),{
       type:'doughnut',
       data:{labels:['Contemplado','Em Andamento',...(nSp>0?['Suplência']:[])],datasets:[{data:[crC,crAtivo,...(nSp>0?[crSp]:[])],backgroundColor:['#226866','#D6AF5C',...(nSp>0?['#8b5cf6']:[])],borderColor:['#fff','#fff','#fff'],borderWidth:3,hoverOffset:4}]},
-      options:{responsive:true,cutout:'68%',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>' '+ff(ctx.parsed)}}}}
+      options:{responsive:true,maintainAspectRatio:false,cutout:'68%',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>' '+ff(ctx.parsed)}}}}
     })}
     const sb=document.getElementById('pd-status-bar');
     const barLabels=[...( crC>0?['Contemplado']:[]),...(crAtivo>0?['Em Andamento']:[]),...(crSp>0?['Suplência']:[])];
@@ -3937,12 +3939,21 @@ function renderProjDash(name){
       type:'bar',
       data:{
         labels:barLabels,
-        datasets:[{label:'Crédito',data:barData,backgroundColor:barColors,borderRadius:6,borderSkipped:false}]
+        datasets:[{label:'Crédito',data:barData,backgroundColor:barColors,borderRadius:8,borderSkipped:false,maxBarThickness:56}]
       },
-      options:{responsive:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>' '+brl(ctx.parsed.y,0)}}},scales:{
-        x:{grid:{display:false},ticks:{font:{size:11}}},
-        y:{grid:{color:'rgba(0,0,0,.04)'},border:{dash:[4,4]},ticks:{font:{size:11},callback:v=>v>=1e6?(v/1e6).toFixed(1)+'M':v>=1e3?Math.round(v/1e3)+'k':v}}
-      }}
+      options:{
+        indexAxis:'y',
+        responsive:true,
+        maintainAspectRatio:false,
+        plugins:{
+          legend:{display:false},
+          tooltip:{callbacks:{label:ctx=>' '+brl(ctx.parsed.x,0)}}
+        },
+        scales:{
+          x:{grid:{color:'rgba(0,0,0,.04)'},border:{display:false},ticks:{font:{size:11},callback:v=>v>=1e6?(v/1e6).toFixed(1)+'M':v>=1e3?Math.round(v/1e3)+'k':v}},
+          y:{grid:{display:false},border:{display:false},ticks:{font:{size:12,weight:'600'},color:'#374151'}}
+        }
+      }
     })}
   },80);
 }
