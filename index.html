@@ -3810,8 +3810,8 @@ function renderProjDash(name){
   });
   const totCr=en.reduce((s,r)=>s+(r.credito||0),0);
   const totParc=en.reduce((s,r)=>s+(r.parcela||0),0);
-  const totPago=en.reduce((s,r)=>s+r.estimPago,0);
-  const totSaldo=en.reduce((s,r)=>s+r.estimSaldo,0);
+  const totSdDB=en.reduce((s,r)=>s+(r.saldo_devedor||0),0);
+  const credLib=en.filter(r=>isC(r.status)).reduce((s,r)=>s+(r.carta_atualizada||r.credito||0),0);
   const nC=en.filter(r=>isC(r.status)).length; const crC=en.filter(r=>isC(r.status)).reduce((s,r)=>s+(r.credito||0),0);
   const nS=en.filter(r=>isS(r.status)).length; const crS=en.filter(r=>isS(r.status)).reduce((s,r)=>s+(r.credito||0),0);
   const nL=en.filter(r=>isL(r.status)).length; const crL=en.filter(r=>isL(r.status)).reduce((s,r)=>s+(r.credito||0),0);
@@ -3855,9 +3855,9 @@ function renderProjDash(name){
     </div>
     <div class="pd-kpi-grid">
       <div class="pd-kpi c-navy"><div class="pd-kpi-ico">💎</div><div class="pd-kpi-lbl">Crédito Total</div><div class="pd-kpi-val">${fb(totCr)}</div><div class="pd-kpi-sub">${en.length} cotas ativas</div></div>
-      <div class="pd-kpi c-teal"><div class="pd-kpi-ico">✅</div><div class="pd-kpi-lbl">Total Est. Pago</div><div class="pd-kpi-val">${fb(totPago)}</div><div class="pd-kpi-sub"><b>${pctAm}%</b> do período total</div></div>
-      <div class="pd-kpi c-gold"><div class="pd-kpi-ico">⚖️</div><div class="pd-kpi-lbl">Saldo Est. Restante</div><div class="pd-kpi-val">${fb(totSaldo)}</div><div class="pd-kpi-sub">parcelas a vencer</div></div>
-      <div class="pd-kpi c-green"><div class="pd-kpi-ico">🏆</div><div class="pd-kpi-lbl">Contempladas</div><div class="pd-kpi-val">${nC} / ${en.length}</div><div class="pd-kpi-sub"><b>${fb(crC)}</b> liberados</div></div>
+      <div class="pd-kpi c-teal"><div class="pd-kpi-ico">🔓</div><div class="pd-kpi-lbl">Crédito Liberado</div><div class="pd-kpi-val">${fb(credLib)}</div><div class="pd-kpi-sub">carta atualizada das contempladas</div></div>
+      <div class="pd-kpi c-gold"><div class="pd-kpi-ico">⚖️</div><div class="pd-kpi-lbl">Saldo Devedor</div><div class="pd-kpi-val">${fb(totSdDB)}</div><div class="pd-kpi-sub">saldo real do banco</div></div>
+      <div class="pd-kpi c-green"><div class="pd-kpi-ico">🏆</div><div class="pd-kpi-lbl">Contempladas</div><div class="pd-kpi-val">${nC} / ${en.length}</div><div class="pd-kpi-sub"><b>${fb(credLib)}</b> liberado</div></div>
       <div class="pd-kpi c-warn"><div class="pd-kpi-ico">💰</div><div class="pd-kpi-lbl">Parcela Mensal</div><div class="pd-kpi-val">${fb(totParc)}</div><div class="pd-kpi-sub">soma de todas as cotas</div></div>
       <div class="pd-kpi c-info"><div class="pd-kpi-ico">⚡</div><div class="pd-kpi-lbl">Lance / Suplência</div><div class="pd-kpi-val">${nL+nSp}</div><div class="pd-kpi-sub">cotas em disputa ativa</div></div>
     </div>
