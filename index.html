@@ -275,36 +275,42 @@ tr:hover td{background:#f0f7f6}
 .pd-tab{padding:7px 16px;border-radius:7px;font-size:12.5px;font-weight:600;cursor:pointer;border:none;background:transparent;color:var(--txt2);transition:all .18s;font-family:'Inter',sans-serif}
 .pd-tab.act{background:var(--card);color:var(--txt);box-shadow:0 1px 4px rgba(0,0,0,.08)}
 .pd-tab:hover:not(.act){color:var(--txt)}
-.pd-kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
-.pd-kpi{background:var(--card2);border-radius:10px;padding:16px 18px;border-bottom:3px solid var(--bdr);position:relative;overflow:hidden}
-.pd-kpi.c-navy{border-bottom-color:var(--sb)}.pd-kpi.c-teal{border-bottom-color:var(--sb2)}.pd-kpi.c-gold{border-bottom-color:var(--acc)}.pd-kpi.c-green{border-bottom-color:var(--ok)}.pd-kpi.c-warn{border-bottom-color:var(--warn)}.pd-kpi.c-info{border-bottom-color:var(--info)}
-.pd-kpi-lbl{font-size:10px;color:var(--txt2);font-weight:700;text-transform:uppercase;letter-spacing:.8px}
-.pd-kpi-val{font-family:'Playfair Display',serif;font-size:22px;font-weight:800;color:var(--txt);line-height:1.1;margin:6px 0 3px}
-.pd-kpi-sub{font-size:11px;color:var(--txt2)}.pd-kpi-sub b{color:var(--txt);font-weight:600}
-.pd-kpi-ico{position:absolute;top:12px;right:12px;font-size:20px;opacity:.1}
-.pd-chart-row{display:grid;grid-template-columns:260px 1fr;gap:12px;margin-bottom:16px}
-.pd-chart-card{background:var(--card2);border-radius:10px;padding:18px;border:1px solid var(--bdr)}
-.pd-chart-card h4{font-size:12.5px;font-weight:700;margin-bottom:3px}
-.pd-chart-card p{font-size:11px;color:var(--txt2);margin-bottom:14px}
-.pd-donut-wrap{position:relative;max-width:180px;margin:0 auto 12px}
-.pd-donut-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none}
-.pd-dc-val{font-family:'Playfair Display',serif;font-size:17px;font-weight:800;color:var(--txt);line-height:1}
-.pd-dc-lbl{font-size:9px;color:var(--txt2);margin-top:2px}
-.pd-leg{display:flex;flex-direction:column;gap:6px}
-.pd-leg-item{display:flex;align-items:center;gap:6px;font-size:11.5px}
-.pd-leg-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0}
-.pd-leg-v{margin-left:auto;font-weight:700;font-size:12px}
-.pd-st-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
-.pd-st-card{background:var(--card2);border-radius:10px;padding:14px 16px;border:1px solid var(--bdr);display:flex;align-items:center;gap:12px}
-.pd-st-icon{width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
-.pd-st-count{font-family:'Playfair Display',serif;font-size:22px;font-weight:800;line-height:1}
-.pd-st-lbl{font-size:10px;color:var(--txt2);font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-bottom:2px}
-.pd-st-cr{font-size:10.5px;color:var(--txt2);margin-top:3px}
-.pd-prog{width:80px;height:5px;background:#e5e7eb;border-radius:4px;overflow:hidden;margin-top:3px}
-.pd-prog-fill{height:100%;border-radius:4px}
 .pd-print-btn{background:var(--sb2);color:#fff;border:none;border-radius:7px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:5px;font-family:'Inter',sans-serif;transition:background .18s;margin-left:auto}
 .pd-print-btn:hover{background:var(--sb3)}
-@media(max-width:700px){.pd-kpi-grid{grid-template-columns:1fr 1fr}.pd-chart-row{grid-template-columns:1fr}.pd-st-grid{grid-template-columns:1fr 1fr}}
+/* KPI Grid */
+.pd-kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.pd-kpi{background:#fff;border-radius:12px;padding:18px 20px 16px;border:1px solid var(--bdr);border-left:4px solid var(--bdr);position:relative;transition:box-shadow .18s}
+.pd-kpi:hover{box-shadow:0 4px 16px rgba(0,0,0,.07)}
+.pd-kpi.c-navy{border-left-color:var(--sb)}.pd-kpi.c-teal{border-left-color:var(--sb2)}.pd-kpi.c-gold{border-left-color:#D6AF5C}.pd-kpi.c-green{border-left-color:var(--ok)}.pd-kpi.c-warn{border-left-color:var(--warn)}.pd-kpi.c-info{border-left-color:var(--info)}
+.pd-kpi-ico{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;position:absolute;top:16px;right:16px}
+.pd-kpi.c-navy .pd-kpi-ico{background:#e8edf5}.pd-kpi.c-teal .pd-kpi-ico{background:#e0f0ef}.pd-kpi.c-gold .pd-kpi-ico{background:#fdf5e4}.pd-kpi.c-green .pd-kpi-ico{background:#e6f9f0}.pd-kpi.c-warn .pd-kpi-ico{background:#fef4e4}.pd-kpi.c-info .pd-kpi-ico{background:#e5f0fb}
+.pd-kpi-lbl{font-size:10.5px;color:var(--txt2);font-weight:700;text-transform:uppercase;letter-spacing:.7px;margin-bottom:8px}
+.pd-kpi-val{font-family:'Raleway',sans-serif;font-size:26px;font-weight:800;color:var(--txt);line-height:1;margin-bottom:6px;letter-spacing:-.5px}
+.pd-kpi-sub{font-size:11.5px;color:var(--txt2);line-height:1.4}.pd-kpi-sub b{color:var(--txt);font-weight:600}
+/* Status strip */
+.pd-st-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.pd-st-card{background:#fff;border-radius:12px;padding:16px 18px;border:1px solid var(--bdr);text-align:center}
+.pd-st-count{font-family:'Raleway',sans-serif;font-size:32px;font-weight:800;line-height:1;color:var(--txt)}
+.pd-st-lbl{font-size:11px;color:var(--txt2);font-weight:600;margin:4px 0 2px}
+.pd-st-cr{font-size:12px;font-weight:700;color:var(--sb2)}
+.pd-st-bar{height:3px;border-radius:2px;margin-top:10px;background:var(--bdr)}
+/* Charts */
+.pd-chart-row{display:grid;grid-template-columns:280px 1fr;gap:12px;margin-bottom:14px}
+.pd-chart-card{background:#fff;border-radius:12px;padding:20px;border:1px solid var(--bdr)}
+.pd-chart-card h4{font-size:13px;font-weight:700;color:var(--txt);margin-bottom:3px}
+.pd-chart-card p{font-size:11.5px;color:var(--txt2);margin-bottom:16px}
+.pd-donut-wrap{position:relative;max-width:170px;margin:0 auto 16px}
+.pd-donut-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none}
+.pd-dc-val{font-family:'Raleway',sans-serif;font-size:20px;font-weight:800;color:var(--txt);line-height:1}
+.pd-dc-lbl{font-size:10px;color:var(--txt2);margin-top:3px;font-weight:600;text-transform:uppercase;letter-spacing:.4px}
+.pd-leg{display:flex;flex-direction:column;gap:8px}
+.pd-leg-item{display:flex;align-items:center;gap:8px;font-size:12px}
+.pd-leg-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+.pd-leg-v{margin-left:auto;font-weight:700;font-size:12.5px;color:var(--txt)}
+/* Progress bar in table */
+.pd-prog{width:90px;height:6px;background:#e5e7eb;border-radius:4px;overflow:hidden;margin-top:4px}
+.pd-prog-fill{height:100%;border-radius:4px;transition:width .3s}
+@media(max-width:700px){.pd-kpi-grid{grid-template-columns:1fr 1fr}.pd-chart-row{grid-template-columns:1fr}.pd-st-grid{grid-template-columns:1fr}}
 
 /* ── RESPONSIVE ─────────────────────────────── */
 @media (max-width:960px){
@@ -3849,24 +3855,33 @@ function renderProjDash(name){
     <button class="pd-print-btn" onclick="window.print()">🖨 Imprimir</button>
   </div>
   <div style="background:var(--card);border-radius:0 14px 14px 14px;border:1px solid var(--bdr);padding:20px">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px">
-      <div>
-        <div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:800;color:var(--sb)">👤 ${name}</div>
-        <div style="font-size:12px;color:var(--txt2);margin-top:2px">Assessor: ${cotas[0]?.assessor||'—'} &nbsp;·&nbsp; ${en.length} cotas ativas &nbsp;·&nbsp; Posição em ${new Date().toLocaleDateString('pt-BR',{month:'long',year:'numeric'})}</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px;padding-bottom:18px;border-bottom:1px solid var(--bdr)">
+      <div style="display:flex;align-items:center;gap:14px">
+        <div style="width:46px;height:46px;border-radius:50%;background:var(--sb);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:#fff;font-family:'Raleway',sans-serif;flex-shrink:0">${name.charAt(0).toUpperCase()}</div>
+        <div>
+          <div style="font-family:'Raleway',sans-serif;font-size:18px;font-weight:800;color:var(--sb);letter-spacing:-.3px">${name}</div>
+          <div style="font-size:12px;color:var(--txt2);margin-top:2px;display:flex;gap:10px;flex-wrap:wrap">
+            <span>Assessor: <b style="color:var(--txt)">${cotas[0]?.assessor||'—'}</b></span>
+            <span style="color:var(--bdr)">|</span>
+            <span>${en.length} cotas ativas</span>
+            <span style="color:var(--bdr)">|</span>
+            <span>Posição: <b style="color:var(--txt)">${new Date().toLocaleDateString('pt-BR',{month:'long',year:'numeric'})}</b></span>
+          </div>
+        </div>
       </div>
     </div>
     <div class="pd-kpi-grid">
-      <div class="pd-kpi c-navy"><div class="pd-kpi-ico">💎</div><div class="pd-kpi-lbl">Crédito Total</div><div class="pd-kpi-val">${fb(totCr)}</div><div class="pd-kpi-sub">${en.length} cotas · ${nC} contempladas</div></div>
-      <div class="pd-kpi c-teal"><div class="pd-kpi-ico">🔓</div><div class="pd-kpi-lbl">Crédito Liberado</div><div class="pd-kpi-val">${fb(credLib)}</div><div class="pd-kpi-sub">carta atualizada · ${nC} cotas</div></div>
+      <div class="pd-kpi c-navy"><div class="pd-kpi-ico">💎</div><div class="pd-kpi-lbl">Crédito Total</div><div class="pd-kpi-val">${fb(totCr)}</div><div class="pd-kpi-sub">${en.length} cotas &nbsp;·&nbsp; ${nC} contempladas</div></div>
+      <div class="pd-kpi c-teal"><div class="pd-kpi-ico">🔓</div><div class="pd-kpi-lbl">Crédito Liberado</div><div class="pd-kpi-val">${fb(credLib)}</div><div class="pd-kpi-sub">carta atualizada das contempladas</div></div>
       <div class="pd-kpi c-gold"><div class="pd-kpi-ico">⚖️</div><div class="pd-kpi-lbl">Saldo Devedor</div><div class="pd-kpi-val">${fb(totSdDB)}</div><div class="pd-kpi-sub">saldo real consolidado</div></div>
-      <div class="pd-kpi c-warn"><div class="pd-kpi-ico">💰</div><div class="pd-kpi-lbl">Parcela Mensal</div><div class="pd-kpi-val">${fb(totParc)}</div><div class="pd-kpi-sub">soma de todas as cotas</div></div>
-      <div class="pd-kpi c-green"><div class="pd-kpi-ico">🏦</div><div class="pd-kpi-lbl">Valor Pago (Lances)</div><div class="pd-kpi-val">${fb(totLancePago)}</div><div class="pd-kpi-sub">total de lances pagos</div></div>
-      <div class="pd-kpi c-info"><div class="pd-kpi-ico">📅</div><div class="pd-kpi-lbl">Prazo Restante</div><div class="pd-kpi-val">${avgPrazoRest}m</div><div class="pd-kpi-sub">média das cotas ativas · ${(avgPrazoRest/12).toFixed(1)} anos</div></div>
+      <div class="pd-kpi c-warn"><div class="pd-kpi-ico">💳</div><div class="pd-kpi-lbl">Parcela Mensal</div><div class="pd-kpi-val">${fb(totParc)}</div><div class="pd-kpi-sub">soma de todas as cotas</div></div>
+      <div class="pd-kpi c-green"><div class="pd-kpi-ico">🏦</div><div class="pd-kpi-lbl">Valor Pago · Lances</div><div class="pd-kpi-val">${fb(totLancePago)}</div><div class="pd-kpi-sub">total de lances pagos</div></div>
+      <div class="pd-kpi c-info"><div class="pd-kpi-ico">📅</div><div class="pd-kpi-lbl">Prazo Restante</div><div class="pd-kpi-val">${avgPrazoRest}<span style="font-size:14px;font-weight:600;color:var(--txt2)"> m</span></div><div class="pd-kpi-sub">média das ativas &nbsp;·&nbsp; ${(avgPrazoRest/12).toFixed(1)} anos</div></div>
     </div>
     <div class="pd-st-grid">
-      <div class="pd-st-card"><div class="pd-st-icon" style="background:#d1fae5">🏆</div><div><div class="pd-st-lbl">Contempladas</div><div class="pd-st-count">${nC}<small style="font-size:12px;font-weight:500;font-family:Inter,sans-serif"> cotas</small></div><div class="pd-st-cr">${fb(credLib)}</div></div></div>
-      <div class="pd-st-card"><div class="pd-st-icon" style="background:#fef3c7">⏳</div><div><div class="pd-st-lbl">Em Andamento</div><div class="pd-st-count">${nAtivo}<small style="font-size:12px;font-weight:500;font-family:Inter,sans-serif"> cotas</small></div><div class="pd-st-cr">${fb(crAtivo)}</div></div></div>
-      <div class="pd-st-card"><div class="pd-st-icon" style="background:#ede9fe">⏳</div><div><div class="pd-st-lbl">Suplência</div><div class="pd-st-count">${nSp}<small style="font-size:12px;font-weight:500;font-family:Inter,sans-serif"> cotas</small></div><div class="pd-st-cr">${fb(crSp)}</div></div></div>
+      <div class="pd-st-card"><div class="pd-st-count" style="color:#059669">${nC}</div><div class="pd-st-lbl">Contempladas</div><div class="pd-st-cr">${fb(credLib)}</div><div class="pd-st-bar" style="background:#d1fae5"><div style="height:100%;width:${totCr>0?Math.round(crC/totCr*100):0}%;background:#059669;border-radius:2px"></div></div></div>
+      <div class="pd-st-card"><div class="pd-st-count" style="color:#d97706">${nAtivo}</div><div class="pd-st-lbl">Em Andamento</div><div class="pd-st-cr">${fb(crAtivo)}</div><div class="pd-st-bar" style="background:#fef3c7"><div style="height:100%;width:${totCr>0?Math.round(crAtivo/totCr*100):0}%;background:#d97706;border-radius:2px"></div></div></div>
+      <div class="pd-st-card"><div class="pd-st-count" style="color:#7c3aed">${nSp}</div><div class="pd-st-lbl">Suplência</div><div class="pd-st-cr">${nSp>0?fb(crSp):'—'}</div><div class="pd-st-bar" style="background:#ede9fe"><div style="height:100%;width:${totCr>0?Math.round(crSp/totCr*100):0}%;background:#7c3aed;border-radius:2px"></div></div></div>
     </div>
     <div class="pd-chart-row">
       <div class="pd-chart-card">
