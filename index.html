@@ -3812,11 +3812,13 @@ function renderProjDash(name){
   const totParc=en.reduce((s,r)=>s+(r.parcela||0),0);
   const totSdDB=en.reduce((s,r)=>s+(r.saldo_devedor||0),0);
   const credLib=en.filter(r=>isC(r.status)).reduce((s,r)=>s+(r.carta_atualizada||r.credito||0),0);
+  const totLancePago=en.reduce((s,r)=>s+(r.lance_total||0),0);
+  const ativosRest=en.filter(r=>!isC(r.status)&&(r.prazo_restante||0)>0);
+  const avgPrazoRest=ativosRest.length?Math.round(ativosRest.reduce((s,r)=>s+(r.prazo_restante||0),0)/ativosRest.length):0;
   const nC=en.filter(r=>isC(r.status)).length; const crC=en.filter(r=>isC(r.status)).reduce((s,r)=>s+(r.credito||0),0);
-  const nS=en.filter(r=>isS(r.status)).length; const crS=en.filter(r=>isS(r.status)).reduce((s,r)=>s+(r.credito||0),0);
-  const nL=en.filter(r=>isL(r.status)).length; const crL=en.filter(r=>isL(r.status)).reduce((s,r)=>s+(r.credito||0),0);
+  const nAtivo=en.filter(r=>!isC(r.status)&&!isSup(r.status)).length; const crAtivo=en.filter(r=>!isC(r.status)&&!isSup(r.status)).reduce((s,r)=>s+(r.credito||0),0);
   const nSp=en.filter(r=>isSup(r.status)).length; const crSp=en.filter(r=>isSup(r.status)).reduce((s,r)=>s+(r.credito||0),0);
-  const pctAm=totPago+totSaldo>0?Math.round(totPago/(totPago+totSaldo)*100):0;
+  const pctContemp=totCr>0?Math.round(crC/totCr*100):0;
   function fb(v){return v>=1e6?'R$ '+(v/1e6).toFixed(2).replace('.',',')+'M':brl(v,0)}
   function ff(v){return brl(v,0)}
   const stOrd={Contemplado:0,CONTEMPLADO:0,'Em Andamento':1,LANCE:1,'SORTEIO / LANCE':2,Sorteio:2,'SUPLENCIA - 2 NA FRENTE':3};
@@ -3854,30 +3856,30 @@ function renderProjDash(name){
       </div>
     </div>
     <div class="pd-kpi-grid">
-      <div class="pd-kpi c-navy"><div class="pd-kpi-ico">💎</div><div class="pd-kpi-lbl">Crédito Total</div><div class="pd-kpi-val">${fb(totCr)}</div><div class="pd-kpi-sub">${en.length} cotas ativas</div></div>
-      <div class="pd-kpi c-teal"><div class="pd-kpi-ico">🔓</div><div class="pd-kpi-lbl">Crédito Liberado</div><div class="pd-kpi-val">${fb(credLib)}</div><div class="pd-kpi-sub">carta atualizada das contempladas</div></div>
-      <div class="pd-kpi c-gold"><div class="pd-kpi-ico">⚖️</div><div class="pd-kpi-lbl">Saldo Devedor</div><div class="pd-kpi-val">${fb(totSdDB)}</div><div class="pd-kpi-sub">saldo real do banco</div></div>
-      <div class="pd-kpi c-green"><div class="pd-kpi-ico">🏆</div><div class="pd-kpi-lbl">Contempladas</div><div class="pd-kpi-val">${nC} / ${en.length}</div><div class="pd-kpi-sub"><b>${fb(credLib)}</b> liberado</div></div>
+      <div class="pd-kpi c-navy"><div class="pd-kpi-ico">💎</div><div class="pd-kpi-lbl">Crédito Total</div><div class="pd-kpi-val">${fb(totCr)}</div><div class="pd-kpi-sub">${en.length} cotas · ${nC} contempladas</div></div>
+      <div class="pd-kpi c-teal"><div class="pd-kpi-ico">🔓</div><div class="pd-kpi-lbl">Crédito Liberado</div><div class="pd-kpi-val">${fb(credLib)}</div><div class="pd-kpi-sub">carta atualizada · ${nC} cotas</div></div>
+      <div class="pd-kpi c-gold"><div class="pd-kpi-ico">⚖️</div><div class="pd-kpi-lbl">Saldo Devedor</div><div class="pd-kpi-val">${fb(totSdDB)}</div><div class="pd-kpi-sub">saldo real consolidado</div></div>
       <div class="pd-kpi c-warn"><div class="pd-kpi-ico">💰</div><div class="pd-kpi-lbl">Parcela Mensal</div><div class="pd-kpi-val">${fb(totParc)}</div><div class="pd-kpi-sub">soma de todas as cotas</div></div>
-      <div class="pd-kpi c-info"><div class="pd-kpi-ico">⚡</div><div class="pd-kpi-lbl">Lance / Suplência</div><div class="pd-kpi-val">${nL+nSp}</div><div class="pd-kpi-sub">cotas em disputa ativa</div></div>
+      <div class="pd-kpi c-green"><div class="pd-kpi-ico">🏦</div><div class="pd-kpi-lbl">Valor Pago (Lances)</div><div class="pd-kpi-val">${fb(totLancePago)}</div><div class="pd-kpi-sub">total de lances pagos</div></div>
+      <div class="pd-kpi c-info"><div class="pd-kpi-ico">📅</div><div class="pd-kpi-lbl">Prazo Restante</div><div class="pd-kpi-val">${avgPrazoRest}m</div><div class="pd-kpi-sub">média das cotas ativas · ${(avgPrazoRest/12).toFixed(1)} anos</div></div>
     </div>
     <div class="pd-st-grid">
-      <div class="pd-st-card"><div class="pd-st-icon" style="background:#d1fae5">🏆</div><div><div class="pd-st-lbl">Contempladas</div><div class="pd-st-count">${nC}<small style="font-size:12px;font-weight:500;font-family:Inter,sans-serif"> cotas</small></div><div class="pd-st-cr">${fb(crC)}</div></div></div>
-      <div class="pd-st-card"><div class="pd-st-icon" style="background:#dbeafe">🎲</div><div><div class="pd-st-lbl">Em Sorteio</div><div class="pd-st-count">${nS}<small style="font-size:12px;font-weight:500;font-family:Inter,sans-serif"> cotas</small></div><div class="pd-st-cr">${fb(crS)}</div></div></div>
-      <div class="pd-st-card"><div class="pd-st-icon" style="background:#fef3c7">⚡</div><div><div class="pd-st-lbl">Lance Ativo</div><div class="pd-st-count">${nL}<small style="font-size:12px;font-weight:500;font-family:Inter,sans-serif"> cotas</small></div><div class="pd-st-cr">${fb(crL)}</div></div></div>
+      <div class="pd-st-card"><div class="pd-st-icon" style="background:#d1fae5">🏆</div><div><div class="pd-st-lbl">Contempladas</div><div class="pd-st-count">${nC}<small style="font-size:12px;font-weight:500;font-family:Inter,sans-serif"> cotas</small></div><div class="pd-st-cr">${fb(credLib)}</div></div></div>
+      <div class="pd-st-card"><div class="pd-st-icon" style="background:#fef3c7">⏳</div><div><div class="pd-st-lbl">Em Andamento</div><div class="pd-st-count">${nAtivo}<small style="font-size:12px;font-weight:500;font-family:Inter,sans-serif"> cotas</small></div><div class="pd-st-cr">${fb(crAtivo)}</div></div></div>
       <div class="pd-st-card"><div class="pd-st-icon" style="background:#ede9fe">⏳</div><div><div class="pd-st-lbl">Suplência</div><div class="pd-st-count">${nSp}<small style="font-size:12px;font-weight:500;font-family:Inter,sans-serif"> cotas</small></div><div class="pd-st-cr">${fb(crSp)}</div></div></div>
     </div>
     <div class="pd-chart-row">
       <div class="pd-chart-card">
-        <h4>Composição Financeira</h4>
-        <p>Estimativa baseada na data de adesão e parcela</p>
+        <h4>Composição do Crédito</h4>
+        <p>Contemplado vs Em Andamento pelo valor de crédito</p>
         <div class="pd-donut-wrap">
           <canvas id="pd-donut" height="180"></canvas>
-          <div class="pd-donut-center"><div class="pd-dc-val">${pctAm}%</div><div class="pd-dc-lbl">amortizado</div></div>
+          <div class="pd-donut-center"><div class="pd-dc-val">${pctContemp}%</div><div class="pd-dc-lbl">contemplado</div></div>
         </div>
         <div class="pd-leg">
-          <div class="pd-leg-item"><div class="pd-leg-dot" style="background:#226866"></div><span style="color:var(--txt2);flex:1">Já Pago (est.)</span><span class="pd-leg-v">${fb(totPago)}</span></div>
-          <div class="pd-leg-item"><div class="pd-leg-dot" style="background:#dde3ed"></div><span style="color:var(--txt2);flex:1">Saldo Rest. (est.)</span><span class="pd-leg-v">${fb(totSaldo)}</span></div>
+          <div class="pd-leg-item"><div class="pd-leg-dot" style="background:#226866"></div><span style="color:var(--txt2);flex:1">Contemplado</span><span class="pd-leg-v">${fb(crC)}</span></div>
+          <div class="pd-leg-item"><div class="pd-leg-dot" style="background:#D6AF5C"></div><span style="color:var(--txt2);flex:1">Em Andamento</span><span class="pd-leg-v">${fb(crAtivo)}</span></div>
+          ${nSp>0?`<div class="pd-leg-item"><div class="pd-leg-dot" style="background:#8b5cf6"></div><span style="color:var(--txt2);flex:1">Suplência</span><span class="pd-leg-v">${fb(crSp)}</span></div>`:''}
         </div>
       </div>
       <div class="pd-chart-card">
@@ -3901,23 +3903,26 @@ function renderProjDash(name){
       <tbody>${rows}</tbody>
     </table></div>
     <div style="font-size:10.5px;color:var(--txt2);margin-top:12px;padding:10px 14px;background:var(--card2);border-radius:8px;border:1px solid var(--bdr)">
-      ℹ️ <b>Estimativas</b> calculadas com base na data de adesão e parcela atual. Prazo do grupo extraído do GUIA Itaú. Para dados oficiais, consulte os extratos da administradora.
+      ℹ️ Saldo Devedor e Crédito Liberado refletem os valores registrados no sistema. Prazo Restante: média das cotas ativas com prazo preenchido.
     </div>
   </div>
   </div>`;
   setTimeout(()=>{
     const dc=document.getElementById('pd-donut');
-    if(dc&&totPago+totSaldo>0){pdCharts.donut=new Chart(dc.getContext('2d'),{
+    if(dc&&totCr>0){pdCharts.donut=new Chart(dc.getContext('2d'),{
       type:'doughnut',
-      data:{labels:['Já Pago (est.)','Saldo Restante (est.)'],datasets:[{data:[totPago,totSaldo],backgroundColor:['#226866','#dde3ed'],borderColor:['#fff','#fff'],borderWidth:3,hoverOffset:4}]},
+      data:{labels:['Contemplado','Em Andamento',...(nSp>0?['Suplência']:[])],datasets:[{data:[crC,crAtivo,...(nSp>0?[crSp]:[])],backgroundColor:['#226866','#D6AF5C',...(nSp>0?['#8b5cf6']:[])],borderColor:['#fff','#fff','#fff'],borderWidth:3,hoverOffset:4}]},
       options:{responsive:true,cutout:'68%',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>' '+ff(ctx.parsed)}}}}
     })}
     const sb=document.getElementById('pd-status-bar');
+    const barLabels=[...( crC>0?['Contemplado']:[]),...(crAtivo>0?['Em Andamento']:[]),...(crSp>0?['Suplência']:[])];
+    const barData=[...(crC>0?[crC]:[]),...(crAtivo>0?[crAtivo]:[]),...(crSp>0?[crSp]:[])];
+    const barColors=[...(crC>0?['#226866']:[]),...(crAtivo>0?['#D6AF5C']:[]),...(crSp>0?['#8b5cf6']:[])];
     if(sb){pdCharts.bar=new Chart(sb.getContext('2d'),{
       type:'bar',
       data:{
-        labels:['Contemplado','Sorteio','Lance/Andamento','Suplência'],
-        datasets:[{label:'Crédito',data:[crC,crS,crL,crSp],backgroundColor:['#226866','#3b82f6','#D6AF5C','#8b5cf6'],borderRadius:6,borderSkipped:false}]
+        labels:barLabels,
+        datasets:[{label:'Crédito',data:barData,backgroundColor:barColors,borderRadius:6,borderSkipped:false}]
       },
       options:{responsive:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>' '+brl(ctx.parsed.y,0)}}},scales:{
         x:{grid:{display:false},ticks:{font:{size:11}}},
