@@ -2140,6 +2140,30 @@ function taxaCdiAtual(){
   for(const t of ord){if(new Date(t.data_inicio+'T00:00:00')<=hoje)atual=t;else break;}
   return atual;
 }
+// Próxima assembleia FUTURA do grupo: pega g.asm e avança de mês em mês até virar uma data futura
+function calcProxAgo(grupo){
+  const g=GUIA[grupo]||GUIA[String(grupo)]||{};
+  if(!g.asm)return null;
+  const hoje=new Date();hoje.setHours(0,0,0,0);
+  const d=new Date(g.asm+'T00:00:00');
+  let guard=0;
+  while(d<hoje&&guard<60){d.setMonth(d.getMonth()+1);guard++;}
+  return d.toISOString().slice(0,10);
+}
+function fmtDataBr(iso){
+  if(!iso)return '—';
+  return new Date(iso+'T00:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'});
+}
+// Toggle: marca/desmarca lance ofertado. Salva imediatamente no banco.
+async function toggleLanceOfertado(id){
+  const r=COTAS.find(c=>String(c.id)===String(id));if(!r)return;
+  const novoVal=r.data_assembleia?null:calcProxAgo(r.grupo);
+  if(!novoVal&&!r.data_assembleia){toast('Grupo sem assembleia cadastrada','err');return;}
+  showLoad();
+  const res=await upsertCota({id,data_assembleia:novoVal});
+  hideLoad();
+  if(res){r.data_assembleia=novoVal;toast(novoVal?`Lance marcado como ofertado em ${fmtDataBr(novoVal)}`:'Marcação removida');renderProjDetail(selProj);}
+}
 function openModalTaxasCdi(){
   renderTaxasCdi();
   document.getElementById('modal-taxas-cdi').classList.add('open');
@@ -4048,8 +4072,8 @@ function renderProjDetail(name){
         </select>
       </td>
       <td><input class="form-i" style="padding:3px 6px;font-size:12px;width:70px" id="pl1-${r.id}" type="number" step="0.1" min="0" max="100" value="${r.lance1?+(r.lance1*100).toFixed(1):''}" placeholder="%" oninput="projMarkDirty('${r.id}')"></td>
-      <td style="font-size:11.5px;color:var(--txt2);text-align:center;white-space:nowrap">${(()=>{const g=GUIA[r.grupo]||GUIA[String(r.grupo)]||{};return g.asm?new Date(g.asm+'T00:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'}):'—';})()}</td>
-      <td><input class="form-i" style="padding:3px 6px;font-size:12px;width:130px" id="pasm-${r.id}" type="date" value="${r.data_assembleia||''}" oninput="projMarkDirty('${r.id}')" title="Assembleia em que vou ofertar"></td>
+      <td style="font-size:11.5px;text-align:center;white-space:nowrap;font-weight:600;color:var(--sb)">${fmtDataBr(calcProxAgo(r.grupo))}</td>
+      <td style="text-align:center">${r.data_assembleia?`<button class="btn btn-sm" onclick="toggleLanceOfertado('${r.id}')" style="background:#d1fae5;color:#065f46;border:1px solid #10b981;padding:3px 10px;font-size:11px;font-weight:600" title="Lance ofertado em ${fmtDataBr(r.data_assembleia)} — clique para desmarcar">✓ ${fmtDataBr(r.data_assembleia)}</button>`:`<button class="btn btn-sm" onclick="toggleLanceOfertado('${r.id}')" style="background:#fef3c7;color:#92400e;border:1px solid #d97706;padding:3px 10px;font-size:11px;font-weight:600" title="Marcar como ofertado na próxima AGO">✗ Marcar</button>`}</td>
       <td style="white-space:nowrap;text-align:center">
         <button id="psave-${r.id}" class="btn btn-ok btn-sm" style="display:none" onclick="projSaveRow('${r.id}')" title="Salvar">💾</button>
         ${!isCan?`<button class="btn btn-out btn-sm" onclick="openModalContemp('${r.id}')" title="Registrar contemplação">✓</button> `:''}
@@ -4086,7 +4110,7 @@ function renderProjDetail(name){
       ${FILTROS.map(f=>`<button onclick="projFiltro='${f.k}';renderProjDetail('${name}')" style="padding:5px 12px;border-radius:20px;border:2px solid ${projFiltro===f.k?'var(--acc)':'var(--bdr)'};background:${projFiltro===f.k?'var(--acc)':'#fff'};color:${projFiltro===f.k?'#fff':'var(--txt)'};font-size:12px;font-weight:600;cursor:pointer">${f.label} ${f.n>0?`<span style="opacity:.7">(${f.n})</span>`:''}</button>`).join('')}
     </div>
     <div style="padding:8px 18px;border-bottom:1px solid var(--bdr);display:flex;justify-content:space-between;align-items:center;background:#fefbf3;flex-wrap:wrap;gap:8px">
-      <span style="font-size:11px;color:var(--txt2)">Use esta aba para planejar suas ofertas mensais. Preencha Lance %, Status e a Data da Assembleia em que vai ofertar — depois <b>💾 Salvar todas</b>.</span>
+      <span style="font-size:11px;color:var(--txt2)">Use esta aba para planejar suas ofertas mensais. Preencha <b>Lance %</b> e <b>Status</b> e marque o lance como <b>✓ Ofertado</b> assim que efetivar no banco. A coluna Próx. AGO é calculada automaticamente.</span>
       <button class="btn btn-pri btn-sm" onclick="projSaveAllDirty('${name}')" style="white-space:nowrap">💾 Salvar todas</button>
     </div>
     <div class="tw"><table>
@@ -4097,8 +4121,8 @@ function renderProjDetail(name){
         <th onclick="sortProjDetail('parcela')" style="cursor:pointer">Parcela <span id="pdsort-parcela" class="sort-ico">⇅</span></th>
         <th onclick="sortProjDetail('status')" style="cursor:pointer">Status <span id="pdsort-status" class="sort-ico">⇅</span></th>
         <th onclick="sortProjDetail('lance1')" style="cursor:pointer">Lance % <span id="pdsort-lance1" class="sort-ico">⇅</span></th>
-        <th style="text-align:center">Próx. AGO<br><small style="font-weight:400;font-size:9.5px;color:var(--txt2)">do grupo</small></th>
-        <th style="text-align:center">Vou Ofertar Em</th>
+        <th style="text-align:center">Próx. AGO<br><small style="font-weight:400;font-size:9.5px;color:var(--txt2)">calculada</small></th>
+        <th style="text-align:center">Lance Ofertado?</th>
         <th style="text-align:center">Ações</th>
       </tr></thead>
       <tbody>${rows}</tbody>
@@ -4400,8 +4424,8 @@ async function projSaveAllDirty(name){
     const r=COTAS.find(c=>String(c.id)===String(id));if(!r)continue;
     const ps=document.getElementById('ps-'+id);
     const pl=document.getElementById('pl1-'+id);
-    const pa=document.getElementById('pasm-'+id);
-    const patch={id,status:ps?ps.value:r.status,lance1:pl&&pl.value?parseFloat(pl.value)/100:null,data_assembleia:pa?pa.value||null:null};
+    // data_assembleia agora é gerenciada pelo toggleLanceOfertado (salvo direto no banco)
+    const patch={id,status:ps?ps.value:r.status,lance1:pl&&pl.value?parseFloat(pl.value)/100:null};
     const res=await upsertCota(patch);
     if(res){Object.assign(r,patch);document.getElementById('psave-'+id).style.display='none';}
   }
@@ -4413,8 +4437,7 @@ async function projSaveRow(id){
   const r=COTAS.find(c=>String(c.id)===String(id));if(!r)return;
   const status=document.getElementById('ps-'+id).value;
   const l1v=document.getElementById('pl1-'+id).value;
-  const asmEl=document.getElementById('pasm-'+id);
-  const patch={id,status,lance1:l1v?parseFloat(l1v)/100:null,data_assembleia:asmEl?asmEl.value||null:null};
+  const patch={id,status,lance1:l1v?parseFloat(l1v)/100:null};
   const res=await upsertCota(patch);
   if(res){
     Object.assign(r,patch);
