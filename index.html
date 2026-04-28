@@ -79,24 +79,26 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 /* ── SECTION TITLE ──────────────────────────── */
 .sec-title{font-size:12px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:1px;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--bdr)}
 
-/* ── CARD ───────────────────────────────────── */
-.card{background:var(--card);border-radius:10px;border:1px solid var(--bdr);overflow:hidden;margin-bottom:18px;box-shadow:0 1px 5px rgba(0,0,0,.06)}
-.ch{padding:14px 20px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;background:var(--card)}
-.ct{font-size:13.5px;font-weight:700;color:var(--txt);font-family:'Raleway',sans-serif;letter-spacing:.2px}.cb{padding:20px}
+/* ── CARD ─── identidade unificada (Projeto/Cotas) ── */
+.card{background:var(--card);border-radius:12px;border:1px solid var(--bdr);overflow:hidden;margin-bottom:18px;box-shadow:0 1px 5px rgba(0,0,0,.06)}
+.ch{padding:16px 22px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;background:var(--card)}
+.ct{font-size:15px;font-weight:700;color:var(--sb);font-family:'Playfair Display',serif;letter-spacing:-.2px}.cb{padding:20px}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:20px}
 .g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px;margin-bottom:20px}
 
-/* ── TABLE ──────────────────────────────────── */
+/* ── TABLE ─── header dark + linhas limpas (padronizado com Projeto/Cotas) ── */
 .tw{overflow-x:auto}
-table{width:100%;border-collapse:collapse;font-size:12.5px}
-th{background:var(--card2);color:var(--txt2);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;padding:10px 14px;text-align:left;border-bottom:1px solid var(--bdr);white-space:nowrap;user-select:none}
-th[onclick]:hover{background:#e8f4f4;color:var(--sb2)}
-.sort-ico{display:inline-block;margin-left:3px;font-size:10px;opacity:.4}
-th[onclick].sorted .sort-ico{opacity:1;color:var(--acc)}
-td{padding:10px 14px;border-bottom:1px solid #edf0f5;vertical-align:middle}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--sb);color:#fff;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:11px 14px;text-align:left;border-bottom:none;white-space:nowrap;user-select:none}
+th[onclick]{cursor:pointer}
+th[onclick]:hover{background:var(--sb2);color:#fff}
+.sort-ico{display:inline-block;margin-left:3px;font-size:10px;opacity:.6;color:var(--acc)}
+th[onclick].sorted .sort-ico{opacity:1}
+td{padding:12px 14px;border-bottom:1px solid var(--bdr);vertical-align:middle}
 tr:last-child td{border-bottom:none}
-tr:nth-child(even) td{background:#fafaf8}
-tr:hover td{background:#f0f7f6}
+tbody tr{transition:background .12s}
+tbody tr:hover td{background:#fafbfc}
+tbody tr.sel td,tbody tr[class*=" sel"] td{background:#fefbf3}
 
 /* ── BADGE ──────────────────────────────────── */
 .badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:10.5px;font-weight:700;white-space:nowrap;letter-spacing:.1px}
