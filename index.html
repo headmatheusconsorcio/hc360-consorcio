@@ -461,23 +461,25 @@ tr:hover td{background:#f0f7f6}
       <label style="display:flex;align-items:center;gap:5px;font-size:11.5px;color:var(--txt2);cursor:pointer;padding:0 4px;border:1px solid var(--bdr);border-radius:6px;height:34px"><input type="checkbox" id="f-incl-cancel" onchange="filterCtrl()" style="margin:0">Mostrar canceladas</label>
       <button class="btn btn-out btn-sm" onclick="clearCtrl()">✕</button>
       <button class="btn btn-ok btn-sm" onclick="openModalCota(-1)">+ Nova Cota</button>
+      <button class="btn btn-pri btn-sm" onclick="projSaveAllDirty()" title="Salvar todas as cotas alteradas">💾 Salvar todas</button>
       <span style="margin-left:auto;font-size:12px;color:var(--txt2)" id="ctrl-count">—</span>
     </div>
     <div class="card">
+      <div style="padding:8px 18px;border-bottom:1px solid var(--bdr);background:#fefbf3;font-size:11px;color:var(--txt2)">
+        Use esta lista como ferramenta principal de gestão antes da assembleia. Preencha <b>Lance %</b> e <b>Status</b>, marque ✓ quando ofertar. <b>Próx. AGO</b> é calculada. Mudanças aqui refletem automaticamente no projeto do cliente.
+      </div>
       <div class="tw"><table>
         <thead><tr>
           <th onclick="sortCtrl('nome')" style="cursor:pointer">Cliente <span id="csort-nome" class="sort-ico">⇅</span></th>
           <th onclick="sortCtrl('grupo')" style="cursor:pointer">Grupo/Cota <span id="csort-grupo" class="sort-ico">⇅</span></th>
           <th onclick="sortCtrl('banco')" style="cursor:pointer">Banco <span id="csort-banco" class="sort-ico">⇅</span></th>
-          <th onclick="sortCtrl('credito')" style="cursor:pointer">Crédito <span id="csort-credito" class="sort-ico">⇅</span></th>
-          <th onclick="sortCtrl('parcela')" style="cursor:pointer">Parcela <span id="csort-parcela" class="sort-ico">⇅</span></th>
-          <th>Venc.</th>
-          <th onclick="sortCtrl('assessor')" style="cursor:pointer">Assessor <span id="csort-assessor" class="sort-ico">⇅</span></th>
+          <th onclick="sortCtrl('credito')" style="cursor:pointer;text-align:right">Crédito <span id="csort-credito" class="sort-ico">⇅</span></th>
+          <th onclick="sortCtrl('parcela')" style="cursor:pointer;text-align:right">Parcela <span id="csort-parcela" class="sort-ico">⇅</span></th>
           <th onclick="sortCtrl('status')" style="cursor:pointer">Status <span id="csort-status" class="sort-ico">⇅</span></th>
-          <th onclick="sortCtrl('lance1')" style="cursor:pointer">Lance <span id="csort-lance1" class="sort-ico">⇅</span></th>
-          <th onclick="sortCtrl('data_contemplada')" style="cursor:pointer">Contemp. <span id="csort-data_contemplada" class="sort-ico">⇅</span></th>
-          <th onclick="sortCtrl('saldo_devedor')" style="cursor:pointer">Saldo Dev. <span id="csort-saldo_devedor" class="sort-ico">⇅</span></th>
-          <th>Ações</th>
+          <th onclick="sortCtrl('lance1')" style="cursor:pointer">Lance % <span id="csort-lance1" class="sort-ico">⇅</span></th>
+          <th style="text-align:center">Próx. AGO<br><small style="font-weight:400;font-size:9.5px;color:var(--txt2)">calculada</small></th>
+          <th style="text-align:center">Lance Ofertado?</th>
+          <th style="text-align:center">Ações</th>
         </tr></thead>
         <tbody id="ctrl-tbody"></tbody>
       </table></div>
@@ -2154,6 +2156,15 @@ function fmtDataBr(iso){
   if(!iso)return '—';
   return new Date(iso+'T00:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'});
 }
+// Atualiza todas as telas que mostram cotas após qualquer save/toggle.
+// Garante que mudança numa tela reflete em todas as outras.
+function refreshCotaViews(){
+  try{const pc=document.getElementById('page-ctrl');if(pc&&pc.classList.contains('active'))renderCtrl();}catch(e){console.warn('refresh ctrl:',e);}
+  try{const pp=document.getElementById('page-proj');if(selProj&&pp&&pp.classList.contains('active')&&document.getElementById('proj-detail'))renderProjDetail(selProj);}catch(e){console.warn('refresh proj:',e);}
+  try{initDash();}catch(e){console.warn('refresh dash:',e);}
+  try{renderAgenda();}catch(e){}
+  try{renderProj();}catch(e){}
+}
 // Toggle: marca/desmarca lance ofertado. Salva imediatamente no banco.
 async function toggleLanceOfertado(id){
   const r=COTAS.find(c=>String(c.id)===String(id));if(!r)return;
@@ -2162,7 +2173,7 @@ async function toggleLanceOfertado(id){
   showLoad();
   const res=await upsertCota({id,data_assembleia:novoVal});
   hideLoad();
-  if(res){r.data_assembleia=novoVal;toast(novoVal?`Lance marcado como ofertado em ${fmtDataBr(novoVal)}`:'Marcação removida');renderProjDetail(selProj);}
+  if(res){r.data_assembleia=novoVal;toast(novoVal?`Lance marcado como ofertado em ${fmtDataBr(novoVal)}`:'Marcação removida');refreshCotaViews();}
 }
 function openModalTaxasCdi(){
   renderTaxasCdi();
@@ -2387,27 +2398,35 @@ function ctrlGo(p){ctrlPage=p;renderCtrl();}
 function bancoBadge(b){if(!b)return'<span style="color:var(--txt2);font-size:10.5px">—</span>';const cores={'Itaú':'#fef3c7;color:#92400e','Santander':'#fee2e2;color:#991b1b','Safra':'#dbeafe;color:#1e40af','Bradesco':'#fce7f3;color:#9f1239','Banco do Brasil':'#fef9c3;color:#713f12','Caixa':'#dbeafe;color:#1e3a8a'};const c=cores[b]||'#e5e7eb;color:#374151';return `<span style="background:${c.split(';')[0]};color:${c.split(':')[1]};padding:2px 7px;border-radius:10px;font-size:10.5px;font-weight:600">${b}</span>`;}
 function renderCtrl(){
   const sorted=ctrlSort.col?sortArr(ctrlFiltered,ctrlSort.col,ctrlSort.dir):ctrlFiltered;
-  ['nome','grupo','banco','credito','parcela','assessor','status','lance1','data_contemplada','saldo_devedor'].forEach(c=>{const el=document.getElementById('csort-'+c);if(el)el.textContent=sortIcon(ctrlSort,c);});
+  ['nome','grupo','banco','credito','parcela','status','lance1'].forEach(c=>{const el=document.getElementById('csort-'+c);if(el)el.textContent=sortIcon(ctrlSort,c);});
   const{items,total,pages}=paginate(sorted,ctrlPage,30);
   const totalCancel=COTAS.filter(r=>r.status==='Cancelado'||r.status==='CANCELADO').length;
   document.getElementById('ctrl-count').textContent=total+' cotas'+(totalCancel?` · ${totalCancel} cancelada(s) ocultas`:'');
   document.getElementById('ctrl-tbody').innerHTML=items.map(r=>{
-    const dt=r.data_contemplada?new Date(r.data_contemplada+'T00:00:00').toLocaleDateString('pt-BR'):'—';
-    return `<tr>
-    <td><strong>${r.nome||'—'}</strong><br><span style="font-size:10.5px;color:var(--txt2)">${r.cpf||''}</span></td>
-    <td>${r.grupo||'—'} / ${r.cota||'—'}</td>
-    <td>${bancoBadge(r.banco)}</td>
-    <td>${brl(r.credito,0)}</td><td>${brl(r.parcela)}</td>
-    <td style="font-size:11px">${r.vencimento?'dia '+r.vencimento:'—'}</td>
-    <td>${atag(r.assessor)}</td><td>${sbadge(r.status)}</td>
-    <td>${r.lance1?(+(r.lance1*100).toFixed(1)+'%'):'—'}</td>
-    <td style="font-size:11px;color:var(--txt2)">${dt}</td>
-    <td style="font-size:12px">${r.saldo_devedor?brl(r.saldo_devedor,0):'—'}</td>
-    <td style="display:flex;gap:4px;flex-wrap:wrap">
-      <button class="btn btn-out btn-sm" onclick="openModalCota('${r.id}')">✏️</button>
-      ${(r.status==='Contemplado'||r.status==='CONTEMPLADO'||r.status==='Faturado')?`<button class="btn btn-sm" onclick="confirmarPagamento('${r.id}')" title="Confirmar pagamento mensal" style="background:#0ea5e9;color:#fff;border:none">✔</button>`:`<button class="btn btn-ok btn-sm" onclick="openModalContemp('${r.id}')" title="Contemplar">✓</button>`}
-    </td>
-  </tr>`;}).join('');
+    const isCan=r.status==='Cancelado'||r.status==='CANCELADO';
+    const isCp=r.status==='Contemplado'||r.status==='CONTEMPLADO'||r.status==='Faturado';
+    const parcEf=isCp?(r.parcela_pos||r.parcela||0):(r.parcela||0);
+    const proxAgo=calcProxAgo(r.grupo);
+    return `<tr id="ctrl-row-${r.id}" style="${isCan?'opacity:.4;background:#fafafa':''}">
+      <td><strong>${r.nome||'—'}</strong><br><span style="font-size:10.5px;color:var(--txt2)">${r.cpf||''}</span></td>
+      <td><strong>${r.grupo||'—'}</strong> / ${r.cota||'—'}</td>
+      <td>${bancoBadge(r.banco)}</td>
+      <td style="text-align:right">${brl(r.credito,0)}</td>
+      <td style="text-align:right">${brl(parcEf)}${isCp&&r.parcela_pos?'<small style="display:block;font-size:9px;color:var(--ok)">pós</small>':''}</td>
+      <td>
+        <select class="form-i" style="padding:3px 6px;font-size:12px;min-width:140px" id="ps-${r.id}" onchange="projMarkDirty('${r.id}')">
+          ${['Em Andamento','Lance Livre','Lance Fixo','Contemplado','Faturado','Cancelado'].map(s=>`<option${r.status===s||(s==='Contemplado'&&r.status==='CONTEMPLADO')||(s==='Em Andamento'&&['LANCE','SORTEIO / LANCE','Sorteio','SUPLENCIA - 2 NA FRENTE'].includes(r.status))||(s==='Cancelado'&&r.status==='CANCELADO')?' selected':''}>` +s+`</option>`).join('')}
+        </select>
+      </td>
+      <td><input class="form-i" style="padding:3px 6px;font-size:12px;width:70px" id="pl1-${r.id}" type="number" step="0.1" min="0" max="100" value="${r.lance1?+(r.lance1*100).toFixed(1):''}" placeholder="%" oninput="projMarkDirty('${r.id}')"></td>
+      <td style="font-size:11.5px;text-align:center;white-space:nowrap;font-weight:600;color:var(--sb)">${fmtDataBr(proxAgo)}</td>
+      <td style="text-align:center">${r.data_assembleia?`<button class="btn btn-sm" onclick="toggleLanceOfertado('${r.id}')" style="background:#d1fae5;color:#065f46;border:1px solid #10b981;padding:3px 10px;font-size:11px;font-weight:600" title="Lance ofertado em ${fmtDataBr(r.data_assembleia)} — clique para desmarcar">✓ ${fmtDataBr(r.data_assembleia)}</button>`:`<button class="btn btn-sm" onclick="toggleLanceOfertado('${r.id}')" style="background:#fef3c7;color:#92400e;border:1px solid #d97706;padding:3px 10px;font-size:11px;font-weight:600" title="Marcar como ofertado na próxima AGO">✗ Marcar</button>`}</td>
+      <td style="white-space:nowrap;text-align:center">
+        <button id="psave-${r.id}" class="btn btn-ok btn-sm" style="display:none" onclick="projSaveRow('${r.id}')" title="Salvar">??</button>
+        ${!isCan&&!isCp?`<button class="btn btn-ok btn-sm" onclick="openModalContemp('${r.id}')" title="Contemplar">✓</button> `:''}
+        <button class="btn btn-out btn-sm" onclick="openModalCota('${r.id}')" title="Editar completo">✏️</button>
+      </td>
+    </tr>`;}).join('');
   renderPag('ctrl-pag',ctrlPage,pages,'ctrlGo');
 }
 
@@ -4431,7 +4450,7 @@ async function projSaveAllDirty(name){
   }
   hideLoad();
   toast(`${ids.length} cotas salvas em lote!`);
-  renderProjDetail(name);initDash();
+  refreshCotaViews();
 }
 async function projSaveRow(id){
   const r=COTAS.find(c=>String(c.id)===String(id));if(!r)return;
@@ -4442,9 +4461,8 @@ async function projSaveRow(id){
   if(res){
     Object.assign(r,patch);
     document.getElementById('psave-'+id).style.display='none';
-    toast('Cota ${r.grupo}/${r.cota} salva!');
-    renderProjDetail(selProj);
-    initDash();
+    toast(`Cota ${r.grupo}/${r.cota} salva!`);
+    refreshCotaViews();
   }
 }
 
