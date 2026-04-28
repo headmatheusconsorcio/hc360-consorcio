@@ -2258,18 +2258,30 @@ function mcRecalc(src){
 async function confirmarPagamento(id){
   const r=COTAS.find(c=>String(c.id)===String(id));
   if(!r)return;
-  const parc=r.parcela||0;
+  const isC=r.status==='Contemplado'||r.status==='CONTEMPLADO'||r.status==='Faturado';
+  // Parcela efetiva: parcela_pos para contemplados/faturados, parcela para ativos
+  const parcPaga=isC?(r.parcela_pos||r.parcela||0):(r.parcela||0);
   const sd=r.saldo_devedor||0;
-  const pr=r.prazo_restante||null;
-  if(!parc){toast('Parcela não preenchida — edite a cota primeiro.','warn');return;}
-  const msg=`Confirmar pagamento de ${brl(parc)} para ${r.nome}?
+  const pr=r.prazo_restante||0;
+  if(!parcPaga){toast('Parcela não preenchida — edite a cota primeiro.','warn');return;}
+  if(pr<=0){toast('Prazo restante = 0. Cota já quitada.','warn');return;}
+  // ── Modelo B validado contra contrato Itaú PJ (Grupo 040010) ────────────
+  // saldo_devedor = crédito × (1 + taxa_adm% + fundo_reserva%) - lance
+  // Cada parcela paga abate o saldo pelo valor INTEGRAL da parcela, pois a
+  // própria parcela já embute FC + taxa adm + fundo reserva. Soma de todas
+  // as parcelas = saldo inicial → saldo chega a zero na última parcela.
+  // Validado: Σ67 parcelas contrato = R$390.295,01 = crédito × 1,1426 ✓
+  const novoSaldo=Math.max(0,sd-parcPaga);
+  const msg=`Confirmar pagamento de ${brl(parcPaga)} para ${r.nome}?
 
-Saldo Devedor: ${brl(sd)} → ${brl(Math.max(0,sd-parc))}${pr?'\nPrazo restante: '+(pr-1)+' meses':''}`;
+` +
+    `Saldo Devedor: ${brl(sd,0)} → ${brl(novoSaldo,0)}
+` +
+    `Prazo restante: ${pr} → ${pr-1} ${pr-1===1?'mês':'meses'}`;
   if(!confirm(msg))return;
-  const updates={saldo_devedor:Math.max(0,sd-parc),updated_at:new Date().toISOString()};
-  if(pr>0)updates.prazo_restante=pr-1;
+  const updates={saldo_devedor:novoSaldo,prazo_restante:pr-1,updated_at:new Date().toISOString()};
   showLoad();const res=await upsertCota({id,...updates});hideLoad();
-  if(res){toast('Pagamento confirmado! Saldo atualizado.','ok');filterCtrl();renderAgenda();renderProj();}
+  if(res){toast('Pagamento confirmado! Saldo e prazo atualizados.','ok');filterCtrl();renderAgenda();renderProj();}
 }
 async function deleteCota(){
   if(!confirm('Excluir esta cota?'))return;
@@ -3820,8 +3832,14 @@ function renderProjDash(name){
   // Parcela mensal correta: pré para ativas, pós para contempladas/faturadas
   const totParc=en.reduce((s,r)=>s+parcEfetiva(r),0);
   const totSdDB=en.reduce((s,r)=>s+(r.saldo_devedor||0),0);
-  const credLib=en.filter(r=>isC(r.status)).reduce((s,r)=>s+(r.carta_atualizada||r.credito||0),0);
-  const totLancePago=en.reduce((s,r)=>s+(r.lance_total||0),0);
+  // Crédito Liberado = credito_liberado (carta − embutido); fallback carta_atualizada×0.7
+  const credLib=en.filter(r=>isC(r.status)).reduce((s,r)=>{
+    if(r.credito_liberado!=null&&r.credito_liberado>0) return s+r.credito_liberado;
+    if(r.carta_atualizada) return s+r.carta_atualizada*0.7;
+    return s+(r.credito||0);
+  },0);
+  // Valor Pago Lances = somente recurso próprio (exclui embutido)
+  const totLancePago=en.reduce((s,r)=>s+(r.recurso_proprio||0),0);
   // Prazo ponderado pelo valor da parcela efetiva (correto para TIR)
   const enComPrazo=en.filter(r=>(r.prazo_restante||0)>0);
   const sumPP=enComPrazo.reduce((s,r)=>s+(r.prazo_restante||0)*parcEfetiva(r),0);
@@ -3890,10 +3908,10 @@ function renderProjDash(name){
     </div>
     <div class="pd-kpi-grid">
       <div class="pd-kpi c-navy"><div class="pd-kpi-ico">💎</div><div class="pd-kpi-lbl">Crédito Total</div><div class="pd-kpi-val">${fb(totCr)}</div><div class="pd-kpi-sub">${en.length} cotas &nbsp;·&nbsp; ${nC} contempladas</div></div>
-      <div class="pd-kpi c-teal"><div class="pd-kpi-ico">🔓</div><div class="pd-kpi-lbl">Crédito Liberado</div><div class="pd-kpi-val">${fb(credLib)}</div><div class="pd-kpi-sub">carta atualizada das contempladas</div></div>
+      <div class="pd-kpi c-teal"><div class="pd-kpi-ico">🔓</div><div class="pd-kpi-lbl">Crédito Liberado</div><div class="pd-kpi-val">${fb(credLib)}</div><div class="pd-kpi-sub">crédito líquido (carta − embutido)</div></div>
       <div class="pd-kpi c-gold"><div class="pd-kpi-ico">⚖️</div><div class="pd-kpi-lbl">Saldo Devedor</div><div class="pd-kpi-val">${fb(totSdDB)}</div><div class="pd-kpi-sub">saldo real consolidado</div></div>
       <div class="pd-kpi c-warn"><div class="pd-kpi-ico">💳</div><div class="pd-kpi-lbl">Parcela Mensal</div><div class="pd-kpi-val">${fb(totParc)}</div><div class="pd-kpi-sub">pré (ativas) + pós (contempladas)</div></div>
-      <div class="pd-kpi c-green"><div class="pd-kpi-ico">🏦</div><div class="pd-kpi-lbl">Valor Pago · Lances</div><div class="pd-kpi-val">${fb(totLancePago)}</div><div class="pd-kpi-sub">total de lances pagos</div></div>
+      <div class="pd-kpi c-green"><div class="pd-kpi-ico">🏦</div><div class="pd-kpi-lbl">Valor Pago · Lances</div><div class="pd-kpi-val">${fb(totLancePago)}</div><div class="pd-kpi-sub">recurso próprio (excl. embutido)</div></div>
       <div class="pd-kpi c-info"><div class="pd-kpi-ico">📅</div><div class="pd-kpi-lbl">Prazo Ponderado</div><div class="pd-kpi-val">${prazoPonderado}<span style="font-size:14px;font-weight:600;color:var(--txt2)"> m</span></div><div class="pd-kpi-sub">ponderado por parcela &nbsp;·&nbsp; ${(prazoPonderado/12).toFixed(1)} anos</div></div>
     </div>
     <div class="pd-st-grid">
