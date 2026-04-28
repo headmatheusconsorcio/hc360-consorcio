@@ -1532,8 +1532,8 @@ tr:hover td{background:#f0f7f6}
     </div>
     <div id="proj-view-cards">
       <div class="frow" style="margin-bottom:14px;flex-wrap:wrap;gap:8px;align-items:center">
-        <input class="fi fi-lg" type="text" id="pcards-search" placeholder="🔍  Buscar cliente..." oninput="renderProj()" style="flex:1;max-width:340px">
-        <select class="fi fi-md" id="pcards-sort" onchange="renderProj()">
+        <input class="fi fi-lg" type="text" id="pcards-search" placeholder="🔍  Buscar cliente..." oninput="syncProjFilter('search',this.value)" style="flex:1;max-width:340px">
+        <select class="fi fi-md" id="pcards-sort" onchange="syncProjFilter('sort',this.value)">
           <option value="nome">Ordenar: Nome (A-Z)</option>
           <option value="nome-desc">Nome (Z-A)</option>
           <option value="cotas-desc" selected>Mais cotas</option>
@@ -1543,11 +1543,11 @@ tr:hover td{background:#f0f7f6}
           <option value="contemp-desc">Mais contempladas</option>
           <option value="pct-desc">% contempl. maior</option>
         </select>
-        <select class="fi fi-md" id="pcards-assessor" onchange="renderProj()">
+        <select class="fi fi-md" id="pcards-assessor" onchange="syncProjFilter('assessor',this.value)">
           <option value="">Todos Assessores</option>
           <option>ALAN / ESCRITORIO</option><option>ALE / ESCRITORIO</option><option>GLAUCO</option><option>GIL</option><option>SZPIN</option><option>Coyote</option>
         </select>
-        <select class="fi fi-md" id="pcards-banco" onchange="renderProj()">
+        <select class="fi fi-md" id="pcards-banco" onchange="syncProjFilter('banco',this.value)">
           <option value="">Todos Bancos</option>
           <option>Itaú</option><option>Santander</option><option>Safra</option><option>Bradesco</option><option>Banco do Brasil</option><option>Caixa</option><option>Porto Seguro</option><option>Embracon</option><option>Outro</option>
         </select>
@@ -1559,6 +1559,31 @@ tr:hover td{background:#f0f7f6}
         <span style="margin-left:auto;font-size:12px;color:var(--txt2)" id="pcards-count">—</span>
       </div>
       <div class="proj-grid" id="proj-cards"></div>
+      <!-- Filtros no rodapé (sincronizados com o topo) -->
+      <div class="frow" id="pcards-frow-bot" style="margin-top:14px;flex-wrap:wrap;gap:8px;align-items:center;padding:12px 14px;background:var(--card2);border:1px solid var(--bdr);border-radius:10px">
+        <input class="fi fi-lg" type="text" id="pcards-search-bot" placeholder="🔍  Buscar cliente..." oninput="syncProjFilter('search',this.value)" style="flex:1;max-width:340px">
+        <select class="fi fi-md" id="pcards-sort-bot" onchange="syncProjFilter('sort',this.value)">
+          <option value="nome">Ordenar: Nome (A-Z)</option>
+          <option value="nome-desc">Nome (Z-A)</option>
+          <option value="cotas-desc" selected>Mais cotas</option>
+          <option value="cotas">Menos cotas</option>
+          <option value="credito-desc">Maior volume</option>
+          <option value="credito">Menor volume</option>
+          <option value="contemp-desc">Mais contempladas</option>
+          <option value="pct-desc">% contempl. maior</option>
+        </select>
+        <select class="fi fi-md" id="pcards-assessor-bot" onchange="syncProjFilter('assessor',this.value)">
+          <option value="">Todos Assessores</option>
+          <option>ALAN / ESCRITORIO</option><option>ALE / ESCRITORIO</option><option>GLAUCO</option><option>GIL</option><option>SZPIN</option><option>Coyote</option>
+        </select>
+        <select class="fi fi-md" id="pcards-banco-bot" onchange="syncProjFilter('banco',this.value)">
+          <option value="">Todos Bancos</option>
+          <option>Itaú</option><option>Santander</option><option>Safra</option><option>Bradesco</option><option>Banco do Brasil</option><option>Caixa</option><option>Porto Seguro</option><option>Embracon</option><option>Outro</option>
+        </select>
+        <button class="btn btn-out btn-sm" onclick="clearProjCards()" title="Limpar filtros">✕</button>
+        <button class="btn btn-out btn-sm" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Voltar ao topo">↑ Topo</button>
+        <span style="margin-left:auto;font-size:12px;color:var(--txt2)" id="pcards-count-bot">—</span>
+      </div>
       <div id="proj-detail"></div>
     </div>
     <div id="proj-view-list" style="display:none">
@@ -1791,8 +1816,17 @@ tr:hover td{background:#f0f7f6}
         <div class="form-g"><label class="form-l">CPF / CNPJ</label><input class="form-i" id="mc-cpf"></div>
       </div>
       <div class="g2" style="margin-bottom:0">
-        <div class="form-g"><label class="form-l">Grupo</label><input class="form-i" id="mc-grupo"></div>
+        <div class="form-g"><label class="form-l">Grupo <span id="mc-grupo-info" style="font-size:10px;font-weight:500;color:var(--txt2);margin-left:6px"></span></label><input class="form-i" id="mc-grupo" oninput="mcLookupGrupo()" autocomplete="off" list="mc-grupo-list"></div>
         <div class="form-g"><label class="form-l">Cota</label><input class="form-i" id="mc-cota"></div>
+      </div>
+      <datalist id="mc-grupo-list"></datalist>
+      <datalist id="mc-credito-list"></datalist>
+      <div id="mc-grupo-banner" style="display:none;background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:10px 14px;margin-bottom:10px;font-size:11.5px;color:#166534">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <span style="font-size:14px">✨</span>
+          <span><b>Grupo encontrado no GUIA</b> — campos abaixo preenchidos automaticamente. Você pode ajustar se precisar.</span>
+        </div>
+        <div id="mc-grupo-detalhes" style="margin-top:6px;display:flex;gap:14px;flex-wrap:wrap;font-size:11px;color:#065f46"></div>
       </div>
       <div class="g2" style="margin-bottom:0">
         <div class="form-g"><label class="form-l">Tipo do Bem</label>
@@ -1821,7 +1855,7 @@ tr:hover td{background:#f0f7f6}
             <option>Itaú</option><option>Santander</option><option>Safra</option><option>Bradesco</option><option>Banco do Brasil</option><option>Caixa</option><option>Porto Seguro</option><option>Embracon</option><option>Outro</option>
           </select>
         </div>
-        <div class="form-g"><label class="form-l">Valor da Carta (R$)</label><input type="text" inputmode="numeric" class="form-i mc-brl" id="mc-credito" placeholder="Ex: 340.065,00" oninput="mcRecalc('cred')"></div>
+        <div class="form-g"><label class="form-l">Valor da Carta (R$)</label><input type="text" inputmode="numeric" class="form-i mc-brl" id="mc-credito" placeholder="Ex: 340.065,00" oninput="mcRecalc('cred')" list="mc-credito-list" autocomplete="off"></div>
       </div>
       <div class="g2" style="margin-bottom:0">
         <div class="form-g"><label class="form-l">Carta Atualizada (R$)</label><input type="text" inputmode="numeric" class="form-i mc-brl" id="mc-carta-atual" placeholder="Ex: 343.920,00"></div>
@@ -2628,6 +2662,72 @@ function renderCtrl(){
 }
 
 // ═══ MODAL COTA ═══
+// Auto-preenche o modal usando os dados do GUIA quando o usuário digita o número do grupo
+function mcLookupGrupo(){
+  const inp=document.getElementById('mc-grupo');
+  const banner=document.getElementById('mc-grupo-banner');
+  const det=document.getElementById('mc-grupo-detalhes');
+  const info=document.getElementById('mc-grupo-info');
+  const credList=document.getElementById('mc-credito-list');
+  const grpList=document.getElementById('mc-grupo-list');
+  if(!inp)return;
+  const v=(inp.value||'').trim();
+  // Sugestões enquanto digita: top 8 grupos que começam com o input
+  if(grpList){
+    const sug=v.length>=1?Object.keys(GUIA).filter(k=>k.startsWith(v)).slice(0,8):[];
+    grpList.innerHTML=sug.map(k=>{
+      const g=GUIA[k];const tp=(g.tp||'').includes('IM')?'Imóvel':((g.tp||'').includes('MOTO')?'Moto':'Veículo');
+      return `<option value="${k}">${tp} · ${g.pr||'?'}m · ${g.vmin?brl(g.vmin,0):''}–${g.vmax?brl(g.vmax,0):''}</option>`;
+    }).join('');
+  }
+  const g=GUIA[v]||GUIA[String(v)]||null;
+  if(!g){
+    if(banner)banner.style.display='none';
+    if(info)info.textContent='';
+    if(credList)credList.innerHTML='';
+    return;
+  }
+  // Mostra banner com detalhes
+  if(info)info.textContent='✓ no GUIA';
+  if(banner)banner.style.display='block';
+  if(det){
+    const tipo=(g.tp||'').includes('IM')?'🏠 Imóvel':((g.tp||'').includes('MOTO')?'🛵 Moto':'🚗 Veículo');
+    const itens=[
+      `${tipo}`,
+      g.idx?`Idx: ${g.idx}`:'',
+      g.pr?`Prazo: ${g.pr}m`:'',
+      g.fr!=null?`FR: ${(g.fr*100).toFixed(2)}%`:'',
+      g.venc?`Venc: dia ${g.venc}`:'',
+      g.asm?`Próx AGO: ${fmtDataBr(calcProxAgo(v))}`:'',
+      (g.vmin&&g.vmax)?`Cred: ${brl(g.vmin,0)}–${brl(g.vmax,0)}`:'',
+      g.pr_red==='S'?'<span style="color:#1e40af;font-weight:700">PR ✓</span>':'',
+      temLanceFixo(v)?'<span style="color:#92400e;font-weight:700">LF ✓</span>':''
+    ].filter(Boolean);
+    det.innerHTML=itens.map(t=>`<span>${t}</span>`).join('<span style="color:var(--bdr)">·</span> ');
+  }
+  // Datalist de valores disponíveis (vdisp)
+  if(credList&&g.vdisp){
+    const vals=String(g.vdisp).split(',').map(x=>x.trim()).filter(x=>x).map(x=>parseFloat(x));
+    credList.innerHTML=vals.map(v2=>`<option value="${brl(v2,0).replace('R$ ','')}">${brl(v2,0)}</option>`).join('');
+  }
+  // Auto-preenchimento (só preenche se o campo estiver vazio — não sobrescreve o que usuário digitou)
+  const setIfEmpty=(idEl,val)=>{const e=document.getElementById(idEl);if(e&&!e.value&&val!=null&&val!=='')e.value=val;};
+  if(g.fr!=null)setIfEmpty('mc-fundo',(g.fr*100).toFixed(2));
+  if(g.pr)setIfEmpty('mc-prazo',g.pr);
+  if(g.pr)setIfEmpty('mc-prazo-rest',g.pr);
+  if(g.venc)setIfEmpty('mc-venc',g.venc);
+  // Tipo do bem: tenta mapear para uma das opções do select
+  const tipoSel=document.getElementById('mc-tipo-bem');
+  if(tipoSel&&!tipoSel.value){
+    const tp=(g.tp||'').toUpperCase();
+    if(tp.includes('IM'))tipoSel.value='Imóvel Residencial';
+    else if(tp.includes('MOTO'))tipoSel.value='Moto';
+    else if(tp.includes('PESADO'))tipoSel.value='Veículo Pesado';
+    else if(tp.includes('LEVE')||tp.includes('VEI'))tipoSel.value='Veículo Leve';
+  }
+  // Recalcula totais se já tem crédito
+  if(typeof mcRecalc==='function'&&document.getElementById('mc-credito').value)mcRecalc('init');
+}
 function openModalCota(id){
   currentCotaId=id;
   const isNew=id===-1||id===null;
@@ -4217,7 +4317,18 @@ function abrirApresentacao(){
 }
 
 // ═══ PROJETOS ═══
-function clearProjCards(){['pcards-search','pcards-assessor','pcards-banco'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});const s=document.getElementById('pcards-sort');if(s)s.value='cotas-desc';renderProj();}
+function clearProjCards(){
+  ['pcards-search','pcards-assessor','pcards-banco','pcards-search-bot','pcards-assessor-bot','pcards-banco-bot'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['pcards-sort','pcards-sort-bot'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='cotas-desc';});
+  renderProj();
+}
+// Sincroniza filtro topo<->rodape e re-renderiza
+function syncProjFilter(field,val){
+  const map={search:['pcards-search','pcards-search-bot'],sort:['pcards-sort','pcards-sort-bot'],assessor:['pcards-assessor','pcards-assessor-bot'],banco:['pcards-banco','pcards-banco-bot']};
+  const ids=map[field];if(!ids)return;
+  ids.forEach(id=>{const el=document.getElementById(id);if(el&&el.value!==val)el.value=val;});
+  renderProj();
+}
 let projCardsLayout=(typeof localStorage!=='undefined'&&localStorage.getItem('hc360_proj_layout'))||'cards';
 function setProjCardsLayout(v){
   projCardsLayout=v;
@@ -4271,10 +4382,10 @@ function renderProj(){
     'pct-desc':(a,b)=>b.p-a.p,
   }[sortBy]||((a,b)=>b.t-a.t);
   enriched.sort(cmp);
-  // Update count
+  // Update count (topo + rodapé)
   const totalCotas=enriched.reduce((s,e)=>s+e.t,0);
-  const cnt=document.getElementById('pcards-count');
-  if(cnt)cnt.textContent=`${enriched.length} cliente(s) · ${totalCotas} cotas`;
+  const txt=`${enriched.length} cliente(s) · ${totalCotas} cotas`;
+  ['pcards-count','pcards-count-bot'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=txt;});
   // Helper: badges de bancos
   const corBanco={'Itaú':'#fef3c7;color:#92400e','Santander':'#fee2e2;color:#991b1b','Safra':'#dbeafe;color:#1e40af','Bradesco':'#fce7f3;color:#9f1239','Banco do Brasil':'#fef9c3;color:#713f12','Caixa':'#dbeafe;color:#1e3a8a'};
   const renderBancos=(bancosArr,size='full')=>{
