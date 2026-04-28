@@ -1478,14 +1478,20 @@ tr:hover td{background:#f0f7f6}
         <input class="fi fi-lg" type="text" id="pf-search" placeholder="🔍  Nome, grupo, cota, CPF..." oninput="filterProjList()">
         <select class="fi fi-md" id="pf-status" onchange="filterProjList()">
           <option value="">Todos Status</option>
-          <option>Em Andamento</option><option>Lance Livre</option><option>Lance Fixo</option><option>Contemplado</option><option>Faturado</option>
+          <option>Em Andamento</option><option>Lance Livre</option><option>Lance Fixo</option><option>Contemplado</option><option>Faturado</option><option>Cancelado</option>
         </select>
         <select class="fi fi-md" id="pf-assessor" onchange="filterProjList()">
           <option value="">Todos Assessores</option>
           <option>ALAN / ESCRITORIO</option><option>ALE / ESCRITORIO</option><option>GLAUCO</option><option>GIL</option><option>SZPIN</option><option>Coyote</option>
         </select>
+        <select class="fi fi-md" id="pf-banco" onchange="filterProjList()">
+          <option value="">Todos Bancos</option>
+          <option>Itaú</option><option>Santander</option><option>Safra</option><option>Bradesco</option><option>Banco do Brasil</option><option>Caixa</option><option>Porto Seguro</option><option>Embracon</option><option>Outro</option>
+        </select>
+        <label style="display:flex;align-items:center;gap:5px;font-size:11.5px;color:var(--txt2);cursor:pointer;padding:0 4px;border:1px solid var(--bdr);border-radius:6px;height:34px"><input type="checkbox" id="pf-incl-cancel" onchange="filterProjList()" style="margin:0">Canceladas</label>
         <button class="btn btn-out btn-sm" onclick="clearProjList()">✕</button>
         <button class="btn btn-ok btn-sm" onclick="openModalCota(-1)">+ Nova Cota</button>
+        <button class="btn btn-pri btn-sm" onclick="projSaveAllDirty()" title="Salvar todas as cotas alteradas">💾 Salvar todas</button>
         <button class="btn btn-warn btn-sm" onclick="projToggleBulk()" id="proj-bulk-toggle">☑ Edição em Massa</button>
         <span style="margin-left:auto;font-size:12px;color:var(--txt2)" id="pf-count">—</span>
       </div>
@@ -1513,18 +1519,22 @@ tr:hover td{background:#f0f7f6}
         </div>
       </div>
       <div class="card">
+        <div style="padding:8px 18px;border-bottom:1px solid var(--bdr);background:#fefbf3;font-size:11px;color:var(--txt2)">
+          Use esta lista como ferramenta principal de gestão pré-assembleia. Preencha <b>Lance %</b> e <b>Status</b>, marque ✓ quando ofertar. <b>Próx. AGO</b> calculada automaticamente. Mudanças refletem em todo o sistema.
+        </div>
         <div class="tw"><table>
           <thead><tr>
             <th id="plist-th-chk" style="display:none;width:32px"><input type="checkbox" id="plist-check-all" onchange="projSelectAll(this.checked)"></th>
             <th onclick="sortProjList('nome')" style="cursor:pointer">Cliente <span id="psort-nome" class="sort-ico">⇅</span></th>
             <th onclick="sortProjList('grupo')" style="cursor:pointer">Grupo/Cota <span id="psort-grupo" class="sort-ico">⇅</span></th>
-            <th onclick="sortProjList('credito')" style="cursor:pointer">Crédito <span id="psort-credito" class="sort-ico">⇅</span></th>
-            <th onclick="sortProjList('parcela')" style="cursor:pointer">Parcela <span id="psort-parcela" class="sort-ico">⇅</span></th>
-            <th>Venc.</th>
-            <th onclick="sortProjList('assessor')" style="cursor:pointer">Assessor <span id="psort-assessor" class="sort-ico">⇅</span></th>
+            <th onclick="sortProjList('banco')" style="cursor:pointer">Banco <span id="psort-banco" class="sort-ico">⇅</span></th>
+            <th onclick="sortProjList('credito')" style="cursor:pointer;text-align:right">Crédito <span id="psort-credito" class="sort-ico">⇅</span></th>
+            <th onclick="sortProjList('parcela')" style="cursor:pointer;text-align:right">Parcela <span id="psort-parcela" class="sort-ico">⇅</span></th>
             <th onclick="sortProjList('status')" style="cursor:pointer">Status <span id="psort-status" class="sort-ico">⇅</span></th>
-            <th onclick="sortProjList('lance1')" style="cursor:pointer">Últ. Lance % <span id="psort-lance1" class="sort-ico">⇅</span></th>
-            <th>Ações</th>
+            <th onclick="sortProjList('lance1')" style="cursor:pointer">Lance % <span id="psort-lance1" class="sort-ico">⇅</span></th>
+            <th style="text-align:center">Próx. AGO<br><small style="font-weight:400;font-size:9.5px;color:var(--txt2)">calculada</small></th>
+            <th style="text-align:center">Lance Ofertado?</th>
+            <th style="text-align:center">Ações</th>
           </tr></thead>
           <tbody id="plist-tbody"></tbody>
         </table></div>
@@ -2160,7 +2170,10 @@ function fmtDataBr(iso){
 // Garante que mudança numa tela reflete em todas as outras.
 function refreshCotaViews(){
   try{const pc=document.getElementById('page-ctrl');if(pc&&pc.classList.contains('active'))renderCtrl();}catch(e){console.warn('refresh ctrl:',e);}
-  try{const pp=document.getElementById('page-proj');if(selProj&&pp&&pp.classList.contains('active')&&document.getElementById('proj-detail'))renderProjDetail(selProj);}catch(e){console.warn('refresh proj:',e);}
+  try{const pp=document.getElementById('page-proj');if(pp&&pp.classList.contains('active')){
+    if(projView==='list')renderProjList();
+    if(selProj&&document.getElementById('proj-detail'))renderProjDetail(selProj);
+  }}catch(e){console.warn('refresh proj:',e);}
   try{initDash();}catch(e){console.warn('refresh dash:',e);}
   try{renderAgenda();}catch(e){}
   try{renderProj();}catch(e){}
@@ -4546,50 +4559,61 @@ function filterProjList(){
   const s=(document.getElementById('pf-search')?.value||'').toLowerCase().trim();
   const st=(document.getElementById('pf-status')?.value||'');
   const as=(document.getElementById('pf-assessor')?.value||'');
+  const bc=(document.getElementById('pf-banco')?.value||'');
+  const inclCancel=(document.getElementById('pf-incl-cancel')?.checked||false);
   const na=a=>a==='Gil'?'GIL':a;
+  const isCancel=v=>v==='Cancelado'||v==='CANCELADO';
   const normSt2=x=>{const u=(x||'').toUpperCase();if(u==='CONTEMPLADO')return'Contemplado';if(u==='CANCELADO')return'Cancelado';if(u==='LANCE'||u==='SUPLENCIA - 2 NA FRENTE'||u==='SORTEIO / LANCE'||u==='SORTEIO')return'Em Andamento';return x;};
-  plistFiltered=COTAS.filter(r=>
-    (!s||(r.nome||'').toLowerCase().includes(s)||(r.grupo||'').toString().includes(s)||(r.cota||'').toString().includes(s)||(r.cpf||'').includes(s))
-    &&(!st||normSt2(r.status)===st)
-    &&(!as||na(r.assessor)===as)
-  );
+  plistFiltered=COTAS.filter(r=>{
+    if(!inclCancel&&st!=='Cancelado'&&isCancel(r.status))return false;
+    return (!s||(r.nome||'').toLowerCase().includes(s)||(r.grupo||'').toString().includes(s)||(r.cota||'').toString().includes(s)||(r.cpf||'').includes(s))
+      &&(!st||normSt2(r.status)===st)
+      &&(!as||na(r.assessor)===as)
+      &&(!bc||r.banco===bc);
+  });
   plistPage=1;renderProjList();
 }
-function clearProjList(){['pf-search','pf-status','pf-assessor'].forEach(id=>document.getElementById(id).value='');plistFiltered=[...COTAS];plistPage=1;renderProjList();}
+function clearProjList(){['pf-search','pf-status','pf-assessor','pf-banco'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});const c=document.getElementById('pf-incl-cancel');if(c)c.checked=false;filterProjList();}
 function sortProjList(col){plistSort.dir=plistSort.col===col?-plistSort.dir:1;plistSort.col=col;plistPage=1;renderProjList();}
 function plistGo(p){plistPage=p;renderProjList();}
 function renderProjList(){
   const sorted=plistSort.col?sortArr(plistFiltered,plistSort.col,plistSort.dir):plistFiltered;
-  ['nome','grupo','credito','parcela','assessor','status','lance1'].forEach(c=>{const el=document.getElementById('psort-'+c);if(el)el.textContent=sortIcon(plistSort,c);});
-  document.getElementById('pf-count').textContent=plistFiltered.length+' cotas';
+  ['nome','grupo','banco','credito','parcela','status','lance1'].forEach(c=>{const el=document.getElementById('psort-'+c);if(el)el.textContent=sortIcon(plistSort,c);});
+  const totalCancel=COTAS.filter(r=>r.status==='Cancelado'||r.status==='CANCELADO').length;
+  document.getElementById('pf-count').textContent=plistFiltered.length+' cotas'+(totalCancel?` · ${totalCancel} cancelada(s) ocultas`:'');
   const chkTh=document.getElementById('plist-th-chk');
   if(chkTh)chkTh.style.display=bulkMode?'table-cell':'none';
   const{items,total,pages}=paginate(sorted,plistPage,50);
-  const stOpts=['Sorteio','Em Andamento','Contemplado','Cancelado'].map(s=>'<option>'+s+'</option>').join('');
   document.getElementById('plist-tbody').innerHTML=items.map(r=>{
     const isDirty=dirtyBulk.has(String(r.id));
     const isSelected=projSelected.has(String(r.id));
-    const rowBg=isDirty?'background:#fdf6e3':'';
-    const chkCell=bulkMode?'<td><input type="checkbox" id="pchk-'+r.id+'" '+(isSelected?'checked':'')+' data-rid="'+r.id+'" onchange="projSelectRow(this.dataset.rid,this.checked)"></td>':'';
-    const statusCell=bulkMode?'<td><select id="pbs-'+r.id+'" class="form-i" style="padding:3px 6px;font-size:12px;min-width:120px" data-rid="'+r.id+'" onchange="projBulkMark(this.dataset.rid)">'
-      +['Sorteio','Em Andamento','Contemplado','Cancelado'].map(s=>'<option'+(r.status===s||(s==='Sorteio'&&r.status==='SORTEIO / LANCE')||(s==='Em Andamento'&&(r.status==='LANCE'||r.status==='SUPLENCIA - 2 NA FRENTE'))||(s==='Contemplado'&&r.status==='CONTEMPLADO')||(s==='Cancelado'&&r.status==='CANCELADO')?' selected':'')+'>'+(s==='Em Andamento'?'⚡ Em Andamento':s)+'</option>').join('')
-      +'</select></td>'
-      :'<td>'+sbadge(r.status)+'</td>';
-    const lanceCell=bulkMode?'<td><input id="pbl-'+r.id+'" type="number" class="form-i" style="padding:3px 6px;font-size:12px;width:80px" value="'+(r.lance1?+(r.lance1*100).toFixed(1):'')+'" placeholder="%..." data-rid="'+r.id+'" onchange="projBulkMark(this.dataset.rid)"></td>'
-      :'<td>'+(r.lance1?(+(r.lance1*100).toFixed(1)+'%'):'—')+'</td>';
-    const acoesCell=bulkMode?''
-      :'<td style="display:flex;gap:4px"><button class="btn btn-out btn-sm" data-rid="'+r.id+'" onclick="openModalCota(this.dataset.rid)">✏️</button><button class="btn btn-ok btn-sm" data-rid="'+r.id+'" onclick="openModalContemp(this.dataset.rid)" title="Contemplar">✓</button></td>';
-    return '<tr'+(rowBg?' style="'+rowBg+'"':'')+'>'
-      +chkCell
-      +'<td><strong>'+(r.nome||'—')+'</strong><br><span style="font-size:10.5px;color:var(--txt2)">'+(r.cpf||'')+'</span></td>'
-      +'<td>'+(r.grupo||'—')+' / '+(r.cota||'—')+'</td>'
-      +'<td>'+brl(r.credito,0)+'</td><td>'+brl(r.parcela)+'</td>'
-      +'<td style="font-size:11px">'+(r.vencimento?'dia '+r.vencimento:'—')+'</td>'
-      +'<td>'+atag(r.assessor)+'</td>'
-      +statusCell
-      +lanceCell
-      +acoesCell
-      +'</tr>';
+    const isCan=r.status==='Cancelado'||r.status==='CANCELADO';
+    const isCp=r.status==='Contemplado'||r.status==='CONTEMPLADO'||r.status==='Faturado';
+    const parcEf=isCp?(r.parcela_pos||r.parcela||0):(r.parcela||0);
+    const proxAgo=calcProxAgo(r.grupo);
+    const rowStyle=isDirty?'background:#fdf6e3':(isCan?'opacity:.4;background:#fafafa':'');
+    const chkCell=bulkMode?`<td><input type="checkbox" id="pchk-${r.id}" ${isSelected?'checked':''} data-rid="${r.id}" onchange="projSelectRow(this.dataset.rid,this.checked)"></td>`:'';
+    return `<tr id="plist-row-${r.id}" style="${rowStyle}">
+      ${chkCell}
+      <td><strong>${r.nome||'—'}</strong><br><span style="font-size:10.5px;color:var(--txt2)">${r.cpf||''}</span></td>
+      <td><strong>${r.grupo||'—'}</strong> / ${r.cota||'—'}</td>
+      <td>${bancoBadge(r.banco)}</td>
+      <td style="text-align:right">${brl(r.credito,0)}</td>
+      <td style="text-align:right">${brl(parcEf)}${isCp&&r.parcela_pos?'<small style="display:block;font-size:9px;color:var(--ok)">pós</small>':''}</td>
+      <td>
+        <select class="form-i" style="padding:3px 6px;font-size:12px;min-width:140px" id="ps-${r.id}" onchange="projMarkDirty('${r.id}')">
+          ${['Em Andamento','Lance Livre','Lance Fixo','Contemplado','Faturado','Cancelado'].map(s=>`<option${r.status===s||(s==='Contemplado'&&r.status==='CONTEMPLADO')||(s==='Em Andamento'&&['LANCE','SORTEIO / LANCE','Sorteio','SUPLENCIA - 2 NA FRENTE'].includes(r.status))||(s==='Cancelado'&&r.status==='CANCELADO')?' selected':''}>` +s+`</option>`).join('')}
+        </select>
+      </td>
+      <td><input class="form-i" style="padding:3px 6px;font-size:12px;width:70px" id="pl1-${r.id}" type="number" step="0.1" min="0" max="100" value="${r.lance1?+(r.lance1*100).toFixed(1):''}" placeholder="%" oninput="projMarkDirty('${r.id}')"></td>
+      <td style="font-size:11.5px;text-align:center;white-space:nowrap;font-weight:600;color:var(--sb)">${fmtDataBr(proxAgo)}</td>
+      <td style="text-align:center">${r.data_assembleia?`<button class="btn btn-sm" onclick="toggleLanceOfertado('${r.id}')" style="background:#d1fae5;color:#065f46;border:1px solid #10b981;padding:3px 10px;font-size:11px;font-weight:600" title="Lance ofertado em ${fmtDataBr(r.data_assembleia)} — clique para desmarcar">✓ ${fmtDataBr(r.data_assembleia)}</button>`:`<button class="btn btn-sm" onclick="toggleLanceOfertado('${r.id}')" style="background:#fef3c7;color:#92400e;border:1px solid #d97706;padding:3px 10px;font-size:11px;font-weight:600" title="Marcar como ofertado na próxima AGO">✗ Marcar</button>`}</td>
+      <td style="white-space:nowrap;text-align:center">
+        <button id="psave-${r.id}" class="btn btn-ok btn-sm" style="display:none" onclick="projSaveRow('${r.id}')" title="Salvar">??</button>
+        ${!isCan&&!isCp?`<button class="btn btn-ok btn-sm" onclick="openModalContemp('${r.id}')" title="Contemplar">✓</button> `:''}
+        <button class="btn btn-out btn-sm" onclick="openModalCota('${r.id}')" title="Editar completo">✏️</button>
+      </td>
+    </tr>`;
   }).join('');
   renderPag('plist-pag',plistPage,pages,'plistGo');
 }
