@@ -3832,11 +3832,12 @@ function renderProjDash(name){
   // Parcela mensal correta: pré para ativas, pós para contempladas/faturadas
   const totParc=en.reduce((s,r)=>s+parcEfetiva(r),0);
   const totSdDB=en.reduce((s,r)=>s+(r.saldo_devedor||0),0);
-  // Crédito Liberado = credito_liberado (carta − embutido); fallback carta_atualizada×0.7
+  // Crédito Liberado: usa credito_liberado se preenchido; se tem embutido calcula carta-embutido; senão usa carta inteira
   const credLib=en.filter(r=>isC(r.status)).reduce((s,r)=>{
     if(r.credito_liberado!=null&&r.credito_liberado>0) return s+r.credito_liberado;
-    if(r.carta_atualizada) return s+r.carta_atualizada*0.7;
-    return s+(r.credito||0);
+    const carta=r.carta_atualizada||r.credito||0;
+    if(r.lance_embutido!=null&&r.lance_embutido>0) return s+Math.max(0,carta-r.lance_embutido);
+    return s+carta;
   },0);
   // Valor Pago Lances = recurso próprio se disponível, senão lance_total
   const totLancePago=en.reduce((s,r)=>s+(r.recurso_proprio!=null?r.recurso_proprio:(r.lance_total||0)),0);
