@@ -2082,7 +2082,7 @@ function renderAssessorTracking(){
 
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&document.getElementById('login-screen').style.display!=='none')doLogin();});
 
-let COTAS=[], LEADS=[], TAXAS_CDI=[], GRUPOS_META={}, dashCharts={};
+let COTAS=[], LEADS=[], TAXAS_CDI=[], GRUPOS_META={}, OFERTAS={}, dashCharts={};
 let ctrlFiltered=[], ctrlPage=1, ctrlSort={col:null,dir:1};
 let browseData=Object.entries(GUIA), browsePage=1, browseSort={col:null,dir:1};
 let plistFiltered=[], plistPage=1, plistSort={col:null,dir:1};
@@ -2178,15 +2178,135 @@ function refreshCotaViews(){
   try{renderAgenda();}catch(e){}
   try{renderProj();}catch(e){}
 }
-// Toggle: marca/desmarca lance ofertado. Salva imediatamente no banco.
+// ═══ OFERTAS DE LANCE — Histórico + Toggle inteligente ═══
+// Última oferta pendente da cota
+function ultimaOfertaPendente(cotaId){
+  const arr=OFERTAS[String(cotaId)]||[];
+  return arr.find(o=>o.resultado==='Pendente')||null;
+}
+// Estado do toggle: sem | futura | passada
+function estadoOferta(cotaId){
+  const of=ultimaOfertaPendente(cotaId);
+  if(!of)return {tipo:'sem',oferta:null};
+  const hoje=new Date();hoje.setHours(0,0,0,0);
+  const dt=new Date(of.data_assembleia+'T00:00:00');
+  return {tipo:dt<hoje?'passada':'futura',oferta:of};
+}
+// Toggle inteligente: 1 click só, comportamento varia por estado
 async function toggleLanceOfertado(id){
   const r=COTAS.find(c=>String(c.id)===String(id));if(!r)return;
-  const novoVal=r.data_assembleia?null:calcProxAgo(r.grupo);
-  if(!novoVal&&!r.data_assembleia){toast('Grupo sem assembleia cadastrada','err');return;}
+  const est=estadoOferta(id);
   showLoad();
-  const res=await upsertCota({id,data_assembleia:novoVal});
+  if(est.tipo==='sem'){
+    const proxAgo=calcProxAgo(r.grupo);
+    if(!proxAgo){hideLoad();toast('Grupo sem AGO cadastrada no GUIA','err');return;}
+    const lancePct=r.lance1?+(r.lance1*100).toFixed(2):null;
+    const {data:nova,error}=await sb.from('ofertas_lance').insert({cota_id:id,data_assembleia:proxAgo,lance_pct:lancePct}).select().single();
+    hideLoad();
+    if(error){toast('Erro: '+error.message,'err');return;}
+    if(!OFERTAS[id])OFERTAS[id]=[];
+    OFERTAS[id].unshift(nova);
+    toast(`Lance marcado para AGO ${fmtDataBr(proxAgo)}`);
+    refreshCotaViews();return;
+  }
+  if(est.tipo==='futura'){
+    const {error}=await sb.from('ofertas_lance').delete().eq('id',est.oferta.id);
+    hideLoad();
+    if(error){toast('Erro: '+error.message,'err');return;}
+    OFERTAS[id]=(OFERTAS[id]||[]).filter(o=>o.id!==est.oferta.id);
+    toast('Marcação removida');
+    refreshCotaViews();return;
+  }
+  // est.tipo === 'passada': fecha como Não contemplado e cria nova
+  const {error:e1}=await sb.from('ofertas_lance').update({resultado:'Nao contemplado',atualizado_em:new Date().toISOString()}).eq('id',est.oferta.id);
+  if(e1){hideLoad();toast('Erro: '+e1.message,'err');return;}
+  const idx=(OFERTAS[id]||[]).findIndex(o=>o.id===est.oferta.id);
+  if(idx>=0)OFERTAS[id][idx].resultado='Nao contemplado';
+  const proxAgo=calcProxAgo(r.grupo);
+  if(proxAgo){
+    const lancePct=r.lance1?+(r.lance1*100).toFixed(2):null;
+    const {data:nova,error:e2}=await sb.from('ofertas_lance').insert({cota_id:id,data_assembleia:proxAgo,lance_pct:lancePct}).select().single();
+    hideLoad();
+    if(e2){toast('Aviso: AGO fechada mas falhou criar próxima: '+e2.message,'err');refreshCotaViews();return;}
+    OFERTAS[id].unshift(nova);
+    toast(`AGO ${fmtDataBr(est.oferta.data_assembleia)} marcada como não contemplada · próxima: ${fmtDataBr(proxAgo)}`);
+  }else{
+    hideLoad();
+    toast(`AGO ${fmtDataBr(est.oferta.data_assembleia)} fechada como não contemplada`);
+  }
+  refreshCotaViews();
+}
+// Fecha oferta pendente quando status vira Contemplado/Faturado
+async function fecharOfertaContemplada(cotaId){
+  const of=ultimaOfertaPendente(cotaId);
+  if(!of)return;
+  const {error}=await sb.from('ofertas_lance').update({resultado:'Contemplado',atualizado_em:new Date().toISOString()}).eq('id',of.id);
+  if(!error){
+    const idx=(OFERTAS[cotaId]||[]).findIndex(o=>o.id===of.id);
+    if(idx>=0)OFERTAS[cotaId][idx].resultado='Contemplado';
+  }
+}
+// Modal histórico de ofertas
+function openHistoricoOfertas(cotaId){
+  const r=COTAS.find(c=>String(c.id)===String(cotaId));if(!r)return;
+  const arr=(OFERTAS[String(cotaId)]||[]).slice().sort((a,b)=>new Date(b.data_assembleia)-new Date(a.data_assembleia));
+  const tit=`📜 Histórico de Ofertas — ${r.nome} · ${r.grupo}/${r.cota}`;
+  const corResultado={Pendente:'#fbbf24',Contemplado:'#10b981','Nao contemplado':'#94a3b8',Cancelado:'#ef4444'};
+  const lblResultado={Pendente:'⏳ Pendente',Contemplado:'✓ Contemplado','Nao contemplado':'✗ Não contemplado'};
+  const linhas=arr.length?arr.map(o=>`<tr>
+    <td><strong>${fmtDataBr(o.data_assembleia)}</strong></td>
+    <td>${o.lance_pct!=null?(+o.lance_pct).toFixed(2)+'%':'—'}</td>
+    <td><span style="background:${(corResultado[o.resultado]||'#e5e7eb')+'22'};color:${corResultado[o.resultado]||'#374151'};padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700">${lblResultado[o.resultado]||o.resultado}</span></td>
+    <td style="font-size:11px;color:var(--txt2)">${o.observacao||'—'}</td>
+    <td style="font-size:10.5px;color:var(--txt2)">${o.criado_em?new Date(o.criado_em).toLocaleDateString('pt-BR'):'—'}</td>
+    <td>${o.resultado==='Pendente'?`<button class="btn btn-sm btn-out" onclick="alterarResultadoOferta(${o.id},'Contemplado','${cotaId}')" style="font-size:10px;padding:2px 6px" title="Marcar como contemplado">✓</button> <button class="btn btn-sm btn-out" onclick="alterarResultadoOferta(${o.id},'Nao contemplado','${cotaId}')" style="font-size:10px;padding:2px 6px" title="Marcar como não contemplado">✗</button>`:`<button class="btn btn-sm btn-out" onclick="reabrirOferta(${o.id},'${cotaId}')" style="font-size:10px;padding:2px 6px" title="Reabrir como pendente">↺</button>`}</td>
+  </tr>`).join(''):'<tr><td colspan="6" style="text-align:center;color:var(--txt2);padding:30px">Nenhuma oferta registrada para esta cota.</td></tr>';
+  const html=`<div class="moverlay open" id="modal-hist-ofertas" onclick="if(event.target===this)this.remove()">
+    <div class="modal" style="max-width:780px" onclick="event.stopPropagation()">
+      <div class="mh"><span class="mt">${tit}</span><button class="mc" onclick="document.getElementById('modal-hist-ofertas').remove()">✕</button></div>
+      <div class="mb">
+        <div style="margin-bottom:14px;padding:10px 14px;background:#f0f9ff;border-radius:8px;border:1px solid #bae6fd;font-size:11.5px;color:#075985">
+          ℹ️ Cada vez que você marca um lance, fica registrado aqui. Útil pra mostrar histórico ao cliente meses depois.
+        </div>
+        <div class="tw"><table style="font-size:12.5px">
+          <thead><tr><th>Data AGO</th><th>Lance %</th><th>Resultado</th><th>Obs.</th><th>Marcado em</th><th>Ações</th></tr></thead>
+          <tbody>${linhas}</tbody>
+        </table></div>
+      </div>
+      <div class="mf"><button class="btn btn-out" onclick="document.getElementById('modal-hist-ofertas').remove()">Fechar</button></div>
+    </div>
+  </div>`;
+  document.body.insertAdjacentHTML('beforeend',html);
+}
+async function alterarResultadoOferta(ofertaId,novo,cotaId){
+  showLoad();
+  const {error}=await sb.from('ofertas_lance').update({resultado:novo,atualizado_em:new Date().toISOString()}).eq('id',ofertaId);
   hideLoad();
-  if(res){r.data_assembleia=novoVal;toast(novoVal?`Lance marcado como ofertado em ${fmtDataBr(novoVal)}`:'Marcação removida');refreshCotaViews();}
+  if(error){toast('Erro: '+error.message,'err');return;}
+  const arr=OFERTAS[String(cotaId)]||[];
+  const o=arr.find(x=>x.id===ofertaId);if(o)o.resultado=novo;
+  toast('Resultado atualizado');
+  document.getElementById('modal-hist-ofertas')?.remove();
+  openHistoricoOfertas(cotaId);
+  refreshCotaViews();
+}
+async function reabrirOferta(ofertaId,cotaId){
+  alterarResultadoOferta(ofertaId,'Pendente',cotaId);
+}
+// Helper: gera HTML do toggle de Lance Ofertado baseado no estado da oferta pendente
+function renderToggleOferta(cotaId){
+  const est=estadoOferta(cotaId);
+  const onClick=`onclick="toggleLanceOfertado('${cotaId}')"`;
+  const baseStyle='padding:3px 10px;font-size:11px;font-weight:600;border-radius:6px;cursor:pointer';
+  if(est.tipo==='sem'){
+    return `<button class="btn btn-sm" ${onClick} style="background:#fef3c7;color:#92400e;border:1px solid #d97706;${baseStyle}" title="Marcar como ofertado na próxima AGO">✗ Marcar</button>`;
+  }
+  const dt=fmtDataBr(est.oferta.data_assembleia);
+  if(est.tipo==='futura'){
+    return `<button class="btn btn-sm" ${onClick} style="background:#d1fae5;color:#065f46;border:1px solid #10b981;${baseStyle}" title="Lance marcado para AGO ${dt} — clique para desmarcar">✓ ${dt}</button>`;
+  }
+  // est.tipo === 'passada'
+  return `<button class="btn btn-sm" ${onClick} style="background:#e5e7eb;color:#374151;border:1px solid #9ca3af;${baseStyle}" title="AGO ${dt} passou — clique para fechar como Não contemplado e marcar próxima">↻ ${dt} (passou)</button>`;
 }
 function openModalTaxasCdi(){
   renderTaxasCdi();
@@ -2277,15 +2397,17 @@ async function loadData(){
   if(!sb){setSync(false);toast('Cliente Supabase não inicializado','err');return;}
   showLoad();
   try{
-    const [{data:c,error:e1},{data:l,error:e2},{data:tx},{data:gm}]=await Promise.all([
+    const [{data:c,error:e1},{data:l,error:e2},{data:tx},{data:gm},{data:ofs}]=await Promise.all([
       sb.from('cotas').select('*').order('nome'),
       sb.from('leads').select('*').order('created_at',{ascending:false}),
       sb.from('taxas_cdi').select('*').order('data_inicio'),
-      sb.from('grupos_meta').select('*')
+      sb.from('grupos_meta').select('*'),
+      sb.from('ofertas_lance').select('*').order('data_assembleia',{ascending:false})
     ]);
     if(e1)throw e1;
     TAXAS_CDI=tx||[];
     GRUPOS_META={};(gm||[]).forEach(g=>{GRUPOS_META[String(g.grupo)]=g;});
+    OFERTAS={};(ofs||[]).forEach(o=>{const k=String(o.cota_id);if(!OFERTAS[k])OFERTAS[k]=[];OFERTAS[k].push(o);});
     try{
       const last=localStorage.getItem('hc360_copom_last');
       const today=new Date().toISOString().slice(0,10);
@@ -2433,10 +2555,11 @@ function renderCtrl(){
       </td>
       <td><input class="form-i" style="padding:3px 6px;font-size:12px;width:70px" id="pl1-${r.id}" type="number" step="0.1" min="0" max="100" value="${r.lance1?+(r.lance1*100).toFixed(1):''}" placeholder="%" oninput="projMarkDirty('${r.id}')"></td>
       <td style="font-size:11.5px;text-align:center;white-space:nowrap;font-weight:600;color:var(--sb)">${fmtDataBr(proxAgo)}</td>
-      <td style="text-align:center">${r.data_assembleia?`<button class="btn btn-sm" onclick="toggleLanceOfertado('${r.id}')" style="background:#d1fae5;color:#065f46;border:1px solid #10b981;padding:3px 10px;font-size:11px;font-weight:600" title="Lance ofertado em ${fmtDataBr(r.data_assembleia)} — clique para desmarcar">✓ ${fmtDataBr(r.data_assembleia)}</button>`:`<button class="btn btn-sm" onclick="toggleLanceOfertado('${r.id}')" style="background:#fef3c7;color:#92400e;border:1px solid #d97706;padding:3px 10px;font-size:11px;font-weight:600" title="Marcar como ofertado na próxima AGO">✗ Marcar</button>`}</td>
+      <td style="text-align:center">${renderToggleOferta(r.id)}</td>
       <td style="white-space:nowrap;text-align:center">
         <button id="psave-${r.id}" class="btn btn-ok btn-sm" style="display:none" onclick="projSaveRow('${r.id}')" title="Salvar">??</button>
         ${!isCan&&!isCp?`<button class="btn btn-ok btn-sm" onclick="openModalContemp('${r.id}')" title="Contemplar">✓</button> `:''}
+        <button class="btn btn-out btn-sm" onclick="openHistoricoOfertas('${r.id}')" title="Histórico de ofertas de lance">??</button>
         <button class="btn btn-out btn-sm" onclick="openModalCota('${r.id}')" title="Editar completo">✏️</button>
       </td>
     </tr>`;}).join('');
@@ -4105,10 +4228,11 @@ function renderProjDetail(name){
       </td>
       <td><input class="form-i" style="padding:3px 6px;font-size:12px;width:70px" id="pl1-${r.id}" type="number" step="0.1" min="0" max="100" value="${r.lance1?+(r.lance1*100).toFixed(1):''}" placeholder="%" oninput="projMarkDirty('${r.id}')"></td>
       <td style="font-size:11.5px;text-align:center;white-space:nowrap;font-weight:600;color:var(--sb)">${fmtDataBr(calcProxAgo(r.grupo))}</td>
-      <td style="text-align:center">${r.data_assembleia?`<button class="btn btn-sm" onclick="toggleLanceOfertado('${r.id}')" style="background:#d1fae5;color:#065f46;border:1px solid #10b981;padding:3px 10px;font-size:11px;font-weight:600" title="Lance ofertado em ${fmtDataBr(r.data_assembleia)} — clique para desmarcar">✓ ${fmtDataBr(r.data_assembleia)}</button>`:`<button class="btn btn-sm" onclick="toggleLanceOfertado('${r.id}')" style="background:#fef3c7;color:#92400e;border:1px solid #d97706;padding:3px 10px;font-size:11px;font-weight:600" title="Marcar como ofertado na próxima AGO">✗ Marcar</button>`}</td>
+      <td style="text-align:center">${renderToggleOferta(r.id)}</td>
       <td style="white-space:nowrap;text-align:center">
         <button id="psave-${r.id}" class="btn btn-ok btn-sm" style="display:none" onclick="projSaveRow('${r.id}')" title="Salvar">💾</button>
         ${!isCan?`<button class="btn btn-out btn-sm" onclick="openModalContemp('${r.id}')" title="Registrar contemplação">✓</button> `:''}
+        <button class="btn btn-out btn-sm" onclick="openHistoricoOfertas('${r.id}')" title="Histórico de ofertas de lance">??</button>
         <button class="btn btn-out btn-sm" onclick="openModalCota('${r.id}')" title="Ver / editar completo">✏️</button>
       </td>
     </tr>`;
@@ -4456,10 +4580,17 @@ async function projSaveAllDirty(name){
     const r=COTAS.find(c=>String(c.id)===String(id));if(!r)continue;
     const ps=document.getElementById('ps-'+id);
     const pl=document.getElementById('pl1-'+id);
-    // data_assembleia agora é gerenciada pelo toggleLanceOfertado (salvo direto no banco)
-    const patch={id,status:ps?ps.value:r.status,lance1:pl&&pl.value?parseFloat(pl.value)/100:null};
+    const novoStatus=ps?ps.value:r.status;
+    const statusEraContempl=r.status==='Contemplado'||r.status==='CONTEMPLADO'||r.status==='Faturado';
+    const statusEhContempl=novoStatus==='Contemplado'||novoStatus==='Faturado';
+    const patch={id,status:novoStatus,lance1:pl&&pl.value?parseFloat(pl.value)/100:null};
     const res=await upsertCota(patch);
-    if(res){Object.assign(r,patch);document.getElementById('psave-'+id).style.display='none';}
+    if(res){
+      Object.assign(r,patch);
+      document.getElementById('psave-'+id).style.display='none';
+      // Auto-fechar oferta pendente como Contemplado quando status mudou para Contemplado/Faturado
+      if(!statusEraContempl&&statusEhContempl)await fecharOfertaContemplada(id);
+    }
   }
   hideLoad();
   toast(`${ids.length} cotas salvas em lote!`);
@@ -4469,11 +4600,14 @@ async function projSaveRow(id){
   const r=COTAS.find(c=>String(c.id)===String(id));if(!r)return;
   const status=document.getElementById('ps-'+id).value;
   const l1v=document.getElementById('pl1-'+id).value;
+  const statusEraContempl=r.status==='Contemplado'||r.status==='CONTEMPLADO'||r.status==='Faturado';
+  const statusEhContempl=status==='Contemplado'||status==='Faturado';
   const patch={id,status,lance1:l1v?parseFloat(l1v)/100:null};
   const res=await upsertCota(patch);
   if(res){
     Object.assign(r,patch);
     document.getElementById('psave-'+id).style.display='none';
+    if(!statusEraContempl&&statusEhContempl)await fecharOfertaContemplada(id);
     toast(`Cota ${r.grupo}/${r.cota} salva!`);
     refreshCotaViews();
   }
@@ -4607,10 +4741,11 @@ function renderProjList(){
       </td>
       <td><input class="form-i" style="padding:3px 6px;font-size:12px;width:70px" id="pl1-${r.id}" type="number" step="0.1" min="0" max="100" value="${r.lance1?+(r.lance1*100).toFixed(1):''}" placeholder="%" oninput="projMarkDirty('${r.id}')"></td>
       <td style="font-size:11.5px;text-align:center;white-space:nowrap;font-weight:600;color:var(--sb)">${fmtDataBr(proxAgo)}</td>
-      <td style="text-align:center">${r.data_assembleia?`<button class="btn btn-sm" onclick="toggleLanceOfertado('${r.id}')" style="background:#d1fae5;color:#065f46;border:1px solid #10b981;padding:3px 10px;font-size:11px;font-weight:600" title="Lance ofertado em ${fmtDataBr(r.data_assembleia)} — clique para desmarcar">✓ ${fmtDataBr(r.data_assembleia)}</button>`:`<button class="btn btn-sm" onclick="toggleLanceOfertado('${r.id}')" style="background:#fef3c7;color:#92400e;border:1px solid #d97706;padding:3px 10px;font-size:11px;font-weight:600" title="Marcar como ofertado na próxima AGO">✗ Marcar</button>`}</td>
+      <td style="text-align:center">${renderToggleOferta(r.id)}</td>
       <td style="white-space:nowrap;text-align:center">
         <button id="psave-${r.id}" class="btn btn-ok btn-sm" style="display:none" onclick="projSaveRow('${r.id}')" title="Salvar">??</button>
         ${!isCan&&!isCp?`<button class="btn btn-ok btn-sm" onclick="openModalContemp('${r.id}')" title="Contemplar">✓</button> `:''}
+        <button class="btn btn-out btn-sm" onclick="openHistoricoOfertas('${r.id}')" title="Histórico de ofertas de lance">??</button>
         <button class="btn btn-out btn-sm" onclick="openModalCota('${r.id}')" title="Editar completo">✏️</button>
       </td>
     </tr>`;
