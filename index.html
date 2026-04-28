@@ -2198,13 +2198,8 @@ async function buscarCopomBcb(silent){
     const novas=mudancas.filter(m=>!existem.has(m.data_inicio));
     if(novas.length===0){if(!silent)toast('Nenhuma mudança nova no BCB','ok');return 0;}
     if(!silent){
-      const lista=novas.map(n=>n.data_inicio+': '+n.taxa_aa.toFixed(2)+'%').join('
-');
-      if(!confirm('Encontrei '+novas.length+' taxa(s) nova(s) no BCB:
-
-'+lista+'
-
-Adicionar à base?'))return 0;
+      const lista=novas.map(n=>n.data_inicio+': '+n.taxa_aa.toFixed(2)+'%').join('\n');
+      if(!confirm('Encontrei '+novas.length+' taxa(s) nova(s) no BCB:\n\n'+lista+'\n\nAdicionar à base?'))return 0;
     }
     for(const n of novas){
       await sb.from('taxas_cdi').upsert({data_inicio:n.data_inicio,taxa_aa:n.taxa_aa,descricao:'Importado automaticamente do BCB (SGS 432)'},{onConflict:'data_inicio'});
@@ -4658,16 +4653,18 @@ function renderOportunidades(){
   }
   const topIm=topGroups(isIm,5);
   const topRo=topGroups(isRo,5);
-  document.getElementById('oport-im-badge').textContent=topIm.length+' grupos';
-  document.getElementById('oport-ro-badge').textContent=topRo.length+' grupos';
-  document.getElementById('oport-im').innerHTML=topIm.map(renderCard).join('');
-  document.getElementById('oport-ro').innerHTML=topRo.map(renderCard).join('');
+  const elBadgeIm=document.getElementById('oport-im-badge');if(elBadgeIm)elBadgeIm.textContent=topIm.length+' grupos';
+  const elBadgeRo=document.getElementById('oport-ro-badge');if(elBadgeRo)elBadgeRo.textContent=topRo.length+' grupos';
+  const elIm=document.getElementById('oport-im');if(elIm)elIm.innerHTML=topIm.map(renderCard).join('');
+  const elRo=document.getElementById('oport-ro');if(elRo)elRo.innerHTML=topRo.map(renderCard).join('');
 }
 
 // ═══ INIT ═══
 window.addEventListener('DOMContentLoaded',async ()=>{
-  browseData=Object.entries(GUIA);renderBrowse(browseData,1);renderOportunidades();
-  renderPropGrupos();calcProp();updLance();
+  // Cada chamada protegida com try/catch para garantir que falhas em UIs específicas não bloqueiem o login.
+  try{browseData=Object.entries(GUIA);renderBrowse(browseData,1);}catch(e){console.warn('[init] renderBrowse:',e);}
+  try{renderOportunidades();}catch(e){console.warn('[init] renderOportunidades:',e);}
+  try{renderPropGrupos();calcProp();updLance();}catch(e){console.warn('[init] proposta:',e);}
   document.addEventListener('click',e=>{if(!e.target.closest('.ac-wrap')){document.getElementById('ac-list').classList.remove('open');const sa=document.getElementById('sim-ac');if(sa)sa.classList.remove('open');}});
   // check for existing session (auto-login if token still valid)
   if(sb){
