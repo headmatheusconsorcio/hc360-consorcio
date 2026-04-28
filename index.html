@@ -1855,23 +1855,33 @@ tr:hover td{background:#f0f7f6}
             <option>Itaú</option><option>Santander</option><option>Safra</option><option>Bradesco</option><option>Banco do Brasil</option><option>Caixa</option><option>Porto Seguro</option><option>Embracon</option><option>Outro</option>
           </select>
         </div>
+        <div class="form-g"><label class="form-l">Modalidade da Parcela <span style="font-size:9.5px;color:var(--txt2);font-weight:400">(detectado pelo grupo)</span></label>
+          <select class="form-i" id="mc-modalidade" onchange="mcRecalc('mod')">
+            <option value="Padrao">Padrão (parcela cheia)</option>
+            <option value="PR50">PR 50% (parcela reduzida)</option>
+            <option value="PR70">PR 70% (parcela reduzida)</option>
+          </select>
+        </div>
+      </div>
+      <div class="g2" style="margin-bottom:0">
         <div class="form-g"><label class="form-l">Valor da Carta (R$)</label><input type="text" inputmode="numeric" class="form-i mc-brl" id="mc-credito" placeholder="Ex: 340.065,00" oninput="mcRecalc('cred')" list="mc-credito-list" autocomplete="off"></div>
-      </div>
-      <div class="g2" style="margin-bottom:0">
         <div class="form-g"><label class="form-l">Carta Atualizada (R$)</label><input type="text" inputmode="numeric" class="form-i mc-brl" id="mc-carta-atual" placeholder="Ex: 343.920,00"></div>
+      </div>
+      <div class="g2" style="margin-bottom:0">
         <div class="form-g"><label class="form-l">Parcela Pré-Contempl. (R$)</label><input type="text" inputmode="numeric" class="form-i mc-brl" id="mc-parcela" placeholder="Ex: 3.733,00"></div>
-      </div>
-      <div class="g2" style="margin-bottom:0">
         <div class="form-g"><label class="form-l">Parcela Pós-Contempl. (R$)</label><input type="text" inputmode="numeric" class="form-i mc-brl" id="mc-parcela-pos" placeholder="Preencher após contemplação"></div>
+      </div>
+      <div class="g2" style="margin-bottom:0">
         <div class="form-g"><label class="form-l">Lance Pago (R$)</label><input type="text" inputmode="numeric" class="form-i mc-brl" id="mc-lance-val" placeholder="Ex: 136.000,00" oninput="mcRecalc('val')"></div>
-      </div>
-      <div class="g2" style="margin-bottom:0">
         <div class="form-g"><label class="form-l">Taxa Adm. Oficial (%)</label><input type="number" class="form-i" id="mc-taxa" step="0.01" placeholder="Ex: 11.26" oninput="mcRecalc('taxa')"></div>
-        <div class="form-g"><label class="form-l">Oferta de Lance (%)</label><input type="number" class="form-i" id="mc-l1" step="0.1" placeholder="Ex: 30.5" oninput="mcRecalc('pct')"></div>
       </div>
       <div class="g2" style="margin-bottom:0">
+        <div class="form-g"><label class="form-l">Oferta de Lance (%)</label><input type="number" class="form-i" id="mc-l1" step="0.1" placeholder="Ex: 30.5" oninput="mcRecalc('pct')"></div>
         <div class="form-g"><label class="form-l">Saldo Devedor (R$)</label><input type="text" inputmode="numeric" class="form-i mc-brl" id="mc-saldo" placeholder="Ex: 224.058,00"></div>
+      </div>
+      <div class="g2" style="margin-bottom:0">
         <div class="form-g"><label class="form-l">Data Venc. (dia do mês)</label><input type="number" class="form-i" id="mc-venc" min="1" max="31" placeholder="Ex: 15"></div>
+        <div class="form-g" style="display:none"><label class="form-l">_</label><input class="form-i" id="mc-spacer-2"></div>
       </div>
       <div class="g2" style="margin-bottom:0">
         <div class="form-g"><label class="form-l">Data de Contemplação</label><input type="date" class="form-i" id="mc-data-contemp"></div>
@@ -2716,7 +2726,7 @@ function mcLookupGrupo(){
   if(g.pr)setIfEmpty('mc-prazo',g.pr);
   if(g.pr)setIfEmpty('mc-prazo-rest',g.pr);
   if(g.venc)setIfEmpty('mc-venc',g.venc);
-  // Tipo do bem: tenta mapear para uma das opções do select
+  // Tipo do bem: mapeia automaticamente
   const tipoSel=document.getElementById('mc-tipo-bem');
   if(tipoSel&&!tipoSel.value){
     const tp=(g.tp||'').toUpperCase();
@@ -2724,6 +2734,34 @@ function mcLookupGrupo(){
     else if(tp.includes('MOTO'))tipoSel.value='Moto';
     else if(tp.includes('PESADO'))tipoSel.value='Veículo Pesado';
     else if(tp.includes('LEVE')||tp.includes('VEI'))tipoSel.value='Veículo Leve';
+  }
+  // Modalidade da Parcela: se grupo tem PR, sugere PR 50% (modalidade padrão Itaú)
+  const modSel=document.getElementById('mc-modalidade');
+  if(modSel&&(modSel.value===''||modSel.value==='Padrao')){
+    modSel.value=g.pr_red==='S'?'PR50':'Padrao';
+  }
+  // Banco padrão Itaú (pois GUIA é Itaú)
+  const bcSel=document.getElementById('mc-banco');
+  if(bcSel&&!bcSel.value)bcSel.value='Itaú';
+  // Status padrão "Em Andamento"
+  const stSel=document.getElementById('mc-status');
+  if(stSel&&!stSel.value)stSel.value='Em Andamento';
+  // Adesão: se vazio, usa hoje (data atual)
+  const adEl=document.getElementById('mc-adesao');
+  if(adEl&&!adEl.value)adEl.value=new Date().toISOString().slice(0,10);
+  // Próx. Assembleia: se vazio, usa próx AGO calculada
+  const asmEl=document.getElementById('mc-asm');
+  if(asmEl&&!asmEl.value){const pa=calcProxAgo(v);if(pa)asmEl.value=pa;}
+  // Taxa Adm. sugerida (não preenche, só sugere via placeholder)
+  // Imóvel: 23% padrão / 20% se PR | Veículo: 14-17%
+  const txEl=document.getElementById('mc-taxa');
+  if(txEl&&!txEl.value){
+    const tp=(g.tp||'').toUpperCase();
+    let suggerido;
+    if(tp.includes('IM'))suggerido=g.pr_red==='S'?20:23;
+    else if(tp.includes('MOTO'))suggerido=18;
+    else suggerido=15;
+    txEl.placeholder=`Ex: ${suggerido} (sugerido pelo grupo)`;
   }
   // Recalcula totais se já tem crédito
   if(typeof mcRecalc==='function'&&document.getElementById('mc-credito').value)mcRecalc('init');
@@ -2750,6 +2788,10 @@ function openModalCota(id){
   document.getElementById('mc-data-contemp').value=r.data_contemplada||'';
   const dfatEl=document.getElementById('mc-data-fat');if(dfatEl)dfatEl.value=r.data_faturamento||'';
   const bcEl=document.getElementById('mc-banco');if(bcEl)bcEl.value=r.banco||'';
+  const modEl=document.getElementById('mc-modalidade');if(modEl)modEl.value=r.modalidade_parcela||'Padrao';
+  // Limpa banner do grupo ao abrir
+  const banner=document.getElementById('mc-grupo-banner');if(banner)banner.style.display='none';
+  const info=document.getElementById('mc-grupo-info');if(info)info.textContent='';
   document.getElementById('mc-carta-atual').value=fmtBrl(r.carta_atualizada);
   document.getElementById('mc-tipo-bem').value=r.tipo_bem||'';
   document.getElementById('mc-fundo').value=r.fundo_reserva!=null?r.fundo_reserva:3;
@@ -2763,6 +2805,8 @@ function openModalCota(id){
   document.getElementById('mc-asm').value=asmMatch?asmMatch[1]:'';
   document.getElementById('mc-obs').value=rawInfo.replace(/\s*\[ASM:[^\]]+\]/,'').trim();
   document.getElementById('modal-cota').classList.add('open');
+  // Se já tem grupo, faz o lookup pra mostrar info do GUIA
+  if(r.grupo)setTimeout(()=>mcLookupGrupo(),50);
 }
 async function saveCota(){
   const data={
@@ -2784,6 +2828,7 @@ async function saveCota(){
     data_contemplada:document.getElementById('mc-data-contemp').value||null,
     data_faturamento:(document.getElementById('mc-data-fat')?document.getElementById('mc-data-fat').value:null)||null,
     banco:(document.getElementById('mc-banco')?document.getElementById('mc-banco').value:null)||null,
+    modalidade_parcela:(document.getElementById('mc-modalidade')?document.getElementById('mc-modalidade').value:'Padrao')||'Padrao',
     carta_atualizada:parseBrl(document.getElementById('mc-carta-atual').value),
     tipo_bem:document.getElementById('mc-tipo-bem').value||null,
     fundo_reserva:parseFloat(document.getElementById('mc-fundo').value)||3,
@@ -2818,14 +2863,26 @@ function mcRecalc(src){
   // Saldo devedor = saldo total - lance pago (amortização)
   const saldoAtual=Math.max(0,saldoTotal-lv);
   if(cr>0)document.getElementById('mc-saldo').value=brl(saldoAtual).replace('R$ ','');
-  // Parcela pré = saldo total / prazo total (pré-contemplação)
-  // Parcela pós = saldo remanescente / prazo restante (pós-contemplação)
+  // Modalidade da parcela (Padrão / PR50 / PR70) — aplica fator na parcela pré
+  const mod=(document.getElementById('mc-modalidade')?.value)||'Padrao';
+  const fatorPR=mod==='PR50'?0.50:(mod==='PR70'?0.70:1.0);
+  // Parcela pré = (saldo total / prazo total) × fator PR
+  // Parcela pós = saldo remanescente / prazo restante (sem fator — pós já é cheia)
   const stEl=document.getElementById('mc-calc-saldo-total');
   const ppEl=document.getElementById('mc-calc-parc-pre');
   const posEl=document.getElementById('mc-calc-parc-pos');
   if(stEl)stEl.textContent=cr>0?brl(saldoTotal):'—';
-  if(ppEl)ppEl.textContent=(cr>0&&prazo>0)?brl(saldoTotal/prazo):'—';
+  if(ppEl){
+    const parcPre=(cr>0&&prazo>0)?(saldoTotal/prazo)*fatorPR:0;
+    ppEl.innerHTML=parcPre>0?(brl(parcPre)+(fatorPR<1?` <small style="color:var(--warn);font-weight:700">${(fatorPR*100).toFixed(0)}%</small>`:'')):'—';
+  }
   if(posEl)posEl.textContent=(saldoAtual>0&&prazoRest>0)?brl(saldoAtual/prazoRest):'—';
+  // Auto-preencher Parcela Pré (campo) baseado no cálculo (só se vazio)
+  const parcPreInp=document.getElementById('mc-parcela');
+  if(parcPreInp&&!parcPreInp.value&&cr>0&&prazo>0&&taxa>0){
+    const calc=(saldoTotal/prazo)*fatorPR;
+    parcPreInp.value=brl(calc).replace('R$ ','');
+  }
 }
 async function confirmarPagamento(id){
   const r=COTAS.find(c=>String(c.id)===String(id));
