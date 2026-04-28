@@ -401,7 +401,7 @@ tr:hover td{background:#f0f7f6}
   </nav>
   <div class="sb-foot">
     <div class="user-b">
-      <div class="avatar" id="sb-avatar">?</div>
+      <div class="avatar" id="sb-avatar">·</div>
       <div><div class="u-name" id="sb-name">—</div><div class="u-role" id="sb-role">carregando...</div></div>
       <div class="sync-dot" id="sync-dot" title="Status da conexão"></div>
     </div>
@@ -1722,29 +1722,38 @@ tr:hover td{background:#f0f7f6}
         </div>
         <div class="form-g"><label class="form-l">Status da Cota</label>
           <select class="form-i" id="mc-status">
-            <option>Em Andamento</option><option>Lance Livre</option><option>Lance Fixo</option><option>Contemplado</option><option>Faturado</option>
+            <option>Em Andamento</option><option>Lance Livre</option><option>Lance Fixo</option><option>Contemplado</option><option>Faturado</option><option>Cancelado</option>
           </select>
         </div>
       </div>
       <div class="g2" style="margin-bottom:0">
+        <div class="form-g"><label class="form-l">Banco / Administradora</label>
+          <select class="form-i" id="mc-banco">
+            <option value="">Selecione...</option>
+            <option>Itaú</option><option>Santander</option><option>Safra</option><option>Bradesco</option><option>Banco do Brasil</option><option>Caixa</option><option>Porto Seguro</option><option>Embracon</option><option>Outro</option>
+          </select>
+        </div>
         <div class="form-g"><label class="form-l">Valor da Carta (R$)</label><input type="text" inputmode="numeric" class="form-i mc-brl" id="mc-credito" placeholder="Ex: 340.065,00" oninput="mcRecalc('cred')"></div>
+      </div>
+      <div class="g2" style="margin-bottom:0">
         <div class="form-g"><label class="form-l">Carta Atualizada (R$)</label><input type="text" inputmode="numeric" class="form-i mc-brl" id="mc-carta-atual" placeholder="Ex: 343.920,00"></div>
-      </div>
-      <div class="g2" style="margin-bottom:0">
         <div class="form-g"><label class="form-l">Parcela Pré-Contempl. (R$)</label><input type="text" inputmode="numeric" class="form-i mc-brl" id="mc-parcela" placeholder="Ex: 3.733,00"></div>
+      </div>
+      <div class="g2" style="margin-bottom:0">
         <div class="form-g"><label class="form-l">Parcela Pós-Contempl. (R$)</label><input type="text" inputmode="numeric" class="form-i mc-brl" id="mc-parcela-pos" placeholder="Preencher após contemplação"></div>
-      </div>
-      <div class="g2" style="margin-bottom:0">
         <div class="form-g"><label class="form-l">Lance Pago (R$)</label><input type="text" inputmode="numeric" class="form-i mc-brl" id="mc-lance-val" placeholder="Ex: 136.000,00" oninput="mcRecalc('val')"></div>
-        <div class="form-g"><label class="form-l">Taxa Adm. Oficial (%)</label><input type="number" class="form-i" id="mc-taxa" step="0.01" placeholder="Ex: 11.26" oninput="mcRecalc('taxa')"></div>
       </div>
       <div class="g2" style="margin-bottom:0">
-        <div class="form-g"><label class="form-l">Saldo Devedor (R$)</label><input type="text" inputmode="numeric" class="form-i mc-brl" id="mc-saldo" placeholder="Ex: 224.058,00"></div>
+        <div class="form-g"><label class="form-l">Taxa Adm. Oficial (%)</label><input type="number" class="form-i" id="mc-taxa" step="0.01" placeholder="Ex: 11.26" oninput="mcRecalc('taxa')"></div>
         <div class="form-g"><label class="form-l">Oferta de Lance (%)</label><input type="number" class="form-i" id="mc-l1" step="0.1" placeholder="Ex: 30.5" oninput="mcRecalc('pct')"></div>
       </div>
       <div class="g2" style="margin-bottom:0">
-        <div class="form-g"><label class="form-l">Data de Contemplação</label><input type="date" class="form-i" id="mc-data-contemp"></div>
+        <div class="form-g"><label class="form-l">Saldo Devedor (R$)</label><input type="text" inputmode="numeric" class="form-i mc-brl" id="mc-saldo" placeholder="Ex: 224.058,00"></div>
         <div class="form-g"><label class="form-l">Data Venc. (dia do mês)</label><input type="number" class="form-i" id="mc-venc" min="1" max="31" placeholder="Ex: 15"></div>
+      </div>
+      <div class="g2" style="margin-bottom:0">
+        <div class="form-g"><label class="form-l">Data de Contemplação</label><input type="date" class="form-i" id="mc-data-contemp"></div>
+        <div class="form-g"><label class="form-l">Data de Faturamento (Bem Entregue)</label><input type="date" class="form-i" id="mc-data-fat"></div>
       </div>
       <div class="g2" style="margin-bottom:0">
         <div class="form-g"><label class="form-l">Assessor</label>
@@ -1810,6 +1819,32 @@ tr:hover td{background:#f0f7f6}
 </div>
 
 <!-- MODAL CONTEMPLAR -->
+<!-- MODAL TAXAS CDI -->
+<div class="moverlay" id="modal-taxas-cdi">
+  <div class="modal" style="max-width:560px">
+    <div class="mh"><span class="mt">⚙ Histórico de Taxas CDI</span><button class="mc" onclick="closeModal('modal-taxas-cdi')">✕</button></div>
+    <div class="mb">
+      <div style="font-size:12px;color:var(--txt2);margin-bottom:14px;line-height:1.5">
+        Cada taxa vigora <b>a partir da data de início informada</b> até que outra taxa mais recente a substitua. O cálculo de rendimento aplica taxas por período histórico — quando você adiciona uma taxa nova, apenas o período <b>após sua data_inicio</b> é recalculado.
+      </div>
+      <div class="tw" style="margin-bottom:14px"><table style="font-size:12.5px">
+        <thead><tr><th>Data início</th><th style="text-align:right">Taxa (% a.a.)</th><th>Descrição</th><th></th></tr></thead>
+        <tbody id="taxas-cdi-tbody"></tbody>
+      </table></div>
+      <div style="background:#f0fdf4;border-radius:8px;padding:14px;border:1px solid #bbf7d0">
+        <div style="font-size:11px;font-weight:700;color:#166534;text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px">+ Adicionar nova taxa</div>
+        <div class="g2" style="margin-bottom:8px">
+          <div class="form-g"><label class="form-l">Data de início</label><input type="date" class="form-i" id="taxa-data"></div>
+          <div class="form-g"><label class="form-l">Taxa % a.a.</label><input type="number" class="form-i" id="taxa-aa" step="0.01" min="0" max="100" placeholder="14.95"></div>
+        </div>
+        <div class="form-g" style="margin-bottom:8px"><label class="form-l">Descrição (opcional)</label><input class="form-i" id="taxa-desc" placeholder="Ex: Selic Copom 03/2026"></div>
+        <button class="btn btn-ok btn-sm" onclick="addTaxaCdi()">✓ Salvar taxa</button>
+      </div>
+    </div>
+    <div class="mf"><button class="btn btn-out" onclick="closeModal('modal-taxas-cdi')">Fechar</button></div>
+  </div>
+</div>
+
 <div class="moverlay" id="modal-contemp">
   <div class="modal">
     <div class="mh"><span class="mt" id="mc2-title">Registrar Contemplação</span><button class="mc" onclick="closeModal('modal-contemp')">✕</button></div>
@@ -1912,7 +1947,7 @@ const mpt=m=>MPT[m]||m;
 let CURRENT_USER=null; // {email, assessorName, isAdmin, displayName}
 
 function updateSidebarUser(u){
-  const ini=(u.displayName||u.email||'?')[0].toUpperCase();
+  const ini=(u.displayName||u.email||'·')[0].toUpperCase();
   document.getElementById('sb-avatar').textContent=ini;
   document.getElementById('sb-name').textContent=u.displayName||u.email.split('@')[0];
   document.getElementById('sb-role').textContent=u.isAdmin?'Administrador':'Assessor';
@@ -2020,7 +2055,7 @@ function renderAssessorTracking(){
 
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&document.getElementById('login-screen').style.display!=='none')doLogin();});
 
-let COTAS=[], LEADS=[], dashCharts={};
+let COTAS=[], LEADS=[], TAXAS_CDI=[], dashCharts={};
 let ctrlFiltered=[], ctrlPage=1, ctrlSort={col:null,dir:1};
 let browseData=Object.entries(GUIA), browsePage=1, browseSort={col:null,dir:1};
 let plistFiltered=[], plistPage=1, plistSort={col:null,dir:1};
@@ -2041,6 +2076,92 @@ function sortIcon(st,col){if(st.col!==col)return'⇅';return st.dir===1?'↑':'�
 function renderPag(cid,cur,tot,fn){const el=document.getElementById(cid);if(tot<=1){el.innerHTML='';return;}let h='';if(cur>1)h+=`<button class="pag-btn" onclick="${fn}(${cur-1})">‹</button>`;const st=Math.max(1,cur-2),en=Math.min(tot,st+4);for(let i=st;i<=en;i++)h+=`<button class="pag-btn${i===cur?' act':''}" onclick="${fn}(${i})">${i}</button>`;if(cur<tot)h+=`<button class="pag-btn" onclick="${fn}(${cur+1})">›</button>`;el.innerHTML=h;}
 
 function toast(msg,type='ok'){const div=document.createElement('div');div.className=`toast-item ${type}`;div.textContent=(type==='ok'?'✓ ':type==='err'?'✕ ':'')+msg;document.getElementById('toast').appendChild(div);setTimeout(()=>div.remove(),3500);}
+
+// ═══ RENTABILIDADE PÓS-CONTEMPLAÇÃO ═══
+// Calcula rendimento composto aplicando histórico de taxas CDI por período.
+// base: valor inicial (carta_atualizada na contemplação)
+// dataInicio: data de contemplação (ISO YYYY-MM-DD)
+// dataFim: data de faturamento (congela) ou null = hoje
+// taxas: array de {data_inicio, taxa_aa} ordenado asc por data_inicio
+// Retorna: rendimento em R$ (valor_final − base)
+function calcRendimento(base,dataInicio,dataFim,taxas){
+  if(!base||!dataInicio||!taxas||!taxas.length)return 0;
+  const di=new Date(dataInicio+'T00:00:00');
+  const df=dataFim?new Date(dataFim+'T00:00:00'):new Date();
+  if(df<=di)return 0;
+  const tx=taxas.slice().sort((a,b)=>new Date(a.data_inicio)-new Date(b.data_inicio));
+  // Pontos onde a taxa pode mudar (cortados no intervalo [di, df])
+  const breaks=[di];
+  for(const t of tx){const d=new Date(t.data_inicio+'T00:00:00');if(d>di&&d<df)breaks.push(d);}
+  breaks.push(df);
+  let valor=base;
+  for(let i=0;i<breaks.length-1;i++){
+    const a=breaks[i],b=breaks[i+1];
+    const dias=(b-a)/86400000;
+    if(dias<=0)continue;
+    // Taxa vigente no início do subperíodo = maior data_inicio <= a
+    let taxaAA=tx[0].taxa_aa;
+    for(const t of tx){if(new Date(t.data_inicio+'T00:00:00')<=a)taxaAA=t.taxa_aa;else break;}
+    valor*=Math.pow(1+taxaAA/100,dias/365);
+  }
+  return valor-base;
+}
+// Base do rendimento = carta_atualizada na contemplação (ou crédito se não tiver)
+function rendimentoCota(r){
+  const isCp=r.status==='Contemplado'||r.status==='CONTEMPLADO'||r.status==='Faturado';
+  if(!isCp||!r.data_contemplada)return 0;
+  // Se já foi faturado, congela na data de faturamento
+  const dataFim=r.status==='Faturado'?(r.data_faturamento||null):null;
+  // Faturado SEM data_faturamento = não calcula (evita rendimento até hoje em carta já entregue)
+  if(r.status==='Faturado'&&!r.data_faturamento)return 0;
+  const base=r.carta_atualizada||r.credito||0;
+  return calcRendimento(base,r.data_contemplada,dataFim,TAXAS_CDI);
+}
+function taxaCdiAtual(){
+  if(!TAXAS_CDI||!TAXAS_CDI.length)return null;
+  const hoje=new Date();
+  const ord=TAXAS_CDI.slice().sort((a,b)=>new Date(a.data_inicio)-new Date(b.data_inicio));
+  let atual=ord[0];
+  for(const t of ord){if(new Date(t.data_inicio+'T00:00:00')<=hoje)atual=t;else break;}
+  return atual;
+}
+function openModalTaxasCdi(){
+  renderTaxasCdi();
+  document.getElementById('modal-taxas-cdi').classList.add('open');
+}
+function renderTaxasCdi(){
+  const tb=document.getElementById('taxas-cdi-tbody');if(!tb)return;
+  const ord=TAXAS_CDI.slice().sort((a,b)=>new Date(b.data_inicio)-new Date(a.data_inicio));
+  if(!ord.length){tb.innerHTML='<tr><td colspan="4" style="text-align:center;color:var(--txt2);padding:14px">Nenhuma taxa cadastrada — adicione abaixo.</td></tr>';return;}
+  tb.innerHTML=ord.map(t=>{
+    const dt=t.data_inicio?new Date(t.data_inicio+'T00:00:00').toLocaleDateString('pt-BR'):'—';
+    return `<tr><td>${dt}</td><td style="text-align:right;font-weight:700;color:var(--ok)">${t.taxa_aa}%</td><td style="font-size:11.5px;color:var(--txt2)">${t.descricao||'—'}</td><td style="text-align:right"><button class="btn btn-out btn-sm" onclick="delTaxaCdi(${t.id})" title="Remover" style="padding:2px 8px;font-size:11px">🗑</button></td></tr>`;
+  }).join('');
+}
+async function addTaxaCdi(){
+  const data=document.getElementById('taxa-data').value;
+  const aa=parseFloat(document.getElementById('taxa-aa').value);
+  const desc=document.getElementById('taxa-desc').value.trim()||null;
+  if(!data||!aa){toast('Preencha data e taxa','err');return;}
+  showLoad();
+  const {error}=await sb.from('taxas_cdi').upsert({data_inicio:data,taxa_aa:aa,descricao:desc},{onConflict:'data_inicio'});
+  hideLoad();
+  if(error){toast('Erro: '+error.message,'err');return;}
+  toast('Taxa salva!');
+  document.getElementById('taxa-data').value='';
+  document.getElementById('taxa-aa').value='';
+  document.getElementById('taxa-desc').value='';
+  await loadData();renderTaxasCdi();if(selProj)renderProjDash(selProj);
+}
+async function delTaxaCdi(id){
+  if(!confirm('Remover esta taxa? Os rendimentos serão recalculados.'))return;
+  showLoad();
+  const {error}=await sb.from('taxas_cdi').delete().eq('id',id);
+  hideLoad();
+  if(error){toast('Erro: '+error.message,'err');return;}
+  toast('Taxa removida.');
+  await loadData();renderTaxasCdi();if(selProj)renderProjDash(selProj);
+}
 function showLoad(){document.getElementById('loading').classList.add('show');}
 function hideLoad(){document.getElementById('loading').classList.remove('show');}
 function setSync(ok){const d=document.getElementById('sync-dot'),s=document.getElementById('sync-status');d.className='sync-dot'+(ok?' ok':' err');s.textContent=ok?'Conectado ao Supabase':'Sem conexão';}
@@ -2056,11 +2177,13 @@ async function loadData(){
   if(!sb){setSync(false);toast('Cliente Supabase não inicializado','err');return;}
   showLoad();
   try{
-    const [{data:c,error:e1},{data:l,error:e2}]=await Promise.all([
+    const [{data:c,error:e1},{data:l,error:e2},{data:tx}]=await Promise.all([
       sb.from('cotas').select('*').order('nome'),
-      sb.from('leads').select('*').order('created_at',{ascending:false})
+      sb.from('leads').select('*').order('created_at',{ascending:false}),
+      sb.from('taxas_cdi').select('*').order('data_inicio')
     ]);
     if(e1)throw e1;
+    TAXAS_CDI=tx||[];
     let rawCotas=c||[];
     if(CURRENT_USER&&!CURRENT_USER.isAdmin&&CURRENT_USER.assessorName){
       rawCotas=rawCotas.filter(r=>r.assessor&&r.assessor.toLowerCase().includes(CURRENT_USER.assessorName.toLowerCase()));
@@ -2214,6 +2337,8 @@ function openModalCota(id){
   document.getElementById('mc-lance-val').value=fmtBrl(r.lance_total);
   document.getElementById('mc-parcela-pos').value=fmtBrl(r.parcela_pos);
   document.getElementById('mc-data-contemp').value=r.data_contemplada||'';
+  const dfatEl=document.getElementById('mc-data-fat');if(dfatEl)dfatEl.value=r.data_faturamento||'';
+  const bcEl=document.getElementById('mc-banco');if(bcEl)bcEl.value=r.banco||'';
   document.getElementById('mc-carta-atual').value=fmtBrl(r.carta_atualizada);
   document.getElementById('mc-tipo-bem').value=r.tipo_bem||'';
   document.getElementById('mc-fundo').value=r.fundo_reserva!=null?r.fundo_reserva:3;
@@ -2246,6 +2371,8 @@ async function saveCota(){
     parcela_pos:parseBrl(document.getElementById('mc-parcela-pos').value),
     taxa_adm:(v=>v?parseFloat(v):null)(document.getElementById('mc-taxa').value),
     data_contemplada:document.getElementById('mc-data-contemp').value||null,
+    data_faturamento:(document.getElementById('mc-data-fat')?document.getElementById('mc-data-fat').value:null)||null,
+    banco:(document.getElementById('mc-banco')?document.getElementById('mc-banco').value:null)||null,
     carta_atualizada:parseBrl(document.getElementById('mc-carta-atual').value),
     tipo_bem:document.getElementById('mc-tipo-bem').value||null,
     fundo_reserva:parseFloat(document.getElementById('mc-fundo').value)||3,
@@ -2833,7 +2960,7 @@ function renderSimGrupos(modoComp,creditoAlvo){
     const minH=h.absMin!=null?(h.absMin*100).toFixed(1)+'%':'—';
     const avgH=h.avgMin!=null?(h.avgMin*100).toFixed(1)+'%':(d.at_min?(d.at_min*100).toFixed(1)+'%':'—');
     const maxH=h.avgMax!=null?(h.avgMax*100).toFixed(1)+'%':'—';
-    const vagas=d.vagas!=null?`<strong style="color:${d.vagas>20?'var(--ok)':d.vagas>5?'var(--warn)':'var(--err)'}">${d.vagas}</strong>`:'?';
+    const vagas=d.vagas!=null?`<strong style="color:${d.vagas>20?'var(--ok)':d.vagas>5?'var(--warn)':'var(--err)'}">${d.vagas}</strong>`:'<span style="color:var(--txt2)">—</span>';
     const compat=Math.min(100,Math.round(score/maxScore*100));
     const compatColor=compat>=70?'var(--ok)':compat>=40?'var(--warn)':'var(--err)';
     const credTotal=cred*(qtd||1);
@@ -3191,7 +3318,7 @@ function renderPropGrupos(){
     const tpLbl=d.tp?(isIm?'🏠 Imóvel':'🚗 Veículo'):'';
     const tpBadgeHtml=hasD?'<span style="display:inline-block;padding:2px 9px;border-radius:12px;font-size:11.5px;font-weight:700;background:'+(isIm?'#dbeafe':'#fef3c7')+';color:'+(isIm?'#1e40af':'#92400e')+'">'+tpLbl+'</span>':'<span style="display:inline-block;padding:2px 9px;border-radius:12px;font-size:11px;font-weight:600;background:#f1f5f9;color:var(--txt2)">Grupo '+(i+1)+'</span>';
     const prazoRest=hasD?(g.prazo-(g.mesAtual||0)):null;
-    const info=hasD?'Prazo '+g.prazo+'m · Restante <strong style="color:var(--info)">'+(prazoRest!=null?prazoRest+'m':'?')+'</strong> · FR '+g.fr+'% · Adm '+g.taxaadm+'% · '+brl(g.credMin,0)+' – '+brl(g.credMax,0):'Digite o nº do grupo para carregar dados';
+    const info=hasD?'Prazo '+g.prazo+'m · Restante <strong style="color:var(--info)">'+(prazoRest!=null?prazoRest+'m':'—')+'</strong> · FR '+g.fr+'% · Adm '+g.taxaadm+'% · '+brl(g.credMin,0)+' – '+brl(g.credMax,0):'Digite o nº do grupo para carregar dados';
     const bg=hasD?'#f0fdf4':'var(--card2)';const bc=hasD?'var(--ok)':'var(--bdr)';const tc=hasD?'var(--txt)':'var(--txt2)';
     return '<div id="pg-box-'+i+'" style="background:'+bg+';border-radius:8px;padding:10px;margin-bottom:8px;border:1.5px solid '+bc+'">'
       +'<div style="display:flex;align-items:center;gap:6px;margin-bottom:7px"><span id="pg-tp-'+i+'">'+tpBadgeHtml+'</span></div>'
@@ -3758,12 +3885,21 @@ function selProjFn(name){
 function renderProjDetail(name){
   const cotas=COTAS.filter(r=>r.nome===name);
   const ativas=cotas.filter(r=>r.status!=='CANCELADO'&&r.status!=='Cancelado');
-  const contemp=cotas.filter(r=>r.status==='CONTEMPLADO'||r.status==='Contemplado').length;
+  const isCcheck=s=>s==='Contemplado'||s==='CONTEMPLADO'||s==='Faturado';
+  const contemp=cotas.filter(r=>isCcheck(r.status)).length;
   const cancel=cotas.filter(r=>r.status==='CANCELADO'||r.status==='Cancelado').length;
   const lanceN=cotas.filter(r=>r.status==='LANCE'||r.status==='Em Andamento').length;
   const sorteio=cotas.filter(r=>r.status==='SORTEIO / LANCE'||r.status==='Sorteio').length;
   const cr=ativas.reduce((s,r)=>s+(r.credito||0),0);
-  const parc=ativas.reduce((s,r)=>s+(r.parcela||0),0);
+  // Parcela atual: pós-contempl. para contempladas/faturadas, pré para ativas
+  const parc=ativas.reduce((s,r)=>s+(isCcheck(r.status)?(r.parcela_pos||r.parcela||0):(r.parcela||0)),0);
+  // Crédito Liberado: igual ao do dashboard
+  const credLib=ativas.filter(r=>isCcheck(r.status)).reduce((s,r)=>{
+    if(r.credito_liberado!=null&&r.credito_liberado>0) return s+r.credito_liberado;
+    const carta=r.carta_atualizada||r.credito||0;
+    if(r.lance_embutido!=null&&r.lance_embutido>0) return s+Math.max(0,carta-r.lance_embutido);
+    return s+carta;
+  },0);
   const pct=ativas.length>0?Math.round(contemp/ativas.length*100):0;
   const isCancelada=r=>r.status==='Cancelado'||r.status==='CANCELADO';
   const ordem={'Em Andamento':0,'Lance Livre':0,'Lance Fixo':0,'LANCE':0,'Sorteio':1,'SORTEIO / LANCE':1,'SUPLENCIA - 2 NA FRENTE':1,'Contemplado':2,'CONTEMPLADO':2,'Faturado':3,'Cancelado':4,'CANCELADO':4};
@@ -3787,11 +3923,13 @@ function renderProjDetail(name){
 
   function mkRow(r){
     const isCan=isCancelada(r);
+    const isCp=r.status==='Contemplado'||r.status==='CONTEMPLADO'||r.status==='Faturado';
+    const parcEf=isCp?(r.parcela_pos||r.parcela||0):(r.parcela||0);
     return `<tr id="proj-row-${r.id}" style="${isCan?'opacity:.4;background:#fafafa':''}" >
       <td><strong>${r.grupo||'—'}</strong></td>
       <td>${r.cota||'—'}</td>
       <td>${brl(r.credito,0)}</td>
-      <td>${brl(r.parcela)}</td>
+      <td>${brl(parcEf)}${isCp&&r.parcela_pos?'<small style="display:block;font-size:9px;color:var(--ok)">pós</small>':''}</td>
       <td>
         <select class="form-i" style="padding:3px 6px;font-size:12px;min-width:140px" id="ps-${r.id}" onchange="projMarkDirty('${r.id}')">
           ${['Em Andamento','Lance Livre','Lance Fixo','Contemplado','Faturado'].map(s=>`<option${r.status===s||(s==='Contemplado'&&r.status==='CONTEMPLADO')||(s==='Em Andamento'&&['LANCE','SORTEIO / LANCE','Sorteio','SUPLENCIA - 2 NA FRENTE'].includes(r.status))?' selected':''}>` +s+`</option>`).join('')}
@@ -3823,8 +3961,9 @@ function renderProjDetail(name){
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">${atag(cotas[0]?.assessor)}</div>
     </div>
     <div style="padding:14px 18px;display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;border-bottom:1px solid var(--bdr)">
-      <div><div style="font-size:10px;color:var(--txt2);font-weight:700;text-transform:uppercase;margin-bottom:2px">Crédito Ativo</div><div style="font-size:22px;font-weight:800;color:var(--info)">${cr>=1e6?(cr/1e6).toFixed(2)+'M':brl(cr,0)}</div></div>
-      <div><div style="font-size:10px;color:var(--txt2);font-weight:700;text-transform:uppercase;margin-bottom:2px">Parcela/mês</div><div style="font-size:22px;font-weight:800;color:var(--warn)">${brl(parc)}</div></div>
+      <div><div style="font-size:10px;color:var(--txt2);font-weight:700;text-transform:uppercase;margin-bottom:2px">Crédito Total</div><div style="font-size:22px;font-weight:800;color:var(--info)">${cr>=1e6?(cr/1e6).toFixed(2)+'M':brl(cr,0)}</div></div>
+      <div><div style="font-size:10px;color:var(--txt2);font-weight:700;text-transform:uppercase;margin-bottom:2px">Crédito Liberado</div><div style="font-size:22px;font-weight:800;color:var(--sb2)">${credLib>=1e6?(credLib/1e6).toFixed(2)+'M':brl(credLib,0)}</div><div style="font-size:9.5px;color:var(--txt2);margin-top:1px">líquido (carta − embutido)</div></div>
+      <div><div style="font-size:10px;color:var(--txt2);font-weight:700;text-transform:uppercase;margin-bottom:2px">Parcela Atual</div><div style="font-size:22px;font-weight:800;color:var(--warn)">${brl(parc)}</div><div style="font-size:9.5px;color:var(--txt2);margin-top:1px">pré + pós conforme status</div></div>
       <div><div style="font-size:10px;color:var(--txt2);font-weight:700;text-transform:uppercase;margin-bottom:2px">Contempladas</div><div style="font-size:22px;font-weight:800;color:var(--ok)">${contemp} <span style="font-size:13px;font-weight:500">de ${ativas.length}</span></div></div>
       <div><div style="font-size:10px;color:var(--txt2);font-weight:700;text-transform:uppercase;margin-bottom:2px">Progresso</div><div style="font-size:22px;font-weight:800">${pct}%</div><div class="pbar" style="margin-top:4px"><div class="pfill" style="width:${pct}%"></div></div></div>
     </div>
@@ -3852,7 +3991,9 @@ function renderProjDetail(name){
 // ═══ PROJ DASHBOARD ═══
 let projDetailTab='table';
 let projDetailSort={col:null,dir:1};
+let portDetSort={col:null,dir:1};
 function sortProjDetail(col){projDetailSort.dir=projDetailSort.col===col?-projDetailSort.dir:1;projDetailSort.col=col;renderProjDetail(selProj);}
+function sortPortDet(col){portDetSort.dir=portDetSort.col===col?-portDetSort.dir:1;portDetSort.col=col;renderProjDash(selProj);}
 let pdCharts={};
 function destroyPdCharts(){Object.values(pdCharts).forEach(c=>{try{c&&c.destroy()}catch(e){}}); pdCharts={};}
 function renderProjDash(name){
@@ -3871,8 +4012,9 @@ function renderProjDash(name){
     const g=GUIA[r.grupo]||GUIA[String(r.grupo)]||{};
     const prazoTotal=r.prazo_total||g.pr||120;
     const adesao=r.adesao?new Date(r.adesao):null;
-    const meses=adesao?Math.max(0,Math.floor((today-adesao)/(1000*60*60*24*30.44))):0;
-    const pr=r.prazo_restante!=null?r.prazo_restante:Math.max(0,prazoTotal-meses);
+    const pr=r.prazo_restante!=null?r.prazo_restante:Math.max(0,prazoTotal-(adesao?Math.floor((today-adesao)/(1000*60*60*24*30.44)):0));
+    // meses decorridos = prazo total − prazo restante (mais preciso que cálculo por adesão)
+    const meses=Math.max(0,prazoTotal-pr);
     return{...r,prazoTotal,meses,pr,estimPago:meses*(r.parcela||0),estimSaldo:pr*(r.parcela||0),tp:g.tp||'Im'};
   });
   const totCr=en.reduce((s,r)=>s+(r.credito||0),0);
@@ -3893,6 +4035,11 @@ function renderProjDash(name){
   const sumPP=enComPrazo.reduce((s,r)=>s+(r.prazo_restante||0)*parcEfetiva(r),0);
   const sumP=enComPrazo.reduce((s,r)=>s+parcEfetiva(r),0);
   const prazoPonderado=sumP>0?Math.round(sumPP/sumP):0;
+  // Maior prazo entre as cotas (em meses)
+  const prazoMax=Math.max(0,...en.map(r=>r.prazo_restante||0));
+  // Rendimento total acumulado das cotas contempladas/faturadas (apenas as com data_contemplada preenchida)
+  const totRend=en.reduce((s,r)=>s+rendimentoCota(r),0);
+  const taxaAtual=taxaCdiAtual();
   const nC=en.filter(r=>isC(r.status)&&!isFat(r.status)).length;
   const crC=en.filter(r=>isC(r.status)&&!isFat(r.status)).reduce((s,r)=>s+(r.credito||0),0);
   const nFat=en.filter(r=>isFat(r.status)).length;
@@ -3915,20 +4062,63 @@ function renderProjDash(name){
   const stBg={Contemplado:'#d1fae5',CONTEMPLADO:'#d1fae5',Faturado:'#d1f0ee','Em Andamento':'#fef3c7','Lance Livre':'#dbeafe','Lance Fixo':'#fdf6e3',LANCE:'#fef3c7',Sorteio:'#f3f4f6','SORTEIO / LANCE':'#f3f4f6','SUPLENCIA - 2 NA FRENTE':'#f3f4f6'};
   const stTx={Contemplado:'#065f46',CONTEMPLADO:'#065f46',Faturado:'#185b59','Em Andamento':'#92400e','Lance Livre':'#1e40af','Lance Fixo':'#7a5c1e',LANCE:'#92400e',Sorteio:'#4a5568','SORTEIO / LANCE':'#4a5568','SUPLENCIA - 2 NA FRENTE':'#4a5568'};
   const stPc={Contemplado:'var(--ok)',CONTEMPLADO:'var(--ok)',Faturado:'#185b59','Em Andamento':'var(--warn)','Lance Livre':'var(--info)','Lance Fixo':'var(--acc)',LANCE:'var(--warn)',Sorteio:'var(--bdr)','SORTEIO / LANCE':'var(--bdr)','SUPLENCIA - 2 NA FRENTE':'var(--bdr)'};
-  const rows=en.slice().sort((a,b)=>(stOrd[a.status]??9)-(stOrd[b.status]??9)).map(r=>{
+  // Ordenação do Portfolio Detalhado
+  let enSorted;
+  if(portDetSort.col){
+    const col=portDetSort.col, dir=portDetSort.dir;
+    const credlibOf=r=>{
+      if(r.credito_liberado!=null&&r.credito_liberado>0)return r.credito_liberado;
+      if(r.lance_embutido!=null&&r.lance_embutido>0)return Math.max(0,(r.carta_atualizada||r.credito||0)-r.lance_embutido);
+      return isC(r.status)?(r.carta_atualizada||r.credito||0):0;
+    };
+    const getter={
+      grupo:r=>(r.grupo||'')+'/'+(r.cota||''),
+      status:r=>r.status||'',
+      credito:r=>r.credito||0,
+      credlib:credlibOf,
+      meses:r=>r.meses||0,
+      estimPago:r=>r.estimPago||0,
+      estimSaldo:r=>r.estimSaldo||0,
+      pr:r=>r.pr||0,
+      vencimento:r=>r.vencimento||0,
+      lance1:r=>(r.lance1||0)*1
+    }[col]||(r=>0);
+    enSorted=en.slice().sort((a,b)=>{const av=getter(a),bv=getter(b);if(typeof av==='string')return dir*av.localeCompare(bv);return dir*((av||0)-(bv||0));});
+  } else {
+    enSorted=en.slice().sort((a,b)=>(stOrd[a.status]??9)-(stOrd[b.status]??9));
+  }
+  const rows=enSorted.map(r=>{
     const pct=r.prazoTotal>0?Math.min(100,Math.round(r.meses/r.prazoTotal*100)):0;
     const bg=stBg[r.status]||'#f3f4f6'; const tx=stTx[r.status]||'#374151'; const pc=stPc[r.status]||'var(--bdr)';
-    const lanceVal=r.lance1?(+(r.lance1*100).toFixed(1)):'';
-    return`<tr>
+    // Lance: % (lance1) + valor R$ (recurso_proprio > lance_total). Mostra o que existir.
+    const lancePct=r.lance1?(+(r.lance1*100).toFixed(1)):null;
+    const lanceVal$=r.recurso_proprio!=null&&r.recurso_proprio>0?r.recurso_proprio:(r.lance_total||0);
+    let lanceCell='<span style="color:var(--txt2)">—</span>';
+    if(lancePct||lanceVal$>0){
+      const partes=[];
+      if(lancePct)partes.push(`<span style="background:#fef3c7;color:#92400e;border-radius:6px;padding:2px 7px;font-size:11px;font-weight:600">${lancePct}%</span>`);
+      if(lanceVal$>0)partes.push(`<small style="display:block;font-size:10px;color:var(--txt2);margin-top:2px">${ff(lanceVal$)}</small>`);
+      lanceCell=partes.join('');
+    }
+    // Crédito Liberado por cota
+    let cl=0;
+    if(r.credito_liberado!=null&&r.credito_liberado>0)cl=r.credito_liberado;
+    else if(r.lance_embutido!=null&&r.lance_embutido>0)cl=Math.max(0,(r.carta_atualizada||r.credito||0)-r.lance_embutido);
+    else if(isC(r.status))cl=r.carta_atualizada||r.credito||0;
+    // Rendimento estimado por cota
+    const rend=rendimentoCota(r);
+    const rendCell=rend>0?`<small style="display:block;font-size:10px;color:#059669;margin-top:1px">+${ff(rend)} rend.</small>`:'';
+    return`<tr data-rid="${r.id}">
       <td><strong>${r.grupo||'—'}</strong><small style="display:block;color:var(--txt2);font-size:10.5px">Cota ${r.cota||'—'}</small></td>
       <td><span style="padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;background:${bg};color:${tx}">${r.status}</span></td>
       <td style="text-align:right;font-weight:700">${ff(r.credito||0)}</td>
+      <td style="text-align:right;font-weight:600;color:var(--sb2)">${cl>0?ff(cl):'<span style="color:var(--txt2)">—</span>'}${rendCell}</td>
       <td><div style="font-size:10px;color:var(--txt2);margin-bottom:2px">${pct}% decorrido · ${r.meses}m de ${r.prazoTotal}m</div><div class="pd-prog"><div class="pd-prog-fill" style="width:${pct}%;background:${pc}"></div></div></td>
       <td style="text-align:right;color:var(--ok);font-weight:600">${ff(r.estimPago)}</td>
       <td style="text-align:right;font-weight:600;color:var(--err)">${ff(r.estimSaldo)}</td>
       <td style="text-align:right;color:var(--txt2)">${r.pr}m<small style="display:block;font-size:10px">${(r.pr/12).toFixed(1)} anos</small></td>
       <td style="text-align:right;font-size:11.5px">${r.vencimento?'Dia '+r.vencimento:'—'}</td>
-      <td style="text-align:right">${lanceVal?`<span style="background:#fef3c7;color:#92400e;border-radius:6px;padding:2px 7px;font-size:11px;font-weight:600">${lanceVal}%</span>`:'<span style="color:var(--txt2)">—</span>'}</td>
+      <td style="text-align:right">${lanceCell}</td>
     </tr>`;
   }).join('');
   document.getElementById('proj-detail').innerHTML=`
@@ -3961,6 +4151,8 @@ function renderProjDash(name){
       <div class="pd-kpi c-warn"><div class="pd-kpi-ico">💳</div><div class="pd-kpi-lbl">Parcela Mensal</div><div class="pd-kpi-val">${fb(totParc)}</div><div class="pd-kpi-sub">pré (ativas) + pós (contempladas)</div></div>
       <div class="pd-kpi c-green"><div class="pd-kpi-ico">🏦</div><div class="pd-kpi-lbl">Valor Pago · Lances</div><div class="pd-kpi-val">${fb(totLancePago)}</div><div class="pd-kpi-sub">recurso próprio (excl. embutido)</div></div>
       <div class="pd-kpi c-info"><div class="pd-kpi-ico">📅</div><div class="pd-kpi-lbl">Prazo Ponderado</div><div class="pd-kpi-val">${prazoPonderado}<span style="font-size:14px;font-weight:600;color:var(--txt2)"> m</span></div><div class="pd-kpi-sub">ponderado por parcela &nbsp;·&nbsp; ${(prazoPonderado/12).toFixed(1)} anos</div></div>
+      <div class="pd-kpi c-navy"><div class="pd-kpi-ico">⏳</div><div class="pd-kpi-lbl">Prazo Total (maior)</div><div class="pd-kpi-val">${prazoMax}<span style="font-size:14px;font-weight:600;color:var(--txt2)"> m</span></div><div class="pd-kpi-sub">maior prazo entre as cotas &nbsp;·&nbsp; ${(prazoMax/12).toFixed(1)} anos</div></div>
+      <div class="pd-kpi c-green" style="border-left:3px solid #059669"><div class="pd-kpi-ico">📈</div><div class="pd-kpi-lbl">Rendimento Estimado</div><div class="pd-kpi-val" style="color:#059669">${fb(totRend)}</div><div class="pd-kpi-sub">CDI ${taxaAtual?taxaAtual.taxa_aa+'% a.a.':'—'} &nbsp;·&nbsp; <a href="#" onclick="openModalTaxasCdi();return false" style="color:var(--sb2);text-decoration:underline">⚙ taxas</a></div></div>
     </div>
     <div class="pd-st-grid">
       <div class="pd-st-card"><div class="pd-st-count" style="color:#059669">${nC}</div><div class="pd-st-lbl">Contempladas</div><div class="pd-st-cr">${fb(crC)}</div><div class="pd-st-bar" style="background:#d1fae5"><div style="height:100%;width:${totCr>0?Math.round(crC/totCr*100):0}%;background:#059669;border-radius:2px"></div></div></div>
@@ -3996,19 +4188,35 @@ function renderProjDash(name){
     <div style="font-size:13.5px;font-weight:700;margin-bottom:10px;color:var(--sb)">📋 Portfólio Detalhado</div>
     <div class="tw"><table style="font-size:12px">
       <thead style="background:var(--sb);color:#fff"><tr>
-        <th>Grupo / Cota</th><th>Status</th>
-        <th style="text-align:right">Crédito</th>
-        <th>Progresso (prazo)</th>
-        <th style="text-align:right">Pago Est.</th>
-        <th style="text-align:right">Saldo Est.</th>
-        <th style="text-align:right">Prazo Rest.</th>
-        <th style="text-align:right">Venc.</th>
-        <th style="text-align:right">Lance %</th>
+        <th onclick="sortPortDet('grupo')" style="cursor:pointer">Grupo / Cota <span id="ppd-grupo" class="sort-ico">${sortIcon(portDetSort,'grupo')}</span></th>
+        <th onclick="sortPortDet('status')" style="cursor:pointer">Status <span id="ppd-status" class="sort-ico">${sortIcon(portDetSort,'status')}</span></th>
+        <th onclick="sortPortDet('credito')" style="cursor:pointer;text-align:right">Crédito <span id="ppd-credito" class="sort-ico">${sortIcon(portDetSort,'credito')}</span></th>
+        <th onclick="sortPortDet('credlib')" style="cursor:pointer;text-align:right">Crédito Liberado <span id="ppd-credlib" class="sort-ico">${sortIcon(portDetSort,'credlib')}</span></th>
+        <th onclick="sortPortDet('meses')" style="cursor:pointer">Progresso (prazo) <span id="ppd-meses" class="sort-ico">${sortIcon(portDetSort,'meses')}</span></th>
+        <th onclick="sortPortDet('estimPago')" style="cursor:pointer;text-align:right">Pago Est. <span id="ppd-estimPago" class="sort-ico">${sortIcon(portDetSort,'estimPago')}</span></th>
+        <th onclick="sortPortDet('estimSaldo')" style="cursor:pointer;text-align:right">Saldo Est. <span id="ppd-estimSaldo" class="sort-ico">${sortIcon(portDetSort,'estimSaldo')}</span></th>
+        <th onclick="sortPortDet('pr')" style="cursor:pointer;text-align:right">Prazo Rest. <span id="ppd-pr" class="sort-ico">${sortIcon(portDetSort,'pr')}</span></th>
+        <th onclick="sortPortDet('vencimento')" style="cursor:pointer;text-align:right">Venc. <span id="ppd-vencimento" class="sort-ico">${sortIcon(portDetSort,'vencimento')}</span></th>
+        <th onclick="sortPortDet('lance1')" style="cursor:pointer;text-align:right">Lance <span id="ppd-lance1" class="sort-ico">${sortIcon(portDetSort,'lance1')}</span></th>
       </tr></thead>
       <tbody>${rows}</tbody>
+      <tfoot style="background:#f8fafc;font-weight:700">
+        <tr style="border-top:2px solid var(--sb)">
+          <td colspan="2" style="padding:8px 13px;color:var(--sb)">TOTAL · ${en.length} cotas</td>
+          <td style="text-align:right;color:var(--info)">${ff(totCr)}</td>
+          <td style="text-align:right;color:var(--sb2)">${ff(credLib)}</td>
+          <td></td>
+          <td style="text-align:right;color:var(--ok)">${ff(en.reduce((s,r)=>s+(r.estimPago||0),0))}</td>
+          <td style="text-align:right;color:var(--err)">${ff(en.reduce((s,r)=>s+(r.estimSaldo||0),0))}</td>
+          <td style="text-align:right;color:var(--txt2)">${prazoMax}m máx</td>
+          <td></td>
+          <td style="text-align:right">${ff(en.reduce((s,r)=>s+(r.recurso_proprio!=null&&r.recurso_proprio>0?r.recurso_proprio:(r.lance_total||0)),0))}</td>
+        </tr>
+      </tfoot>
     </table></div>
-    <div style="font-size:10.5px;color:var(--txt2);margin-top:12px;padding:10px 14px;background:var(--card2);border-radius:8px;border:1px solid var(--bdr)">
-      ℹ️ Saldo Devedor e Crédito Liberado refletem os valores registrados no sistema. Prazo Restante: média das cotas ativas com prazo preenchido.
+    <div style="font-size:10.5px;color:var(--txt2);margin-top:12px;padding:10px 14px;background:var(--card2);border-radius:8px;border:1px solid var(--bdr);line-height:1.6">
+      ℹ️ <b>Saldo Devedor</b> e <b>Crédito Liberado</b> refletem os valores registrados no sistema. <b>Prazo Restante</b>: média ponderada pela parcela.<br>
+      📈 <b>Rendimento Estimado</b>: aplicado à carta atualizada de cotas Contempladas/Faturadas pelo histórico de CDI registrado em <a href="#" onclick="openModalTaxasCdi();return false" style="color:var(--sb2);text-decoration:underline">⚙ taxas</a>. Cotas Faturadas só rendem até a <i>data de faturamento</i>; cotas sem essa data não computam rendimento. Cálculo virtual — nenhum dado contratual é alterado.
     </div>
   </div>
   </div>`;
