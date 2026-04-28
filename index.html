@@ -3838,8 +3838,8 @@ function renderProjDash(name){
     if(r.carta_atualizada) return s+r.carta_atualizada*0.7;
     return s+(r.credito||0);
   },0);
-  // Valor Pago Lances = somente recurso próprio (exclui embutido)
-  const totLancePago=en.reduce((s,r)=>s+(r.recurso_proprio||0),0);
+  // Valor Pago Lances = recurso próprio se disponível, senão lance_total
+  const totLancePago=en.reduce((s,r)=>s+(r.recurso_proprio!=null?r.recurso_proprio:(r.lance_total||0)),0);
   // Prazo ponderado pelo valor da parcela efetiva (correto para TIR)
   const enComPrazo=en.filter(r=>(r.prazo_restante||0)>0);
   const sumPP=enComPrazo.reduce((s,r)=>s+(r.prazo_restante||0)*parcEfetiva(r),0);
