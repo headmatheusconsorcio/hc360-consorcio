@@ -142,6 +142,9 @@ tr:hover td{background:#f0f7f6}
 /* ── PROJECT CARDS ──────────────────────────── */
 .proj-grid{display:flex;flex-direction:column;gap:10px;margin-bottom:20px}
 /* ── LAYOUT A: Cards horizontais ── */
+.pcard-h-header{display:grid;grid-template-columns:56px minmax(240px,2.2fr) minmax(180px,1.4fr) 90px 100px 130px 150px;align-items:center;gap:22px;padding:8px 22px;font-size:10.5px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:.6px;background:var(--card2);border:1px solid var(--bdr);border-radius:8px}
+.pcard-h-header > div{user-select:none}
+.pcard-h-header > div:hover{color:var(--sb);}
 .pcard-h{display:grid;grid-template-columns:56px minmax(240px,2.2fr) minmax(180px,1.4fr) 90px 100px 130px 150px;align-items:center;gap:22px;background:#fff;border:1.5px solid var(--bdr);border-left:4px solid var(--sb);border-radius:12px;padding:16px 22px;cursor:pointer;transition:all .15s}
 .pcard-h:hover{border-color:var(--sb2);border-left-color:var(--acc);box-shadow:0 3px 12px rgba(0,0,0,.07);transform:translateX(3px)}
 .pcard-h.sel{border-color:var(--acc);border-left-color:var(--acc);border-left-width:6px;background:linear-gradient(90deg,#fefbf3 0%,#fff 80%);box-shadow:0 2px 16px rgba(214,175,92,.28)}
@@ -1534,14 +1537,20 @@ tr:hover td{background:#f0f7f6}
       <div class="frow" style="margin-bottom:14px;flex-wrap:wrap;gap:8px;align-items:center">
         <input class="fi fi-lg" type="text" id="pcards-search" placeholder="🔍  Buscar cliente..." oninput="syncProjFilter('search',this.value)" style="flex:1;max-width:340px">
         <select class="fi fi-md" id="pcards-sort" onchange="syncProjFilter('sort',this.value)">
-          <option value="nome">Ordenar: Nome (A-Z)</option>
+          <option value="nome">Nome (A-Z)</option>
           <option value="nome-desc">Nome (Z-A)</option>
+          <option value="assessor">Assessor (A-Z)</option>
+          <option value="assessor-desc">Assessor (Z-A)</option>
+          <option value="banco">Banco (A-Z)</option>
+          <option value="banco-desc">Banco (Z-A)</option>
           <option value="cotas-desc" selected>Mais cotas</option>
           <option value="cotas">Menos cotas</option>
+          <option value="contemp-desc">Mais contempladas</option>
+          <option value="contemp">Menos contempladas</option>
+          <option value="pct-desc">% contempl. maior</option>
+          <option value="pct">% contempl. menor</option>
           <option value="credito-desc">Maior volume</option>
           <option value="credito">Menor volume</option>
-          <option value="contemp-desc">Mais contempladas</option>
-          <option value="pct-desc">% contempl. maior</option>
         </select>
         <select class="fi fi-md" id="pcards-assessor" onchange="syncProjFilter('assessor',this.value)">
           <option value="">Todos Assessores</option>
@@ -1563,14 +1572,20 @@ tr:hover td{background:#f0f7f6}
       <div class="frow" id="pcards-frow-bot" style="margin-top:14px;flex-wrap:wrap;gap:8px;align-items:center;padding:12px 14px;background:var(--card2);border:1px solid var(--bdr);border-radius:10px">
         <input class="fi fi-lg" type="text" id="pcards-search-bot" placeholder="🔍  Buscar cliente..." oninput="syncProjFilter('search',this.value)" style="flex:1;max-width:340px">
         <select class="fi fi-md" id="pcards-sort-bot" onchange="syncProjFilter('sort',this.value)">
-          <option value="nome">Ordenar: Nome (A-Z)</option>
+          <option value="nome">Nome (A-Z)</option>
           <option value="nome-desc">Nome (Z-A)</option>
+          <option value="assessor">Assessor (A-Z)</option>
+          <option value="assessor-desc">Assessor (Z-A)</option>
+          <option value="banco">Banco (A-Z)</option>
+          <option value="banco-desc">Banco (Z-A)</option>
           <option value="cotas-desc" selected>Mais cotas</option>
           <option value="cotas">Menos cotas</option>
+          <option value="contemp-desc">Mais contempladas</option>
+          <option value="contemp">Menos contempladas</option>
+          <option value="pct-desc">% contempl. maior</option>
+          <option value="pct">% contempl. menor</option>
           <option value="credito-desc">Maior volume</option>
           <option value="credito">Menor volume</option>
-          <option value="contemp-desc">Mais contempladas</option>
-          <option value="pct-desc">% contempl. maior</option>
         </select>
         <select class="fi fi-md" id="pcards-assessor-bot" onchange="syncProjFilter('assessor',this.value)">
           <option value="">Todos Assessores</option>
@@ -4386,6 +4401,26 @@ function syncProjFilter(field,val){
   ids.forEach(id=>{const el=document.getElementById(id);if(el&&el.value!==val)el.value=val;});
   renderProj();
 }
+// Click no cabeçalho de coluna → toggla ASC/DESC daquela coluna
+function sortProjBy(col){
+  const cur=document.getElementById('pcards-sort').value;
+  // Se já está ordenando por essa coluna, inverte direção; senão usa default DESC
+  let next;
+  if(cur===col)next=col+'-desc';
+  else if(cur===col+'-desc')next=col;
+  else{
+    // Default por coluna: nome=ASC, demais=DESC
+    next=(col==='nome'||col==='assessor'||col==='banco')?col:col+'-desc';
+  }
+  syncProjFilter('sort',next);
+}
+// Retorna ícone de ordenação para a coluna
+function sortIconProj(col){
+  const cur=document.getElementById('pcards-sort')?.value||'';
+  if(cur===col)return ' ↑';
+  if(cur===col+'-desc')return ' ↓';
+  return ' ⇅';
+}
 let projCardsLayout=(typeof localStorage!=='undefined'&&localStorage.getItem('hc360_proj_layout'))||'cards';
 function setProjCardsLayout(v){
   projCardsLayout=v;
@@ -4424,18 +4459,25 @@ function renderProj(){
     const t=ativas.length;
     const cr=ativas.reduce((s,r)=>s+(r.credito||0),0);
     const p=t>0?Math.round(c/t*100):0;
-    return {n,d,c,t,cr,p};
+    const bancoStr=Array.from(d.bancos).sort().join(', ');
+    return {n,d,c,t,cr,p,bancoStr,assessor:d.assessor||''};
   };
   const enriched=ps.map(agg);
   // Ordenação
   const cmp={
     'nome':(a,b)=>a.n.localeCompare(b.n,'pt-BR'),
     'nome-desc':(a,b)=>b.n.localeCompare(a.n,'pt-BR'),
+    'assessor':(a,b)=>a.assessor.localeCompare(b.assessor,'pt-BR')||a.n.localeCompare(b.n,'pt-BR'),
+    'assessor-desc':(a,b)=>b.assessor.localeCompare(a.assessor,'pt-BR')||a.n.localeCompare(b.n,'pt-BR'),
+    'banco':(a,b)=>a.bancoStr.localeCompare(b.bancoStr,'pt-BR')||a.n.localeCompare(b.n,'pt-BR'),
+    'banco-desc':(a,b)=>b.bancoStr.localeCompare(a.bancoStr,'pt-BR')||a.n.localeCompare(b.n,'pt-BR'),
     'cotas':(a,b)=>a.t-b.t,
     'cotas-desc':(a,b)=>b.t-a.t,
     'credito':(a,b)=>a.cr-b.cr,
     'credito-desc':(a,b)=>b.cr-a.cr,
+    'contemp':(a,b)=>a.c-b.c,
     'contemp-desc':(a,b)=>b.c-a.c,
+    'pct':(a,b)=>a.p-b.p,
     'pct-desc':(a,b)=>b.p-a.p,
   }[sortBy]||((a,b)=>b.t-a.t);
   enriched.sort(cmp);
@@ -4471,12 +4513,30 @@ function renderProj(){
       </tr>`;
     }).join('');
     target.outerHTML=`<table class="pcard-table" id="proj-cards">
-      <thead><tr><th>Cliente</th><th>Assessor</th><th>Bancos</th><th style="text-align:center">Cotas</th><th style="text-align:center">Contempl.</th><th style="text-align:right">Volume</th><th>Progresso</th></tr></thead>
+      <thead><tr>
+        <th onclick="sortProjBy('nome')" style="cursor:pointer">Cliente${sortIconProj('nome')}</th>
+        <th onclick="sortProjBy('assessor')" style="cursor:pointer">Assessor${sortIconProj('assessor')}</th>
+        <th onclick="sortProjBy('banco')" style="cursor:pointer">Bancos${sortIconProj('banco')}</th>
+        <th onclick="sortProjBy('cotas')" style="cursor:pointer;text-align:center">Cotas${sortIconProj('cotas')}</th>
+        <th onclick="sortProjBy('contemp')" style="cursor:pointer;text-align:center">Contempl.${sortIconProj('contemp')}</th>
+        <th onclick="sortProjBy('credito')" style="cursor:pointer;text-align:right">Volume${sortIconProj('credito')}</th>
+        <th onclick="sortProjBy('pct')" style="cursor:pointer">Progresso${sortIconProj('pct')}</th>
+      </tr></thead>
       <tbody>${rows||'<tr><td colspan="7" style="text-align:center;color:var(--txt2);padding:30px">Nenhum cliente encontrado</td></tr>'}</tbody>
     </table>`;
   } else {
     // ── LAYOUT A: CARDS HORIZONTAIS ──
-    const html=enriched.map(({n,d,c,t,cr,p})=>{
+    // Header de colunas (clicável para ordenar)
+    const headerHtml=`<div class="pcard-h-header">
+      <div></div>
+      <div onclick="sortProjBy('nome')" style="cursor:pointer">CLIENTE${sortIconProj('nome')}</div>
+      <div onclick="sortProjBy('banco')" style="cursor:pointer">BANCOS${sortIconProj('banco')}</div>
+      <div onclick="sortProjBy('cotas')" style="cursor:pointer;text-align:center">COTAS${sortIconProj('cotas')}</div>
+      <div onclick="sortProjBy('contemp')" style="cursor:pointer;text-align:center">CONTEMPL.${sortIconProj('contemp')}</div>
+      <div onclick="sortProjBy('credito')" style="cursor:pointer;text-align:center">VOLUME${sortIconProj('credito')}</div>
+      <div onclick="sortProjBy('pct')" style="cursor:pointer;text-align:right">PROGRESSO${sortIconProj('pct')}</div>
+    </div>`;
+    const html=headerHtml+enriched.map(({n,d,c,t,cr,p})=>{
       const initial=(n||'?')[0].toUpperCase();
       const sel=selProj===n?' sel':'';
       return `<div class="pcard-h${sel}" data-proj="${encodeURIComponent(n)}" onclick="selProjFn(decodeURIComponent(this.getAttribute('data-proj')))">
