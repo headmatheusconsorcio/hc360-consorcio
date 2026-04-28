@@ -3832,7 +3832,8 @@ function renderProjDash(name){
   // Parcela mensal correta: pré para ativas, pós para contempladas/faturadas
   const totParc=en.reduce((s,r)=>s+parcEfetiva(r),0);
   const totSdDB=en.reduce((s,r)=>s+(r.saldo_devedor||0),0);
-  const credLib=en.filter(r=>isC(r.status)).reduce((s,r)=>s+(r.carta_atualizada||r.credito||0),0);
+  // Crédito Liberado = carta - lance_embutido (usa credito_liberado; fallback carta_atualizada×0.7 ou carta_atualizada)
+  const credLib=en.filter(r=>isC(r.status)).reduce((s,r)=>s+(r.credito_liberado||(r.carta_atualizada?r.carta_atualizada*0.7:0)||r.credito||0),0);
   const totLancePago=en.reduce((s,r)=>s+(r.lance_total||0),0);
   // Prazo ponderado pelo valor da parcela efetiva (correto para TIR)
   const enComPrazo=en.filter(r=>(r.prazo_restante||0)>0);
@@ -3902,7 +3903,7 @@ function renderProjDash(name){
     </div>
     <div class="pd-kpi-grid">
       <div class="pd-kpi c-navy"><div class="pd-kpi-ico">💎</div><div class="pd-kpi-lbl">Crédito Total</div><div class="pd-kpi-val">${fb(totCr)}</div><div class="pd-kpi-sub">${en.length} cotas &nbsp;·&nbsp; ${nC} contempladas</div></div>
-      <div class="pd-kpi c-teal"><div class="pd-kpi-ico">🔓</div><div class="pd-kpi-lbl">Crédito Liberado</div><div class="pd-kpi-val">${fb(credLib)}</div><div class="pd-kpi-sub">carta atualizada das contempladas</div></div>
+      <div class="pd-kpi c-teal"><div class="pd-kpi-ico">🔓</div><div class="pd-kpi-lbl">Crédito Liberado</div><div class="pd-kpi-val">${fb(credLib)}</div><div class="pd-kpi-sub">carta − embutido (contempladas)</div></div>
       <div class="pd-kpi c-gold"><div class="pd-kpi-ico">⚖️</div><div class="pd-kpi-lbl">Saldo Devedor</div><div class="pd-kpi-val">${fb(totSdDB)}</div><div class="pd-kpi-sub">saldo real consolidado</div></div>
       <div class="pd-kpi c-warn"><div class="pd-kpi-ico">💳</div><div class="pd-kpi-lbl">Parcela Mensal</div><div class="pd-kpi-val">${fb(totParc)}</div><div class="pd-kpi-sub">pré (ativas) + pós (contempladas)</div></div>
       <div class="pd-kpi c-green"><div class="pd-kpi-ico">🏦</div><div class="pd-kpi-lbl">Valor Pago · Lances</div><div class="pd-kpi-val">${fb(totLancePago)}</div><div class="pd-kpi-sub">total de lances pagos</div></div>
