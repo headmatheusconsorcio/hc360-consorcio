@@ -899,6 +899,40 @@ tr:hover td{background:#f0f7f6}
               <div style="font-size:16px;font-weight:700;color:#15803d" id="r-saldo-pos">—</div>
             </div>
           </div>
+          <!-- BLOCO CET -->
+          <div style="background:#1a2f4e;border-radius:12px;padding:20px;margin-bottom:20px;color:#fff">
+            <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;opacity:.7;margin-bottom:16px">📊 CET — Custo Efetivo Total</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid rgba(255,255,255,.15);border-radius:8px;overflow:hidden">
+              <div style="padding:12px 16px;border-right:1px solid rgba(255,255,255,.15);border-bottom:1px solid rgba(255,255,255,.15)">
+                <div style="font-size:10px;opacity:.6;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Valor Presente</div>
+                <div style="font-size:17px;font-weight:800" id="cet-vp">—</div>
+                <div style="font-size:10px;opacity:.5;margin-top:2px">crédito líquido − rec. próprios</div>
+              </div>
+              <div style="padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.15)">
+                <div style="font-size:10px;opacity:.6;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Taxa Adm + FR (R$)</div>
+                <div style="font-size:17px;font-weight:800" id="cet-ta">—</div>
+                <div style="font-size:10px;opacity:.5;margin-top:2px">saldo devedor − crédito total</div>
+              </div>
+              <div style="padding:12px 16px;border-right:1px solid rgba(255,255,255,.15);border-bottom:1px solid rgba(255,255,255,.15)">
+                <div style="font-size:10px;opacity:.6;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Custo Estimado Total</div>
+                <div style="font-size:22px;font-weight:900;color:#facc15" id="cet-pct">—</div>
+              </div>
+              <div style="padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.15)">
+                <div style="font-size:10px;opacity:.6;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Prazo Médio</div>
+                <div style="font-size:17px;font-weight:800" id="cet-prazo">—</div>
+                <div style="font-size:10px;opacity:.5;margin-top:2px">meses</div>
+              </div>
+              <div style="padding:14px 16px;border-right:1px solid rgba(255,255,255,.15);background:rgba(250,204,21,.12)">
+                <div style="font-size:10px;opacity:.7;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">CET ao Mês</div>
+                <div style="font-size:26px;font-weight:900;color:#facc15" id="cet-mes">—</div>
+              </div>
+              <div style="padding:14px 16px;background:rgba(250,204,21,.12)">
+                <div style="font-size:10px;opacity:.7;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">CET ao Ano</div>
+                <div style="font-size:26px;font-weight:900;color:#facc15" id="cet-ano">—</div>
+              </div>
+            </div>
+            <div style="font-size:10px;opacity:.45;margin-top:10px">Metodologia: CET = (Taxa Adm + FR) ÷ Valor Presente ÷ Prazo. Não inclui ITBI, cartório nem seguro opcional.</div>
+          </div>
           <!-- Detalhes por grupo -->
           <div id="prop-breakdown" style="margin-bottom:20px"></div>
           <!-- Nota legal -->
@@ -3326,6 +3360,19 @@ function calcProp(){
   const prRow=document.getElementById('r-pi-red-row');if(prRow)prRow.textContent=red>0?'Com redução: '+brl(piRed):'—';
   set('r-mes',mesReal+'º mês');set('r-saldo-pos',brl(totSP,0));set('r-pp',brl(totPp));
   set('r-cet',(avgTa+avgFr).toFixed(1)+'% ≈ '+brl(totSD-totCred,0));
+  // ── CET real (fórmula da planilha Itaú) ──
+  const prazoAvgCet=totCotas?propGrupos.reduce((a,g)=>a+(g.prazo||192)*(g.qtd||1),0)/totCotas:192;
+  const cetVP=totLiq-totLRP;                    // Crédito Líquido − Rec.Próprios
+  const cetTA=totSD-totCred;                    // Saldo Devedor − Crédito Total (= Adm+FR em R$)
+  const cetPct=cetVP>0?cetTA/cetVP:0;           // Custo Estimado Total %
+  const cetMes=prazoAvgCet>0?cetPct/prazoAvgCet:0;
+  const cetAno=cetMes*12;
+  set('cet-vp',brl(cetVP,0));
+  set('cet-ta',brl(cetTA,0));
+  set('cet-pct',(cetPct*100).toFixed(2)+'%');
+  set('cet-prazo',prazoAvgCet.toFixed(0)+' meses');
+  set('cet-mes',(cetMes*100).toFixed(4)+'%');
+  set('cet-ano',(cetAno*100).toFixed(2)+'%');
   const bdEl=document.getElementById('prop-breakdown');
   if(bdEl){
     if(propGrupos.length>1){
