@@ -448,12 +448,17 @@ tr:hover td{background:#f0f7f6}
       <input class="fi fi-lg" type="text" id="f-search" placeholder="🔍  Nome, grupo, cota, CPF..." oninput="filterCtrl()">
       <select class="fi fi-md" id="f-status" onchange="filterCtrl()">
         <option value="">Todos Status</option>
-        <option>Em Andamento</option><option>Lance Livre</option><option>Lance Fixo</option><option>Contemplado</option><option>Faturado</option>
+        <option>Em Andamento</option><option>Lance Livre</option><option>Lance Fixo</option><option>Contemplado</option><option>Faturado</option><option>Cancelado</option>
       </select>
       <select class="fi fi-md" id="f-assessor" onchange="filterCtrl()">
         <option value="">Todos Assessores</option>
         <option>ALAN / ESCRITORIO</option><option>ALE / ESCRITORIO</option><option>GLAUCO</option><option>GIL</option><option>SZPIN</option><option>Coyote</option>
       </select>
+      <select class="fi fi-md" id="f-banco" onchange="filterCtrl()">
+        <option value="">Todos Bancos</option>
+        <option>Itaú</option><option>Santander</option><option>Safra</option><option>Bradesco</option><option>Banco do Brasil</option><option>Caixa</option><option>Porto Seguro</option><option>Embracon</option><option>Outro</option>
+      </select>
+      <label style="display:flex;align-items:center;gap:5px;font-size:11.5px;color:var(--txt2);cursor:pointer;padding:0 4px;border:1px solid var(--bdr);border-radius:6px;height:34px"><input type="checkbox" id="f-incl-cancel" onchange="filterCtrl()" style="margin:0">Mostrar canceladas</label>
       <button class="btn btn-out btn-sm" onclick="clearCtrl()">✕</button>
       <button class="btn btn-ok btn-sm" onclick="openModalCota(-1)">+ Nova Cota</button>
       <span style="margin-left:auto;font-size:12px;color:var(--txt2)" id="ctrl-count">—</span>
@@ -463,14 +468,16 @@ tr:hover td{background:#f0f7f6}
         <thead><tr>
           <th onclick="sortCtrl('nome')" style="cursor:pointer">Cliente <span id="csort-nome" class="sort-ico">⇅</span></th>
           <th onclick="sortCtrl('grupo')" style="cursor:pointer">Grupo/Cota <span id="csort-grupo" class="sort-ico">⇅</span></th>
+          <th onclick="sortCtrl('banco')" style="cursor:pointer">Banco <span id="csort-banco" class="sort-ico">⇅</span></th>
           <th onclick="sortCtrl('credito')" style="cursor:pointer">Crédito <span id="csort-credito" class="sort-ico">⇅</span></th>
           <th onclick="sortCtrl('parcela')" style="cursor:pointer">Parcela <span id="csort-parcela" class="sort-ico">⇅</span></th>
           <th>Venc.</th>
           <th onclick="sortCtrl('assessor')" style="cursor:pointer">Assessor <span id="csort-assessor" class="sort-ico">⇅</span></th>
           <th onclick="sortCtrl('status')" style="cursor:pointer">Status <span id="csort-status" class="sort-ico">⇅</span></th>
           <th onclick="sortCtrl('lance1')" style="cursor:pointer">Lance <span id="csort-lance1" class="sort-ico">⇅</span></th>
+          <th onclick="sortCtrl('data_contemplada')" style="cursor:pointer">Contemp. <span id="csort-data_contemplada" class="sort-ico">⇅</span></th>
           <th onclick="sortCtrl('saldo_devedor')" style="cursor:pointer">Saldo Dev. <span id="csort-saldo_devedor" class="sort-ico">⇅</span></th>
-          <th>Comissão</th><th>Ações</th>
+          <th>Ações</th>
         </tr></thead>
         <tbody id="ctrl-tbody"></tbody>
       </table></div>
@@ -737,6 +744,12 @@ tr:hover td{background:#f0f7f6}
         <select class="fi fi-md" id="guia-tipo" onchange="guiaFilter()">
           <option value="">Todos</option><option value="Im">Imóveis</option><option value="Ro">Rodas</option>
         </select>
+        <select class="fi fi-md" id="guia-modal" onchange="guiaFilter()">
+          <option value="">Modalidade: todas</option>
+          <option value="lf">Apenas Lance Fixo</option>
+          <option value="pr">Apenas Cotas Reduzidas (PR)</option>
+          <option value="lfpr">Lance Fixo + PR</option>
+        </select>
         <button class="btn btn-pri" onclick="guiaSearch()">Analisar</button>
         <button class="btn btn-out btn-sm" onclick="guiaClear()">✕ Voltar</button>
       </div>
@@ -767,6 +780,8 @@ tr:hover td{background:#f0f7f6}
           <th onclick="sortBrowse('ul_min')" style="cursor:pointer">Últ. Lance Mín. <span id="bsort-ul_min" class="sort-ico">⇅</span></th>
           <th onclick="sortBrowse('at_min')" style="cursor:pointer">Lance Atual <span id="bsort-at_min" class="sort-ico">⇅</span></th>
           <th onclick="sortBrowse('at_cl')" style="cursor:pointer">Contemp. <span id="bsort-at_cl" class="sort-ico">⇅</span></th>
+          <th title="Lance Fixo disponível (clique pra desabilitar/habilitar)" style="text-align:center">LF</th>
+          <th title="Cota Reduzida (Parcela Reduzida)" style="text-align:center">PR</th>
         </tr></thead><tbody id="browse-tbody"></tbody></table></div>
         <div class="pag" id="browse-pag"></div>
       </div>
@@ -1841,7 +1856,7 @@ tr:hover td{background:#f0f7f6}
         <button class="btn btn-ok btn-sm" onclick="addTaxaCdi()">✓ Salvar taxa</button>
       </div>
     </div>
-    <div class="mf"><button class="btn btn-out" onclick="closeModal('modal-taxas-cdi')">Fechar</button></div>
+    <div class="mf"><button class="btn btn-out btn-sm" onclick="buscarCopomBcb(false)" style="margin-right:auto" title="Consultar API do BCB e importar mudanças do Copom">🔄 Buscar do BCB</button><button class="btn btn-out" onclick="closeModal('modal-taxas-cdi')">Fechar</button></div>
   </div>
 </div>
 
@@ -2055,7 +2070,7 @@ function renderAssessorTracking(){
 
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&document.getElementById('login-screen').style.display!=='none')doLogin();});
 
-let COTAS=[], LEADS=[], TAXAS_CDI=[], dashCharts={};
+let COTAS=[], LEADS=[], TAXAS_CDI=[], GRUPOS_META={}, dashCharts={};
 let ctrlFiltered=[], ctrlPage=1, ctrlSort={col:null,dir:1};
 let browseData=Object.entries(GUIA), browsePage=1, browseSort={col:null,dir:1};
 let plistFiltered=[], plistPage=1, plistSort={col:null,dir:1};
@@ -2162,6 +2177,48 @@ async function delTaxaCdi(id){
   toast('Taxa removida.');
   await loadData();renderTaxasCdi();if(selProj)renderProjDash(selProj);
 }
+// ═══ COPOM AUTO-UPDATE via API BCB ═══
+// Série 432 = Selic Meta diária. Cada decisão Copom muda o valor — pegamos as mudanças.
+async function buscarCopomBcb(silent){
+  try{
+    const url='https://api.bcb.gov.br/dados/serie/bcdata.sgs.432/dados?formato=json&dataInicial=01/01/2024';
+    const resp=await fetch(url);
+    if(!resp.ok)throw new Error('HTTP '+resp.status);
+    const arr=await resp.json();
+    const mudancas=[];let prev=null;
+    for(const it of arr){
+      const v=parseFloat(it.valor);
+      if(prev===null||Math.abs(v-prev)>0.001){
+        const [d,m,y]=it.data.split('/');
+        mudancas.push({data_inicio:y+'-'+m+'-'+d,taxa_aa:v});
+      }
+      prev=v;
+    }
+    const existem=new Set(TAXAS_CDI.map(t=>t.data_inicio));
+    const novas=mudancas.filter(m=>!existem.has(m.data_inicio));
+    if(novas.length===0){if(!silent)toast('Nenhuma mudança nova no BCB','ok');return 0;}
+    if(!silent){
+      const lista=novas.map(n=>n.data_inicio+': '+n.taxa_aa.toFixed(2)+'%').join('
+');
+      if(!confirm('Encontrei '+novas.length+' taxa(s) nova(s) no BCB:
+
+'+lista+'
+
+Adicionar à base?'))return 0;
+    }
+    for(const n of novas){
+      await sb.from('taxas_cdi').upsert({data_inicio:n.data_inicio,taxa_aa:n.taxa_aa,descricao:'Importado automaticamente do BCB (SGS 432)'},{onConflict:'data_inicio'});
+    }
+    if(!silent)toast(novas.length+' taxa(s) Copom importada(s) do BCB');
+    await loadData();
+    if(document.getElementById('modal-taxas-cdi').classList.contains('open'))renderTaxasCdi();
+    if(selProj)renderProjDash(selProj);
+    return novas.length;
+  }catch(e){
+    if(!silent)toast('Erro BCB: '+e.message,'err');
+    return -1;
+  }
+}
 function showLoad(){document.getElementById('loading').classList.add('show');}
 function hideLoad(){document.getElementById('loading').classList.remove('show');}
 function setSync(ok){const d=document.getElementById('sync-dot'),s=document.getElementById('sync-status');d.className='sync-dot'+(ok?' ok':' err');s.textContent=ok?'Conectado ao Supabase':'Sem conexão';}
@@ -2177,13 +2234,23 @@ async function loadData(){
   if(!sb){setSync(false);toast('Cliente Supabase não inicializado','err');return;}
   showLoad();
   try{
-    const [{data:c,error:e1},{data:l,error:e2},{data:tx}]=await Promise.all([
+    const [{data:c,error:e1},{data:l,error:e2},{data:tx},{data:gm}]=await Promise.all([
       sb.from('cotas').select('*').order('nome'),
       sb.from('leads').select('*').order('created_at',{ascending:false}),
-      sb.from('taxas_cdi').select('*').order('data_inicio')
+      sb.from('taxas_cdi').select('*').order('data_inicio'),
+      sb.from('grupos_meta').select('*')
     ]);
     if(e1)throw e1;
     TAXAS_CDI=tx||[];
+    GRUPOS_META={};(gm||[]).forEach(g=>{GRUPOS_META[String(g.grupo)]=g;});
+    try{
+      const last=localStorage.getItem('hc360_copom_last');
+      const today=new Date().toISOString().slice(0,10);
+      if(last!==today){
+        setTimeout(()=>buscarCopomBcb(true).then(n=>{if(n>0)console.info('[HC360] '+n+' nova(s) taxa(s) Copom importadas do BCB');}).catch(()=>{}),3000);
+        localStorage.setItem('hc360_copom_last',today);
+      }
+    }catch(_){};
     let rawCotas=c||[];
     if(CURRENT_USER&&!CURRENT_USER.isAdmin&&CURRENT_USER.assessorName){
       rawCotas=rawCotas.filter(r=>r.assessor&&r.assessor.toLowerCase().includes(CURRENT_USER.assessorName.toLowerCase()));
@@ -2285,34 +2352,43 @@ function filterCtrl(){
   const s=document.getElementById('f-search').value.toLowerCase();
   const st=document.getElementById('f-status').value;
   const as=document.getElementById('f-assessor').value;
+  const bc=(document.getElementById('f-banco')||{}).value||'';
+  const inclCancel=(document.getElementById('f-incl-cancel')||{}).checked||false;
+  const isCancel=v=>v==='Cancelado'||v==='CANCELADO';
   ctrlFiltered=COTAS.filter(r=>{
     const na=a=>a==='Gil'?'GIL':a;
-    return(!s||(r.nome||'').toLowerCase().includes(s)||(r.grupo||'').toString().includes(s)||(r.cota||'').toString().includes(s)||(r.cpf||'').includes(s))&&(!st||r.status===st)&&(!as||na(r.assessor)===as);
+    if(!inclCancel&&st!=='Cancelado'&&isCancel(r.status))return false;
+    return(!s||(r.nome||'').toLowerCase().includes(s)||(r.grupo||'').toString().includes(s)||(r.cota||'').toString().includes(s)||(r.cpf||'').includes(s))&&(!st||r.status===st)&&(!as||na(r.assessor)===as)&&(!bc||r.banco===bc);
   });
   ctrlPage=1;renderCtrl();
 }
-function clearCtrl(){['f-search','f-status','f-assessor'].forEach(id=>document.getElementById(id).value='');filterCtrl();}
+function clearCtrl(){['f-search','f-status','f-assessor','f-banco'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});const c=document.getElementById('f-incl-cancel');if(c)c.checked=false;filterCtrl();}
 function sortCtrl(col){ctrlSort.dir=ctrlSort.col===col?-ctrlSort.dir:1;ctrlSort.col=col;ctrlPage=1;renderCtrl();}
 function ctrlGo(p){ctrlPage=p;renderCtrl();}
+function bancoBadge(b){if(!b)return'<span style="color:var(--txt2);font-size:10.5px">—</span>';const cores={'Itaú':'#fef3c7;color:#92400e','Santander':'#fee2e2;color:#991b1b','Safra':'#dbeafe;color:#1e40af','Bradesco':'#fce7f3;color:#9f1239','Banco do Brasil':'#fef9c3;color:#713f12','Caixa':'#dbeafe;color:#1e3a8a'};const c=cores[b]||'#e5e7eb;color:#374151';return `<span style="background:${c.split(';')[0]};color:${c.split(':')[1]};padding:2px 7px;border-radius:10px;font-size:10.5px;font-weight:600">${b}</span>`;}
 function renderCtrl(){
   const sorted=ctrlSort.col?sortArr(ctrlFiltered,ctrlSort.col,ctrlSort.dir):ctrlFiltered;
-  ['nome','grupo','credito','parcela','assessor','status','lance1','saldo_devedor'].forEach(c=>{const el=document.getElementById('csort-'+c);if(el)el.textContent=sortIcon(ctrlSort,c);});
+  ['nome','grupo','banco','credito','parcela','assessor','status','lance1','data_contemplada','saldo_devedor'].forEach(c=>{const el=document.getElementById('csort-'+c);if(el)el.textContent=sortIcon(ctrlSort,c);});
   const{items,total,pages}=paginate(sorted,ctrlPage,30);
-  document.getElementById('ctrl-count').textContent=total+' cotas';
-  document.getElementById('ctrl-tbody').innerHTML=items.map(r=>`<tr>
+  const totalCancel=COTAS.filter(r=>r.status==='Cancelado'||r.status==='CANCELADO').length;
+  document.getElementById('ctrl-count').textContent=total+' cotas'+(totalCancel?` · ${totalCancel} cancelada(s) ocultas`:'');
+  document.getElementById('ctrl-tbody').innerHTML=items.map(r=>{
+    const dt=r.data_contemplada?new Date(r.data_contemplada+'T00:00:00').toLocaleDateString('pt-BR'):'—';
+    return `<tr>
     <td><strong>${r.nome||'—'}</strong><br><span style="font-size:10.5px;color:var(--txt2)">${r.cpf||''}</span></td>
     <td>${r.grupo||'—'} / ${r.cota||'—'}</td>
+    <td>${bancoBadge(r.banco)}</td>
     <td>${brl(r.credito,0)}</td><td>${brl(r.parcela)}</td>
     <td style="font-size:11px">${r.vencimento?'dia '+r.vencimento:'—'}</td>
     <td>${atag(r.assessor)}</td><td>${sbadge(r.status)}</td>
     <td>${r.lance1?(+(r.lance1*100).toFixed(1)+'%'):'—'}</td>
+    <td style="font-size:11px;color:var(--txt2)">${dt}</td>
     <td style="font-size:12px">${r.saldo_devedor?brl(r.saldo_devedor,0):'—'}</td>
-    <td>${r.comissao==='PAGO'?'<span class="badge b-ok">✓ Pago</span>':'<span class="badge b-warn">Pend.</span>'}</td>
     <td style="display:flex;gap:4px;flex-wrap:wrap">
       <button class="btn btn-out btn-sm" onclick="openModalCota('${r.id}')">✏️</button>
-      ${(r.status==='Contemplado'||r.status==='CONTEMPLADO'||r.status==='Faturado')?`<button class="btn btn-sm" onclick="confirmarPagamento('${r.id}')" title="Confirmar pagamento mensal" style="background:#0ea5e9;color:#fff;border:none">✔ Pago</button>`:`<button class="btn btn-ok btn-sm" onclick="openModalContemp('${r.id}')" title="Contemplar">✓</button>`}
+      ${(r.status==='Contemplado'||r.status==='CONTEMPLADO'||r.status==='Faturado')?`<button class="btn btn-sm" onclick="confirmarPagamento('${r.id}')" title="Confirmar pagamento mensal" style="background:#0ea5e9;color:#fff;border:none">✔</button>`:`<button class="btn btn-ok btn-sm" onclick="openModalContemp('${r.id}')" title="Contemplar">✓</button>`}
     </td>
-  </tr>`).join('');
+  </tr>`;}).join('');
   renderPag('ctrl-pag',ctrlPage,pages,'ctrlGo');
 }
 
@@ -3065,7 +3141,48 @@ Serão criadas ${totalCotas} cotas no sistema.`))return;
 
 // ═══ GUIA ═══
 let selGrupo=null;
-function guiaFilter(){const tipo=document.getElementById('guia-tipo').value;browseData=Object.entries(GUIA).filter(([g,d])=>!tipo||tipo==='Im'?(d.sheet||'').includes('Im'):!(d.sheet||'').includes('Im'));document.getElementById('browse-count').textContent=browseData.length+' grupos';renderBrowse(browseData,1);}
+// Helper: grupo tem Lance Fixo? Considera override em GRUPOS_META, senão GUIA[g].lf, senão default true (Itaú padrão)
+function temLanceFixo(g){
+  const meta=GRUPOS_META[String(g)];
+  if(meta&&meta.lance_fixo!=null)return meta.lance_fixo;
+  const d=GUIA[g]||GUIA[String(g)]||{};
+  if(d.lf==='S')return true;
+  // Default: assume que TODOS os grupos do Itaú permitem Lance Fixo (modalidade padrão)
+  // — o usuário pode desmarcar individualmente quando suspenso.
+  return true;
+}
+function temCotaReduzida(g){
+  const meta=GRUPOS_META[String(g)];
+  if(meta&&meta.pr_red_override!=null)return meta.pr_red_override;
+  const d=GUIA[g]||GUIA[String(g)]||{};
+  return d.pr_red==='S';
+}
+function guiaFilter(){
+  const tipo=document.getElementById('guia-tipo').value;
+  const modal=(document.getElementById('guia-modal')||{}).value||'';
+  browseData=Object.entries(GUIA).filter(([g,d])=>{
+    if(tipo==='Im'&&!(d.sheet||'').includes('Im'))return false;
+    if(tipo==='Ro'&&(d.sheet||'').includes('Im'))return false;
+    if(modal==='lf'&&!temLanceFixo(g))return false;
+    if(modal==='pr'&&!temCotaReduzida(g))return false;
+    if(modal==='lfpr'&&!(temLanceFixo(g)&&temCotaReduzida(g)))return false;
+    return true;
+  });
+  document.getElementById('browse-count').textContent=browseData.length+' grupos';
+  renderBrowse(browseData,1);
+}
+async function toggleLanceFixo(g){
+  const tem=temLanceFixo(g);
+  const novo=!tem;
+  showLoad();
+  const {error}=await sb.from('grupos_meta').upsert({grupo:String(g),lance_fixo:novo,atualizado_em:new Date().toISOString()},{onConflict:'grupo'});
+  hideLoad();
+  if(error){toast('Erro: '+error.message,'err');return;}
+  GRUPOS_META[String(g)]=GRUPOS_META[String(g)]||{grupo:String(g)};
+  GRUPOS_META[String(g)].lance_fixo=novo;
+  toast(`Grupo ${g}: Lance Fixo ${novo?'habilitado':'desabilitado'}`);
+  renderBrowse(browseData,browsePage);
+}
 function guiaAC(){const q=document.getElementById('guia-input').value.trim();const list=document.getElementById('ac-list');if(q.length<1){list.classList.remove('open');return;}const m=Object.entries(GUIA).filter(([g])=>g.toString().startsWith(q)).slice(0,12);if(!m.length){list.classList.remove('open');return;}list.innerHTML=m.map(([g,d])=>`<div class="ac-item" onclick="guiaSel('${g}')" ><strong>${g}</strong> — ${d.tp||'Imóvel'}${d.pr?' · '+d.pr+'m':''}${d.vagas!=null?' · '+d.vagas+' vagas':''}</div>`).join('');list.classList.add('open');}
 function guiaKey(e){if(e.key==='Enter')guiaSearch();if(e.key==='Escape')document.getElementById('ac-list').classList.remove('open');}
 function guiaSearch(){const q=document.getElementById('guia-input').value.trim();document.getElementById('ac-list').classList.remove('open');const m=Object.entries(GUIA).find(([g])=>g.toString()===q);if(m)guiaSel(m[0]);else{document.getElementById('guia-result').style.display='none';document.getElementById('guia-browse').style.display='none';document.getElementById('guia-empty').style.display='block';}}
@@ -3116,7 +3233,7 @@ function renderBrowse(data,pg){browsePage=pg;
   let sorted=data;
   if(browseSort.col){const c=browseSort.col;const d2=browseSort.dir;sorted=data.slice().sort(([ag,ad],[bg,bd])=>{const va=c==='g'?ag:(ad[c]??'');const vb=c==='g'?bg:(bd[c]??'');if(typeof va==='number'&&typeof vb==='number')return(va-vb)*d2;return String(va).localeCompare(String(vb),'pt-BR')*d2;});}
   ['g','idx','pr','asm','vagas','vmin','vmax','ul_min','at_min','at_cl'].forEach(c=>{const el=document.getElementById('bsort-'+c);if(el)el.textContent=sortIcon(browseSort,c);});
-  const{items,total,pages}=paginate(sorted,pg,40);document.getElementById('browse-count').textContent=data.length+' grupos';document.getElementById('browse-tbody').innerHTML=items.map(([g,d])=>`<tr onclick="guiaSel('${g}')" style="cursor:pointer"><td><strong style="color:var(--acc)">${g}</strong></td><td style="font-size:11px">${(()=>{const t=(d.tp||'').toUpperCase();if(t.includes('IM'))return'Imóvel';if(t.includes('MOTO'))return'Moto';if(t.includes('PESADO'))return'Veículo Pesado';if(t.includes('LEVE')||t.includes('VEÍ'))return'Veículo';return d.tp||'—';})()}</td><td><span class="badge ${d.sit==='Andamento'?'b-ok':'b-gray'}">${d.sit||'—'}</span></td><td style="font-size:11px">${d.idx||'—'}</td><td>${d.pr||'—'}m</td><td style="font-size:11px">${d.asm||'—'}</td><td>${d.vagas!=null?d.vagas:'—'}</td><td style="font-size:11px">${d.vmin?brl(d.vmin,0):'—'}</td><td style="font-size:11px">${d.vmax?brl(d.vmax,0):'—'}</td><td>${d.ul_min&&d.ul_min>0?'<span style="color:var(--ok);font-weight:700">'+pct(d.ul_min)+'</span>':'—'}</td><td>${d.at_min&&d.at_min>0?'<span style="color:var(--acc);font-weight:700">'+pct(d.at_min)+'</span>':'—'}</td><td>${d.at_cl||'—'}</td></tr>`).join('');renderPag('browse-pag',pg,pages,'browseGo');}
+  const{items,total,pages}=paginate(sorted,pg,40);document.getElementById('browse-count').textContent=data.length+' grupos';document.getElementById('browse-tbody').innerHTML=items.map(([g,d])=>{const lf=temLanceFixo(g),pr=temCotaReduzida(g);const lfBtn=`<button onclick="event.stopPropagation();toggleLanceFixo('${g}')" style="background:${lf?'#d1fae5':'#fee2e2'};color:${lf?'#065f46':'#991b1b'};border:none;border-radius:6px;padding:2px 8px;font-size:10.5px;font-weight:700;cursor:pointer" title="Clique para ${lf?'desabilitar':'habilitar'}">${lf?'✓ Sim':'✕ Não'}</button>`;const prBadge=`<span style="background:${pr?'#dbeafe':'#f3f4f6'};color:${pr?'#1e40af':'#6b7280'};padding:2px 8px;border-radius:6px;font-size:10.5px;font-weight:700">${pr?'✓ Sim':'—'}</span>`;return `<tr onclick="guiaSel('${g}')" style="cursor:pointer"><td><strong style="color:var(--acc)">${g}</strong></td><td style="font-size:11px">${(()=>{const t=(d.tp||'').toUpperCase();if(t.includes('IM'))return'Imóvel';if(t.includes('MOTO'))return'Moto';if(t.includes('PESADO'))return'Veículo Pesado';if(t.includes('LEVE')||t.includes('VEÍ'))return'Veículo';return d.tp||'—';})()}</td><td><span class="badge ${d.sit==='Andamento'?'b-ok':'b-gray'}">${d.sit||'—'}</span></td><td style="font-size:11px">${d.idx||'—'}</td><td>${d.pr||'—'}m</td><td style="font-size:11px">${d.asm||'—'}</td><td>${d.vagas!=null?d.vagas:'—'}</td><td style="font-size:11px">${d.vmin?brl(d.vmin,0):'—'}</td><td style="font-size:11px">${d.vmax?brl(d.vmax,0):'—'}</td><td>${d.ul_min&&d.ul_min>0?'<span style="color:var(--ok);font-weight:700">'+pct(d.ul_min)+'</span>':'—'}</td><td>${d.at_min&&d.at_min>0?'<span style="color:var(--acc);font-weight:700">'+pct(d.at_min)+'</span>':'—'}</td><td>${d.at_cl||'—'}</td><td style="text-align:center">${lfBtn}</td><td style="text-align:center">${prBadge}</td></tr>`;}).join('');renderPag('browse-pag',pg,pages,'browseGo');}
 function browseGo(p){renderBrowse(browseData,p);}
 function sortBrowse(col){browseSort.dir=browseSort.col===col?-browseSort.dir:1;browseSort.col=col;renderBrowse(browseData,1);}
 
@@ -3936,15 +4053,17 @@ function renderProjDetail(name){
         </select>
       </td>
       <td><input class="form-i" style="padding:3px 6px;font-size:12px;width:70px" id="pl1-${r.id}" type="number" step="0.1" min="0" max="100" value="${r.lance1?+(r.lance1*100).toFixed(1):''}" placeholder="%" oninput="projMarkDirty('${r.id}')"></td>
+      <td style="font-size:11.5px;color:var(--txt2);text-align:center;white-space:nowrap">${(()=>{const g=GUIA[r.grupo]||GUIA[String(r.grupo)]||{};return g.asm?new Date(g.asm+'T00:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'}):'—';})()}</td>
+      <td><input class="form-i" style="padding:3px 6px;font-size:12px;width:130px" id="pasm-${r.id}" type="date" value="${r.data_assembleia||''}" oninput="projMarkDirty('${r.id}')" title="Assembleia em que vou ofertar"></td>
       <td style="white-space:nowrap;text-align:center">
-        <button id="psave-${r.id}" class="btn btn-ok btn-sm" style="display:none" onclick="projSaveRow('${r.id}')" title="Salvar">💾 Salvar</button>
-        ${!isCan?`<button class="btn btn-out btn-sm" onclick="openModalContemp('${r.id}')" title="Registrar contemplação">✓ Contempl.</button> `:''}
+        <button id="psave-${r.id}" class="btn btn-ok btn-sm" style="display:none" onclick="projSaveRow('${r.id}')" title="Salvar">💾</button>
+        ${!isCan?`<button class="btn btn-out btn-sm" onclick="openModalContemp('${r.id}')" title="Registrar contemplação">✓</button> `:''}
         <button class="btn btn-out btn-sm" onclick="openModalCota('${r.id}')" title="Ver / editar completo">✏️</button>
       </td>
     </tr>`;
   }
   const nCan=canceladas2.length;
-  const sepRow=!projDetailSort.col&&nCan&&projFiltro==='TODOS'?'<tr><td colspan="7" style="background:#fee2e2;color:#991b1b;font-size:11px;font-weight:700;padding:6px 13px;letter-spacing:.4px;text-transform:uppercase">✕ Canceladas ('+nCan+')</td></tr>':'';
+  const sepRow=!projDetailSort.col&&nCan&&projFiltro==='TODOS'?'<tr><td colspan="9" style="background:#fee2e2;color:#991b1b;font-size:11px;font-weight:700;padding:6px 13px;letter-spacing:.4px;text-transform:uppercase">✕ Canceladas ('+nCan+')</td></tr>':'';
   const rows=projDetailSort.col?sorted.map(mkRow).join(''):ativas2.map(mkRow).join('')+sepRow+canceladas2.map(mkRow).join('');
   setTimeout(()=>{['grupo','cota','credito','parcela','status','lance1'].forEach(c=>{const el=document.getElementById('pdsort-'+c);if(el)el.textContent=sortIcon(projDetailSort,c);});},0);
 
@@ -3971,6 +4090,10 @@ function renderProjDetail(name){
       <span style="font-size:11px;font-weight:700;color:var(--txt2);text-transform:uppercase;margin-right:4px">Filtrar:</span>
       ${FILTROS.map(f=>`<button onclick="projFiltro='${f.k}';renderProjDetail('${name}')" style="padding:5px 12px;border-radius:20px;border:2px solid ${projFiltro===f.k?'var(--acc)':'var(--bdr)'};background:${projFiltro===f.k?'var(--acc)':'#fff'};color:${projFiltro===f.k?'#fff':'var(--txt)'};font-size:12px;font-weight:600;cursor:pointer">${f.label} ${f.n>0?`<span style="opacity:.7">(${f.n})</span>`:''}</button>`).join('')}
     </div>
+    <div style="padding:8px 18px;border-bottom:1px solid var(--bdr);display:flex;justify-content:space-between;align-items:center;background:#fefbf3;flex-wrap:wrap;gap:8px">
+      <span style="font-size:11px;color:var(--txt2)">Use esta aba para planejar suas ofertas mensais. Preencha Lance %, Status e a Data da Assembleia em que vai ofertar — depois <b>💾 Salvar todas</b>.</span>
+      <button class="btn btn-pri btn-sm" onclick="projSaveAllDirty('${name}')" style="white-space:nowrap">💾 Salvar todas</button>
+    </div>
     <div class="tw"><table>
       <thead><tr>
         <th onclick="sortProjDetail('grupo')" style="cursor:pointer">Grupo <span id="pdsort-grupo" class="sort-ico">⇅</span></th>
@@ -3979,6 +4102,8 @@ function renderProjDetail(name){
         <th onclick="sortProjDetail('parcela')" style="cursor:pointer">Parcela <span id="pdsort-parcela" class="sort-ico">⇅</span></th>
         <th onclick="sortProjDetail('status')" style="cursor:pointer">Status <span id="pdsort-status" class="sort-ico">⇅</span></th>
         <th onclick="sortProjDetail('lance1')" style="cursor:pointer">Lance % <span id="pdsort-lance1" class="sort-ico">⇅</span></th>
+        <th style="text-align:center">Próx. AGO<br><small style="font-weight:400;font-size:9.5px;color:var(--txt2)">do grupo</small></th>
+        <th style="text-align:center">Vou Ofertar Em</th>
         <th style="text-align:center">Ações</th>
       </tr></thead>
       <tbody>${rows}</tbody>
@@ -4007,13 +4132,19 @@ function renderProjDash(name){
   const isAtivo=s=>s==='Em Andamento'||s==='Lance Livre'||s==='Lance Fixo'||s==='LANCE'||s==='SORTEIO / LANCE'||s==='Sorteio';
   // Parcela efetiva: pós para contempladas/faturadas (se existir), pré caso contrário
   const parcEfetiva=r=>isC(r.status)?(r.parcela_pos||r.parcela||0):(r.parcela||0);
-  // Enrich cotas with estimated prazo/saldo from GUIA
+  // Enrich cotas: progresso baseado na data de adesão da cota, não do grupo.
+  // prazoCota = prazo_total da cota (se existir) ou prazo_restante + meses_desde_adesão (calculado).
   const en=ativas.map(r=>{
     const g=GUIA[r.grupo]||GUIA[String(r.grupo)]||{};
-    const prazoTotal=r.prazo_total||g.pr||120;
     const adesao=r.adesao?new Date(r.adesao):null;
-    const pr=r.prazo_restante!=null?r.prazo_restante:Math.max(0,prazoTotal-(adesao?Math.floor((today-adesao)/(1000*60*60*24*30.44)):0));
-    // meses decorridos = prazo total − prazo restante (mais preciso que cálculo por adesão)
+    const mesesDesdeAdesao=adesao?Math.max(0,Math.floor((today-adesao)/(1000*60*60*24*30.44))):0;
+    // Prazo TOTAL da cota = prazo_total cadastrado, OU se não existir, calcular pelo (prazo_restante + meses_desde_adesão).
+    // Só usa g.pr (prazo do grupo) como último fallback.
+    const prazoTotal=r.prazo_total
+      || (r.prazo_restante!=null?r.prazo_restante+mesesDesdeAdesao:null)
+      || g.pr || 120;
+    const pr=r.prazo_restante!=null?r.prazo_restante:Math.max(0,prazoTotal-mesesDesdeAdesao);
+    // Progresso pelo TEMPO desde adesão (estaca zero = adesão), independente de status.
     const meses=Math.max(0,prazoTotal-pr);
     return{...r,prazoTotal,meses,pr,estimPago:meses*(r.parcela||0),estimSaldo:pr*(r.parcela||0),tp:g.tp||'Im'};
   });
@@ -4265,11 +4396,30 @@ function projMarkDirty(id){
   const btn=document.getElementById('psave-'+id);
   if(btn)btn.style.display='inline-flex';
 }
+async function projSaveAllDirty(name){
+  const dirty=Array.from(document.querySelectorAll('button[id^="psave-"]')).filter(b=>b.style.display&&b.style.display!=='none');
+  if(!dirty.length){toast('Nada pra salvar','err');return;}
+  showLoad();
+  const ids=dirty.map(b=>b.id.replace('psave-',''));
+  for(const id of ids){
+    const r=COTAS.find(c=>String(c.id)===String(id));if(!r)continue;
+    const ps=document.getElementById('ps-'+id);
+    const pl=document.getElementById('pl1-'+id);
+    const pa=document.getElementById('pasm-'+id);
+    const patch={id,status:ps?ps.value:r.status,lance1:pl&&pl.value?parseFloat(pl.value)/100:null,data_assembleia:pa?pa.value||null:null};
+    const res=await upsertCota(patch);
+    if(res){Object.assign(r,patch);document.getElementById('psave-'+id).style.display='none';}
+  }
+  hideLoad();
+  toast(`${ids.length} cotas salvas em lote!`);
+  renderProjDetail(name);initDash();
+}
 async function projSaveRow(id){
   const r=COTAS.find(c=>String(c.id)===String(id));if(!r)return;
   const status=document.getElementById('ps-'+id).value;
   const l1v=document.getElementById('pl1-'+id).value;
-  const patch={id,status,lance1:l1v?parseFloat(l1v)/100:null};
+  const asmEl=document.getElementById('pasm-'+id);
+  const patch={id,status,lance1:l1v?parseFloat(l1v)/100:null,data_assembleia:asmEl?asmEl.value||null:null};
   const res=await upsertCota(patch);
   if(res){
     Object.assign(r,patch);
