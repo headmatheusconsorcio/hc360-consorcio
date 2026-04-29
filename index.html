@@ -683,6 +683,50 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:#fefbf3;border-left:3px so
           </div>
         </div>
       </div>
+      <div style="padding:10px 16px;background:var(--card2);border-bottom:1px solid var(--bdr);display:flex;gap:12px;flex-wrap:wrap;align-items:center;font-size:11.5px">
+        <strong style="color:var(--txt2);text-transform:uppercase;letter-spacing:.5px;font-size:10px">Filtros:</strong>
+        <div style="display:flex;align-items:center;gap:5px">
+          <label style="color:var(--txt2)">LF</label>
+          <select id="os-lf" class="form-i" style="padding:4px 8px;font-size:11px;width:auto" onchange="renderOportSugestoes()">
+            <option value="">Todos</option><option value="sim">✓ Sim</option><option value="nao">✗ Não</option>
+          </select>
+        </div>
+        <div style="display:flex;align-items:center;gap:5px">
+          <label style="color:var(--txt2)">PR</label>
+          <select id="os-pr" class="form-i" style="padding:4px 8px;font-size:11px;width:auto" onchange="renderOportSugestoes()">
+            <option value="">Todos</option><option value="sim">✓ Sim</option><option value="nao">✗ Não</option>
+          </select>
+        </div>
+        <div style="display:flex;align-items:center;gap:5px">
+          <label style="color:var(--txt2)">Assertividade min.</label>
+          <select id="os-assert" class="form-i" style="padding:4px 8px;font-size:11px;width:auto" onchange="renderOportSugestoes()">
+            <option value="">Qualquer</option><option value="80">≥ 80%</option><option value="60">≥ 60%</option><option value="40">≥ 40%</option>
+          </select>
+        </div>
+        <div style="display:flex;align-items:center;gap:5px">
+          <label style="color:var(--txt2)">Prazo</label>
+          <select id="os-prazo" class="form-i" style="padding:4px 8px;font-size:11px;width:auto" onchange="renderOportSugestoes()">
+            <option value="">Qualquer</option><option value="curto">Até 60m</option><option value="medio">61-150m</option><option value="longo">Acima 150m</option>
+          </select>
+        </div>
+        <div style="display:flex;align-items:center;gap:5px">
+          <label style="color:var(--txt2)">Ordenar por</label>
+          <select id="os-sort" class="form-i" style="padding:4px 8px;font-size:11px;width:auto" onchange="renderOportSugestoes()">
+            <option value="match">Mais próximo do crédito alvo</option>
+            <option value="assert-desc">Maior assertividade</option>
+            <option value="lance-asc">Menor lance médio</option>
+            <option value="lance-desc">Maior lance médio</option>
+            <option value="parcela-asc">Menor parcela pré</option>
+            <option value="parcela-desc">Maior parcela pré</option>
+            <option value="prazo-desc">Maior prazo</option>
+            <option value="prazo-asc">Menor prazo</option>
+            <option value="vagas-desc">Mais vagas</option>
+            <option value="cred-desc">Maior crédito</option>
+          </select>
+        </div>
+        <button class="btn btn-out btn-sm" onclick="clearOportFiltros()" style="margin-left:auto" title="Limpar filtros">✕ Limpar</button>
+        <span id="os-count" style="font-size:11px;color:var(--txt2);font-weight:700"></span>
+      </div>
       <div style="padding:8px 16px 4px;font-size:12px;font-weight:700;color:#1e40af;background:#eff6ff;border-bottom:1px solid #dbeafe;display:flex;align-items:center;gap:6px">🏠 Imóveis</div>
       <div class="tw" style="padding:0;margin-bottom:0"><table style="font-size:12px"><thead><tr>
         <th>Grupo</th><th>Faixa de Crédito</th><th>Prazo</th><th>Lance Médio</th><th>Assertividade</th><th>Parcela Pré</th><th>Parcela Pós</th><th title="Lance Fixo disponível">LF</th><th title="Cota com Parcela Reduzida">PR</th><th></th>
@@ -3922,9 +3966,18 @@ function renderPropSugestoes(){
   if(tbodyIm)tbodyIm.innerHTML=imList.map(mkSugRow).join('')||empty;
   if(tbodyRo)tbodyRo.innerHTML=roList.map(mkSugRow).join('')||empty;
 }
+function clearOportFiltros(){
+  ['os-cred','os-lance','os-lf','os-pr','os-assert','os-prazo','os-sort'].forEach(id=>{const el=document.getElementById(id);if(!el)return;if(id==='os-lance')el.value='40';else el.value='';});
+  renderOportSugestoes();
+}
 function renderOportSugestoes(){
   const targetCred=parseFloat(document.getElementById('os-cred').value)||0;
   const lt=parseFloat(document.getElementById('os-lance').value)||40;
+  const fLf=(document.getElementById('os-lf')?.value)||'';
+  const fPr=(document.getElementById('os-pr')?.value)||'';
+  const fAssert=parseFloat((document.getElementById('os-assert')?.value)||'0')||0;
+  const fPrazo=(document.getElementById('os-prazo')?.value)||'';
+  const sortBy=(document.getElementById('os-sort')?.value)||'match';
   const tbodyIm=document.getElementById('oport-sug-im');
   const tbodyRo=document.getElementById('oport-sug-ro');
   if(!tbodyIm&&!tbodyRo)return;
@@ -3946,13 +3999,33 @@ function renderOportSugestoes(){
     const pp2=pr2>1?saldoPos/(pr2-1):0;
     const isImov=d.tp&&(d.tp.toUpperCase().includes('IM')||d.tp.toUpperCase().includes('RES'));
     const dist=targetCred>0?Math.abs(cred2-targetCred)/targetCred:0;
-    scored.push({g,d,avgMin,success,vagas:d.vagas||0,pi:pi2,pp:pp2,isIm:isImov,dist});
+    // Aplicar filtros
+    const hasLf=temLanceFixo(g);
+    const hasPr=temCotaReduzida(g);
+    if(fLf==='sim'&&!hasLf)return;
+    if(fLf==='nao'&&hasLf)return;
+    if(fPr==='sim'&&!hasPr)return;
+    if(fPr==='nao'&&hasPr)return;
+    if(fAssert>0){const succPct=success!=null?success*100:-1;if(succPct<fAssert)return;}
+    if(fPrazo==='curto'&&pr2>60)return;
+    if(fPrazo==='medio'&&(pr2<=60||pr2>150))return;
+    if(fPrazo==='longo'&&pr2<=150)return;
+    scored.push({g,d,avgMin,success,vagas:d.vagas||0,pi:pi2,pp:pp2,isIm:isImov,dist,prazo:pr2,cred:cred2});
   });
-  scored.sort((a,b)=>{
-    if(targetCred>0){const dd=a.dist-b.dist;if(Math.abs(dd)>0.05)return dd;}
-    const sa=a.success!=null?a.success:-1,sb2=b.success!=null?b.success:-1;
-    return sb2-sa||b.vagas-a.vagas;
-  });
+  // Ordenação configurável
+  const cmpFn={
+    'match':(a,b)=>{if(targetCred>0){const dd=a.dist-b.dist;if(Math.abs(dd)>0.05)return dd;}const sa=a.success!=null?a.success:-1,sb2=b.success!=null?b.success:-1;return sb2-sa||b.vagas-a.vagas;},
+    'assert-desc':(a,b)=>(b.success??-1)-(a.success??-1),
+    'lance-asc':(a,b)=>(a.avgMin??99)-(b.avgMin??99),
+    'lance-desc':(a,b)=>(b.avgMin??-1)-(a.avgMin??-1),
+    'parcela-asc':(a,b)=>a.pi-b.pi,
+    'parcela-desc':(a,b)=>b.pi-a.pi,
+    'prazo-desc':(a,b)=>b.prazo-a.prazo,
+    'prazo-asc':(a,b)=>a.prazo-b.prazo,
+    'vagas-desc':(a,b)=>b.vagas-a.vagas,
+    'cred-desc':(a,b)=>b.cred-a.cred,
+  }[sortBy]||cmpFn['match'];
+  scored.sort(cmpFn);
   function mkRow(item){
     const {g,d,avgMin,success}=item;
     const pct=success!=null?Math.round(success*100):null;
@@ -3968,8 +4041,12 @@ function renderOportSugestoes(){
     return '<tr><td><strong>'+g+'</strong></td><td style="white-space:nowrap">'+credTxt+matchDot+'</td><td>'+d.pr+'m</td><td>'+(avgMin!=null?avgMin.toFixed(1)+'%':'—')+'</td><td>'+assertTxt+'</td><td>'+brl(item.pi)+'</td><td>'+brl(item.pp)+'</td><td style="text-align:center">'+lfBadge+'</td><td style="text-align:center">'+prBadge+'</td><td>'+btn+'</td></tr>';
   }
   const empty='<tr><td colspan="10" style="text-align:center;color:var(--txt2);padding:10px">Nenhum grupo encontrado</td></tr>';
-  tbodyIm.innerHTML=scored.filter(s=>s.isIm).slice(0,12).map(mkRow).join('')||empty;
-  tbodyRo.innerHTML=scored.filter(s=>!s.isIm).slice(0,12).map(mkRow).join('')||empty;
+  const im=scored.filter(s=>s.isIm).slice(0,20);
+  const ro=scored.filter(s=>!s.isIm).slice(0,20);
+  tbodyIm.innerHTML=im.map(mkRow).join('')||empty;
+  tbodyRo.innerHTML=ro.map(mkRow).join('')||empty;
+  const cntEl=document.getElementById('os-count');
+  if(cntEl)cntEl.textContent=`${im.length} imóveis · ${ro.length} veículos`;
 }
 function usarGrupoSugerido(g){
   // Adiciona o grupo na lista de propGrupos (se ainda não tiver)
