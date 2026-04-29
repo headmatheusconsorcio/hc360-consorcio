@@ -685,12 +685,12 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:#fefbf3;border-left:3px so
       </div>
       <div style="padding:8px 16px 4px;font-size:12px;font-weight:700;color:#1e40af;background:#eff6ff;border-bottom:1px solid #dbeafe;display:flex;align-items:center;gap:6px">🏠 Imóveis</div>
       <div class="tw" style="padding:0;margin-bottom:0"><table style="font-size:12px"><thead><tr>
-        <th>Grupo</th><th>Faixa de Crédito</th><th>Prazo</th><th>Lance Médio</th><th>Assertividade</th><th>Parcela Pré</th><th>Parcela Pós</th><th></th>
-      </tr></thead><tbody id="oport-sug-im"><tr><td colspan="8" style="text-align:center;color:var(--txt2);padding:10px">Carregando...</td></tr></tbody></table></div>
+        <th>Grupo</th><th>Faixa de Crédito</th><th>Prazo</th><th>Lance Médio</th><th>Assertividade</th><th>Parcela Pré</th><th>Parcela Pós</th><th title="Lance Fixo disponível">LF</th><th title="Cota com Parcela Reduzida">PR</th><th></th>
+      </tr></thead><tbody id="oport-sug-im"><tr><td colspan="10" style="text-align:center;color:var(--txt2);padding:10px">Carregando...</td></tr></tbody></table></div>
       <div style="padding:8px 16px 4px;font-size:12px;font-weight:700;color:#92400e;background:#fffbeb;border-top:2px solid var(--bdr);border-bottom:1px solid #fef3c7;display:flex;align-items:center;gap:6px">🚗 Veículos</div>
       <div class="tw" style="padding:0"><table style="font-size:12px"><thead><tr>
-        <th>Grupo</th><th>Faixa de Crédito</th><th>Prazo</th><th>Lance Médio</th><th>Assertividade</th><th>Parcela Pré</th><th>Parcela Pós</th><th></th>
-      </tr></thead><tbody id="oport-sug-ro"><tr><td colspan="8" style="text-align:center;color:var(--txt2);padding:10px">Carregando...</td></tr></tbody></table></div>
+        <th>Grupo</th><th>Faixa de Crédito</th><th>Prazo</th><th>Lance Médio</th><th>Assertividade</th><th>Parcela Pré</th><th>Parcela Pós</th><th title="Lance Fixo disponível">LF</th><th title="Cota com Parcela Reduzida">PR</th><th></th>
+      </tr></thead><tbody id="oport-sug-ro"><tr><td colspan="10" style="text-align:center;color:var(--txt2);padding:10px">Carregando...</td></tr></tbody></table></div>
     </div>
     <!-- Seção inferior: tabela completa -->
     <div class="card">
@@ -3907,15 +3907,18 @@ function renderPropSugestoes(){
     const pct=success!=null?Math.round(success*100):null;
     const col=success==null?'var(--txt2)':success>=0.8?'var(--ok)':success>=0.5?'var(--warn)':'var(--err)';
     const inList=propGrupos.some(pg=>pg.grupo===g);
-    const btn=inList?'<span style="color:var(--ok);font-size:11px;font-weight:600">✓ adicionado</span>':'<button class="btn btn-out btn-sm" data-g="'+g+'" onclick="usarGrupoSugerido(this.dataset.g)">+ Usar</button>';
+    const btn=inList?'<span style="color:var(--ok);font-size:11px;font-weight:600">✓ adicionado</span>':'<button class="btn btn-pri btn-sm" data-g="'+g+'" onclick="usarGrupoSugerido(this.dataset.g)" title="Simular este grupo">+ Simular</button>';
     const assertTxt=pct!=null?'<span style="color:'+col+';font-weight:700">'+pct+'%</span>':'<span style="color:var(--txt2)">s/hist.</span>';
     const credTxt=d.vmin?brl(d.vmin,0)+' – '+brl(d.vmax,0):brl(d.vmax,0);
     const matchDot=targetCred>0&&item.dist<0.15?'<span style="color:var(--ok);margin-left:4px" title="Próximo do crédito alvo">✓</span>':'';
-    return '<tr><td><strong>'+g+'</strong></td><td style="white-space:nowrap">'+credTxt+matchDot+'</td><td>'+d.pr+'m</td><td>'+(avgMin!=null?avgMin.toFixed(1)+'%':'—')+'</td><td>'+assertTxt+'</td><td>'+brl(item.pi)+'</td><td>'+brl(item.pp)+'</td><td>'+btn+'</td></tr>';
+    const lf=temLanceFixo(g);const pr=temCotaReduzida(g);
+    const lfBadge='<span style="background:'+(lf?'#d1fae5':'#fee2e2')+';color:'+(lf?'#065f46':'#991b1b')+';padding:2px 8px;border-radius:8px;font-size:10px;font-weight:700;white-space:nowrap">'+(lf?'✓ Sim':'✗ Não')+'</span>';
+    const prBadge='<span style="background:'+(pr?'#dbeafe':'#f3f4f6')+';color:'+(pr?'#1e40af':'#6b7280')+';padding:2px 8px;border-radius:8px;font-size:10px;font-weight:700;white-space:nowrap">'+(pr?'✓ Sim':'✗ Não')+'</span>';
+    return '<tr><td><strong>'+g+'</strong></td><td style="white-space:nowrap">'+credTxt+matchDot+'</td><td>'+d.pr+'m</td><td>'+(avgMin!=null?avgMin.toFixed(1)+'%':'—')+'</td><td>'+assertTxt+'</td><td>'+brl(item.pi)+'</td><td>'+brl(item.pp)+'</td><td style="text-align:center">'+lfBadge+'</td><td style="text-align:center">'+prBadge+'</td><td>'+btn+'</td></tr>';
   }
   const imList=scored.filter(s=>s.isIm).slice(0,12);
   const roList=scored.filter(s=>!s.isIm).slice(0,12);
-  const empty='<tr><td colspan="8" style="text-align:center;color:var(--txt2);padding:10px">Nenhum grupo encontrado para este crédito</td></tr>';
+  const empty='<tr><td colspan="10" style="text-align:center;color:var(--txt2);padding:10px">Nenhum grupo encontrado para este crédito</td></tr>';
   if(tbodyIm)tbodyIm.innerHTML=imList.map(mkSugRow).join('')||empty;
   if(tbodyRo)tbodyRo.innerHTML=roList.map(mkSugRow).join('')||empty;
 }
@@ -3958,18 +3961,40 @@ function renderOportSugestoes(){
     const credTxt=d.vmin?brl(d.vmin,0)+' – '+brl(d.vmax,0):brl(d.vmax,0);
     const matchDot=targetCred>0&&item.dist<0.15?'<span style="color:var(--ok);margin-left:4px">✓</span>':'';
     const inList=propGrupos.some(pg=>pg.grupo===g);
-    const btn=inList?'<span style="color:var(--ok);font-size:11px;font-weight:600">✓ adicionado</span>':'<button class="btn btn-out btn-sm" data-g="'+g+'" onclick="usarGrupoSugerido(this.dataset.g)">+ Usar</button>';
-    return '<tr><td><strong>'+g+'</strong></td><td style="white-space:nowrap">'+credTxt+matchDot+'</td><td>'+d.pr+'m</td><td>'+(avgMin!=null?avgMin.toFixed(1)+'%':'—')+'</td><td>'+assertTxt+'</td><td>'+brl(item.pi)+'</td><td>'+brl(item.pp)+'</td><td>'+btn+'</td></tr>';
+    const btn=inList?'<span style="color:var(--ok);font-size:11px;font-weight:600">✓ adicionado</span>':'<button class="btn btn-pri btn-sm" data-g="'+g+'" onclick="usarGrupoSugerido(this.dataset.g)" title="Usar este grupo na proposta">+ Simular</button>';
+    const lf=temLanceFixo(g);const pr=temCotaReduzida(g);
+    const lfBadge='<span style="background:'+(lf?'#d1fae5':'#fee2e2')+';color:'+(lf?'#065f46':'#991b1b')+';padding:2px 8px;border-radius:8px;font-size:10px;font-weight:700;white-space:nowrap">'+(lf?'✓ Sim':'✕ Não')+'</span>';
+    const prBadge='<span style="background:'+(pr?'#dbeafe':'#f3f4f6')+';color:'+(pr?'#1e40af':'#6b7280')+';padding:2px 8px;border-radius:8px;font-size:10px;font-weight:700;white-space:nowrap">'+(pr?'✓ Sim':'✕ Não')+'</span>';
+    return '<tr><td><strong>'+g+'</strong></td><td style="white-space:nowrap">'+credTxt+matchDot+'</td><td>'+d.pr+'m</td><td>'+(avgMin!=null?avgMin.toFixed(1)+'%':'—')+'</td><td>'+assertTxt+'</td><td>'+brl(item.pi)+'</td><td>'+brl(item.pp)+'</td><td style="text-align:center">'+lfBadge+'</td><td style="text-align:center">'+prBadge+'</td><td>'+btn+'</td></tr>';
   }
-  const empty='<tr><td colspan="8" style="text-align:center;color:var(--txt2);padding:10px">Nenhum grupo encontrado</td></tr>';
+  const empty='<tr><td colspan="10" style="text-align:center;color:var(--txt2);padding:10px">Nenhum grupo encontrado</td></tr>';
   tbodyIm.innerHTML=scored.filter(s=>s.isIm).slice(0,12).map(mkRow).join('')||empty;
   tbodyRo.innerHTML=scored.filter(s=>!s.isIm).slice(0,12).map(mkRow).join('')||empty;
 }
 function usarGrupoSugerido(g){
+  // Adiciona o grupo na lista de propGrupos (se ainda não tiver)
   if(!propGrupos.some(pg=>pg.grupo===g)){
-    propGrupos.push({grupo:'',prazo:192,fr:3,taxaadm:23,credMin:0,credMax:0,credito:340000,qtd:1,mesAtual:0});
-    lookupGrupo(propGrupos.length-1,g);
-  }else{renderPropSugestoes();}
+    // Se o array tem só 1 grupo vazio, reusa ele; senão adiciona novo
+    if(propGrupos.length===1&&!propGrupos[0].grupo){
+      lookupGrupo(0,g);
+    }else{
+      propGrupos.push({grupo:'',prazo:192,fr:3,taxaadm:23,credMin:0,credMax:0,credito:340000,qtd:1,mesAtual:0});
+      lookupGrupo(propGrupos.length-1,g);
+    }
+  }
+  // Navegar pra página Gerar Proposta
+  const navItem=document.querySelector('.ni[onclick*="prop"]');
+  nav('prop',navItem);
+  // Aguarda a página renderizar e dispara o cálculo
+  setTimeout(()=>{
+    if(typeof renderPropGrupos==='function')renderPropGrupos();
+    if(typeof calcProp==='function')calcProp();
+    if(typeof updLance==='function')updLance();
+    if(typeof renderPropSugestoes==='function')renderPropSugestoes();
+    // Se há um botão "Próximo passo" (step 2), avança automaticamente
+    if(typeof propGoStep==='function')propGoStep(2);
+    toast(`Grupo ${g} adicionado à proposta`);
+  },120);
 }
 function calcProp(){
   updLance();
@@ -5210,13 +5235,18 @@ function renderOportunidades(){
     const trendIco=h.trend<-0.005?'📉':h.trend>0.005?'📈':'➡️';
     const avgMinPct=h.avgMin?(h.avgMin*100).toFixed(1)+'%':'—';
     const avgMaxPct=h.avgMax?(h.avgMax*100).toFixed(1)+'%':'—';
+    const lf=temLanceFixo(g);const pr=temCotaReduzida(g);
     return`<div class="card" style="margin-bottom:14px">
       <div class="ch" style="background:linear-gradient(90deg,var(--sb) 0%,var(--sb2) 100%);border-radius:14px 14px 0 0">
-        <div style="display:flex;align-items:center;gap:12px">
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
           <span style="font-size:20px;font-weight:900;color:var(--acc);font-family:'Playfair Display',serif">${g}</span>
           <div>
             <div style="color:#fff;font-size:13px;font-weight:700">${d.vmax?brl(d.vmax,0):d.vmin?'A partir de '+brl(d.vmin,0):'—'}</div>
             <div style="color:rgba(255,255,255,.55);font-size:11px">${d.pr?d.pr+'m':''}${d.pr&&d.tp?' · ':''}${(d.tp||'').split(' ')[0]}</div>
+          </div>
+          <div style="display:flex;gap:5px;align-items:center;margin-left:6px">
+            ${lf?'<span style="background:rgba(214,175,92,.25);color:#FFD89E;border:1px solid var(--acc);padding:2px 9px;border-radius:8px;font-size:10px;font-weight:700">LF</span>':''}
+            ${pr?'<span style="background:rgba(59,130,246,.25);color:#bfdbfe;border:1px solid #60a5fa;padding:2px 9px;border-radius:8px;font-size:10px;font-weight:700">PR</span>':''}
           </div>
         </div>
         <div style="display:flex;gap:14px;align-items:center">
