@@ -3070,7 +3070,7 @@ function renderCtrl(){
       <td style="white-space:nowrap;text-align:center">
         <button id="psave-${r.id}" class="btn btn-ok btn-sm" style="display:none" onclick="projSaveRow('${r.id}')" title="Salvar">??</button>
         ${!isCan&&!isCp?`<button class="btn btn-ok btn-sm" onclick="openModalContemp('${r.id}')" title="Contemplar">✓</button> `:''}
-        <button class="btn btn-out btn-sm" onclick="openHistoricoOfertas('${r.id}')" title="Histórico de ofertas de lance">??</button>
+        <button class="btn btn-out btn-sm" onclick="openLanceInteligente('${r.id}',this)" title="Inteligência de lance: histórico desta cota + histórico do grupo + sugestão">??</button>
         <button class="btn btn-out btn-sm" onclick="openModalCota('${r.id}')" title="Editar completo">✏️</button>
       </td>
     </tr>`;}).join('');
@@ -3435,9 +3435,29 @@ function renderAgenda(){
   const hoje=new Date();hoje.setHours(0,0,0,0);
   const isDay1=hoje.getDate()===1;
 
+  // Popula dropdowns de filtros globais (uma vez)
+  const fAss=document.getElementById('ag-f-assessor');
+  if(fAss&&fAss.options.length<=1){
+    const ass=[...new Set(COTAS.map(r=>r.assessor).filter(Boolean))].sort();
+    ass.forEach(a=>{const o=document.createElement('option');o.value=a;o.textContent=a;fAss.appendChild(o);});
+  }
+  const fBco=document.getElementById('ag-f-banco');
+  if(fBco&&fBco.options.length<=1){
+    const bcs=[...new Set(COTAS.map(r=>r.banco).filter(Boolean))].sort();
+    bcs.forEach(b=>{const o=document.createElement('option');o.value=b;o.textContent=b;fBco.appendChild(o);});
+  }
+
+  // Barra resumo: data
+  const dDoW=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'][hoje.getDay()];
+  const dEl=document.getElementById('ag-sum-data');
+  if(dEl)dEl.textContent=`${dDoW}, ${hoje.toLocaleDateString('pt-BR')}`;
+
+  // Aplica filtros globais sobre o universo
+  const baseCotas=_aplicarFiltrosGlobaisAgenda(COTAS);
+
   // Parcelas vencendo (não contempladas)
   _parcVencAll=[];
-  COTAS.filter(r=>r.vencimento&&r.status!=='CONTEMPLADO'&&r.status!=='Contemplado').forEach(r=>{
+  baseCotas.filter(r=>r.vencimento&&r.status!=='CONTEMPLADO'&&r.status!=='Contemplado').forEach(r=>{
     const d=new Date(hoje.getFullYear(),hoje.getMonth(),r.vencimento);
     if(d<hoje)d.setMonth(d.getMonth()+1);
     const diff=Math.round((d-hoje)/(1000*60*60*24));
@@ -3447,7 +3467,7 @@ function renderAgenda(){
 
   // Assembleias: agrupa por grupo; usa [ASM:] tag se existir, senão calcula pelo vencimento
   const grpMap={};
-  COTAS.filter(r=>r.status!=='CONTEMPLADO'&&r.status!=='Contemplado'&&r.grupo).forEach(r=>{
+  baseCotas.filter(r=>r.status!=='CONTEMPLADO'&&r.status!=='Contemplado'&&r.grupo).forEach(r=>{
     const g=String(r.grupo);
     let asmInfo=null;
     if(r.informacao&&r.informacao.includes('[ASM:')){
@@ -3463,37 +3483,146 @@ function renderAgenda(){
   _asmListAll=Object.entries(grpMap).map(([g,d])=>{return{grupo:g,...d};});
   _asmListAll.sort((a,b)=>a.asm.diffDias-b.asm.diffDias);
 
-  // Urgentes: parcelas ≤5 dias + assembleias ≤5 dias + alerta dia 1
-  const urgParc=_parcVencAll.filter(r=>r.diffDias<=5);
-  const urgAsm=_asmListAll.filter(r=>r.asm.diffDias>=0&&r.asm.diffDias<=5);
-  const agItem=(r,cor)=>`<div class="agenda-item"><div class="agenda-dot ${cor}"></div><div style="flex:1"><div class="agenda-title">${r.nome} — ${r.grupo||''}/${r.cota||''}</div><div class="agenda-sub">${brl(r.parcela)} · ${atag(r.assessor)}</div></div><div class="agenda-date">dia ${r.vencimento}<br><span style="color:${r.diffDias<=0?'var(--err)':r.diffDias<=3?'var(--warn)':'var(--ok)'};font-size:12px;font-weight:700">${r.diffDias<=0?'VENCIDA':r.diffDias===0?'HOJE':r.diffDias+'d'}</span></div></div>`;
+  // KPIs barra resumo
+  const nVencidas=_parcVencAll.filter(r=>r.diffDias<=0).length;
+  const nSemana=_parcVencAll.filter(r=>r.diffDias>0&&r.diffDias<=7).length;
+  const nAgo7=_asmListAll.filter(d=>d.asm.diffDias>=0&&d.asm.diffDias<=7).length;
+  const semLanceArr=baseCotas.filter(r=>(r.status==='SORTEIO / LANCE'||r.status==='Sorteio'||r.status==='Em Andamento')&&!r.lance1);
+  const totalReceber=_parcVencAll.filter(r=>r.diffDias<=30).reduce((s,r)=>s+(parcelaEfetiva(r)||0),0);
+  const setText=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
+  setText('ag-sum-venc',nVencidas);
+  setText('ag-sum-sem',nSemana);
+  setText('ag-sum-ago',nAgo7);
+  setText('ag-sum-sl',semLanceArr.length);
+  setText('ag-sum-rec',brl(totalReceber,0));
 
-  let urgHTML='';
-  if(isDay1)urgHTML+=`<div class="agenda-item" style="background:#fffbeb"><div class="agenda-dot warn"></div><div style="flex:1"><div class="agenda-title" style="color:var(--warn)">📋 Emitir Notas Fiscais de Comissionamento</div><div class="agenda-sub">1º do mês — verificar todas as comissões a receber</div></div><div class="agenda-date" style="color:var(--warn);font-weight:700">HOJE</div></div>`;
-  urgHTML+=urgParc.map(r=>agItem(r,r.diffDias<=0?'err':'warn')).join('');
-  urgHTML+=urgAsm.map(d=>`<div class="agenda-item"><div class="agenda-dot warn"></div><div style="flex:1"><div class="agenda-title">🏛 AGO Grupo ${d.grupo} — ${d.cotas.length} cota(s)</div><div class="agenda-sub">${d.cotas.slice(0,3).map(r=>r.nome).join(', ')}</div></div><div class="agenda-date" style="font-size:11px">${d.asm.label}<br><span style="color:var(--warn);font-weight:700">${d.asm.diffDias}d</span></div></div>`).join('');
-
-  const urgTotal=urgParc.length+urgAsm.length+(isDay1?1:0);
-  document.getElementById('agenda-urgente-count').textContent=urgTotal;
+  // Badge na nav (urgência: vencidas + AGOs ≤7d + dia 1 NF)
+  const urgTotal=nVencidas+nAgo7+(isDay1?1:0);
   const badgeAg=document.getElementById('badge-agenda');
-  if(urgTotal>0){badgeAg.style.display='inline-block';badgeAg.textContent=urgTotal;}else{badgeAg.style.display='none';}
-  document.getElementById('agenda-urgente').innerHTML=urgHTML||'<div style="color:var(--txt2);font-size:13px;padding:8px">Nenhuma urgência ✓</div>';
+  if(badgeAg){
+    if(urgTotal>0){badgeAg.style.display='inline-block';badgeAg.textContent=urgTotal;}
+    else badgeAg.style.display='none';
+  }
 
-  // Esta semana (6-14 dias)
-  const semParc=_parcVencAll.filter(r=>r.diffDias>5&&r.diffDias<=14);
-  document.getElementById('agenda-semana').innerHTML=semParc.length?semParc.map(r=>agItem(r,'warn')).join(''):'<div style="color:var(--txt2);font-size:13px;padding:8px">Nada nesta semana ✓</div>';
-
-  // Counts
-  document.getElementById('agenda-asm-count').textContent=_asmListAll.length;
-  document.getElementById('agenda-parc-count').textContent=_parcVencAll.filter(r=>r.diffDias<=30).length;
-
-  // Sem lance
-  const semLance=COTAS.filter(r=>(r.status==='SORTEIO / LANCE'||r.status==='Sorteio')&&!r.lance1);
-  document.getElementById('agenda-semlance-count').textContent=semLance.length;
-  document.getElementById('agenda-semlance').innerHTML=semLance.slice(0,20).map(r=>`<tr><td><strong>${r.nome}</strong></td><td>${r.grupo||'—'}/${r.cota||'—'}</td><td>${brl(r.credito,0)}</td><td>${brl(r.parcela)}</td><td>${atag(r.assessor)}</td><td style="font-size:11px;color:var(--txt2)">${r.adesao?r.adesao:'—'}</td><td><button class="btn btn-warn btn-sm" onclick="openModalContemp('${r.id}')" style="background:var(--warn);color:#fff">⚡ Contemplar</button></td></tr>`).join('');
-
+  // Render quadros
+  renderQVencidas();
+  renderQSemana();
+  renderQ30d();
   renderAgendaAsm();
-  renderAgendaParc();
+  renderQSemLance();
+  renderQAssessor();
+  renderQOport();
+}
+
+function _aplicarFiltrosGlobaisAgenda(arr){
+  const a=(document.getElementById('ag-f-assessor')||{value:''}).value;
+  const b=(document.getElementById('ag-f-banco')||{value:''}).value;
+  const m=(document.getElementById('ag-f-modal')||{value:''}).value;
+  return arr.filter(r=>{
+    if(a&&r.assessor!==a)return false;
+    if(b&&r.banco!==b)return false;
+    if(m){
+      const mod=r.modalidade_parcela||'Padrao';
+      if(mod!==m)return false;
+    }
+    return true;
+  });
+}
+
+function limparFiltrosAgenda(){
+  ['ag-f-assessor','ag-f-banco','ag-f-modal'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['vencidas-filter','semana-filter','d30-filter','asm-filter','sl-filter','oport-filter'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  renderAgenda();
+}
+
+// Helper: gera <div class="agenda-item"> padrão, com nome clicável e ações à direita
+function _agItemHtml(r,cor,opts){
+  opts=opts||{};
+  const dotCor=cor||'info';
+  const titulo=`${r.nome||'—'} — ${r.grupo||''}/${r.cota||''}`;
+  const sub=`${brl(r.parcela||r.parcela_pos||0)} · ${atag(r.assessor)}${r.banco?' · '+r.banco:''}`;
+  const direita=opts.direita||'';
+  const acoes=opts.acoes||'';
+  return `<div class="agenda-item">
+    <div class="agenda-dot ${dotCor}"></div>
+    <div style="flex:1;min-width:0;cursor:pointer" onclick="openModalCota('${r.id}')" title="Ver/Editar cota">
+      <div class="agenda-title" style="overflow:hidden;text-overflow:ellipsis">${titulo}</div>
+      <div class="agenda-sub">${sub}</div>
+    </div>
+    ${direita?`<div class="agenda-date" style="text-align:right">${direita}</div>`:''}
+    ${acoes?`<div style="display:flex;gap:4px;align-items:center;flex-shrink:0;margin-left:6px">${acoes}</div>`:''}
+  </div>`;
+}
+
+// Helper: HTML do botão "Marcar Pago" (ou "Pago hoje" + Desfazer, ou "Pago em DD/MM" desabilitado)
+function _btnPagamento(r){
+  if(pagoHoje(r)){
+    return `<button class="btn btn-sm" onclick="event.stopPropagation();confirmarPagamento('${r.id}')" disabled style="background:var(--ok);color:#fff;opacity:.7;cursor:not-allowed;font-size:10.5px;padding:3px 8px">✓ Pago hoje</button>`+
+      `<button class="btn btn-sm" onclick="event.stopPropagation();desfazerPagamento('${r.id}')" style="background:#fef3c7;color:#92400e;border:1px solid #d97706;font-size:10.5px;padding:3px 6px" title="Desfazer (só hoje)">↺</button>`;
+  }
+  if(jaPagoNoMes(r)){
+    const dt=new Date(r.ultima_parcela_paga+'T00:00:00').toLocaleDateString('pt-BR').slice(0,5);
+    return `<button class="btn btn-sm" disabled style="background:#dcfce7;color:#15803d;opacity:.85;cursor:not-allowed;font-size:10.5px;padding:3px 8px" title="Pagamento já registrado neste mês">✓ Pago ${dt}</button>`;
+  }
+  return `<button class="btn btn-sm" onclick="event.stopPropagation();confirmarPagamento('${r.id}')" style="background:var(--ok);color:#fff;font-size:10.5px;padding:3px 10px;font-weight:600" title="Confirmar pagamento da parcela">✓ Pago</button>`;
+}
+
+// Helper: HTML do botão de oferta de lance (reusa renderToggleOferta)
+function _btnOferta(r){
+  // renderToggleOferta retorna o botão completo; reescrevemos só o evento pra parar propagação
+  const html=renderToggleOferta(r.id);
+  return html.replace('onclick="', 'onclick="event.stopPropagation();');
+}
+
+function renderQVencidas(){
+  const filtro=(document.getElementById('vencidas-filter')||{value:''}).value.toLowerCase().trim();
+  const sortV=(document.getElementById('vencidas-sort')||{value:'dias'}).value;
+  let list=_parcVencAll.filter(r=>r.diffDias<=0);
+  if(filtro)list=list.filter(r=>(r.nome||'').toLowerCase().includes(filtro));
+  if(sortV==='nome')list=[...list].sort((a,b)=>(a.nome||'').localeCompare(b.nome||'','pt-BR'));
+  else if(sortV==='valor-desc')list=[...list].sort((a,b)=>(parcelaEfetiva(b)||0)-(parcelaEfetiva(a)||0));
+  else list=[...list].sort((a,b)=>a.diffDias-b.diffDias);
+  document.getElementById('agenda-vencidas-count').textContent=list.length;
+  const el=document.getElementById('agenda-vencidas');if(!el)return;
+  el.innerHTML=list.length?list.map(r=>{
+    const dias=r.diffDias<=0?(r.diffDias===0?'HOJE':Math.abs(r.diffDias)+'d atraso'):r.diffDias+'d';
+    const corTxt=r.diffDias<0?'var(--err)':'var(--warn)';
+    const dir=`<div style="font-size:10.5px;color:var(--txt2)">dia ${r.vencimento}</div><div style="color:${corTxt};font-size:11.5px;font-weight:800">${dias}</div>`;
+    return _agItemHtml(r,'err',{direita:dir,acoes:_btnPagamento(r)});
+  }).join(''):'<div style="color:var(--txt2);font-size:13px;padding:14px;text-align:center">Nenhuma vencida ✓</div>';
+}
+
+function renderQSemana(){
+  const filtro=(document.getElementById('semana-filter')||{value:''}).value.toLowerCase().trim();
+  const sortV=(document.getElementById('semana-sort')||{value:'dias'}).value;
+  let list=_parcVencAll.filter(r=>r.diffDias>=1&&r.diffDias<=7);
+  if(filtro)list=list.filter(r=>(r.nome||'').toLowerCase().includes(filtro));
+  if(sortV==='nome')list=[...list].sort((a,b)=>(a.nome||'').localeCompare(b.nome||'','pt-BR'));
+  else if(sortV==='valor-desc')list=[...list].sort((a,b)=>(parcelaEfetiva(b)||0)-(parcelaEfetiva(a)||0));
+  else list=[...list].sort((a,b)=>a.diffDias-b.diffDias);
+  document.getElementById('agenda-semana-count').textContent=list.length;
+  const el=document.getElementById('agenda-semana');if(!el)return;
+  el.innerHTML=list.length?list.map(r=>{
+    const dir=`<div style="font-size:10.5px;color:var(--txt2)">dia ${r.vencimento}</div><div style="color:var(--warn);font-size:11.5px;font-weight:800">${r.diffDias}d</div>`;
+    return _agItemHtml(r,r.diffDias<=3?'warn':'info',{direita:dir,acoes:_btnPagamento(r)});
+  }).join(''):'<div style="color:var(--txt2);font-size:13px;padding:14px;text-align:center">Nada nesta semana ✓</div>';
+}
+
+function renderQ30d(){
+  const filtro=(document.getElementById('d30-filter')||{value:''}).value.toLowerCase().trim();
+  const sortV=(document.getElementById('d30-sort')||{value:'dias'}).value;
+  let list=_parcVencAll.filter(r=>r.diffDias>=8&&r.diffDias<=30);
+  if(filtro)list=list.filter(r=>(r.nome||'').toLowerCase().includes(filtro));
+  if(sortV==='dias-desc')list=[...list].sort((a,b)=>b.diffDias-a.diffDias);
+  else if(sortV==='nome')list=[...list].sort((a,b)=>(a.nome||'').localeCompare(b.nome||'','pt-BR'));
+  else if(sortV==='valor-desc')list=[...list].sort((a,b)=>(parcelaEfetiva(b)||0)-(parcelaEfetiva(a)||0));
+  else list=[...list].sort((a,b)=>a.diffDias-b.diffDias);
+  document.getElementById('agenda-30d-count').textContent=list.length;
+  const el=document.getElementById('agenda-30d');if(!el)return;
+  el.innerHTML=list.length?list.map(r=>{
+    const dir=`<div style="font-size:10.5px;color:var(--txt2)">dia ${r.vencimento}</div><div style="color:var(--txt2);font-size:11.5px;font-weight:700">${r.diffDias}d</div>`;
+    return _agItemHtml(r,'info',{direita:dir,acoes:_btnPagamento(r)});
+  }).join(''):'<div style="color:var(--txt2);font-size:13px;padding:14px;text-align:center">Nenhuma nos próximos 30 dias</div>';
 }
 
 function renderAgendaAsm(){
@@ -3502,31 +3631,123 @@ function renderAgendaAsm(){
   let list=filtro?_asmListAll.filter(d=>d.cotas.some(r=>(r.nome||'').toLowerCase().includes(filtro))):_asmListAll;
   if(sortV==='date-desc')list=[...list].sort((a,b)=>b.asm.diffDias-a.asm.diffDias);
   else if(sortV==='nome')list=[...list].sort((a,b)=>(a.cotas[0]?.nome||'').localeCompare(b.cotas[0]?.nome||'','pt-BR'));
-  else if(sortV==='nome-desc')list=[...list].sort((a,b)=>(b.cotas[0]?.nome||'').localeCompare(a.cotas[0]?.nome||'','pt-BR'));
   else if(sortV==='cotas')list=[...list].sort((a,b)=>b.cotas.length-a.cotas.length);
   else list=[...list].sort((a,b)=>a.asm.diffDias-b.asm.diffDias);
+  document.getElementById('agenda-asm-count').textContent=list.length;
   const el=document.getElementById('agenda-assembleias');if(!el)return;
   el.innerHTML=list.length?list.map(d=>{
     const cor=d.asm.diffDias<0?'err':d.asm.diffDias<=5?'warn':d.asm.diffDias<=14?'info':'ok';
-    const src=d.asm.source==='manual'?'':'<span style="font-size:10px;color:var(--txt2);margin-left:4px">(calculado)</span>';
-    return`<div class="agenda-item"><div class="agenda-dot ${cor}"></div><div style="flex:1"><div class="agenda-title">Grupo ${d.grupo} — ${d.cotas.length} cota(s)${src}</div><div class="agenda-sub">${d.cotas.slice(0,3).map(r=>r.nome).join(', ')}</div></div><div class="agenda-date" style="font-size:11px;text-align:right">${d.asm.label}<br><span style="color:${cor==='err'?'var(--err)':cor==='warn'?'var(--warn)':'var(--txt2)'};font-weight:700">${d.asm.diffDias<0?'passou':d.asm.diffDias+'d'}</span></div></div>`;
-  }).join(''):'<div style="color:var(--txt2);font-size:13px;padding:8px">Nenhuma assembleia encontrada</div>';
+    const src=d.asm.source==='manual'?'':'<span style="font-size:10px;color:var(--txt2);margin-left:4px">(calc.)</span>';
+    const corTxt=cor==='err'?'var(--err)':cor==='warn'?'var(--warn)':'var(--txt2)';
+    const cotasNomes=d.cotas.slice(0,3).map(r=>r.nome).join(', ')+(d.cotas.length>3?` +${d.cotas.length-3}`:'');
+    return `<div class="agenda-item">
+      <div class="agenda-dot ${cor}"></div>
+      <div style="flex:1;min-width:0">
+        <div class="agenda-title">🏛 Grupo ${d.grupo} — ${d.cotas.length} cota(s)${src}</div>
+        <div class="agenda-sub" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${cotasNomes}</div>
+      </div>
+      <div class="agenda-date" style="font-size:11px;text-align:right;flex-shrink:0">
+        ${d.asm.label}<br>
+        <span style="color:${corTxt};font-weight:700">${d.asm.diffDias<0?'passou':d.asm.diffDias+'d'}</span>
+      </div>
+    </div>`;
+  }).join(''):'<div style="color:var(--txt2);font-size:13px;padding:14px;text-align:center">Nenhuma assembleia encontrada</div>';
 }
 
-function renderAgendaParc(){
-  const filtro=(document.getElementById('parc-filter')||{value:''}).value.toLowerCase().trim();
-  const sortV=(document.getElementById('parc-sort')||{value:'dias'}).value;
-  let list=_parcVencAll.filter(r=>r.diffDias<=30);
+function renderQSemLance(){
+  const filtro=(document.getElementById('sl-filter')||{value:''}).value.toLowerCase().trim();
+  const sortV=(document.getElementById('sl-sort')||{value:'credito-desc'}).value;
+  const baseCotas=_aplicarFiltrosGlobaisAgenda(COTAS);
+  let list=baseCotas.filter(r=>(r.status==='SORTEIO / LANCE'||r.status==='Sorteio'||r.status==='Em Andamento')&&!r.lance1);
   if(filtro)list=list.filter(r=>(r.nome||'').toLowerCase().includes(filtro));
-  if(sortV==='dias-desc')list=[...list].sort((a,b)=>b.diffDias-a.diffDias);
-  else if(sortV==='nome')list=[...list].sort((a,b)=>(a.nome||'').localeCompare(b.nome||'','pt-BR'));
-  else if(sortV==='nome-desc')list=[...list].sort((a,b)=>(b.nome||'').localeCompare(a.nome||'','pt-BR'));
-  else if(sortV==='valor')list=[...list].sort((a,b)=>(a.parcela||0)-(b.parcela||0));
-  else if(sortV==='valor-desc')list=[...list].sort((a,b)=>(b.parcela||0)-(a.parcela||0));
-  else list=[...list].sort((a,b)=>a.diffDias-b.diffDias);
-  const el=document.getElementById('agenda-parcelas');if(!el)return;
-  const agItem=(r,cor)=>`<div class="agenda-item"><div class="agenda-dot ${cor}"></div><div style="flex:1"><div class="agenda-title">${r.nome} — ${r.grupo||''}/${r.cota||''}</div><div class="agenda-sub">${brl(r.parcela)} · ${atag(r.assessor)}</div></div><div class="agenda-date">dia ${r.vencimento}<br><span style="color:${r.diffDias<=0?'var(--err)':r.diffDias<=3?'var(--warn)':'var(--ok)'};font-size:12px;font-weight:700">${r.diffDias<=0?'VENCIDA':r.diffDias===0?'HOJE':r.diffDias+'d'}</span></div></div>`;
-  el.innerHTML=list.length?list.map(r=>agItem(r,r.diffDias<=3?'err':r.diffDias<=7?'warn':'info')).join(''):'<div style="color:var(--txt2);font-size:13px;padding:8px">Nenhuma nos próximos 30 dias</div>';
+  if(sortV==='nome')list=[...list].sort((a,b)=>(a.nome||'').localeCompare(b.nome||'','pt-BR'));
+  else if(sortV==='adesao')list=[...list].sort((a,b)=>(a.adesao||'').localeCompare(b.adesao||''));
+  else list=[...list].sort((a,b)=>(b.credito||0)-(a.credito||0));
+  document.getElementById('agenda-semlance-count').textContent=list.length;
+  const el=document.getElementById('agenda-semlance');if(!el)return;
+  el.innerHTML=list.length?list.slice(0,40).map(r=>{
+    const dir=`<div style="font-size:10.5px;color:var(--txt2);font-weight:600">${brl(r.credito||0,0)}</div><div style="font-size:10px;color:var(--txt2)">${r.adesao||'—'}</div>`;
+    return _agItemHtml(r,'warn',{direita:dir,acoes:_btnOferta(r)});
+  }).join(''):'<div style="color:var(--txt2);font-size:13px;padding:14px;text-align:center">Todas as cotas têm lance ofertado ✓</div>';
+}
+
+function renderQAssessor(){
+  const card=document.getElementById('card-agenda-assessor');
+  if(!card)return;
+  // Só admin vê
+  if(!CURRENT_USER||!CURRENT_USER.isAdmin){card.style.display='none';return;}
+  card.style.display='';
+  const baseCotas=_aplicarFiltrosGlobaisAgenda(COTAS);
+  const isCancel=s=>(s||'').toUpperCase()==='CANCELADO';
+  const isContemp=s=>s==='Contemplado'||s==='CONTEMPLADO'||s==='Faturado';
+  const map={};
+  baseCotas.forEach(r=>{
+    if(isCancel(r.status))return;
+    const a=r.assessor||'(sem)';
+    if(!map[a])map[a]={cotas:0,contemp:0,semLance:0,vencidas:0,semana:0,parcMes:0};
+    map[a].cotas++;
+    if(isContemp(r.status))map[a].contemp++;
+    if((r.status==='SORTEIO / LANCE'||r.status==='Sorteio'||r.status==='Em Andamento')&&!r.lance1)map[a].semLance++;
+    map[a].parcMes+=parcelaEfetiva(r)||0;
+  });
+  _parcVencAll.forEach(r=>{
+    const a=r.assessor||'(sem)';
+    if(!map[a])return;
+    if(r.diffDias<=0)map[a].vencidas++;
+    else if(r.diffDias<=7)map[a].semana++;
+  });
+  const arr=Object.entries(map).sort((a,b)=>b[1].cotas-a[1].cotas);
+  document.getElementById('agenda-assessor-count').textContent=arr.length;
+  const el=document.getElementById('agenda-assessor');
+  el.innerHTML=arr.length?`<div class="tw" style="max-height:380px;overflow-y:auto"><table style="font-size:11.5px">
+    <thead><tr>
+      <th style="text-align:left">Assessor</th>
+      <th>Cotas</th>
+      <th style="color:var(--ok)">Contempl.</th>
+      <th style="color:var(--err)">Vencidas</th>
+      <th style="color:var(--warn)">≤7d</th>
+      <th style="color:#7c3aed">S/Lance</th>
+      <th style="text-align:right">Parc/mês</th>
+    </tr></thead>
+    <tbody>${arr.map(([a,d])=>`<tr style="cursor:pointer" onclick="document.getElementById('ag-f-assessor').value='${a}';renderAgenda()" title="Filtrar por ${a}">
+      <td style="text-align:left">${atag(a)}</td>
+      <td><strong>${d.cotas}</strong></td>
+      <td>${d.contemp}</td>
+      <td style="color:${d.vencidas>0?'var(--err)':'var(--txt2)'};font-weight:${d.vencidas>0?'700':'400'}">${d.vencidas}</td>
+      <td style="color:${d.semana>0?'var(--warn)':'var(--txt2)'};font-weight:${d.semana>0?'700':'400'}">${d.semana}</td>
+      <td style="color:${d.semLance>0?'#7c3aed':'var(--txt2)'};font-weight:${d.semLance>0?'700':'400'}">${d.semLance}</td>
+      <td style="text-align:right;font-weight:600">${brl(d.parcMes,0)}</td>
+    </tr>`).join('')}</tbody>
+  </table></div>`:'<div style="color:var(--txt2);font-size:13px;padding:14px;text-align:center">Nenhum assessor com cotas ativas</div>';
+}
+
+function renderQOport(){
+  const filtro=(document.getElementById('oport-filter')||{value:''}).value.toLowerCase().trim();
+  const sortV=(document.getElementById('oport-sort')||{value:'prazo'}).value;
+  const isCancel=s=>(s||'').toUpperCase()==='CANCELADO';
+  const baseCotas=_aplicarFiltrosGlobaisAgenda(COTAS);
+  let list=baseCotas.filter(r=>!isCancel(r.status)&&r.prazo_restante!=null&&r.prazo_restante>0&&r.prazo_restante<=3);
+  if(filtro)list=list.filter(r=>(r.nome||'').toLowerCase().includes(filtro));
+  if(sortV==='nome')list=[...list].sort((a,b)=>(a.nome||'').localeCompare(b.nome||'','pt-BR'));
+  else if(sortV==='credito-desc')list=[...list].sort((a,b)=>(b.credito||0)-(a.credito||0));
+  else list=[...list].sort((a,b)=>(a.prazo_restante||0)-(b.prazo_restante||0));
+  document.getElementById('agenda-oport-count').textContent=list.length;
+  const el=document.getElementById('agenda-oport');if(!el)return;
+  el.innerHTML=list.length?list.map(r=>{
+    const pr=r.prazo_restante||0;
+    const dir=`<div style="font-size:10.5px;color:var(--txt2)">${brl(r.credito||0,0)}</div><div style="color:var(--ok);font-size:11.5px;font-weight:800">${pr} ${pr===1?'parcela':'parcelas'}</div>`;
+    const acoes=`<button class="btn btn-sm" onclick="event.stopPropagation();oportSimularNova('${r.id}')" style="background:var(--acc);color:#fff;font-size:10.5px;padding:3px 9px;font-weight:600" title="Simular nova cota para este cliente">📊 Nova</button>`;
+    return _agItemHtml(r,'ok',{direita:dir,acoes});
+  }).join(''):'<div style="color:var(--txt2);font-size:13px;padding:14px;text-align:center">Nenhuma cota nas últimas 3 parcelas</div>';
+}
+
+function oportSimularNova(cotaId){
+  const r=COTAS.find(c=>String(c.id)===String(cotaId));
+  if(!r){toast('Cota não encontrada','err');return;}
+  // Navega para Gerar Proposta — usuário continua a partir daí
+  const ni=document.querySelector('.ni[onclick*="prop"]');
+  if(ni)nav('prop',ni);
+  toast(`Simule nova cota para ${r.nome} (cliente nas últimas ${r.prazo_restante} parcelas)`,'ok');
 }
 
 // ═══ CRM ═══
@@ -5339,7 +5560,7 @@ function renderProjDetail(name){
       <td style="white-space:nowrap;text-align:center">
         <button id="psave-${r.id}" class="btn btn-ok btn-sm" style="display:none" onclick="projSaveRow('${r.id}')" title="Salvar">💾</button>
         ${!isCan?`<button class="btn btn-out btn-sm" onclick="openModalContemp('${r.id}')" title="Registrar contemplação">✓</button> `:''}
-        <button class="btn btn-out btn-sm" onclick="openHistoricoOfertas('${r.id}')" title="Histórico de ofertas de lance">??</button>
+        <button class="btn btn-out btn-sm" onclick="openLanceInteligente('${r.id}',this)" title="Inteligência de lance: histórico desta cota + histórico do grupo + sugestão">??</button>
         <button class="btn btn-out btn-sm" onclick="openModalCota('${r.id}')" title="Ver / editar completo">✏️</button>
       </td>
     </tr>`;
@@ -5856,7 +6077,7 @@ function renderProjList(){
       <td style="white-space:nowrap;text-align:center">
         <button id="psave-${r.id}" class="btn btn-ok btn-sm" style="display:none" onclick="projSaveRow('${r.id}')" title="Salvar">??</button>
         ${!isCan&&!isCp?`<button class="btn btn-ok btn-sm" onclick="openModalContemp('${r.id}')" title="Contemplar">✓</button> `:''}
-        <button class="btn btn-out btn-sm" onclick="openHistoricoOfertas('${r.id}')" title="Histórico de ofertas de lance">??</button>
+        <button class="btn btn-out btn-sm" onclick="openLanceInteligente('${r.id}',this)" title="Inteligência de lance: histórico desta cota + histórico do grupo + sugestão">??</button>
         <button class="btn btn-out btn-sm" onclick="openModalCota('${r.id}')" title="Editar completo">✏️</button>
       </td>
     </tr>`;
@@ -5992,6 +6213,190 @@ window.addEventListener('DOMContentLoaded',async ()=>{
     }
   }
 });
+
+// ═══ POPOVER LANCE INTELIGENTE — histórico cota + grupo + sugestão ═══
+function lpopFechar(){
+  document.getElementById('lpop-bd')?.remove();
+  document.getElementById('lpop-card')?.remove();
+  document.removeEventListener('keydown',lpopEscHandler);
+}
+function lpopEscHandler(e){if(e.key==='Escape')lpopFechar();}
+function lpopSugerirLance(h){
+  if(!h||!h.avgMin)return null;
+  let s=h.avgMin+2;
+  if(h.trend>0.5)s+=1.5;
+  else if(h.trend<-0.5)s-=1;
+  if(h.avgMax&&s>h.avgMax)s=h.avgMax;
+  return Math.max(0,Math.min(99,+s.toFixed(1)));
+}
+function lpopPosicionar(card,btnEl){
+  const rect=btnEl.getBoundingClientRect();
+  const cardW=card.offsetWidth||540;
+  const cardH=card.offsetHeight||420;
+  const margin=10;
+  let left=rect.left-cardW-margin;
+  if(left<margin)left=rect.right+margin;
+  if(left+cardW>window.innerWidth-margin)left=Math.max(margin,(window.innerWidth-cardW)/2);
+  let top=rect.top;
+  if(top+cardH>window.innerHeight-margin)top=Math.max(margin,window.innerHeight-cardH-margin);
+  if(top<margin)top=margin;
+  card.style.left=left+'px';
+  card.style.top=top+'px';
+}
+function openLanceInteligente(cotaId,btnEl){
+  lpopFechar();
+  const r=COTAS.find(c=>String(c.id)===String(cotaId));
+  if(!r){toast('Cota não encontrada','err');return;}
+  const arr=(OFERTAS[String(cotaId)]||[]).slice().sort((a,b)=>new Date(b.data_assembleia)-new Date(a.data_assembleia));
+  const h=hist12mo(r.grupo);
+  const sug=lpopSugerirLance(h);
+  const lanceAtualPct=r.lance1?+(r.lance1*100).toFixed(1):null;
+  const proxAgo=calcProxAgo(r.grupo);
+  const est=estadoOferta(cotaId);
+
+  const corResultado={Pendente:'#fbbf24',Contemplado:'#10b981','Nao contemplado':'#94a3b8',Cancelado:'#ef4444'};
+  const lblResultado={Pendente:'⏳ Pendente',Contemplado:'✓ Contemplado','Nao contemplado':'✗ Não contemp.'};
+  const histCotaRows=arr.length?arr.slice(0,6).map(o=>`<tr>
+    <td style="white-space:nowrap"><b>${fmtDataBr(o.data_assembleia)}</b></td>
+    <td>${o.lance_pct!=null?(+o.lance_pct).toFixed(1)+'%':'—'}</td>
+    <td><span style="background:${(corResultado[o.resultado]||'#e5e7eb')+'22'};color:${corResultado[o.resultado]||'#374151'};padding:1px 7px;border-radius:8px;font-size:10px;font-weight:700;white-space:nowrap">${lblResultado[o.resultado]||o.resultado}</span></td>
+  </tr>`).join(''):`<tr><td colspan="3" style="text-align:center;color:var(--txt2);padding:14px;font-style:italic">Nenhuma oferta registrada ainda</td></tr>`;
+  const histCotaMais=arr.length>6?`<div style="text-align:center;padding:6px 0"><button class="btn btn-out btn-sm" style="font-size:10.5px" onclick="lpopFechar();openHistoricoOfertas('${cotaId}')">Ver histórico completo (${arr.length})</button></div>`:'';
+
+  let histGrupoHtml;
+  if(!h.avgMin){
+    histGrupoHtml=`<div style="text-align:center;color:var(--txt2);padding:14px;font-size:11.5px">Grupo ${r.grupo} sem histórico de lances no GUIA.</div>`;
+  }else{
+    const trendIco=h.trend<-0.5?'📉':h.trend>0.5?'📈':'➡️';
+    const trendTxt=h.trend<-0.5?'caindo':h.trend>0.5?'subindo':'estável';
+    const ultMeses=h.months.slice(-6).map((m,i)=>{
+      const idx=h.months.length-6+i;
+      const mn=h.lmin[idx]||0;const mx=h.lmax[idx]||0;const ct=h.contemp[idx]||0;
+      return `<tr>
+        <td style="white-space:nowrap;font-size:10.5px;color:var(--txt2)">${mptShort(m)}</td>
+        <td style="font-weight:700;color:${mn>0?'var(--ok)':'var(--txt2)'}">${mn>0?mn.toFixed(1)+'%':'—'}</td>
+        <td style="font-weight:700;color:${mx>0?'var(--err)':'var(--txt2)'}">${mx>0?mx.toFixed(1)+'%':'—'}</td>
+        <td style="color:var(--txt2)">${ct>0?ct:'—'}</td>
+      </tr>`;
+    }).join('');
+    histGrupoHtml=`
+      <div class="lpop-card" style="margin-bottom:10px">
+        <div class="lpop-grid">
+          <div><div class="l">Min médio 12m</div><div class="v" style="color:var(--ok)">${h.avgMin.toFixed(1)}%</div></div>
+          <div><div class="l">Max médio 12m</div><div class="v" style="color:var(--err)">${h.avgMax?h.avgMax.toFixed(1)+'%':'—'}</div></div>
+          <div><div class="l">Min absoluto</div><div class="v">${h.minAll?h.minAll.toFixed(1)+'%':'—'}</div></div>
+          <div><div class="l">Tendência</div><div class="v" style="font-size:13px">${trendIco} ${trendTxt}</div></div>
+        </div>
+      </div>
+      <table>
+        <thead><tr><th>Mês</th><th>Min ofertado</th><th>Max ofertado</th><th>Contemp.</th></tr></thead>
+        <tbody>${ultMeses}</tbody>
+      </table>`;
+  }
+
+  let sugHtml;
+  if(sug==null){
+    sugHtml=`<div class="lpop-sug" style="background:#f3f4f6;border-color:#9ca3af;color:#374151">
+      <div style="font-size:11.5px">⚠️ Sem dados suficientes do grupo no GUIA pra sugestão automática.</div>
+    </div>`;
+  }else{
+    const racional=h.trend>0.5?`tendência <b>subindo</b> — sugiro um pouco acima da média (+1,5pp)`
+                  :h.trend<-0.5?`tendência <b>caindo</b> — pode ser mais agressivo`
+                  :`tendência estável — média + 2pp pra ficar logo acima do mínimo`;
+    const compAtual=lanceAtualPct!=null?`<div style="font-size:10.5px;color:var(--txt2);margin-top:4px">Atual da cota: <b>${lanceAtualPct.toFixed(1)}%</b></div>`:'';
+    sugHtml=`<div class="lpop-sug">
+      <div style="display:flex;align-items:center;gap:14px">
+        <div>
+          <div style="font-size:10px;text-transform:uppercase;letter-spacing:.4px;color:#92400e;font-weight:700">💡 Sugestão para esta AGO</div>
+          <div class="lpop-sug-v">${sug.toFixed(1)}%</div>
+          ${compAtual}
+        </div>
+        <div style="font-size:10.5px;color:#78350f;flex:1;line-height:1.4">${racional}<br><span style="opacity:.7">Base: min médio ${h.avgMin.toFixed(1)}% · max médio ${h.avgMax?h.avgMax.toFixed(1):'—'}%</span></div>
+      </div>
+    </div>`;
+  }
+
+  let estTxt='';
+  if(est.tipo==='futura')estTxt=`<div style="background:#d1fae5;border:1px solid #10b981;border-radius:8px;padding:8px 11px;font-size:11px;color:#065f46">✓ Já há lance marcado para AGO ${fmtDataBr(est.oferta.data_assembleia)} (${est.oferta.lance_pct!=null?(+est.oferta.lance_pct).toFixed(1)+'%':'—'}). "Aplicar e marcar" vai atualizar o % desta oferta.</div>`;
+  else if(est.tipo==='passada')estTxt=`<div style="background:#fee2e2;border:1px solid #fca5a5;border-radius:8px;padding:8px 11px;font-size:11px;color:#991b1b">⚠️ Última oferta (AGO ${fmtDataBr(est.oferta.data_assembleia)}) já passou. "Aplicar e marcar" vai fechá-la como não contemplada e criar nova.</div>`;
+
+  const html=`
+    <div class="lpop-bd" id="lpop-bd" onclick="lpopFechar()"></div>
+    <div class="lpop" id="lpop-card" role="dialog">
+      <div class="lpop-h">
+        <div>
+          <div class="lpop-t">🎯 Inteligência de Lance</div>
+          <div class="lpop-sub">${r.nome} · Grupo ${r.grupo||'—'} / ${r.cota||'—'} · Próx AGO: ${fmtDataBr(proxAgo)||'—'}</div>
+        </div>
+        <button onclick="lpopFechar()" title="Fechar (Esc)">×</button>
+      </div>
+      <div class="lpop-b">
+        ${sugHtml}
+
+        <div>
+          <div class="lpop-sec-t">⚡ Aplicar lance</div>
+          <div class="lpop-acoes">
+            <label style="font-size:11px;color:var(--txt2)">% Lance:</label>
+            <input type="number" id="lpop-pct" class="form-i" style="width:90px;padding:5px 8px;font-size:13px;font-weight:700" step="0.1" min="0" max="100" value="${sug!=null?sug:(lanceAtualPct||'')}">
+            <button class="btn btn-pri btn-sm" onclick="lpopAplicar('${cotaId}',true)" title="Salva o % na cota e marca/atualiza oferta para próxima AGO">✓ Aplicar e marcar oferta</button>
+            <button class="btn btn-out btn-sm" onclick="lpopAplicar('${cotaId}',false)" title="Salva o % na cota sem marcar oferta">Só salvar %</button>
+          </div>
+          ${estTxt?'<div style="margin-top:8px">'+estTxt+'</div>':''}
+        </div>
+
+        <div>
+          <div class="lpop-sec-t">📜 Histórico desta cota</div>
+          <table>
+            <thead><tr><th>AGO</th><th>Lance</th><th>Resultado</th></tr></thead>
+            <tbody>${histCotaRows}</tbody>
+          </table>
+          ${histCotaMais}
+        </div>
+
+        <div>
+          <div class="lpop-sec-t">📊 Histórico do grupo (últimos 6m de 12m)</div>
+          ${histGrupoHtml}
+        </div>
+      </div>
+    </div>`;
+  document.body.insertAdjacentHTML('beforeend',html);
+  const card=document.getElementById('lpop-card');
+  setTimeout(()=>lpopPosicionar(card,btnEl),0);
+  document.addEventListener('keydown',lpopEscHandler);
+}
+async function lpopAplicar(cotaId,marcarOferta){
+  const r=COTAS.find(c=>String(c.id)===String(cotaId));if(!r)return;
+  const inp=document.getElementById('lpop-pct');
+  const pct=parseFloat(inp?.value);
+  if(isNaN(pct)||pct<0||pct>100){toast('Informe um % válido (0-100)','err');return;}
+  showLoad();
+  const newLance=+(pct/100).toFixed(4);
+  const {error}=await sb.from('cotas').update({lance1:newLance,updated_at:new Date().toISOString()}).eq('id',cotaId);
+  if(error){hideLoad();toast('Erro: '+error.message,'err');return;}
+  r.lance1=newLance;
+  if(!marcarOferta){
+    hideLoad();
+    toast(`Lance ${pct.toFixed(1)}% salvo na cota`);
+    refreshCotaViews();
+    lpopFechar();
+    return;
+  }
+  const est=estadoOferta(cotaId);
+  if(est.tipo==='futura'){
+    const {error:e2}=await sb.from('ofertas_lance').update({lance_pct:pct,atualizado_em:new Date().toISOString()}).eq('id',est.oferta.id);
+    hideLoad();
+    if(e2){toast('Lance salvo na cota mas falhou ao atualizar oferta: '+e2.message,'err');refreshCotaViews();return;}
+    const arr=OFERTAS[String(cotaId)]||[];
+    const o=arr.find(x=>x.id===est.oferta.id);if(o)o.lance_pct=pct;
+    toast(`Oferta atualizada para ${pct.toFixed(1)}% na AGO ${fmtDataBr(est.oferta.data_assembleia)}`);
+    refreshCotaViews();
+    lpopFechar();
+    return;
+  }
+  hideLoad();
+  await toggleLanceOfertado(cotaId);
+  lpopFechar();
+}
 </script>
 </body>
 </html>
