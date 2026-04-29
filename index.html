@@ -4846,7 +4846,24 @@ function guiaSearch(){
   document.getElementById('guia-browse').style.display='none';
   document.getElementById('guia-empty').style.display='block';
 }
-function guiaSel(g){
+async function fetchHistGrupoSupabase(grupo){
+  if(!sb)return null;
+  try{
+    const {data,error}=await sb.from('lances_historico_mensal')
+      .select('ano_mes,lance_min,lance_max,qtd_contemplados_lance_livre,outlier')
+      .eq('grupo',String(grupo))
+      .order('ano_mes',{ascending:true});
+    if(error||!data||!data.length)return null;
+    return{
+      months:data.map(r=>r.ano_mes),
+      min:data.map(r=>r.lance_min!=null&&!r.outlier?Number(r.lance_min):0),
+      max:data.map(r=>r.lance_max!=null&&!r.outlier?Number(r.lance_max):0),
+      cont:data.map(r=>r.qtd_contemplados_lance_livre||0)
+    };
+  }catch(e){console.warn('fetchHistGrupoSupabase falhou',e);return null;}
+}
+
+async function guiaSel(g){
   document.getElementById('guia-input').value=g;document.getElementById('ac-list').classList.remove('open');
   const d=GUIA[g];if(!d)return;selGrupo=g;
   document.getElementById('guia-result').style.display='block';document.getElementById('guia-browse').style.display='none';document.getElementById('guia-empty').style.display='none';
@@ -4862,12 +4879,25 @@ function guiaSel(g){
   document.getElementById('guia-hist-title').textContent='Histórico do Grupo '+g;
   const chips=[{l:'Grupo',v:g,s:d.tp||'Itaú'},{l:'Indexador',v:d.idx||'—',s:'correção'},{l:'Prazo Rest.',v:d.pr?d.pr+' meses':'—',s:d.po?'de '+d.po+' orig.':''},{l:'Próx. Assembleia',v:d.asm?d.asm.slice(5).split('-').reverse().join('/'):'—',s:''},{l:'Vagas',v:d.vagas!=null?d.vagas:'—',s:d.cap?'cap. '+d.cap:'',hl:true},{l:'Valor Mín.',v:d.vmin?brl(d.vmin,0):'—',s:''},{l:'Valor Máx.',v:d.vmax?brl(d.vmax,0):'—',s:''},{l:'Últ. Lance Mín.',v:d.ul_min&&d.ul_min>0?pct(d.ul_min):'—',s:'ant.'},{l:'Lance Atual Mín.',v:d.at_min&&d.at_min>0?pct(d.at_min):'—',s:'atual',hl:true},{l:'Contemp. Atual',v:d.at_cl||'0',s:''},{l:'F. Reserva',v:d.fr!=null?pct(d.fr):'—',s:''},{l:'Parc. Reduz.',v:d.pr_red==='S'?'Sim':'Não',s:''},];
   document.getElementById('guia-chips').innerHTML=chips.map(c=>`<div class="chip${c.hl?' hl':''}"><div class="chip-l">${c.l}</div><div class="chip-v">${c.v}</div>${c.s?`<div class="chip-s">${c.s}</div>`:''}</div>`).join('');
-  const hg=HIST.groups[g]||HIST.groups[parseInt(g)];const months=HIST.months.map(mpt);
-  const mn=hg?hg.min.map(v=>v||0):Array(months.length).fill(0);const ct=hg?hg.cont.map(v=>v||0):Array(months.length).fill(0);const mx=hg&&hg.max?hg.max:[];
+  // Busca histórico do Supabase (fonte da verdade). Fallback: HIST local antigo.
+  const supaHist=await fetchHistGrupoSupabase(g);
+  let monthsArr,mn,mx,ct,labelsArr;
+  if(supaHist){
+    monthsArr=supaHist.months;
+    mn=supaHist.min;mx=supaHist.max;ct=supaHist.cont;
+    labelsArr=monthsArr.map(ym=>{const[a,m]=ym.split('-');return['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'][parseInt(m)-1]+'/'+a.slice(2);});
+  }else{
+    const hg=HIST.groups[g]||HIST.groups[parseInt(g)];
+    monthsArr=HIST.months;
+    mn=hg?hg.min.map(v=>v||0):Array(monthsArr.length).fill(0);
+    ct=hg?hg.cont.map(v=>v||0):Array(monthsArr.length).fill(0);
+    mx=hg&&hg.max?hg.max:[];
+    labelsArr=HIST.months.map(mpt);
+  }
   if(minChart)minChart.destroy();if(contChart)contChart.destroy();
-  minChart=new Chart(document.getElementById('ch-min'),{type:'line',data:{labels:months,datasets:[{label:'Lance Mín.(%)',data:mn,borderColor:'#10b981',backgroundColor:'rgba(16,185,129,.1)',tension:.3,fill:true,pointRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{callback:v=>v+'%'}}}}});
-  contChart=new Chart(document.getElementById('ch-cont'),{type:'bar',data:{labels:months,datasets:[{label:'Contemp.',data:ct,backgroundColor:'rgba(59,130,246,.7)',borderRadius:5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{stepSize:1}}}}});
-  document.getElementById('guia-hist-body').innerHTML=HIST.months.map((m,i)=>`<tr><td>${mpt(m)}</td><td>${mn[i]>0?'<span style="color:var(--ok);font-weight:700">'+mn[i].toFixed(2)+'%</span>':'—'}</td><td>${mx[i]&&mx[i]>0?'<span style="color:var(--err);font-weight:700">'+mx[i].toFixed(2)+'%</span>':'—'}</td><td>${ct[i]>0?ct[i]:'—'}</td></tr>`).join('');
+  minChart=new Chart(document.getElementById('ch-min'),{type:'line',data:{labels:labelsArr,datasets:[{label:'Lance Mín.(%)',data:mn,borderColor:'#10b981',backgroundColor:'rgba(16,185,129,.1)',tension:.3,fill:true,pointRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{callback:v=>v+'%'}}}}});
+  contChart=new Chart(document.getElementById('ch-cont'),{type:'bar',data:{labels:labelsArr,datasets:[{label:'Contemp.',data:ct,backgroundColor:'rgba(59,130,246,.7)',borderRadius:5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{stepSize:1}}}}});
+  document.getElementById('guia-hist-body').innerHTML=monthsArr.map((m,i)=>`<tr><td>${labelsArr[i]}</td><td>${mn[i]>0?'<span style="color:var(--ok);font-weight:700">'+mn[i].toFixed(2)+'%</span>':'—'}</td><td>${mx[i]&&mx[i]>0?'<span style="color:var(--err);font-weight:700">'+mx[i].toFixed(2)+'%</span>':'—'}</td><td>${ct[i]>0?ct[i]:'—'}</td></tr>`).join('');
 }
 function guiaClear(){document.getElementById('guia-input').value='';document.getElementById('guia-result').style.display='none';document.getElementById('guia-empty').style.display='none';document.getElementById('guia-browse').style.display='block';selGrupo=null;window.scrollTo({top:0,behavior:'smooth'});}
 function guiaPrevNext(dir){
