@@ -1013,69 +1013,25 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:#fefbf3;border-left:3px so
     </div>
   </div>
 
-  <!-- CARROSSEL OVERLAY -->
-  <div id="carrossel-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;display:none;align-items:center;justify-content:center">
-    <div style="width:min(520px,95vw);position:relative">
-      <!-- Close -->
-      <button onclick="closeCarrossel()" style="position:absolute;top:-40px;right:0;background:none;border:none;color:#fff;font-size:24px;cursor:pointer">✕</button>
-      <!-- Card do carrossel -->
-      <div id="carr-card" style="background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.4)">
-        <!-- Gradiente topo -->
-        <div id="carr-header" style="background:linear-gradient(135deg,#2C3E50 0%,#226866 100%);padding:24px 28px 20px">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-            <span style="font-size:11px;font-weight:700;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:1px">HC360 Consórcio · Oportunidade da Semana</span>
-            <span id="carr-num" style="font-size:11px;color:rgba(255,255,255,.5)">1/1</span>
-          </div>
-          <div style="display:flex;align-items:center;gap:12px">
-            <div id="carr-tipo-icon" style="font-size:36px">🏠</div>
-            <div>
-              <div id="carr-grupo" style="font-size:28px;font-weight:900;color:#fff;line-height:1">Grupo —</div>
-              <div id="carr-tipo-label" style="font-size:13px;color:rgba(255,255,255,.7);margin-top:2px">Imóvel</div>
-            </div>
-          </div>
-        </div>
-        <!-- Dados -->
-        <div style="padding:20px 28px">
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px">
-            <div style="background:#f8fafc;border-radius:10px;padding:12px 14px">
-              <div style="font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;margin-bottom:4px">Crédito</div>
-              <div id="carr-cred" style="font-size:20px;font-weight:800;color:#1e293b">—</div>
-            </div>
-            <div style="background:#f8fafc;border-radius:10px;padding:12px 14px">
-              <div style="font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;margin-bottom:4px">Prazo</div>
-              <div id="carr-prazo" style="font-size:20px;font-weight:800;color:#1e293b">—</div>
-            </div>
-            <div style="background:#ecfdf5;border-radius:10px;padding:12px 14px">
-              <div style="font-size:10px;font-weight:700;color:#065f46;text-transform:uppercase;margin-bottom:4px">Lance Mínimo</div>
-              <div id="carr-lance" style="font-size:20px;font-weight:800;color:#059669">—</div>
-            </div>
-            <div style="background:#fff7ed;border-radius:10px;padding:12px 14px">
-              <div style="font-size:10px;font-weight:700;color:#92400e;text-transform:uppercase;margin-bottom:4px">Vagas Disponíveis</div>
-              <div id="carr-vagas" style="font-size:20px;font-weight:800;color:#d97706">—</div>
-            </div>
-          </div>
-          <div id="carr-bar-wrap" style="background:#f1f5f9;border-radius:10px;padding:12px 14px;margin-bottom:16px">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-              <span style="font-size:11px;font-weight:700;color:#475569">Assertividade de Lance</span>
-              <span id="carr-compat" style="font-size:14px;font-weight:800;color:#2C3E50">—%</span>
-            </div>
-            <div style="height:8px;background:#e2e8f0;border-radius:4px;overflow:hidden">
-              <div id="carr-bar" style="height:100%;background:linear-gradient(90deg,#226866,#D6AF5C);border-radius:4px;width:0%;transition:width .5s"></div>
-            </div>
-          </div>
-          <div style="font-size:11px;color:#94a3b8;text-align:center">📊 Baseado em 6 meses de histórico GUIA Itaú</div>
-        </div>
-      </div>
-      <!-- Navegação -->
-      <div style="display:flex;align-items:center;justify-content:center;gap:16px;margin-top:20px">
-        <button onclick="carrPrev()" style="background:rgba(255,255,255,.15);border:none;color:#fff;border-radius:50%;width:44px;height:44px;font-size:20px;cursor:pointer">‹</button>
-        <div id="carr-dots" style="display:flex;gap:6px"></div>
-        <button onclick="carrNext()" style="background:rgba(255,255,255,.15);border:none;color:#fff;border-radius:50%;width:44px;height:44px;font-size:20px;cursor:pointer">›</button>
-      </div>
-      <div style="text-align:center;margin-top:12px">
-        <span style="font-size:11px;color:rgba(255,255,255,.5)">Tire um print para compartilhar · Navegue com as setas ou teclado</span>
+  <!-- ─── CARROSSEL HC360 ─── -->
+  <div id="carrossel-overlay" style="display:none;position:fixed;inset:0;background:rgba(20,30,40,.96);z-index:9999;flex-direction:column;align-items:center;justify-content:flex-start;padding:18px 18px 28px;overflow-y:auto">
+    <div style="width:100%;max-width:560px;display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+      <span id="carr-num" style="font-family:'Mulish',sans-serif;font-size:13px;font-weight:600;color:#FFF3DD;letter-spacing:2px;text-transform:uppercase">— / —</span>
+      <div style="display:flex;gap:8px">
+        <button onclick="carrDownloadCurrent(event)" style="background:#D6AF5C;color:#2C3E50;border:none;border-radius:8px;padding:9px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Mulish',sans-serif;letter-spacing:.4px">📷 Baixar este</button>
+        <button onclick="carrDownloadAll(event)" style="background:#FFF3DD;color:#2C3E50;border:none;border-radius:8px;padding:9px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Mulish',sans-serif;letter-spacing:.4px">📦 Baixar todos (ZIP)</button>
+        <button onclick="closeCarrossel()" style="background:rgba(255,255,255,.08);color:#FFF3DD;border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:9px 14px;font-size:14px;cursor:pointer;font-family:'Mulish',sans-serif">✕</button>
       </div>
     </div>
+    <div style="position:relative;width:540px;height:675px;max-width:100%;max-height:75vh;overflow:hidden;border-radius:18px;box-shadow:0 24px 80px rgba(0,0,0,.6);background:#000">
+      <div id="carr-slide-wrap" style="position:absolute;top:0;left:0;width:1080px;height:1350px;transform:scale(.5);transform-origin:top left"></div>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:center;gap:18px;margin-top:20px">
+      <button onclick="carrPrev()" style="background:rgba(255,243,221,.12);border:1px solid rgba(255,243,221,.2);color:#FFF3DD;border-radius:50%;width:46px;height:46px;font-size:22px;cursor:pointer;font-family:'Mulish',sans-serif">‹</button>
+      <div id="carr-dots" style="display:flex;gap:7px;flex-wrap:wrap;max-width:380px;justify-content:center;align-items:center"></div>
+      <button onclick="carrNext()" style="background:rgba(255,243,221,.12);border:1px solid rgba(255,243,221,.2);color:#FFF3DD;border-radius:50%;width:46px;height:46px;font-size:22px;cursor:pointer;font-family:'Mulish',sans-serif">›</button>
+    </div>
+    <div style="text-align:center;margin-top:14px;font-family:'Mulish',sans-serif;font-size:11px;color:rgba(255,243,221,.45);letter-spacing:1.5px;text-transform:uppercase">← →  navegar  ·  Esc  fechar</div>
   </div>
 
   <!-- GUIA -->
@@ -1194,6 +1150,7 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:#fefbf3;border-left:3px so
       <div class="card">
         <div class="ch"><span class="ct">Todos os Grupos</span><span style="font-size:12px;color:var(--txt2)" id="browse-count">560 grupos</span></div>
         <div class="tw"><table><thead><tr>
+          <th title="Marque até 3 grupos para comparar lado a lado" style="text-align:center;width:36px">📊</th>
           <th onclick="sortBrowse('g')" style="cursor:pointer">Grupo <span id="bsort-g" class="sort-ico">⇅</span></th>
           <th>Tipo</th><th>Situação</th>
           <th onclick="sortBrowse('idx')" style="cursor:pointer">Indexador <span id="bsort-idx" class="sort-ico">⇅</span></th>
@@ -1212,6 +1169,50 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:#fefbf3;border-left:3px so
       </div>
     </div>
     <div id="guia-empty" style="display:none;text-align:center;padding:44px;color:var(--txt2)"><div style="font-size:44px;margin-bottom:10px">🏦</div><div style="font-size:14px;font-weight:600;color:var(--txt)">Grupo não encontrado</div></div>
+
+    <!-- FAB de comparação -->
+    <button id="guia-compare-fab" onclick="guiaOpenCompare()" style="display:none;position:fixed;bottom:24px;right:24px;z-index:998;background:linear-gradient(135deg,var(--sb) 0%,var(--teal) 100%);color:#fff;border:none;border-radius:30px;padding:14px 22px;font-size:14px;font-weight:700;box-shadow:0 8px 24px rgba(0,0,0,.25);cursor:pointer;align-items:center;gap:10px;transition:transform .15s" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">📊 Comparar <span id="guia-compare-count" style="background:rgba(255,255,255,.25);border-radius:14px;padding:2px 10px;font-size:13px">0</span></button>
+
+    <!-- Modal de comparação -->
+    <div id="guia-compare-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;align-items:flex-start;justify-content:center;overflow-y:auto;padding:30px 20px">
+      <div style="width:min(1280px,98vw);background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.4)">
+        <div style="background:linear-gradient(135deg,var(--sb) 0%,var(--teal) 100%);padding:18px 24px;color:#fff;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+          <div>
+            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;opacity:.75">Guia de Oportunidades</div>
+            <div style="font-size:20px;font-weight:900" id="guia-compare-title">Comparativo</div>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-out btn-sm" style="background:rgba(255,255,255,.18);border-color:rgba(255,255,255,.3);color:#fff" onclick="guiaClearCompare()">🗑 Limpar</button>
+            <button class="btn btn-out btn-sm" style="background:rgba(255,255,255,.18);border-color:rgba(255,255,255,.3);color:#fff" onclick="guiaCloseCompare()">✕ Fechar</button>
+          </div>
+        </div>
+        <div id="guia-compare-body" style="padding:20px"></div>
+      </div>
+    </div>
+
+    <!-- Modal de atualização do GUIA (admin only) -->
+    <div id="guia-update-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1001;align-items:center;justify-content:center;padding:20px">
+      <div style="width:min(720px,95vw);max-height:92vh;display:flex;flex-direction:column;background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.4)">
+        <div style="background:linear-gradient(135deg,var(--sb) 0%,var(--teal) 100%);padding:16px 22px;color:#fff;display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;opacity:.75">Base GUIA</div>
+            <div style="font-size:18px;font-weight:900">📤 Atualizar dados</div>
+          </div>
+          <button class="btn btn-out btn-sm" style="background:rgba(255,255,255,.18);border-color:rgba(255,255,255,.3);color:#fff" onclick="guiaCloseUpdateModal()">✕</button>
+        </div>
+        <div style="padding:20px;overflow-y:auto">
+          <p style="font-size:12.5px;color:var(--txt2);margin-bottom:10px">Cole o JSON atualizado dos grupos. Formato esperado: <code style="background:var(--card2);padding:2px 6px;border-radius:4px;font-size:11px">{ "40001": { "tp":"...", "sit":"Andamento", "vagas":12, ... }, ... }</code></p>
+          <div style="font-size:11.5px;color:var(--txt2);margin-bottom:6px"><strong>Última atualização:</strong> <span id="guia-update-last">—</span></div>
+          <textarea id="guia-update-json" placeholder='{"40001": {"tp":"IM","sit":"Andamento","vagas":12, ...}}' style="width:100%;min-height:240px;padding:12px;border:1.5px solid var(--bdr);border-radius:8px;font-family:monospace;font-size:11.5px;outline:none;resize:vertical" oninput="guiaValidateJson()"></textarea>
+          <div id="guia-update-feedback" style="margin-top:8px;font-size:12px;min-height:20px"></div>
+          <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
+            <input id="guia-update-obs" class="form-i" placeholder="Observação (ex: Itaú Abr/2026 — 12 grupos atualizados)" style="flex:1;min-width:200px;padding:8px 12px;font-size:12.5px">
+            <button class="btn btn-out btn-sm" onclick="guiaCloseUpdateModal()">Cancelar</button>
+            <button class="btn btn-pri btn-sm" id="guia-update-save" onclick="guiaSaveUpdate()" disabled>💾 Salvar atualização</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- PROPOSTA -->
@@ -4487,6 +4488,7 @@ function guiaFilter(){
     return true;
   });
   guiaUpdateChips();
+  guiaSaveFilters();
   const total=Object.keys(GUIA).length;
   const txt=browseData.length===total?(total+' grupos'):(browseData.length+' de '+total+' grupos');
   ['guia-count','browse-count'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=txt;});
@@ -4532,6 +4534,194 @@ function guiaClearFilters(){
   guiaFilter();
   toast('Filtros limpos');
 }
+
+/* ── Persistência de filtros (localStorage) ─── */
+function guiaSaveFilters(){
+  try{
+    const o={};
+    ['tipo','sit','lf','pr','prazo','lance','vagas','cont','cred'].forEach(k=>{
+      const el=document.getElementById('guia-f-'+k);if(el)o[k]=el.value;
+    });
+    localStorage.setItem('hc360_guia_filters',JSON.stringify(o));
+  }catch(_){}
+}
+function guiaRestoreFilters(){
+  try{
+    const raw=localStorage.getItem('hc360_guia_filters');if(!raw)return;
+    const o=JSON.parse(raw)||{};
+    Object.entries(o).forEach(([k,v])=>{
+      const el=document.getElementById('guia-f-'+k);if(el&&v)el.value=v;
+    });
+  }catch(_){}
+}
+
+/* ── Comparação lado a lado (até 3 grupos) ─── */
+let guiaCompare=[];
+try{const __r=localStorage.getItem('hc360_guia_compare');if(__r)guiaCompare=JSON.parse(__r)||[];}catch(_){}
+function guiaSaveCompare(){try{localStorage.setItem('hc360_guia_compare',JSON.stringify(guiaCompare));}catch(_){}}
+function guiaIsInCompare(g){return guiaCompare.includes(String(g));}
+function guiaToggleCompare(g,ev){
+  if(ev){ev.stopPropagation();ev.preventDefault();}
+  g=String(g);
+  const i=guiaCompare.indexOf(g);
+  if(i>=0){guiaCompare.splice(i,1);}
+  else{
+    if(guiaCompare.length>=3){toast('Máximo de 3 grupos para comparar','err');return;}
+    guiaCompare.push(g);
+  }
+  guiaSaveCompare();
+  guiaUpdateCompareFAB();
+  renderBrowse(browseData,browsePage);
+}
+function guiaUpdateCompareFAB(){
+  const fab=document.getElementById('guia-compare-fab');if(!fab)return;
+  const cnt=document.getElementById('guia-compare-count');if(cnt)cnt.textContent=guiaCompare.length;
+  fab.style.display=guiaCompare.length>=2?'inline-flex':'none';
+}
+function guiaClearCompare(){
+  guiaCompare=[];guiaSaveCompare();guiaUpdateCompareFAB();
+  if(document.getElementById('guia-compare-overlay').style.display==='flex')guiaCloseCompare();
+  renderBrowse(browseData,browsePage);
+  toast('Comparação limpa');
+}
+function guiaRemoveFromCompare(g){
+  guiaCompare=guiaCompare.filter(x=>x!==String(g));
+  guiaSaveCompare();
+  guiaUpdateCompareFAB();
+  if(guiaCompare.length<2)guiaCloseCompare();
+  else guiaRenderCompare();
+  renderBrowse(browseData,browsePage);
+}
+function guiaOpenCompare(){
+  if(guiaCompare.length<2){toast('Selecione pelo menos 2 grupos','err');return;}
+  document.getElementById('guia-compare-overlay').style.display='flex';
+  guiaRenderCompare();
+}
+function guiaCloseCompare(){document.getElementById('guia-compare-overlay').style.display='none';}
+function guiaRenderCompare(){
+  const body=document.getElementById('guia-compare-body');if(!body)return;
+  const tit=document.getElementById('guia-compare-title');if(tit)tit.textContent='Comparativo · '+guiaCompare.length+' grupos';
+  const cols=guiaCompare.length;
+  const grid=cols===2?'1fr 1fr':'1fr 1fr 1fr';
+  const stats=guiaCompare.map(g=>{
+    const d=GUIA[g]||GUIA[parseInt(g)]||{};
+    const h=simHist6mo(g);
+    const hd=HIST.groups[g]||HIST.groups[parseInt(g)]||{};
+    const c6=(hd.cont||[]).slice(-6).filter(v=>v>0);
+    const avgCont=c6.length?c6.reduce((a,b)=>a+b,0)/c6.length:0;
+    return{g,d,h,avgCont,vagas:d.vagas||0,prazo:d.pr||0,la:(d.at_min||0)*100,cred:d.vmax||d.vmin||0,lanceMed:h.avgMin||0};
+  });
+  const best={
+    vagas:Math.max(...stats.map(s=>s.vagas)),
+    avgCont:Math.max(...stats.map(s=>s.avgCont)),
+    la:Math.min(...stats.map(s=>s.la).filter(v=>v>0))||0,
+    lanceMed:Math.min(...stats.map(s=>s.lanceMed).filter(v=>v>0))||0
+  };
+  body.innerHTML=`<div style="display:grid;grid-template-columns:${grid};gap:14px">`+stats.map(s=>{
+    const isImov=(s.d.tp||'').toUpperCase().includes('IM');
+    const isLF=temLanceFixo(s.g),isPR=temCotaReduzida(s.g);
+    const cell=(label,val,sub,isBest)=>`<div style="background:${isBest?'#f0fdf4':'var(--card2)'};border:1px solid ${isBest?'#86efac':'var(--bdr)'};border-radius:8px;padding:10px"><div style="font-size:9.5px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:.5px">${label}${isBest?' <span title="Melhor entre os comparados">🏆</span>':''}</div><div style="font-size:16px;font-weight:800;color:var(--txt);margin-top:3px;font-family:'Playfair Display',serif">${val}</div>${sub?`<div style="font-size:10.5px;color:var(--txt2);margin-top:1px">${sub}</div>`:''}</div>`;
+    return`<div style="border:1.5px solid var(--bdr);border-radius:12px;overflow:hidden;background:#fff">
+      <div style="background:linear-gradient(135deg,var(--sb) 0%,var(--teal) 100%);padding:14px 16px;color:#fff;display:flex;justify-content:space-between;align-items:flex-start">
+        <div>
+          <div style="font-size:11px;opacity:.75;text-transform:uppercase;letter-spacing:.5px">${isImov?'🏠 Imóvel':'🚗 Veículo/Moto'}</div>
+          <div style="font-size:24px;font-weight:900">Grupo ${s.g}</div>
+          <div style="font-size:11.5px;opacity:.85;margin-top:2px">${s.d.idx||'—'} · ${s.d.sit||'—'}</div>
+        </div>
+        <button onclick="guiaRemoveFromCompare('${s.g}')" title="Remover" style="background:rgba(255,255,255,.18);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:8px;width:28px;height:28px;cursor:pointer;font-weight:700">✕</button>
+      </div>
+      <div style="padding:14px;display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        ${cell('Vagas',s.vagas,s.d.cap?('cap. '+s.d.cap):'',s.vagas===best.vagas&&s.vagas>0)}
+        ${cell('Prazo Rest.',s.prazo?s.prazo+'m':'—',s.d.po?'de '+s.d.po+'m':'',false)}
+        ${cell('Lance Atual',s.la>0?s.la.toFixed(1)+'%':'—','min. atual',s.la===best.la&&s.la>0)}
+        ${cell('Lance Médio 6m',s.lanceMed>0?s.lanceMed.toFixed(1)+'%':'—','histórico',s.lanceMed===best.lanceMed&&s.lanceMed>0)}
+        ${cell('Contempl./mês',s.avgCont>0?s.avgCont.toFixed(1):'—','média 6m',s.avgCont===best.avgCont&&s.avgCont>0)}
+        ${cell('Crédito Máx.',s.cred?(s.cred>=1e6?(s.cred/1e6).toFixed(2)+'M':brl(s.cred,0)):'—','por cota',false)}
+      </div>
+      <div style="padding:0 14px 12px;display:flex;gap:6px;flex-wrap:wrap">
+        <span style="font-size:10.5px;font-weight:700;padding:3px 8px;border-radius:6px;background:${isLF?'#d1fae5':'#fee2e2'};color:${isLF?'#065f46':'#991b1b'}">${isLF?'LF ✓':'LF ✗'}</span>
+        <span style="font-size:10.5px;font-weight:700;padding:3px 8px;border-radius:6px;background:${isPR?'#dbeafe':'#f3f4f6'};color:${isPR?'#1e40af':'#6b7280'}">${isPR?'PR ✓':'PR —'}</span>
+        <span style="font-size:10.5px;font-weight:700;padding:3px 8px;border-radius:6px;background:#fef3c7;color:#92400e">F. Reserva ${s.d.fr!=null?pct(s.d.fr):'—'}</span>
+      </div>
+      <div style="padding:10px 14px;border-top:1px solid var(--bdr);background:var(--card2);display:flex;gap:6px">
+        <button class="btn btn-out btn-sm" style="flex:1" onclick="guiaCloseCompare();guiaSel('${s.g}')">🔍 Detalhes</button>
+        <button class="btn btn-pri btn-sm" style="flex:1" onclick="selGrupo='${s.g}';guiaCloseCompare();usarNaProposta()">→ Proposta</button>
+      </div>
+    </div>`;
+  }).join('')+`</div>`;
+}
+
+/* ── Atualização da base GUIA via Supabase ─── */
+let GUIA_OVERRIDE_META=null;
+async function loadGuiaOverride(){
+  if(!sb)return;
+  try{
+    const {data,error}=await sb.from('guia_data').select('*').eq('id',1).maybeSingle();
+    if(error||!data)return;
+    GUIA_OVERRIDE_META={atualizado_em:data.atualizado_em,observacao:data.observacao,atualizado_por:data.atualizado_por};
+    const dd=data.dados||{};
+    let n=0;
+    Object.entries(dd).forEach(([g,d])=>{GUIA[g]={...(GUIA[g]||{}),...d};n++;});
+    const dt=new Date(data.atualizado_em);
+    const fmt=dt.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric'});
+    const lbl=document.getElementById('guia-last-update');
+    if(lbl)lbl.innerHTML='Atualizado em <strong>'+fmt+'</strong>'+(data.observacao?' · '+data.observacao:'');
+    console.info('[GUIA] '+n+' grupos atualizados via Supabase ('+fmt+')');
+    if(document.getElementById('page-guia')?.classList.contains('act')&&typeof guiaFilter==='function')guiaFilter();
+  }catch(e){console.warn('[GUIA] override load failed',e);}
+}
+function guiaOpenUpdateModal(){
+  if(!CURRENT_USER||!CURRENT_USER.isAdmin){toast('Apenas administradores','err');return;}
+  const ov=document.getElementById('guia-update-overlay');if(!ov)return;
+  ov.style.display='flex';
+  const last=document.getElementById('guia-update-last');
+  if(GUIA_OVERRIDE_META&&GUIA_OVERRIDE_META.atualizado_em){
+    const dt=new Date(GUIA_OVERRIDE_META.atualizado_em);
+    last.textContent=dt.toLocaleString('pt-BR')+(GUIA_OVERRIDE_META.atualizado_por?' por '+GUIA_OVERRIDE_META.atualizado_por:'');
+  }else last.textContent='nunca atualizado via UI (usando base estática do build)';
+  document.getElementById('guia-update-json').value='';
+  document.getElementById('guia-update-obs').value='';
+  document.getElementById('guia-update-feedback').innerHTML='';
+  document.getElementById('guia-update-save').disabled=true;
+}
+function guiaCloseUpdateModal(){const ov=document.getElementById('guia-update-overlay');if(ov)ov.style.display='none';}
+function guiaValidateJson(){
+  const ta=document.getElementById('guia-update-json');
+  const fb=document.getElementById('guia-update-feedback');
+  const btn=document.getElementById('guia-update-save');
+  const v=ta.value.trim();
+  if(!v){fb.innerHTML='';btn.disabled=true;return;}
+  try{
+    const o=JSON.parse(v);
+    if(typeof o!=='object'||Array.isArray(o)||!Object.keys(o).length){
+      fb.innerHTML='<span style="color:var(--err)">⚠ JSON precisa ser objeto com pelo menos 1 grupo</span>';btn.disabled=true;return;
+    }
+    const groups=Object.keys(o);
+    const known=groups.filter(g=>GUIA[g]||GUIA[parseInt(g)]).length;
+    const unknown=groups.length-known;
+    fb.innerHTML=`<span style="color:var(--ok)">✓ ${groups.length} grupos válidos</span> · <span style="color:var(--txt2)">${known} já existem · ${unknown} novos</span>`;
+    btn.disabled=false;
+  }catch(e){fb.innerHTML='<span style="color:var(--err)">⚠ JSON inválido: '+(e.message||'')+'</span>';btn.disabled=true;}
+}
+async function guiaSaveUpdate(){
+  const v=document.getElementById('guia-update-json').value.trim();
+  let parsed;try{parsed=JSON.parse(v);}catch(e){toast('JSON inválido','err');return;}
+  const obs=document.getElementById('guia-update-obs').value.trim()||null;
+  showLoad();
+  const {error}=await sb.from('guia_data').upsert({
+    id:1,dados:parsed,observacao:obs,
+    atualizado_por:(CURRENT_USER&&(CURRENT_USER.displayName||CURRENT_USER.email))||'admin',
+    atualizado_em:new Date().toISOString()
+  },{onConflict:'id'});
+  hideLoad();
+  if(error){toast('Erro: '+error.message,'err');return;}
+  Object.entries(parsed).forEach(([g,d])=>{GUIA[g]={...(GUIA[g]||{}),...d};});
+  await loadGuiaOverride();
+  guiaCloseUpdateModal();
+  guiaFilter();
+  toast(Object.keys(parsed).length+' grupos atualizados!');
+}
+
 async function toggleLanceFixo(g){
   const tem=temLanceFixo(g);
   const novo=!tem;
@@ -4780,7 +4970,7 @@ function renderBrowse(data,pg){browsePage=pg;
   let sorted=data;
   if(browseSort.col){const c=browseSort.col;const d2=browseSort.dir;sorted=data.slice().sort(([ag,ad],[bg,bd])=>{const va=c==='g'?ag:(ad[c]??'');const vb=c==='g'?bg:(bd[c]??'');if(typeof va==='number'&&typeof vb==='number')return(va-vb)*d2;return String(va).localeCompare(String(vb),'pt-BR')*d2;});}
   ['g','idx','pr','asm','vagas','vmin','vmax','ul_min','at_min','at_cl'].forEach(c=>{const el=document.getElementById('bsort-'+c);if(el)el.textContent=sortIcon(browseSort,c);});
-  const{items,total,pages}=paginate(sorted,pg,40);document.getElementById('browse-count').textContent=data.length+' grupos';document.getElementById('browse-tbody').innerHTML=items.map(([g,d])=>{const lf=temLanceFixo(g),pr=temCotaReduzida(g);const lfBtn=`<button onclick="event.stopPropagation();toggleLanceFixo('${g}')" style="background:${lf?'#d1fae5':'#fee2e2'};color:${lf?'#065f46':'#991b1b'};border:none;border-radius:6px;padding:2px 8px;font-size:10.5px;font-weight:700;cursor:pointer" title="Clique para ${lf?'desabilitar':'habilitar'}">${lf?'✓ Sim':'✕ Não'}</button>`;const prBadge=`<span style="background:${pr?'#dbeafe':'#f3f4f6'};color:${pr?'#1e40af':'#6b7280'};padding:2px 8px;border-radius:6px;font-size:10.5px;font-weight:700">${pr?'✓ Sim':'—'}</span>`;return `<tr onclick="guiaSel('${g}')" style="cursor:pointer"><td><strong style="color:var(--acc)">${g}</strong></td><td style="font-size:11px">${(()=>{const t=(d.tp||'').toUpperCase();if(t.includes('IM'))return'Imóvel';if(t.includes('MOTO'))return'Moto';if(t.includes('PESADO'))return'Veículo Pesado';if(t.includes('LEVE')||t.includes('VEÍ'))return'Veículo';return d.tp||'—';})()}</td><td><span class="badge ${d.sit==='Andamento'?'b-ok':'b-gray'}">${d.sit||'—'}</span></td><td style="font-size:11px">${d.idx||'—'}</td><td>${d.pr||'—'}m</td><td style="font-size:11px">${d.asm||'—'}</td><td>${d.vagas!=null?d.vagas:'—'}</td><td style="font-size:11px">${d.vmin?brl(d.vmin,0):'—'}</td><td style="font-size:11px">${d.vmax?brl(d.vmax,0):'—'}</td><td>${d.ul_min&&d.ul_min>0?'<span style="color:var(--ok);font-weight:700">'+pct(d.ul_min)+'</span>':'—'}</td><td>${d.at_min&&d.at_min>0?'<span style="color:var(--acc);font-weight:700">'+pct(d.at_min)+'</span>':'—'}</td><td>${d.at_cl||'—'}</td><td style="text-align:center">${lfBtn}</td><td style="text-align:center">${prBadge}</td></tr>`;}).join('');renderPag('browse-pag',pg,pages,'browseGo');}
+  const{items,total,pages}=paginate(sorted,pg,40);document.getElementById('browse-count').textContent=data.length+' grupos';document.getElementById('browse-tbody').innerHTML=items.map(([g,d])=>{const lf=temLanceFixo(g),pr=temCotaReduzida(g);const inCmp=guiaIsInCompare(g);const cmpBtn=`<input type="checkbox" onclick="guiaToggleCompare('${g}',event)" ${inCmp?'checked':''} style="width:18px;height:18px;cursor:pointer;accent-color:var(--acc)" title="${inCmp?'Remover da comparação':'Adicionar à comparação (máx. 3)'}">`;const lfBtn=`<button onclick="event.stopPropagation();toggleLanceFixo('${g}')" style="background:${lf?'#d1fae5':'#fee2e2'};color:${lf?'#065f46':'#991b1b'};border:none;border-radius:6px;padding:2px 8px;font-size:10.5px;font-weight:700;cursor:pointer" title="Clique para ${lf?'desabilitar':'habilitar'}">${lf?'✓ Sim':'✕ Não'}</button>`;const prBadge=`<span style="background:${pr?'#dbeafe':'#f3f4f6'};color:${pr?'#1e40af':'#6b7280'};padding:2px 8px;border-radius:6px;font-size:10.5px;font-weight:700">${pr?'✓ Sim':'—'}</span>`;return `<tr onclick="guiaSel('${g}')" style="cursor:pointer${inCmp?';background:#fdf6e3':''}"><td onclick="event.stopPropagation()" style="text-align:center">${cmpBtn}</td><td><strong style="color:var(--acc)">${g}</strong></td><td style="font-size:11px">${(()=>{const t=(d.tp||'').toUpperCase();if(t.includes('IM'))return'Imóvel';if(t.includes('MOTO'))return'Moto';if(t.includes('PESADO'))return'Veículo Pesado';if(t.includes('LEVE')||t.includes('VEÍ'))return'Veículo';return d.tp||'—';})()}</td><td><span class="badge ${d.sit==='Andamento'?'b-ok':'b-gray'}">${d.sit||'—'}</span></td><td style="font-size:11px">${d.idx||'—'}</td><td>${d.pr||'—'}m</td><td style="font-size:11px">${d.asm||'—'}</td><td>${d.vagas!=null?d.vagas:'—'}</td><td style="font-size:11px">${d.vmin?brl(d.vmin,0):'—'}</td><td style="font-size:11px">${d.vmax?brl(d.vmax,0):'—'}</td><td>${d.ul_min&&d.ul_min>0?'<span style="color:var(--ok);font-weight:700">'+pct(d.ul_min)+'</span>':'—'}</td><td>${d.at_min&&d.at_min>0?'<span style="color:var(--acc);font-weight:700">'+pct(d.at_min)+'</span>':'—'}</td><td>${d.at_cl||'—'}</td><td style="text-align:center">${lfBtn}</td><td style="text-align:center">${prBadge}</td></tr>`;}).join('');renderPag('browse-pag',pg,pages,'browseGo');guiaUpdateCompareFAB();}
 function browseGo(p){renderBrowse(browseData,p);}
 function sortBrowse(col){browseSort.dir=browseSort.col===col?-browseSort.dir:1;browseSort.col=col;renderBrowse(browseData,1);}
 
@@ -6517,7 +6707,9 @@ function renderOportunidades(){
 // ═══ INIT ═══
 window.addEventListener('DOMContentLoaded',async ()=>{
   // Cada chamada protegida com try/catch para garantir que falhas em UIs específicas não bloqueiem o login.
-  try{browseData=Object.entries(GUIA);renderBrowse(browseData,1);}catch(e){console.warn('[init] renderBrowse:',e);}
+  try{guiaRestoreFilters();}catch(e){console.warn('[init] guiaRestoreFilters:',e);}
+  try{browseData=Object.entries(GUIA);guiaFilter();}catch(e){console.warn('[init] renderBrowse:',e);try{renderBrowse(Object.entries(GUIA),1);}catch(_){}}
+  try{guiaUpdateCompareFAB();}catch(e){}
   try{renderOportunidades();}catch(e){console.warn('[init] renderOportunidades:',e);}
   try{renderPropGrupos();calcProp();updLance();}catch(e){console.warn('[init] proposta:',e);}
   document.addEventListener('click',e=>{if(!e.target.closest('.ac-wrap')){document.getElementById('ac-list').classList.remove('open');const sa=document.getElementById('sim-ac');if(sa)sa.classList.remove('open');}});
@@ -6528,6 +6720,7 @@ window.addEventListener('DOMContentLoaded',async ()=>{
       await loadProfile(session.user);
       document.getElementById('login-screen').style.display='none';
       await loadData();
+      try{await loadGuiaOverride();}catch(e){console.warn('[init] guia override:',e);}
     }
   }
 });
