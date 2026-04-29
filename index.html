@@ -4723,8 +4723,8 @@ function renderProj(){
 let projFiltro='TODOS';
 function selProjFn(name){
   selProj=name;
-  document.querySelectorAll('.pcard').forEach(c=>c.classList.remove('sel'));
-  event.currentTarget.classList.add('sel');
+  document.querySelectorAll('#proj-cards .sel').forEach(c=>c.classList.remove('sel'));
+  if(typeof event!=='undefined'&&event&&event.currentTarget)event.currentTarget.classList.add('sel');
   projFiltro='TODOS';
   renderProjDetail(name);
   setTimeout(()=>document.getElementById('proj-detail').scrollIntoView({behavior:'smooth',block:'start'}),50);
