@@ -204,6 +204,29 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:#fefbf3;border-left:3px so
 .tSZ{background:#fce7f3;color:#831843}.tCO{background:#fef9c3;color:#713f12}
 .tOT{background:#eef1f6;color:#475569}
 
+/* ── POPOVER LANCE INTELIGENTE ──────────────── */
+.lpop-bd{position:fixed;inset:0;z-index:240;background:transparent}
+.lpop{position:fixed;background:#fff;border:1.5px solid var(--bdr);border-radius:14px;box-shadow:0 12px 40px rgba(0,0,0,.22);z-index:241;width:540px;max-width:96vw;max-height:84vh;overflow:auto;font-size:12.5px;animation:lpopIn .14s ease-out}
+@keyframes lpopIn{from{opacity:0;transform:translateY(-4px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+.lpop-h{padding:12px 16px;background:linear-gradient(90deg,var(--sb) 0%,var(--sb2) 100%);color:#fff;border-radius:12px 12px 0 0;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:2}
+.lpop-h .lpop-t{font-size:13px;font-weight:700}
+.lpop-h .lpop-sub{font-size:10.5px;opacity:.85;margin-top:2px}
+.lpop-h button{background:rgba(255,255,255,.18);border:none;color:#fff;font-size:18px;cursor:pointer;line-height:1;padding:2px 8px;border-radius:6px}
+.lpop-h button:hover{background:rgba(255,255,255,.32)}
+.lpop-b{padding:14px 16px;display:flex;flex-direction:column;gap:14px}
+.lpop-sec-t{font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;color:var(--txt2);font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.lpop-card{background:var(--card2);border:1px solid var(--bdr);border-radius:10px;padding:10px 12px}
+.lpop-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;font-size:11px}
+.lpop-grid .v{font-size:14px;font-weight:700;color:var(--sb)}
+.lpop-grid .l{color:var(--txt2);font-size:10px;text-transform:uppercase;letter-spacing:.3px}
+.lpop table{width:100%;border-collapse:collapse;font-size:11.5px}
+.lpop table th{font-size:9.5px;text-transform:uppercase;letter-spacing:.4px;color:var(--txt2);font-weight:700;text-align:left;padding:5px 8px;background:var(--card2);border-bottom:1px solid var(--bdr)}
+.lpop table td{padding:5px 8px;border-bottom:1px solid var(--bdr);font-size:11.5px}
+.lpop table tr:last-child td{border-bottom:none}
+.lpop-sug{background:linear-gradient(90deg,#fef3c7 0%,#fef9e7 100%);border:1.5px solid var(--acc);border-radius:10px;padding:12px}
+.lpop-sug-v{font-size:24px;font-weight:800;color:#92400e;line-height:1}
+.lpop-acoes{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+
 /* ── MODAL ──────────────────────────────────── */
 .moverlay{display:none;position:fixed;inset:0;background:rgba(15,25,40,.5);z-index:200;align-items:center;justify-content:center;backdrop-filter:blur(2px)}
 .moverlay.open{display:flex}
@@ -294,6 +317,60 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:#fefbf3;border-left:3px so
 .alert-ok{background:#d1fae5;color:#065f46}.alert-warn{background:#fef3c7;color:#92400e}.alert-err{background:#fee2e2;color:#991b1b}
 .note{background:#fdf6e3;border-radius:9px;padding:13px 15px;font-size:12px;color:var(--txt2);line-height:1.7;margin-top:14px;border-left:3px solid var(--acc)}
 .dvr{height:1px;background:var(--bdr);margin:16px 0}
+
+/* ── STEP BAR (proposta, comparativo) ─────── */
+.step-bar{display:flex;gap:0;border-radius:10px;overflow:hidden;border:1.5px solid var(--bdr);background:var(--card2);margin-bottom:20px}
+.step-bar > div{flex:1;padding:11px 8px;text-align:center;font-size:12px;font-weight:700;color:var(--txt2);cursor:pointer;transition:all .15s;font-family:'Raleway',sans-serif;letter-spacing:.3px;border-right:1px solid var(--bdr)}
+.step-bar > div:last-child{border-right:none}
+.step-bar > div:hover:not(.act){color:var(--sb);background:rgba(34,104,102,.06)}
+.step-bar > div.act{background:var(--acc);color:#fff;letter-spacing:.4px}
+.step-bar.sm{margin-bottom:0}
+.step-bar.sm > div{padding:8px 6px;font-size:11px}
+
+/* ── BLOCO PROPOSTA (Step 2) ──────────────── */
+.prop-doc{overflow:hidden;border-left:4px solid var(--acc)}
+.prop-doc-hdr{background:linear-gradient(135deg,var(--sb) 0%,var(--sb2) 100%);padding:26px 28px;color:#fff;position:relative}
+.prop-doc-hdr::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:var(--acc)}
+.prop-doc-eyebrow{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:1.8px;opacity:.78;margin-bottom:6px;font-family:'Raleway',sans-serif}
+.prop-doc-title{font-size:24px;font-weight:800;font-family:'Playfair Display',serif;letter-spacing:-.3px;line-height:1.15}
+.prop-doc-sub{font-size:12.5px;opacity:.78;margin-top:4px}
+.prop-doc-actions{display:flex;gap:8px}
+.prop-doc-actions .btn{background:rgba(255,255,255,.14);border:1.5px solid rgba(255,255,255,.32);color:#fff}
+.prop-doc-actions .btn:hover{background:rgba(255,255,255,.24);border-color:rgba(255,255,255,.55);color:#fff}
+.prop-kpis{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:0;border-bottom:1px solid var(--bdr);background:var(--card)}
+.prop-kpi{padding:18px 20px;border-right:1px solid var(--bdr);text-align:center;border-top:3px solid transparent}
+.prop-kpi:last-child{border-right:none}
+.prop-kpi.k-cred{border-top-color:var(--sb)}
+.prop-kpi.k-lance{border-top-color:var(--acc)}
+.prop-kpi.k-liq{border-top-color:var(--ok)}
+.prop-kpi.k-parc{border-top-color:var(--info)}
+.prop-kpi-lbl{font-size:10px;font-weight:700;text-transform:uppercase;color:var(--txt2);letter-spacing:.7px;margin-bottom:7px;font-family:'Raleway',sans-serif}
+.prop-kpi-val{font-size:22px;font-weight:800;font-family:'Playfair Display',serif;letter-spacing:-.3px;line-height:1.05}
+.prop-kpi-sub{font-size:11px;color:var(--txt2);margin-top:4px}
+.prop-mini{border-radius:10px;padding:18px;border:1.5px solid var(--bdr);background:var(--card)}
+.prop-mini.lance{border-left:4px solid var(--acc);background:#fdf6e3}
+.prop-mini.pos{border-left:4px solid var(--ok);background:#f0fdf4}
+.prop-mini-lbl{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;margin-bottom:14px;font-family:'Raleway',sans-serif}
+.prop-mini.lance .prop-mini-lbl{color:var(--acc2)}
+.prop-mini.pos .prop-mini-lbl{color:#15803d}
+.prop-mini-row{font-size:10.5px;color:var(--txt2);margin-bottom:3px;text-transform:uppercase;letter-spacing:.3px;font-weight:600}
+.prop-mini-val{font-size:16px;font-weight:700;color:var(--txt);font-family:'Raleway',sans-serif}
+.prop-mini.pos .prop-mini-hero{font-size:30px;font-weight:800;color:var(--ok);margin-bottom:12px;font-family:'Playfair Display',serif;letter-spacing:-.5px;line-height:1}
+
+/* CET block — paleta da casa */
+.prop-cet{background:linear-gradient(135deg,var(--sb) 0%,var(--sb3) 100%);border-radius:12px;padding:22px;margin-bottom:20px;color:#fff;border:1.5px solid var(--sb3);position:relative;overflow:hidden}
+.prop-cet::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--acc)}
+.prop-cet-hdr{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1.2px;opacity:.78;margin-bottom:18px;font-family:'Raleway',sans-serif}
+.prop-cet-grid{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid rgba(255,255,255,.18);border-radius:9px;overflow:hidden;background:rgba(0,0,0,.12)}
+.prop-cet-cell{padding:13px 16px;border-right:1px solid rgba(255,255,255,.15);border-bottom:1px solid rgba(255,255,255,.15)}
+.prop-cet-cell:nth-child(2n){border-right:none}
+.prop-cet-cell.hl{background:rgba(214,175,92,.18);border-bottom:none}
+.prop-cet-lbl{font-size:10px;font-weight:700;opacity:.72;text-transform:uppercase;letter-spacing:.6px;margin-bottom:5px;font-family:'Raleway',sans-serif}
+.prop-cet-val{font-size:17px;font-weight:800;font-family:'Raleway',sans-serif;letter-spacing:-.2px}
+.prop-cet-val.big{font-size:26px;color:var(--acc);font-family:'Playfair Display',serif;letter-spacing:-.4px}
+.prop-cet-val.big2{font-size:22px;color:var(--acc);font-family:'Playfair Display',serif;letter-spacing:-.3px}
+.prop-cet-hint{font-size:9.5px;opacity:.55;margin-top:3px}
+.prop-cet-foot{font-size:10px;opacity:.55;margin-top:12px;line-height:1.5}
 
 /* ── TOAST ──────────────────────────────────── */
 .toast{position:fixed;bottom:24px;right:24px;z-index:400;display:flex;flex-direction:column;gap:8px;max-width:320px}
@@ -498,6 +575,10 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:#fefbf3;border-left:3px so
 
   <!-- DASHBOARD -->
   <div class="page active" id="page-dash">
+    <div style="display:flex;align-items:center;justify-content:flex-end;gap:8px;margin-bottom:10px">
+      <span style="font-size:11.5px;color:var(--txt2)" id="dash-priv-lbl">Privacidade ativa</span>
+      <button id="dash-priv-btn" class="btn btn-out btn-sm" onclick="dashTogglePriv()" title="Alternar visibilidade dos nomes" style="font-size:14px;padding:4px 10px"><span id="dash-priv-ico">🙈</span></button>
+    </div>
     <div class="kpi-grid" id="dash-kpis">
       <div class="kpi a"><div class="kpi-lbl">Total de Cotas</div><div class="kpi-val" id="kpi-total">—</div><div class="kpi-sub">carteira do escritório</div></div>
       <div class="kpi s"><div class="kpi-lbl">Contempladas</div><div class="kpi-val" id="kpi-contemp">—</div><div class="kpi-sub" id="kpi-contemp-sub">—</div></div>
@@ -507,12 +588,46 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:#fefbf3;border-left:3px so
       <div class="kpi"><div class="kpi-lbl">Leads no CRM</div><div class="kpi-val" id="kpi-leads">—</div><div class="kpi-sub">indicações ativas</div></div>
       <div class="kpi e"><div class="kpi-lbl">Canceladas</div><div class="kpi-val" id="kpi-cancel" style="color:var(--err)">—</div><div class="kpi-sub" id="kpi-cancel-sub">excluídas da carteira</div></div>
     </div>
+
+    <div class="card">
+      <div class="ch" style="display:flex;align-items:center;flex-wrap:wrap;gap:10px">
+        <span class="ct">📈 Evolução Mensal</span>
+        <div id="dash-evo-mode" style="display:flex;background:var(--card2);border:1px solid var(--bdr);border-radius:8px;padding:2px;margin-left:auto">
+          <button class="toggle-btn act" data-val="adesao" onclick="dashSetEvo(this,'adesao')" style="padding:5px 10px;font-size:11.5px;border-radius:6px;flex:none">Adesões</button>
+          <button class="toggle-btn" data-val="contemp" onclick="dashSetEvo(this,'contemp')" style="padding:5px 10px;font-size:11.5px;border-radius:6px;flex:none">Contemplações</button>
+          <button class="toggle-btn" data-val="faturado" onclick="dashSetEvo(this,'faturado')" style="padding:5px 10px;font-size:11.5px;border-radius:6px;flex:none">Faturamento</button>
+        </div>
+        <select class="form-i" id="dash-evo-period" style="padding:5px 8px;font-size:11.5px;width:auto;margin:0" onchange="dashRenderEvo()">
+          <option value="6">Últimos 6m</option>
+          <option value="12" selected>Últimos 12m</option>
+          <option value="24">Últimos 24m</option>
+          <option value="all">Tudo</option>
+        </select>
+      </div>
+      <div class="cb"><div class="chart-wrap" style="height:300px"><canvas id="ch-evo"></canvas></div></div>
+    </div>
+
     <div class="g2">
       <div class="card"><div class="ch"><span class="ct">Status das Cotas</span></div><div class="cb"><div class="chart-wrap"><canvas id="ch-status"></canvas></div></div></div>
       <div class="card"><div class="ch"><span class="ct">Distribuição por Assessor</span></div><div class="cb"><div class="chart-wrap"><canvas id="ch-assess"></canvas></div></div></div>
     </div>
-    <div class="card"><div class="ch"><span class="ct">Maiores Clientes</span></div><div class="tw"><table><thead><tr><th>Cliente</th><th>Cotas</th><th>Contempl.</th><th>Volume</th><th>Assessor</th><th>% Carteira</th></tr></thead><tbody id="dash-clients"></tbody></table></div></div>
-    <div class="card"><div class="ch"><span class="ct">Por Assessor</span></div><div class="tw"><table><thead><tr><th>Assessor</th><th>Cotas</th><th>Contempl.</th><th>Volume</th><th>%</th></tr></thead><tbody id="dash-assess"></tbody></table></div></div>
+
+    <div class="g2">
+      <div class="card"><div class="ch"><span class="ct">🏦 Por Banco</span></div><div class="cb"><div class="chart-wrap"><canvas id="ch-banco"></canvas></div></div></div>
+      <div class="card"><div class="ch"><span class="ct">🏠 Por Tipo de Bem</span></div><div class="cb"><div class="chart-wrap"><canvas id="ch-tipo"></canvas></div></div></div>
+    </div>
+
+    <div class="card">
+      <div class="ch"><span class="ct">🏆 Maiores Clientes</span><span style="font-size:11px;color:var(--txt2);margin-left:8px">Top 10 por crédito</span></div>
+      <div class="cb"><div class="chart-wrap" style="height:340px"><canvas id="ch-clients"></canvas></div></div>
+      <div class="tw"><table><thead><tr><th>Cliente</th><th>Cotas</th><th>Contempl.</th><th>Volume</th><th>Assessor</th><th>% Carteira</th></tr></thead><tbody id="dash-clients"></tbody></table></div>
+    </div>
+
+    <div class="card">
+      <div class="ch"><span class="ct">👥 Por Assessor — Performance</span><span style="font-size:11px;color:var(--txt2);margin-left:8px">Click na barra para filtrar</span></div>
+      <div class="cb"><div class="chart-wrap" style="height:300px"><canvas id="ch-assess-perf"></canvas></div></div>
+      <div class="tw"><table><thead><tr><th>Assessor</th><th>Cotas</th><th>Contempl.</th><th>Volume</th><th>Ticket Médio</th><th>%</th></tr></thead><tbody id="dash-assess"></tbody></table></div>
+    </div>
   </div>
 
   <!-- CONTROLE -->
@@ -562,48 +677,132 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:#fefbf3;border-left:3px so
 
   <!-- AGENDA -->
   <div class="page" id="page-agenda">
-    <div class="g2">
-      <div class="card">
-        <div class="ch"><span class="ct">🔴 Alertas Urgentes</span><span id="agenda-urgente-count" class="badge b-err">0</span></div>
-        <div class="cb" id="agenda-urgente"><div style="color:var(--txt2);font-size:13px;text-align:center;padding:20px">Carregando...</div></div>
-      </div>
-      <div class="card">
-        <div class="ch"><span class="ct">⚡ Esta Semana</span></div>
-        <div class="cb" id="agenda-semana"><div style="color:var(--txt2);font-size:13px;text-align:center;padding:20px">Carregando...</div></div>
+    <!-- Barra resumo do dia -->
+    <div class="card" style="margin-bottom:14px;border-left:4px solid var(--acc)">
+      <div class="cb" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;padding:14px 18px">
+        <div><div style="font-size:10.5px;color:var(--txt2);font-weight:600;text-transform:uppercase;letter-spacing:.5px">📅 Hoje</div><div id="ag-sum-data" style="font-size:14px;font-weight:700">—</div></div>
+        <div><div style="font-size:10.5px;color:var(--err);font-weight:600;text-transform:uppercase;letter-spacing:.5px">⚠️ Vencidas + Hoje</div><div id="ag-sum-venc" style="font-size:20px;font-weight:800;color:var(--err)">0</div></div>
+        <div><div style="font-size:10.5px;color:var(--warn);font-weight:600;text-transform:uppercase;letter-spacing:.5px">⚡ Vencem ≤7d</div><div id="ag-sum-sem" style="font-size:20px;font-weight:800;color:var(--warn)">0</div></div>
+        <div><div style="font-size:10.5px;color:#0891b2;font-weight:600;text-transform:uppercase;letter-spacing:.5px">📅 AGOs ≤7d</div><div id="ag-sum-ago" style="font-size:20px;font-weight:800;color:#0891b2">0</div></div>
+        <div><div style="font-size:10.5px;color:#7c3aed;font-weight:600;text-transform:uppercase;letter-spacing:.5px">📤 Sem Lance</div><div id="ag-sum-sl" style="font-size:20px;font-weight:800;color:#7c3aed">0</div></div>
+        <div><div style="font-size:10.5px;color:var(--ok);font-weight:600;text-transform:uppercase;letter-spacing:.5px">💵 A receber (30d)</div><div id="ag-sum-rec" style="font-size:14px;font-weight:800;color:var(--ok)">R$ 0</div></div>
       </div>
     </div>
+
+    <!-- Filtros globais da Agenda -->
+    <div class="card" style="margin-bottom:14px">
+      <div class="cb" style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px 14px">
+        <span style="font-size:11px;color:var(--txt2);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Filtros:</span>
+        <select class="form-i" id="ag-f-assessor" onchange="renderAgenda()" style="width:auto;padding:5px 9px;font-size:12px;margin:0;min-width:150px">
+          <option value="">Todos os assessores</option>
+        </select>
+        <select class="form-i" id="ag-f-banco" onchange="renderAgenda()" style="width:auto;padding:5px 9px;font-size:12px;margin:0;min-width:130px">
+          <option value="">Todos os bancos</option>
+        </select>
+        <select class="form-i" id="ag-f-modal" onchange="renderAgenda()" style="width:auto;padding:5px 9px;font-size:12px;margin:0;min-width:140px">
+          <option value="">Todas modalidades</option>
+          <option value="LF">Lance Fixo</option>
+          <option value="PR">Parcela Reduzida</option>
+          <option value="Padrao">Padrão</option>
+        </select>
+        <button class="btn btn-out btn-sm" onclick="renderAgenda()" style="margin-left:auto">🔄 Atualizar</button>
+        <button class="btn btn-out btn-sm" onclick="limparFiltrosAgenda()">✕ Limpar</button>
+      </div>
+    </div>
+
+    <!-- Q1: Vencidas + Hoje · Q2: Esta Semana -->
     <div class="g2">
-      <div class="card">
+      <div class="card" style="border-left:4px solid var(--err)">
+        <div class="ch"><span class="ct">⚠️ Vencidas + Hoje</span><span id="agenda-vencidas-count" class="badge b-err" style="margin-left:8px">0</span></div>
+        <div style="padding:6px 14px;border-bottom:1px solid var(--bdr);display:flex;gap:6px;align-items:center">
+          <input class="form-i" id="vencidas-filter" placeholder="🔍 Cliente..." style="flex:1;padding:5px 9px;font-size:12px;margin:0" oninput="renderQVencidas()">
+          <select class="form-i" id="vencidas-sort" style="width:150px;padding:5px 7px;font-size:12px;margin:0" onchange="renderQVencidas()">
+            <option value="dias">Mais atrasadas</option>
+            <option value="nome">Nome A-Z</option>
+            <option value="valor-desc">Maior parcela</option>
+          </select>
+        </div>
+        <div class="cb" id="agenda-vencidas" style="max-height:340px;overflow-y:auto;padding:0 14px"><div style="color:var(--txt2);font-size:13px;text-align:center;padding:20px">Carregando...</div></div>
+      </div>
+
+      <div class="card" style="border-left:4px solid var(--warn)">
+        <div class="ch"><span class="ct">⚡ Esta Semana (1-7d)</span><span id="agenda-semana-count" class="badge b-warn" style="margin-left:8px">0</span></div>
+        <div style="padding:6px 14px;border-bottom:1px solid var(--bdr);display:flex;gap:6px;align-items:center">
+          <input class="form-i" id="semana-filter" placeholder="🔍 Cliente..." style="flex:1;padding:5px 9px;font-size:12px;margin:0" oninput="renderQSemana()">
+          <select class="form-i" id="semana-sort" style="width:150px;padding:5px 7px;font-size:12px;margin:0" onchange="renderQSemana()">
+            <option value="dias">Vencimento ↑</option>
+            <option value="nome">Nome A-Z</option>
+            <option value="valor-desc">Maior parcela</option>
+          </select>
+        </div>
+        <div class="cb" id="agenda-semana" style="max-height:340px;overflow-y:auto;padding:0 14px"><div style="color:var(--txt2);font-size:13px;text-align:center;padding:20px">Carregando...</div></div>
+      </div>
+    </div>
+
+    <!-- Q3: Próximos 30 dias · Q4: Próximas Assembleias -->
+    <div class="g2">
+      <div class="card" style="border-left:4px solid #6b7280">
+        <div class="ch"><span class="ct">💰 Próximos 30 dias (8-30d)</span><span id="agenda-30d-count" class="badge b-info" style="margin-left:8px">0</span></div>
+        <div style="padding:6px 14px;border-bottom:1px solid var(--bdr);display:flex;gap:6px;align-items:center">
+          <input class="form-i" id="d30-filter" placeholder="🔍 Cliente..." style="flex:1;padding:5px 9px;font-size:12px;margin:0" oninput="renderQ30d()">
+          <select class="form-i" id="d30-sort" style="width:150px;padding:5px 7px;font-size:12px;margin:0" onchange="renderQ30d()">
+            <option value="dias">Vencimento ↑</option>
+            <option value="dias-desc">Vencimento ↓</option>
+            <option value="nome">Nome A-Z</option>
+            <option value="valor-desc">Maior parcela</option>
+          </select>
+        </div>
+        <div class="cb" id="agenda-30d" style="max-height:340px;overflow-y:auto;padding:0 14px"><div style="color:var(--txt2);font-size:13px;text-align:center;padding:20px">Carregando...</div></div>
+      </div>
+
+      <div class="card" style="border-left:4px solid #0891b2">
         <div class="ch"><span class="ct">📅 Próximas Assembleias</span><span id="agenda-asm-count" class="badge b-info" style="margin-left:8px">0</span></div>
         <div style="padding:6px 14px;border-bottom:1px solid var(--bdr);display:flex;gap:6px;align-items:center">
-          <input class="form-i" id="asm-filter" placeholder="🔍 Filtrar cliente..." style="flex:1;padding:5px 9px;font-size:12px;margin:0" oninput="renderAgendaAsm()">
-          <select class="form-i" id="asm-sort" style="width:120px;padding:5px 7px;font-size:12px;margin:0" onchange="renderAgendaAsm()">
-            <option value="date">Data ↑</option><option value="date-desc">Data ↓</option>
-            <option value="nome">Nome A-Z</option><option value="nome-desc">Nome Z-A</option>
-            <option value="cotas">Cotas ↓</option>
+          <input class="form-i" id="asm-filter" placeholder="🔍 Cliente..." style="flex:1;padding:5px 9px;font-size:12px;margin:0" oninput="renderAgendaAsm()">
+          <select class="form-i" id="asm-sort" style="width:150px;padding:5px 7px;font-size:12px;margin:0" onchange="renderAgendaAsm()">
+            <option value="date">Data ↑</option>
+            <option value="date-desc">Data ↓</option>
+            <option value="nome">Nome A-Z</option>
+            <option value="cotas">Mais cotas</option>
           </select>
         </div>
-        <div class="cb" id="agenda-assembleias" style="max-height:320px;overflow-y:auto"><div style="color:var(--txt2);font-size:13px;text-align:center;padding:20px">Carregando...</div></div>
-      </div>
-      <div class="card">
-        <div class="ch"><span class="ct">💰 Parcelas Vencendo (30 dias)</span><span id="agenda-parc-count" class="badge b-warn" style="margin-left:8px">0</span></div>
-        <div style="padding:6px 14px;border-bottom:1px solid var(--bdr);display:flex;gap:6px;align-items:center">
-          <input class="form-i" id="parc-filter" placeholder="🔍 Filtrar cliente..." style="flex:1;padding:5px 9px;font-size:12px;margin:0" oninput="renderAgendaParc()">
-          <select class="form-i" id="parc-sort" style="width:120px;padding:5px 7px;font-size:12px;margin:0" onchange="renderAgendaParc()">
-            <option value="dias">Venc. ↑</option><option value="dias-desc">Venc. ↓</option>
-            <option value="nome">Nome A-Z</option><option value="nome-desc">Nome Z-A</option>
-            <option value="valor">Parcela ↑</option><option value="valor-desc">Parcela ↓</option>
-          </select>
-        </div>
-        <div class="cb" id="agenda-parcelas" style="max-height:320px;overflow-y:auto"><div style="color:var(--txt2);font-size:13px;text-align:center;padding:20px">Carregando...</div></div>
+        <div class="cb" id="agenda-assembleias" style="max-height:340px;overflow-y:auto;padding:0 14px"><div style="color:var(--txt2);font-size:13px;text-align:center;padding:20px">Carregando...</div></div>
       </div>
     </div>
-    <div class="card">
-      <div class="ch"><span class="ct">📋 Cotas Sem Lance — Candidatas a Oferta</span><span class="badge b-warn" id="agenda-semlance-count">0</span></div>
-      <div class="tw"><table>
-        <thead><tr><th>Cliente</th><th>Grupo/Cota</th><th>Crédito</th><th>Parcela</th><th>Assessor</th><th>Dias no Grupo</th><th>Ação</th></tr></thead>
-        <tbody id="agenda-semlance"></tbody>
-      </table></div>
+
+    <!-- Q5: Sem Lance · Q6: Por Assessor (admin only) -->
+    <div class="g2">
+      <div class="card" style="border-left:4px solid #7c3aed">
+        <div class="ch"><span class="ct">📤 Cotas Sem Lance — Candidatas</span><span class="badge b-warn" id="agenda-semlance-count" style="margin-left:8px">0</span></div>
+        <div style="padding:6px 14px;border-bottom:1px solid var(--bdr);display:flex;gap:6px;align-items:center">
+          <input class="form-i" id="sl-filter" placeholder="🔍 Cliente..." style="flex:1;padding:5px 9px;font-size:12px;margin:0" oninput="renderQSemLance()">
+          <select class="form-i" id="sl-sort" style="width:150px;padding:5px 7px;font-size:12px;margin:0" onchange="renderQSemLance()">
+            <option value="credito-desc">Maior crédito</option>
+            <option value="nome">Nome A-Z</option>
+            <option value="adesao">Mais antiga</option>
+          </select>
+        </div>
+        <div class="cb" id="agenda-semlance" style="max-height:340px;overflow-y:auto;padding:0 14px"><div style="color:var(--txt2);font-size:13px;text-align:center;padding:20px">Carregando...</div></div>
+      </div>
+
+      <div class="card" id="card-agenda-assessor" style="border-left:4px solid #be185d;display:none">
+        <div class="ch"><span class="ct">👥 Por Assessor</span><span class="badge b-gray" id="agenda-assessor-count" style="margin-left:8px">0</span></div>
+        <div class="cb" id="agenda-assessor" style="max-height:380px;overflow-y:auto"><div style="color:var(--txt2);font-size:13px;text-align:center;padding:20px">Carregando...</div></div>
+      </div>
+    </div>
+
+    <!-- Q7: Oportunidades do dia (full-width) -->
+    <div class="card" style="border-left:4px solid var(--ok)">
+      <div class="ch"><span class="ct">🎁 Oportunidades do Dia</span><span class="badge b-ok" id="agenda-oport-count" style="margin-left:8px">0</span><span style="margin-left:8px;font-size:11px;color:var(--txt2);font-weight:500">— cotas nas últimas 3 parcelas (gancho de venda nova)</span></div>
+      <div style="padding:6px 14px;border-bottom:1px solid var(--bdr);display:flex;gap:6px;align-items:center">
+        <input class="form-i" id="oport-filter" placeholder="🔍 Cliente..." style="flex:1;padding:5px 9px;font-size:12px;margin:0" oninput="renderQOport()">
+        <select class="form-i" id="oport-sort" style="width:170px;padding:5px 7px;font-size:12px;margin:0" onchange="renderQOport()">
+          <option value="prazo">Mais perto do fim</option>
+          <option value="nome">Nome A-Z</option>
+          <option value="credito-desc">Maior crédito</option>
+        </select>
+      </div>
+      <div class="cb" id="agenda-oport" style="max-height:340px;overflow-y:auto;padding:0 14px"><div style="color:var(--txt2);font-size:13px;text-align:center;padding:20px">Carregando...</div></div>
     </div>
   </div>
 
@@ -990,10 +1189,10 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:#fefbf3;border-left:3px so
   <!-- PROPOSTA -->
   <div class="page" id="page-prop">
     <!-- Step bar -->
-    <div style="display:flex;gap:0;border-radius:10px;overflow:hidden;border:1.5px solid var(--bdr);margin-bottom:20px;background:var(--card2)" id="prop-step-bar">
-      <div id="propbar-1" style="flex:1;padding:10px 8px;text-align:center;font-size:12px;font-weight:700;background:var(--acc);color:#fff;cursor:pointer" onclick="propGoStep(1)">1 · Configurar</div>
-      <div id="propbar-2" style="flex:1;padding:10px 8px;text-align:center;font-size:12px;font-weight:700;color:var(--txt2);cursor:pointer" onclick="propGoStep(2)">2 · Proposta Final</div>
-      <div id="propbar-3" style="flex:1;padding:10px 8px;text-align:center;font-size:12px;font-weight:700;color:var(--txt2);cursor:pointer" onclick="propGoStep(3)">3 · Comparativo</div>
+    <div class="step-bar" id="prop-step-bar">
+      <div id="propbar-1" class="act" onclick="propGoStep(1)">1 · Configurar</div>
+      <div id="propbar-2" onclick="propGoStep(2)">2 · Proposta Final</div>
+      <div id="propbar-3" onclick="propGoStep(3)">3 · Comparativo</div>
     </div>
 
     <!-- STEP 1: Configurar -->
@@ -1052,99 +1251,99 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:#fefbf3;border-left:3px so
     <div id="prop-s2" style="display:none">
     <div style="max-width:900px;margin:0 auto">
       <!-- Documento proposta -->
-      <div class="card" style="overflow:hidden">
+      <div class="card prop-doc">
         <!-- Header branding -->
-        <div style="background:linear-gradient(135deg,var(--sb) 0%,var(--teal) 100%);padding:24px 28px;color:#fff">
-          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+        <div class="prop-doc-hdr">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px">
             <div>
-              <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;opacity:.7;margin-bottom:4px">HC360 Consórcio · Proposta Comercial</div>
-              <div style="font-size:24px;font-weight:900" id="prop-doc-cliente">—</div>
-              <div style="font-size:13px;opacity:.75;margin-top:2px" id="prop-doc-data">—</div>
+              <div class="prop-doc-eyebrow">HC360 Consórcio · Proposta Comercial</div>
+              <div class="prop-doc-title" id="prop-doc-cliente">—</div>
+              <div class="prop-doc-sub" id="prop-doc-data">—</div>
             </div>
-            <div style="display:flex;gap:8px">
-              <button class="btn btn-out btn-sm" style="background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.3);color:#fff" onclick="propGoStep(1)">← Editar</button>
-              <button class="btn btn-out btn-sm" style="background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.3);color:#fff" onclick="window.print()">🖨 Imprimir</button>
+            <div class="prop-doc-actions">
+              <button class="btn btn-sm" onclick="propGoStep(1)">← Editar</button>
+              <button class="btn btn-sm" onclick="window.print()">🖨 Imprimir</button>
             </div>
           </div>
         </div>
         <!-- KPIs principais -->
-        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:0;border-bottom:1px solid var(--bdr)">
-          <div style="padding:18px 20px;border-right:1px solid var(--bdr);text-align:center">
-            <div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--txt2);letter-spacing:.5px;margin-bottom:6px">Crédito Total</div>
-            <div style="font-size:22px;font-weight:900;color:var(--sb)" id="r-cred">—</div>
-            <div style="font-size:11px;color:var(--txt2);margin-top:2px"><span id="r-cotas">—</span> cotas · <span id="r-percota">—</span>/cota</div>
+        <div class="prop-kpis">
+          <div class="prop-kpi k-cred">
+            <div class="prop-kpi-lbl">Crédito Total</div>
+            <div class="prop-kpi-val" style="color:var(--sb)" id="r-cred">—</div>
+            <div class="prop-kpi-sub"><span id="r-cotas">—</span> cotas · <span id="r-percota">—</span>/cota</div>
           </div>
-          <div style="padding:18px 20px;border-right:1px solid var(--bdr);text-align:center">
-            <div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--txt2);letter-spacing:.5px;margin-bottom:6px">Lance Total</div>
-            <div style="font-size:22px;font-weight:900;color:var(--acc)" id="r-lperc">—</div>
-            <div style="font-size:11px;color:var(--txt2);margin-top:2px" id="r-ltot">—</div>
+          <div class="prop-kpi k-lance">
+            <div class="prop-kpi-lbl">Lance Total</div>
+            <div class="prop-kpi-val" style="color:var(--acc2)" id="r-lperc">—</div>
+            <div class="prop-kpi-sub" id="r-ltot">—</div>
           </div>
-          <div style="padding:18px 20px;border-right:1px solid var(--bdr);text-align:center">
-            <div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--txt2);letter-spacing:.5px;margin-bottom:6px">Crédito Líquido</div>
-            <div style="font-size:22px;font-weight:900;color:var(--ok)" id="r-liq">—</div>
-            <div style="font-size:11px;color:var(--txt2);margin-top:2px">após lance</div>
+          <div class="prop-kpi k-liq">
+            <div class="prop-kpi-lbl">Crédito Líquido</div>
+            <div class="prop-kpi-val" style="color:var(--ok)" id="r-liq">—</div>
+            <div class="prop-kpi-sub">após lance</div>
           </div>
-          <div style="padding:18px 20px;text-align:center">
-            <div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--txt2);letter-spacing:.5px;margin-bottom:6px">Parcela Pré-Contempl.</div>
-            <div style="font-size:22px;font-weight:900;color:var(--info)" id="r-pi">—</div>
-            <div style="font-size:11px;color:var(--txt2);margin-top:2px" id="r-pi-red-row">—</div>
+          <div class="prop-kpi k-parc">
+            <div class="prop-kpi-lbl">Parcela Pré-Contempl.</div>
+            <div class="prop-kpi-val" style="color:var(--info)" id="r-pi">—</div>
+            <div class="prop-kpi-sub" id="r-pi-red-row">—</div>
           </div>
         </div>
         <!-- Corpo da proposta -->
         <div style="padding:24px 28px">
           <div class="g2" style="margin-bottom:20px">
             <!-- Composição do lance -->
-            <div style="background:#fdf6e3;border:1.5px solid #e8d09a;border-radius:12px;padding:18px">
-              <div style="font-size:11px;font-weight:800;color:var(--acc);text-transform:uppercase;letter-spacing:.5px;margin-bottom:14px">💰 Composição do Lance</div>
-              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-                <div><div style="font-size:10px;color:var(--txt2);margin-bottom:3px">Recursos Próprios</div><div style="font-size:16px;font-weight:700" id="r-lrp">—</div></div>
-                <div><div style="font-size:10px;color:var(--txt2);margin-bottom:3px">Parte da Carta</div><div style="font-size:16px;font-weight:700" id="r-llc">—</div></div>
-                <div><div style="font-size:10px;color:var(--txt2);margin-bottom:3px">Saldo Devedor</div><div style="font-size:16px;font-weight:700" id="r-sd">—</div></div>
-                <div><div style="font-size:10px;color:var(--txt2);margin-bottom:3px">Custo Total (Adm+FR)</div><div style="font-size:16px;font-weight:700" id="r-cet">—</div></div>
+            <div class="prop-mini lance">
+              <div class="prop-mini-lbl">💰 Composição do Lance</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+                <div><div class="prop-mini-row">Recursos Próprios</div><div class="prop-mini-val" id="r-lrp">—</div></div>
+                <div><div class="prop-mini-row">Parte da Carta</div><div class="prop-mini-val" id="r-llc">—</div></div>
+                <div><div class="prop-mini-row">Saldo Devedor</div><div class="prop-mini-val" id="r-sd">—</div></div>
+                <div><div class="prop-mini-row">Custo Total (Adm+FR)</div><div class="prop-mini-val" id="r-cet">—</div></div>
               </div>
             </div>
             <!-- Pós-contemplação -->
-            <div style="background:#f0fdf4;border:1.5px solid #86efac;border-radius:12px;padding:18px">
-              <div style="font-size:11px;font-weight:800;color:#15803d;text-transform:uppercase;letter-spacing:.5px;margin-bottom:14px">✅ Pós-Contemplação</div>
-              <div style="font-size:10px;color:#166534;margin-bottom:4px">Contemplado no mês <span id="r-mes" style="font-weight:800;font-size:13px">—</span></div>
-              <div style="font-size:28px;font-weight:900;color:#16a34a;margin-bottom:10px" id="r-pp">—</div>
-              <div style="font-size:10px;color:#166534;margin-bottom:3px">Saldo pós-lance</div>
-              <div style="font-size:16px;font-weight:700;color:#15803d" id="r-saldo-pos">—</div>
+            <div class="prop-mini pos">
+              <div class="prop-mini-lbl">✅ Pós-Contemplação</div>
+              <div class="prop-mini-row" style="color:#15803d;margin-bottom:6px">Contemplado no mês <span id="r-mes" style="font-weight:800;font-size:13px;letter-spacing:0">—</span></div>
+              <div class="prop-mini-hero" id="r-pp">—</div>
+              <div class="prop-mini-row" style="color:#15803d">Saldo pós-lance</div>
+              <div class="prop-mini-val" style="color:#15803d" id="r-saldo-pos">—</div>
             </div>
           </div>
           <!-- BLOCO CET -->
-          <div style="background:#1a2f4e;border-radius:12px;padding:20px;margin-bottom:20px;color:#fff">
-            <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;opacity:.7;margin-bottom:16px">📊 CET — Custo Efetivo Total</div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid rgba(255,255,255,.15);border-radius:8px;overflow:hidden">
-              <div style="padding:12px 16px;border-right:1px solid rgba(255,255,255,.15);border-bottom:1px solid rgba(255,255,255,.15)">
-                <div style="font-size:10px;opacity:.6;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Valor Presente</div>
-                <div style="font-size:17px;font-weight:800" id="cet-vp">—</div>
-                <div style="font-size:10px;opacity:.5;margin-top:2px">crédito líquido − rec. próprios</div>
+          <div class="prop-cet">
+            <div class="prop-cet-hdr">📊 CET — Custo Efetivo Total</div>
+            <div class="prop-cet-grid">
+              <div class="prop-cet-cell">
+                <div class="prop-cet-lbl">Valor Presente</div>
+                <div class="prop-cet-val" id="cet-vp">—</div>
+                <div class="prop-cet-hint">crédito líquido − rec. próprios</div>
               </div>
-              <div style="padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.15)">
-                <div style="font-size:10px;opacity:.6;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Taxa Adm + FR (R$)</div>
-                <div style="font-size:17px;font-weight:800" id="cet-ta">—</div>
-                <div style="font-size:10px;opacity:.5;margin-top:2px">saldo devedor − crédito total</div>
+              <div class="prop-cet-cell">
+                <div class="prop-cet-lbl">Taxa Adm + FR (R$)</div>
+                <div class="prop-cet-val" id="cet-ta">—</div>
+                <div class="prop-cet-hint">saldo devedor − crédito total</div>
               </div>
-              <div style="padding:12px 16px;border-right:1px solid rgba(255,255,255,.15);border-bottom:1px solid rgba(255,255,255,.15)">
-                <div style="font-size:10px;opacity:.6;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Custo Estimado Total</div>
-                <div style="font-size:22px;font-weight:900;color:#facc15" id="cet-pct">—</div>
+              <div class="prop-cet-cell">
+                <div class="prop-cet-lbl">Custo Estimado Total</div>
+                <div class="prop-cet-val big2" id="cet-pct">—</div>
               </div>
-              <div style="padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.15)">
-                <div style="font-size:10px;opacity:.6;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Prazo Médio</div>
-                <div style="font-size:17px;font-weight:800" id="cet-prazo">—</div>
-                <div style="font-size:10px;opacity:.5;margin-top:2px">meses</div>
+              <div class="prop-cet-cell">
+                <div class="prop-cet-lbl">Prazo Médio</div>
+                <div class="prop-cet-val" id="cet-prazo">—</div>
+                <div class="prop-cet-hint">meses</div>
               </div>
-              <div style="padding:14px 16px;border-right:1px solid rgba(255,255,255,.15);background:rgba(250,204,21,.12)">
-                <div style="font-size:10px;opacity:.7;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">CET ao Mês</div>
-                <div style="font-size:26px;font-weight:900;color:#facc15" id="cet-mes">—</div>
+              <div class="prop-cet-cell hl">
+                <div class="prop-cet-lbl">CET ao Mês</div>
+                <div class="prop-cet-val big" id="cet-mes">—</div>
               </div>
-              <div style="padding:14px 16px;background:rgba(250,204,21,.12)">
-                <div style="font-size:10px;opacity:.7;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">CET ao Ano</div>
-                <div style="font-size:26px;font-weight:900;color:#facc15" id="cet-ano">—</div>
+              <div class="prop-cet-cell hl">
+                <div class="prop-cet-lbl">CET ao Ano</div>
+                <div class="prop-cet-val big" id="cet-ano">—</div>
               </div>
             </div>
-            <div style="font-size:10px;opacity:.45;margin-top:10px">Metodologia: CET = (Taxa Adm + FR) ÷ Valor Presente ÷ Prazo. Não inclui ITBI, cartório nem seguro opcional.</div>
+            <div class="prop-cet-foot">Metodologia: CET = (Taxa Adm + FR) ÷ Valor Presente ÷ Prazo. Não inclui ITBI, cartório nem seguro opcional.</div>
           </div>
           <!-- Detalhes por grupo -->
           <div id="prop-breakdown" style="margin-bottom:20px"></div>
@@ -1175,11 +1374,11 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:#fefbf3;border-left:3px so
               <span class="ct">📊 Estudo Comparativo</span>
               <button class="btn btn-pri btn-sm" onclick="abrirApresentacao()" id="btn-ap" style="display:none">🌟 Ver Apresentação</button>
             </div>
-            <div style="display:flex;gap:0;border-radius:8px;overflow:hidden;border:1.5px solid var(--bdr)" id="cmp-step-bar">
-              <div id="cmpbar-1" style="flex:1;padding:8px 6px;text-align:center;font-size:11px;font-weight:700;background:var(--acc);color:#fff;cursor:pointer" onclick="cmpGoStep(1)">1. Configurações</div>
-              <div id="cmpbar-2" style="flex:1;padding:8px 6px;text-align:center;font-size:11px;font-weight:700;background:var(--card2);color:var(--txt2);cursor:pointer" onclick="cmpGoStep(2)">2. Consórcio</div>
-              <div id="cmpbar-3" style="flex:1;padding:8px 6px;text-align:center;font-size:11px;font-weight:700;background:var(--card2);color:var(--txt2);cursor:pointer" onclick="cmpGoStep(3)">3. Financiamento</div>
-              <div id="cmpbar-4" style="flex:1;padding:8px 6px;text-align:center;font-size:11px;font-weight:700;background:var(--card2);color:var(--txt2);cursor:pointer" onclick="cmpGoStep(4)">4. Confirmação</div>
+            <div class="step-bar sm" id="cmp-step-bar">
+              <div id="cmpbar-1" class="act" onclick="cmpGoStep(1)">1. Configurações</div>
+              <div id="cmpbar-2" onclick="cmpGoStep(2)">2. Consórcio</div>
+              <div id="cmpbar-3" onclick="cmpGoStep(3)">3. Financiamento</div>
+              <div id="cmpbar-4" onclick="cmpGoStep(4)">4. Confirmação</div>
             </div>
           </div>
           <div class="cb" style="padding:0">
@@ -1807,7 +2006,18 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:#fefbf3;border-left:3px so
           </tr></thead>
           <tbody id="plist-tbody"></tbody>
         </table></div>
-        <div class="pag" id="plist-pag"></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 14px;border-top:1px solid var(--bdr);background:var(--card2);flex-wrap:wrap">
+          <label style="display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--txt2)">Linhas por página:
+            <select class="fi fi-md" id="pf-perpage-bot" onchange="plistSetPerPage(this.value)" style="height:30px;font-size:11.5px;padding:2px 6px;width:auto">
+              <option value="25">25</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+              <option value="200">200</option>
+              <option value="all">Todos</option>
+            </select>
+          </label>
+          <div class="pag" id="plist-pag" style="margin:0"></div>
+        </div>
       </div>
     </div>
   </div>
@@ -2007,7 +2217,8 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:#fefbf3;border-left:3px so
       <div id="mc-grupo-banner" style="display:none;background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:10px 14px;margin-bottom:10px;font-size:11.5px;color:#166534">
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
           <span style="font-size:14px">✨</span>
-          <span><b>Grupo encontrado no GUIA</b> — campos abaixo preenchidos automaticamente. Você pode ajustar se precisar.</span>
+          <span style="flex:1"><b>Grupo encontrado no GUIA</b> — campos vazios são preenchidos automaticamente.</span>
+          <button type="button" class="btn btn-sm btn-out" onclick="mcLookupGrupo(true)" title="Sobrescreve campos com valores do GUIA, mesmo se já preenchidos" style="font-size:10.5px;padding:3px 9px">🔄 Sincronizar com GUIA</button>
         </div>
         <div id="mc-grupo-detalhes" style="margin-top:6px;display:flex;gap:14px;flex-wrap:wrap;font-size:11px;color:#065f46"></div>
       </div>
@@ -2868,7 +3079,9 @@ function renderCtrl(){
 
 // ═══ MODAL COTA ═══
 // Auto-preenche o modal usando os dados do GUIA quando o usuário digita o número do grupo
-function mcLookupGrupo(){
+// Recebe um Event (oninput) ou true para sobrescrever campos já preenchidos.
+function mcLookupGrupo(forceArg){
+  const force=forceArg===true;
   const inp=document.getElementById('mc-grupo');
   const banner=document.getElementById('mc-grupo-banner');
   const det=document.getElementById('mc-grupo-detalhes');
@@ -2915,15 +3128,15 @@ function mcLookupGrupo(){
     const vals=String(g.vdisp).split(',').map(x=>x.trim()).filter(x=>x).map(x=>parseFloat(x));
     credList.innerHTML=vals.map(v2=>`<option value="${brl(v2,0).replace('R$ ','')}">${brl(v2,0)}</option>`).join('');
   }
-  // Auto-preenchimento (só preenche se o campo estiver vazio — não sobrescreve o que usuário digitou)
-  const setIfEmpty=(idEl,val)=>{const e=document.getElementById(idEl);if(e&&!e.value&&val!=null&&val!=='')e.value=val;};
-  if(g.fr!=null)setIfEmpty('mc-fundo',(g.fr*100).toFixed(2));
-  if(g.pr)setIfEmpty('mc-prazo',g.pr);
-  if(g.pr)setIfEmpty('mc-prazo-rest',g.pr);
-  if(g.venc)setIfEmpty('mc-venc',g.venc);
+  // Auto-preenchimento — modo padrão: só preenche se vazio. force=true: sobrescreve.
+  const setVal=(idEl,val)=>{const e=document.getElementById(idEl);if(e&&val!=null&&val!=='')if(force||!e.value)e.value=val;};
+  if(g.fr!=null)setVal('mc-fundo',(g.fr*100).toFixed(2));
+  if(g.pr)setVal('mc-prazo',g.pr);
+  if(g.pr)setVal('mc-prazo-rest',g.pr);
+  if(g.venc)setVal('mc-venc',g.venc);
   // Tipo do bem: mapeia automaticamente
   const tipoSel=document.getElementById('mc-tipo-bem');
-  if(tipoSel&&!tipoSel.value){
+  if(tipoSel&&(force||!tipoSel.value)){
     const tp=(g.tp||'').toUpperCase();
     if(tp.includes('IM'))tipoSel.value='Imóvel Residencial';
     else if(tp.includes('MOTO'))tipoSel.value='Moto';
@@ -2932,32 +3145,33 @@ function mcLookupGrupo(){
   }
   // Modalidade da Parcela: se grupo tem PR, sugere PR 50% (modalidade padrão Itaú)
   const modSel=document.getElementById('mc-modalidade');
-  if(modSel&&(modSel.value===''||modSel.value==='Padrao')){
+  if(modSel&&(force||modSel.value===''||modSel.value==='Padrao')){
     modSel.value=g.pr_red==='S'?'PR50':'Padrao';
   }
   // Banco padrão Itaú (pois GUIA é Itaú)
   const bcSel=document.getElementById('mc-banco');
-  if(bcSel&&!bcSel.value)bcSel.value='Itaú';
-  // Status padrão "Em Andamento"
+  if(bcSel&&(force||!bcSel.value))bcSel.value='Itaú';
+  // Status padrão "Em Andamento" (não força — status é decisão do usuário)
   const stSel=document.getElementById('mc-status');
   if(stSel&&!stSel.value)stSel.value='Em Andamento';
-  // Adesão: se vazio, usa hoje (data atual)
+  // Adesão: se vazio, usa hoje (não força)
   const adEl=document.getElementById('mc-adesao');
   if(adEl&&!adEl.value)adEl.value=new Date().toISOString().slice(0,10);
-  // Próx. Assembleia: se vazio, usa próx AGO calculada
+  // Próx. Assembleia: força quando solicitado
   const asmEl=document.getElementById('mc-asm');
-  if(asmEl&&!asmEl.value){const pa=calcProxAgo(v);if(pa)asmEl.value=pa;}
-  // Taxa Adm. sugerida (não preenche, só sugere via placeholder)
-  // Imóvel: 23% padrão / 20% se PR | Veículo: 14-17%
+  if(asmEl&&(force||!asmEl.value)){const pa=calcProxAgo(v);if(pa)asmEl.value=pa;}
+  // Taxa Adm. — placeholder sempre, valor só com force
   const txEl=document.getElementById('mc-taxa');
-  if(txEl&&!txEl.value){
+  if(txEl){
     const tp=(g.tp||'').toUpperCase();
     let suggerido;
     if(tp.includes('IM'))suggerido=g.pr_red==='S'?20:23;
     else if(tp.includes('MOTO'))suggerido=18;
     else suggerido=15;
     txEl.placeholder=`Ex: ${suggerido} (sugerido pelo grupo)`;
+    if(force&&suggerido)txEl.value=suggerido;
   }
+  if(force)toast('Campos sincronizados com o GUIA');
   // Recalcula totais se já tem crédito
   if(typeof mcRecalc==='function'&&document.getElementById('mc-credito').value)mcRecalc('init');
 }
@@ -3079,12 +3293,32 @@ function mcRecalc(src){
     parcPreInp.value=brl(calc).replace('R$ ','');
   }
 }
+// Helpers de pagamento (mesma lógica usada em Agenda e Lista Completa)
+function _hojeStr(){const d=new Date();return new Date(d.getFullYear(),d.getMonth(),d.getDate()).toISOString().slice(0,10);}
+function _inicioDoMes(){const d=new Date();return new Date(d.getFullYear(),d.getMonth(),1);}
+function jaPagoNoMes(r){
+  if(!r||!r.ultima_parcela_paga)return false;
+  const dt=new Date(r.ultima_parcela_paga+'T00:00:00');
+  return dt>=_inicioDoMes();
+}
+function pagoHoje(r){
+  if(!r||!r.ultima_parcela_paga)return false;
+  return r.ultima_parcela_paga===_hojeStr();
+}
+function parcelaEfetiva(r){
+  const isC=r.status==='Contemplado'||r.status==='CONTEMPLADO'||r.status==='Faturado';
+  return isC?(r.parcela_pos||r.parcela||0):(r.parcela||0);
+}
 async function confirmarPagamento(id){
   const r=COTAS.find(c=>String(c.id)===String(id));
   if(!r)return;
-  const isC=r.status==='Contemplado'||r.status==='CONTEMPLADO'||r.status==='Faturado';
-  // Parcela efetiva: parcela_pos para contemplados/faturados, parcela para ativos
-  const parcPaga=isC?(r.parcela_pos||r.parcela||0):(r.parcela||0);
+  // Anti-duplo-clique: bloqueia se já houve pagamento neste mês
+  if(jaPagoNoMes(r)){
+    const dt=new Date(r.ultima_parcela_paga+'T00:00:00').toLocaleDateString('pt-BR');
+    toast(`Pagamento já registrado em ${dt} para este mês.`,'warn');
+    return;
+  }
+  const parcPaga=parcelaEfetiva(r);
   const sd=r.saldo_devedor||0;
   const pr=r.prazo_restante||0;
   if(!parcPaga){toast('Parcela não preenchida — edite a cota primeiro.','warn');return;}
@@ -3103,9 +3337,28 @@ async function confirmarPagamento(id){
 ` +
     `Prazo restante: ${pr} → ${pr-1} ${pr-1===1?'mês':'meses'}`;
   if(!confirm(msg))return;
-  const updates={saldo_devedor:novoSaldo,prazo_restante:pr-1,updated_at:new Date().toISOString()};
+  const updates={saldo_devedor:novoSaldo,prazo_restante:pr-1,ultima_parcela_paga:_hojeStr(),updated_at:new Date().toISOString()};
   showLoad();const res=await upsertCota({id,...updates});hideLoad();
-  if(res){toast('Pagamento confirmado! Saldo e prazo atualizados.','ok');filterCtrl();renderAgenda();renderProj();}
+  if(res){toast('Pagamento confirmado! Saldo e prazo atualizados.','ok');refreshCotaViews();}
+}
+async function desfazerPagamento(id){
+  const r=COTAS.find(c=>String(c.id)===String(id));
+  if(!r)return;
+  if(!pagoHoje(r)){toast('Só é possível desfazer pagamento marcado hoje.','warn');return;}
+  const parcPaga=parcelaEfetiva(r);
+  const sd=r.saldo_devedor||0;
+  const pr=r.prazo_restante||0;
+  const novoSaldo=sd+parcPaga;
+  const msg=`Desfazer pagamento de ${brl(parcPaga)} para ${r.nome}?
+
+` +
+    `Saldo Devedor: ${brl(sd,0)} → ${brl(novoSaldo,0)}
+` +
+    `Prazo restante: ${pr} → ${pr+1} ${pr+1===1?'mês':'meses'}`;
+  if(!confirm(msg))return;
+  const updates={saldo_devedor:novoSaldo,prazo_restante:pr+1,ultima_parcela_paga:null,updated_at:new Date().toISOString()};
+  showLoad();const res=await upsertCota({id,...updates});hideLoad();
+  if(res){toast('Pagamento desfeito!','ok');refreshCotaViews();}
 }
 async function deleteCota(){
   if(!confirm('Excluir esta cota?'))return;
@@ -4133,7 +4386,7 @@ function propGoStep(n){
   [1,2,3].forEach(i=>{
     const s=document.getElementById('prop-s'+i);if(s)s.style.display=i===n?'':'none';
     const b=document.getElementById('propbar-'+i);
-    if(b){b.style.background=i===n?'var(--acc)':'var(--card2)';b.style.color=i===n?'#fff':'var(--txt2)';}
+    if(b)b.classList.toggle('act',i===n);
   });
   if(n===2||n===3){calcProp();renderPropSugestoes();}
   if(n===3){
@@ -4535,7 +4788,7 @@ let cmpData={bem:'imovel',tipo:'cons_fin',cdi:14.95,inflacao:5.35,retorno:11.10,
 function cmpUpdateStepBar(){
   for(let i=1;i<=4;i++){
     const el=document.getElementById('cmpbar-'+i);
-    if(el){el.style.background=i===cmpStep?'var(--acc)':'var(--card2)';el.style.color=i===cmpStep?'#fff':'var(--txt2)';}
+    if(el)el.classList.toggle('act',i===cmpStep);
   }
 }
 
