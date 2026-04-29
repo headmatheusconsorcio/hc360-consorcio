@@ -3349,7 +3349,7 @@ function simCalcLancePct(){
 /* ── HELPER: 6-month hist averages ─── */
 function simHist6mo(g){
   const hd=HIST.groups[g]||HIST.groups[parseInt(g)]||{};
-  const mn=hd.lmin||[];const mx=hd.lmax||[];
+  const mn=hd.min||[];const mx=hd.max||[];
   const n=mn.length;const start=Math.max(0,n-6);
   const mn6=mn.slice(start).filter(v=>v>0);
   const mx6=mx.slice(start).filter(v=>v>0);
@@ -3383,7 +3383,7 @@ function simBuscarGrupos(){
     const cred=d.vmax||d.vmin||credito;
     const parcBruta=(cred*(1+TAX_ADM/100+FR/100))/prazo;
     const parcEff=parcRed?parcBruta*0.30:parcBruta;
-    const lanceMedPct=h.avgMin?h.avgMin*100:d.at_min?d.at_min*100:30;
+    const lanceMedPct=h.avgMin?h.avgMin:d.at_min?d.at_min*100:30;
     // Vagas disponíveis (maior = melhor)
     let score=Math.min((d.vagas||0)*2,40);
     // Lance compatível (quanto mais margem de lance, melhor)
@@ -3488,8 +3488,8 @@ function renderSimGrupos(modoComp,creditoAlvo){
   document.getElementById('sim-g-tbody').innerHTML=simSuggestions.map((item,i)=>{
     const{g,d,h,prazo,cred,parcEff,lanceMedPct,score,selected,qtd}=item;
     const minH=h.absMin!=null?(h.absMin*100).toFixed(1)+'%':'—';
-    const avgH=h.avgMin!=null?(h.avgMin*100).toFixed(1)+'%':(d.at_min?(d.at_min*100).toFixed(1)+'%':'—');
-    const maxH=h.avgMax!=null?(h.avgMax*100).toFixed(1)+'%':'—';
+    const avgH=h.avgMin!=null?h.avgMin.toFixed(1)+'%':(d.at_min?(d.at_min*100).toFixed(1)+'%':'—');
+    const maxH=h.avgMax!=null?h.avgMax.toFixed(1)+'%':'—';
     const vagas=d.vagas!=null?`<strong style="color:${d.vagas>20?'var(--ok)':d.vagas>5?'var(--warn)':'var(--err)'}">${d.vagas}</strong>`:'<span style="color:var(--txt2)">—</span>';
     const compat=Math.min(100,Math.round(score/maxScore*100));
     const compatColor=compat>=70?'var(--ok)':compat>=40?'var(--warn)':'var(--err)';
@@ -3707,7 +3707,7 @@ function buildOrtData(){
     const avgCont=cont6.length?cont6.reduce((a,b)=>a+b,0)/cont6.length:0;
     const cred=d.vmax||d.vmin||0;
     const prazo=d.pr||120;
-    const lanceMed=h.avgMin?h.avgMin*100:d.at_min?d.at_min*100:30;
+    const lanceMed=h.avgMin?h.avgMin:d.at_min?d.at_min*100:30;
     // Score composto: vagas + contemplados + lance baixo = melhor
     let score=Math.min((d.vagas||0)*2,40)+Math.min(avgCont*3,20)+Math.max(0,40-(lanceMed||40));
     const isIm=(d.tp||'').toUpperCase().includes('IM');
@@ -3926,8 +3926,13 @@ function renderPropSugestoes(){
       if(hi<targetCred*0.6||lo>targetCred*1.5)return;
     }
     const hd=HIST.groups[g]||HIST.groups[parseInt(g)]||{};
-    const mn=(hd.mn||[]).filter(v=>v>0);
+    const mn=(hd.min||[]).filter(v=>v>0);
+    const mx=(hd.max||[]).filter(v=>v>0);
     const avgMin=mn.length?mn.reduce((a,b)=>a+b,0)/mn.length:null;
+    const minAll=mn.length?Math.min(...mn):null;
+    const maxAll=mx.length?Math.max(...mx):null;
+    let lanceSugerido=null;
+    if(avgMin!=null){const sumSq=mn.reduce((s,v)=>s+(v-avgMin)**2,0);const std=Math.sqrt(sumSq/mn.length);lanceSugerido=Math.min(40,Math.max(avgMin+std*0.5,avgMin+1));}
     const success=mn.length?mn.filter(v=>lt>=v).length/mn.length:null;
     const ta2=d.ta?+(d.ta*100).toFixed(1):23;
     const fr2=d.fr?+(d.fr*100).toFixed(1):3;
@@ -3939,7 +3944,7 @@ function renderPropSugestoes(){
     const pp2=pr3>0?sp2/pr3+liq2*seg2/100:0;
     const isImov=d.tp&&(d.tp.toUpperCase().includes('IM')||d.tp.toUpperCase().includes('RES'));
     const dist=targetCred>0?Math.abs(cred2-targetCred)/targetCred:0;
-    scored.push({g:g,d:d,avgMin:avgMin,success:success,vagas:d.vagas||0,pi:pi2,pp:pp2,isIm:isImov,dist:dist});
+    scored.push({g:g,d:d,avgMin:avgMin,minAll:minAll,maxAll:maxAll,lanceSugerido:lanceSugerido,success:success,vagas:d.vagas||0,pi:pi2,pp:pp2,isIm:isImov,dist:dist});
   });
   scored.sort((a,b)=>{
     if(targetCred>0){const dd=a.dist-b.dist;if(Math.abs(dd)>0.05)return dd;}
@@ -3947,18 +3952,20 @@ function renderPropSugestoes(){
     return sb2-sa||b.vagas-a.vagas;
   });
   function mkSugRow(item){
-    const g=item.g,d=item.d,avgMin=item.avgMin,success=item.success;
-    const pct=success!=null?Math.round(success*100):null;
-    const col=success==null?'var(--txt2)':success>=0.8?'var(--ok)':success>=0.5?'var(--warn)':'var(--err)';
+    const g=item.g,d=item.d,avgMin=item.avgMin,minAll=item.minAll,maxAll=item.maxAll,lanceSugerido=item.lanceSugerido,success=item.success;
+    let assertCat='—',assertCol='var(--txt2)',assertBg='#f3f4f6',assertIcon='';
+    if(success!=null){const succPct=success*100;if(succPct>=70){assertCat='Alta';assertCol='#065f46';assertBg='#d1fae5';assertIcon='??';}else if(succPct>=40){assertCat='Média';assertCol='#92400e';assertBg='#fef3c7';assertIcon='⚠️';}else{assertCat='Baixa';assertCol='#991b1b';assertBg='#fee2e2';assertIcon='⚡';}}
+    const assertTxt=success!=null?'<span style="background:'+assertBg+';color:'+assertCol+';padding:3px 10px;border-radius:8px;font-size:10.5px;font-weight:700;white-space:nowrap" title="Histórico: lance de '+lt.toFixed(0)+'% bate o mínimo em '+(success*100).toFixed(0)+'% dos meses">'+assertIcon+' '+assertCat+'</span>':'<span style="color:var(--txt2);font-size:10.5px">s/hist.</span>';
+    let lanceTxt='<span style="color:var(--txt2)">—</span>';
+    if(avgMin!=null){const sug=lanceSugerido!=null?lanceSugerido.toFixed(1)+'%':'';const med=avgMin.toFixed(1)+'%';const faixa=(minAll!=null&&maxAll!=null)?'<small style="display:block;font-size:9.5px;color:var(--txt2);font-weight:500">faixa '+minAll.toFixed(1)+'%–'+maxAll.toFixed(1)+'%</small>':'';lanceTxt='<div title="Lance médio histórico do grupo (12 meses)"><strong style="color:var(--sb2)">'+med+'</strong>'+(sug?' <span style="color:var(--acc);font-weight:700;font-size:11px" title="Lance sugerido com margem de segurança">→ '+sug+'</span>':'')+faixa+'</div>';}
     const inList=propGrupos.some(pg=>pg.grupo===g);
     const btn=inList?'<span style="color:var(--ok);font-size:11px;font-weight:600">✓ adicionado</span>':'<button class="btn btn-pri btn-sm" data-g="'+g+'" onclick="usarGrupoSugerido(this.dataset.g)" title="Simular este grupo">+ Simular</button>';
-    const assertTxt=pct!=null?'<span style="color:'+col+';font-weight:700">'+pct+'%</span>':'<span style="color:var(--txt2)">s/hist.</span>';
     const credTxt=d.vmin?brl(d.vmin,0)+' – '+brl(d.vmax,0):brl(d.vmax,0);
     const matchDot=targetCred>0&&item.dist<0.15?'<span style="color:var(--ok);margin-left:4px" title="Próximo do crédito alvo">✓</span>':'';
     const lf=temLanceFixo(g);const pr=temCotaReduzida(g);
     const lfBadge='<span style="background:'+(lf?'#d1fae5':'#fee2e2')+';color:'+(lf?'#065f46':'#991b1b')+';padding:2px 8px;border-radius:8px;font-size:10px;font-weight:700;white-space:nowrap">'+(lf?'✓ Sim':'✗ Não')+'</span>';
     const prBadge='<span style="background:'+(pr?'#dbeafe':'#f3f4f6')+';color:'+(pr?'#1e40af':'#6b7280')+';padding:2px 8px;border-radius:8px;font-size:10px;font-weight:700;white-space:nowrap">'+(pr?'✓ Sim':'✗ Não')+'</span>';
-    return '<tr><td><strong>'+g+'</strong></td><td style="white-space:nowrap">'+credTxt+matchDot+'</td><td>'+d.pr+'m</td><td>'+(avgMin!=null?avgMin.toFixed(1)+'%':'—')+'</td><td>'+assertTxt+'</td><td>'+brl(item.pi)+'</td><td>'+brl(item.pp)+'</td><td style="text-align:center">'+lfBadge+'</td><td style="text-align:center">'+prBadge+'</td><td>'+btn+'</td></tr>';
+    return '<tr><td><strong>'+g+'</strong></td><td style="white-space:nowrap">'+credTxt+matchDot+'</td><td>'+d.pr+'m</td><td style="min-width:130px">'+lanceTxt+'</td><td>'+assertTxt+'</td><td>'+brl(item.pi)+'</td><td>'+brl(item.pp)+'</td><td style="text-align:center">'+lfBadge+'</td><td style="text-align:center">'+prBadge+'</td><td>'+btn+'</td></tr>';
   }
   const imList=scored.filter(s=>s.isIm).slice(0,12);
   const roList=scored.filter(s=>!s.isIm).slice(0,12);
@@ -3986,8 +3993,20 @@ function renderOportSugestoes(){
     if(!d.vmax||!d.pr)return;
     if(targetCred>0){const lo=d.vmin||0,hi=d.vmax;if(hi<targetCred*0.6||lo>targetCred*1.5)return;}
     const hd=HIST.groups[g]||HIST.groups[parseInt(g)]||{};
-    const mn=(hd.mn||[]).filter(v=>v>0);
+    const mn=(hd.min||[]).filter(v=>v>0);
+    const mx=(hd.max||[]).filter(v=>v>0);
     const avgMin=mn.length?mn.reduce((a,b)=>a+b,0)/mn.length:null;
+    const minAll=mn.length?Math.min(...mn):null;
+    const maxAll=mx.length?Math.max(...mx):null;
+    // Lance sugerido: média histórica + margem de segurança (5% acima da média + 2% acima do máximo recente)
+    let lanceSugerido=null;
+    if(avgMin!=null){
+      // Estratégia: média + 1.5*desvio padrão (cobre ~93% dos casos)
+      const sumSq=mn.reduce((s,v)=>s+(v-avgMin)**2,0);
+      const std=Math.sqrt(sumSq/mn.length);
+      lanceSugerido=Math.min(40,Math.max(avgMin+std*0.5,avgMin+1));
+    }
+    // Probabilidade de sucesso = % de meses em que o lance que vou ofertar (lt) bateu o mínimo
     const success=mn.length?mn.filter(v=>lt>=v).length/mn.length:null;
     const ta2=d.ta?+(d.ta*100).toFixed(1):23;
     const fr2=d.fr?+(d.fr*100).toFixed(1):3;
@@ -4010,7 +4029,7 @@ function renderOportSugestoes(){
     if(fPrazo==='curto'&&pr2>60)return;
     if(fPrazo==='medio'&&(pr2<=60||pr2>150))return;
     if(fPrazo==='longo'&&pr2<=150)return;
-    scored.push({g,d,avgMin,success,vagas:d.vagas||0,pi:pi2,pp:pp2,isIm:isImov,dist,prazo:pr2,cred:cred2});
+    scored.push({g,d,avgMin,minAll,maxAll,lanceSugerido,success,vagas:d.vagas||0,pi:pi2,pp:pp2,isIm:isImov,dist,prazo:pr2,cred:cred2});
   });
   // Ordenação configurável
   const cmpFn={
@@ -4027,10 +4046,24 @@ function renderOportSugestoes(){
   }[sortBy]||cmpFn['match'];
   scored.sort(cmpFn);
   function mkRow(item){
-    const {g,d,avgMin,success}=item;
-    const pct=success!=null?Math.round(success*100):null;
-    const col=success==null?'var(--txt2)':success>=0.8?'var(--ok)':success>=0.5?'var(--warn)':'var(--err)';
-    const assertTxt=pct!=null?'<span style="color:'+col+';font-weight:700">'+pct+'%</span>':'<span style="color:var(--txt2)">s/hist.</span>';
+    const {g,d,avgMin,minAll,maxAll,success,lanceSugerido}=item;
+    // Categoria de Probabilidade — baseada no histórico do meu lance ofertado
+    let assertCat='—',assertCol='var(--txt2)',assertBg='#f3f4f6',assertIcon='';
+    if(success!=null){
+      const succPct=success*100;
+      if(succPct>=70){assertCat='Alta';assertCol='#065f46';assertBg='#d1fae5';assertIcon='🎯';}
+      else if(succPct>=40){assertCat='Média';assertCol='#92400e';assertBg='#fef3c7';assertIcon='⚠️';}
+      else{assertCat='Baixa';assertCol='#991b1b';assertBg='#fee2e2';assertIcon='⚡';}
+    }
+    const assertTxt=success!=null?'<span style="background:'+assertBg+';color:'+assertCol+';padding:3px 10px;border-radius:8px;font-size:10.5px;font-weight:700;white-space:nowrap" title="Histórico: lance de '+lt.toFixed(0)+'% bate o mínimo em '+(success*100).toFixed(0)+'% dos meses">'+assertIcon+' '+assertCat+'</span>':'<span style="color:var(--txt2);font-size:10.5px">s/hist.</span>';
+    // Lance Médio + lance sugerido com margem
+    let lanceTxt='<span style="color:var(--txt2)">—</span>';
+    if(avgMin!=null){
+      const sug=lanceSugerido!=null?lanceSugerido.toFixed(1)+'%':'';
+      const med=avgMin.toFixed(1)+'%';
+      const faixa=(minAll!=null&&maxAll!=null)?'<small style="display:block;font-size:9.5px;color:var(--txt2);font-weight:500">faixa '+minAll.toFixed(1)+'%–'+maxAll.toFixed(1)+'%</small>':'';
+      lanceTxt='<div title="Lance médio histórico do grupo (12 meses)"><strong style="color:var(--sb2)">'+med+'</strong>'+(sug?' <span style="color:var(--acc);font-weight:700;font-size:11px" title="Lance sugerido com margem de segurança">→ '+sug+'</span>':'')+faixa+'</div>';
+    }
     const credTxt=d.vmin?brl(d.vmin,0)+' – '+brl(d.vmax,0):brl(d.vmax,0);
     const matchDot=targetCred>0&&item.dist<0.15?'<span style="color:var(--ok);margin-left:4px">✓</span>':'';
     const inList=propGrupos.some(pg=>pg.grupo===g);
@@ -4038,7 +4071,7 @@ function renderOportSugestoes(){
     const lf=temLanceFixo(g);const pr=temCotaReduzida(g);
     const lfBadge='<span style="background:'+(lf?'#d1fae5':'#fee2e2')+';color:'+(lf?'#065f46':'#991b1b')+';padding:2px 8px;border-radius:8px;font-size:10px;font-weight:700;white-space:nowrap">'+(lf?'✓ Sim':'✕ Não')+'</span>';
     const prBadge='<span style="background:'+(pr?'#dbeafe':'#f3f4f6')+';color:'+(pr?'#1e40af':'#6b7280')+';padding:2px 8px;border-radius:8px;font-size:10px;font-weight:700;white-space:nowrap">'+(pr?'✓ Sim':'✕ Não')+'</span>';
-    return '<tr><td><strong>'+g+'</strong></td><td style="white-space:nowrap">'+credTxt+matchDot+'</td><td>'+d.pr+'m</td><td>'+(avgMin!=null?avgMin.toFixed(1)+'%':'—')+'</td><td>'+assertTxt+'</td><td>'+brl(item.pi)+'</td><td>'+brl(item.pp)+'</td><td style="text-align:center">'+lfBadge+'</td><td style="text-align:center">'+prBadge+'</td><td>'+btn+'</td></tr>';
+    return '<tr><td><strong>'+g+'</strong></td><td style="white-space:nowrap">'+credTxt+matchDot+'</td><td>'+d.pr+'m</td><td style="min-width:130px">'+lanceTxt+'</td><td>'+assertTxt+'</td><td>'+brl(item.pi)+'</td><td>'+brl(item.pp)+'</td><td style="text-align:center">'+lfBadge+'</td><td style="text-align:center">'+prBadge+'</td><td>'+btn+'</td></tr>';
   }
   const empty='<tr><td colspan="10" style="text-align:center;color:var(--txt2);padding:10px">Nenhum grupo encontrado</td></tr>';
   const im=scored.filter(s=>s.isIm).slice(0,20);
@@ -5266,7 +5299,7 @@ function closeModal(id){document.getElementById(id).classList.remove('open');}
 // ═══ OPORTUNIDADES DA SEMANA ═══
 function hist12mo(g){
   const hd=HIST.groups[g]||HIST.groups[parseInt(g)]||{};
-  const mn=hd.lmin||[];const mx=hd.lmax||[];const ct=hd.contemp||[];
+  const mn=hd.min||[];const mx=hd.max||[];const ct=hd.cont||[];
   const n=mn.length,start=Math.max(0,n-12);
   const mn12=mn.slice(start);const mx12=mx.slice(start);const ct12=ct.slice(start);
   const mnF=mn12.filter(v=>v>0);const mxF=mx12.filter(v=>v>0);
@@ -5290,7 +5323,7 @@ function renderOportunidades(){
       .map(([g,d])=>{
         const h=hist12mo(g);
         if(!h.avgMin)return null;
-        const score=(d.vagas||0)*2+Math.max(0,40-h.avgMin*100)+Math.max(0,10-h.trend*200);
+        const score=(d.vagas||0)*2+Math.max(0,40-h.avgMin)+Math.max(0,10-h.trend*200);
         return{g,d,h,score};
       })
       .filter(Boolean)
@@ -5304,14 +5337,14 @@ function renderOportunidades(){
       const hasMn=mn>0;
       return`<tr>
         <td style="padding:5px 10px;font-size:11px;color:var(--txt2);white-space:nowrap">${mptShort(m)}</td>
-        <td style="padding:5px 10px;font-size:12px;font-weight:700;color:${hasMn?'var(--ok)':'var(--txt2)'}">${hasMn?(mn*100).toFixed(1)+'%':'—'}</td>
-        <td style="padding:5px 10px;font-size:12px;font-weight:700;color:${mx>0?'var(--err)':'var(--txt2)'}">${mx>0?(mx*100).toFixed(1)+'%':'—'}</td>
+        <td style="padding:5px 10px;font-size:12px;font-weight:700;color:${hasMn?'var(--ok)':'var(--txt2)'}">${hasMn?mn.toFixed(1)+'%':'—'}</td>
+        <td style="padding:5px 10px;font-size:12px;font-weight:700;color:${mx>0?'var(--err)':'var(--txt2)'}">${mx>0?mx.toFixed(1)+'%':'—'}</td>
         <td style="padding:5px 10px;font-size:12px;color:var(--txt2)">${ct>0?ct:'—'}</td>
       </tr>`;
     }).join('');
-    const trendIco=h.trend<-0.005?'📉':h.trend>0.005?'📈':'➡️';
-    const avgMinPct=h.avgMin?(h.avgMin*100).toFixed(1)+'%':'—';
-    const avgMaxPct=h.avgMax?(h.avgMax*100).toFixed(1)+'%':'—';
+    const trendIco=h.trend<-0.5?'📉':h.trend>0.5?'📈':'➡️';
+    const avgMinPct=h.avgMin?h.avgMin.toFixed(1)+'%':'—';
+    const avgMaxPct=h.avgMax?h.avgMax.toFixed(1)+'%':'—';
     const lf=temLanceFixo(g);const pr=temCotaReduzida(g);
     return`<div class="card" style="margin-bottom:14px">
       <div class="ch" style="background:linear-gradient(90deg,var(--sb) 0%,var(--sb2) 100%);border-radius:14px 14px 0 0">
