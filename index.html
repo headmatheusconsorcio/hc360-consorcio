@@ -125,6 +125,13 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:#fefbf3;border-left:3px so
 .chip-s{font-size:11px;color:var(--txt2);margin-top:1px}
 .chip.hl{border-color:var(--acc);background:#fdf6e3}.chip.hl .chip-v{color:var(--acc2)}
 
+/* ── GUIA: hover destacado + animação chips ─── */
+#browse-tbody tr{transition:background .15s,box-shadow .15s}
+#browse-tbody tr:hover td{background:#fdf6e3 !important}
+#browse-tbody tr:hover{box-shadow:inset 3px 0 0 var(--acc)}
+#guia-active-chips{animation:fadeSlide .2s ease-out}
+@keyframes fadeSlide{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+
 /* ── PROPOSTA ───────────────────────────────── */
 .prop-grid{display:grid;grid-template-columns:370px 1fr;gap:20px}
 .form-g{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
@@ -1682,7 +1689,16 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:#fefbf3;border-left:3px so
         <button class="btn btn-ok btn-sm" onclick="openModalCota(-1)">+ Nova Cota</button>
         <button class="btn btn-pri btn-sm" onclick="projSaveAllDirty()" title="Salvar todas as cotas alteradas">💾 Salvar todas</button>
         <button class="btn btn-warn btn-sm" onclick="projToggleBulk()" id="proj-bulk-toggle">☑ Edição em Massa</button>
-        <span style="margin-left:auto;font-size:12px;color:var(--txt2)" id="pf-count">—</span>
+        <label style="display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--txt2);margin-left:auto">Linhas:
+          <select class="fi fi-md" id="pf-perpage" onchange="plistSetPerPage(this.value)" style="height:30px;font-size:11.5px;padding:2px 6px;width:auto">
+            <option value="25">25</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+            <option value="200">200</option>
+            <option value="all">Todos</option>
+          </select>
+        </label>
+        <span style="font-size:12px;color:var(--txt2)" id="pf-count">—</span>
       </div>
     </div>
     <div id="proj-view-cards">
@@ -2362,6 +2378,14 @@ let COTAS=[], LEADS=[], TAXAS_CDI=[], GRUPOS_META={}, OFERTAS={}, dashCharts={};
 let ctrlFiltered=[], ctrlPage=1, ctrlSort={col:null,dir:1};
 let browseData=Object.entries(GUIA), browsePage=1, browseSort={col:null,dir:1};
 let plistFiltered=[], plistPage=1, plistSort={col:null,dir:1};
+let plistPerPage=(()=>{const v=localStorage.getItem('plistPerPage');if(v==='all')return 'all';const n=parseInt(v||'50');return isNaN(n)?50:n;})();
+function plistSetPerPage(v){
+  plistPerPage=v==='all'?'all':(parseInt(v)||50);
+  localStorage.setItem('plistPerPage',String(v));
+  plistPage=1;
+  ['pf-perpage','pf-perpage-bot'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=String(v);});
+  renderProjList();
+}
 let projView='cards';
 let currentLead=null, currentCota=null, currentCotaId=null;
 let selProj=null, minChart=null, contChart=null;
@@ -3776,18 +3800,103 @@ function temCotaReduzida(g){
   return d.pr_red==='S';
 }
 function guiaFilter(){
-  const tipo=document.getElementById('guia-tipo').value;
-  const modal=(document.getElementById('guia-modal')||{}).value||'';
+  const fTipo =document.getElementById('guia-f-tipo')?.value||'';
+  const fSit  =document.getElementById('guia-f-sit')?.value||'';
+  const fLf   =document.getElementById('guia-f-lf')?.value||'';
+  const fPr   =document.getElementById('guia-f-pr')?.value||'';
+  const fPrazo=document.getElementById('guia-f-prazo')?.value||'';
+  const fLance=document.getElementById('guia-f-lance')?.value||'';
+  const fVagas=document.getElementById('guia-f-vagas')?.value||'';
+  const fCont =document.getElementById('guia-f-cont')?.value||'';
+  const fCred =document.getElementById('guia-f-cred')?.value||'';
   browseData=Object.entries(GUIA).filter(([g,d])=>{
-    if(tipo==='Im'&&!(d.sheet||'').includes('Im'))return false;
-    if(tipo==='Ro'&&(d.sheet||'').includes('Im'))return false;
-    if(modal==='lf'&&!temLanceFixo(g))return false;
-    if(modal==='pr'&&!temCotaReduzida(g))return false;
-    if(modal==='lfpr'&&!(temLanceFixo(g)&&temCotaReduzida(g)))return false;
+    // Tipo
+    if(fTipo==='Im'&&!(d.sheet||'').includes('Im'))return false;
+    if(fTipo==='Ro'&& (d.sheet||'').includes('Im'))return false;
+    // Situação
+    if(fSit==='Andamento'&&d.sit!=='Andamento')return false;
+    if(fSit==='off'      &&d.sit==='Andamento')return false;
+    // LF
+    if(fLf==='sim'&&!temLanceFixo(g))return false;
+    if(fLf==='nao'&& temLanceFixo(g))return false;
+    // PR
+    if(fPr==='sim'&&!temCotaReduzida(g))return false;
+    if(fPr==='nao'&& temCotaReduzida(g))return false;
+    // Prazo restante
+    const p=d.pr||0;
+    if(fPrazo==='lt50'    &&!(p>0&&p<50))return false;
+    if(fPrazo==='50-120'  &&!(p>=50&&p<=120))return false;
+    if(fPrazo==='120-180' &&!(p>120&&p<=180))return false;
+    if(fPrazo==='gt180'   &&!(p>180))return false;
+    // Lance atual (% — d.at_min vem como fração 0-1)
+    const la=(d.at_min||0)*100;
+    if(fLance==='lte20'   &&!(la>0&&la<=20))return false;
+    if(fLance==='20-30'   &&!(la>20&&la<=30))return false;
+    if(fLance==='30-40'   &&!(la>30&&la<=40))return false;
+    if(fLance==='gt40'    &&!(la>40))return false;
+    // Vagas mínimas
+    if(fVagas&&(d.vagas||0)<parseInt(fVagas))return false;
+    // Contemplados/mês — média 6 meses
+    if(fCont){
+      const hd=HIST.groups[g]||HIST.groups[parseInt(g)]||{};
+      const c6=(hd.cont||[]).slice(-6).filter(v=>v>0);
+      const avg=c6.length?c6.reduce((a,b)=>a+b,0)/c6.length:0;
+      if(avg<parseFloat(fCont))return false;
+    }
+    // Faixa de crédito (vmax como referência, fallback vmin)
+    const cr=d.vmax||d.vmin||0;
+    if(fCred==='lt100'    &&!(cr>0&&cr<100000))return false;
+    if(fCred==='100-300'  &&!(cr>=100000&&cr<300000))return false;
+    if(fCred==='300-500'  &&!(cr>=300000&&cr<500000))return false;
+    if(fCred==='500-1000' &&!(cr>=500000&&cr<1000000))return false;
+    if(fCred==='gt1000'   &&!(cr>=1000000))return false;
     return true;
   });
-  document.getElementById('browse-count').textContent=browseData.length+' grupos';
-  renderBrowse(browseData,1);
+  guiaUpdateChips();
+  const total=Object.keys(GUIA).length;
+  const txt=browseData.length===total?(total+' grupos'):(browseData.length+' de '+total+' grupos');
+  ['guia-count','browse-count'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=txt;});
+  // Animação suave da tabela
+  const tb=document.getElementById('browse-tbody');
+  if(tb){tb.style.transition='opacity .15s';tb.style.opacity='.4';setTimeout(()=>{renderBrowse(browseData,1);tb.style.opacity='1';},80);}
+  else renderBrowse(browseData,1);
+}
+function guiaUpdateChips(){
+  const wrap=document.getElementById('guia-active-chips');if(!wrap)return;
+  const labels={
+    tipo:{Im:'🏠 Imóveis',Ro:'🚗 Veículos/Motos'},
+    sit:{Andamento:'Em andamento',off:'Encerrado/cancelado'},
+    lf:{sim:'LF disponível',nao:'LF suspenso'},
+    pr:{sim:'Com PR',nao:'Sem PR'},
+    prazo:{lt50:'Prazo < 50m','50-120':'Prazo 50–120m','120-180':'Prazo 120–180m',gt180:'Prazo > 180m'},
+    lance:{lte20:'Lance ≤ 20%','20-30':'Lance 20–30%','30-40':'Lance 30–40%',gt40:'Lance > 40%'},
+    cred:{lt100:'Crédito < 100k','100-300':'Crédito 100k–300k','300-500':'Crédito 300k–500k','500-1000':'Crédito 500k–1M',gt1000:'Crédito > 1M'}
+  };
+  const keys=['tipo','sit','lf','pr','prazo','lance','vagas','cont','cred'];
+  const active=keys.map(k=>{
+    const v=document.getElementById('guia-f-'+k)?.value||'';
+    if(!v)return null;
+    let lbl=(labels[k]&&labels[k][v])||v;
+    if(k==='vagas')lbl='Vagas ≥ '+v;
+    if(k==='cont') lbl='Contempl./mês ≥ '+v;
+    return{key:k,lbl};
+  }).filter(Boolean);
+  if(!active.length){wrap.style.display='none';wrap.innerHTML='';return;}
+  wrap.style.display='flex';
+  wrap.innerHTML='<span style="font-size:10.5px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:.5px;align-self:center;margin-right:4px">Ativos:</span>'+
+    active.map(a=>`<span style="display:inline-flex;align-items:center;gap:6px;background:#fdf6e3;border:1px solid #e8d09a;border-radius:14px;padding:4px 10px;font-size:11px;font-weight:600;color:var(--acc2);cursor:pointer;transition:all .15s" onmouseover="this.style.background='#fef0d2';this.style.borderColor='var(--acc)'" onmouseout="this.style.background='#fdf6e3';this.style.borderColor='#e8d09a'" onclick="guiaRemoveFilter('${a.key}')" title="Clique pra remover este filtro"><span>${a.lbl}</span><span style="font-weight:800;opacity:.55">✕</span></span>`).join('')+
+    `<button class="btn btn-out btn-sm" style="padding:3px 10px;font-size:10.5px;margin-left:4px" onclick="guiaClearFilters()">Limpar todos</button>`;
+}
+function guiaRemoveFilter(key){
+  const el=document.getElementById('guia-f-'+key);
+  if(el){el.value='';guiaFilter();}
+}
+function guiaClearFilters(){
+  ['tipo','sit','lf','pr','prazo','lance','vagas','cont','cred'].forEach(k=>{
+    const el=document.getElementById('guia-f-'+k);if(el)el.value='';
+  });
+  guiaFilter();
+  toast('Filtros limpos');
 }
 async function toggleLanceFixo(g){
   const tem=temLanceFixo(g);
@@ -3803,7 +3912,35 @@ async function toggleLanceFixo(g){
 }
 function guiaAC(){const q=document.getElementById('guia-input').value.trim();const list=document.getElementById('ac-list');if(q.length<1){list.classList.remove('open');return;}const m=Object.entries(GUIA).filter(([g])=>g.toString().startsWith(q)).slice(0,12);if(!m.length){list.classList.remove('open');return;}list.innerHTML=m.map(([g,d])=>`<div class="ac-item" onclick="guiaSel('${g}')" ><strong>${g}</strong> — ${d.tp||'Imóvel'}${d.pr?' · '+d.pr+'m':''}${d.vagas!=null?' · '+d.vagas+' vagas':''}</div>`).join('');list.classList.add('open');}
 function guiaKey(e){if(e.key==='Enter')guiaSearch();if(e.key==='Escape')document.getElementById('ac-list').classList.remove('open');}
-function guiaSearch(){const q=document.getElementById('guia-input').value.trim();document.getElementById('ac-list').classList.remove('open');const m=Object.entries(GUIA).find(([g])=>g.toString()===q);if(m)guiaSel(m[0]);else{document.getElementById('guia-result').style.display='none';document.getElementById('guia-browse').style.display='none';document.getElementById('guia-empty').style.display='block';}}
+function guiaSearch(){
+  const q=document.getElementById('guia-input').value.trim();
+  document.getElementById('ac-list').classList.remove('open');
+  // Input vazio → garante a lista filtrada visível (não esconde)
+  if(!q){
+    document.getElementById('guia-result').style.display='none';
+    document.getElementById('guia-empty').style.display='none';
+    document.getElementById('guia-browse').style.display='block';
+    toast('Digite o número do grupo para analisar','err');
+    return;
+  }
+  // Match exato
+  const m=Object.entries(GUIA).find(([g])=>g.toString()===q);
+  if(m){guiaSel(m[0]);return;}
+  // Match parcial — se único, abre direto
+  const partial=Object.entries(GUIA).filter(([g])=>g.toString().startsWith(q));
+  if(partial.length===1){guiaSel(partial[0][0]);return;}
+  if(partial.length>1){
+    document.getElementById('guia-result').style.display='none';
+    document.getElementById('guia-empty').style.display='none';
+    document.getElementById('guia-browse').style.display='block';
+    toast(partial.length+' grupos começam com "'+q+'" — escolha na sugestão ou refine');
+    return;
+  }
+  // Não achou nada — mostra estado vazio mas mantém o "Voltar" funcional
+  document.getElementById('guia-result').style.display='none';
+  document.getElementById('guia-browse').style.display='none';
+  document.getElementById('guia-empty').style.display='block';
+}
 function guiaSel(g){
   document.getElementById('guia-input').value=g;document.getElementById('ac-list').classList.remove('open');
   const d=GUIA[g];if(!d)return;selGrupo=g;
@@ -5434,7 +5571,11 @@ function renderProjList(){
   document.getElementById('pf-count').textContent=plistFiltered.length+' cotas'+(totalCancel?` · ${totalCancel} cancelada(s) ocultas`:'');
   const chkTh=document.getElementById('plist-th-chk');
   if(chkTh)chkTh.style.display=bulkMode?'table-cell':'none';
-  const{items,total,pages}=paginate(sorted,plistPage,50);
+  const pp=plistPerPage==='all'?Math.max(sorted.length,1):plistPerPage;
+  const{items,total,pages}=paginate(sorted,plistPage,pp);
+  // Sincroniza select de linhas/página com o estado atual
+  const _ppVal=plistPerPage==='all'?'all':String(plistPerPage);
+  ['pf-perpage','pf-perpage-bot'].forEach(id=>{const _el=document.getElementById(id);if(_el&&_el.value!==_ppVal)_el.value=_ppVal;});
   document.getElementById('plist-tbody').innerHTML=items.map(r=>{
     const isDirty=dirtyBulk.has(String(r.id));
     const isSelected=projSelected.has(String(r.id));
