@@ -129,8 +129,15 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:#fefbf3;border-left:3px so
 #browse-tbody tr{transition:background .15s,box-shadow .15s}
 #browse-tbody tr:hover td{background:#fdf6e3 !important}
 #browse-tbody tr:hover{box-shadow:inset 3px 0 0 var(--acc)}
+#browse-tbody tr.cmp td{background:#fdf6e3}
+#browse-tbody tr.cmp{box-shadow:inset 4px 0 0 var(--acc)}
 #guia-active-chips{animation:fadeSlide .2s ease-out}
 @keyframes fadeSlide{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+/* FAB de comparação */
+.fab-compare{display:none;position:fixed;bottom:24px;right:24px;z-index:998;background:linear-gradient(135deg,var(--sb) 0%,var(--teal) 100%);color:#fff;border:none;border-radius:30px;padding:14px 22px;font-size:14px;font-weight:700;box-shadow:0 8px 24px rgba(0,0,0,.25);cursor:pointer;align-items:center;gap:10px;transition:transform .15s,box-shadow .15s;animation:fabPop .25s ease-out}
+.fab-compare.show{display:inline-flex !important}
+.fab-compare:hover{box-shadow:0 12px 32px rgba(0,0,0,.32)}
+@keyframes fabPop{from{opacity:0;transform:translateY(8px) scale(.9)}to{opacity:1;transform:none}}
 
 /* ── PROPOSTA ───────────────────────────────── */
 .prop-grid{display:grid;grid-template-columns:370px 1fr;gap:20px}
@@ -1077,57 +1084,34 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:#fefbf3;border-left:3px so
             <option value="">Todos</option><option value="sim">✓ Sim</option><option value="nao">— Não</option>
           </select>
         </div>
-        <div style="display:flex;align-items:center;gap:5px">
-          <label style="color:var(--txt2)">Prazo rest.</label>
-          <select id="guia-f-prazo" class="form-i" style="padding:4px 8px;font-size:11px;width:auto" onchange="guiaFilter()">
-            <option value="">Qualquer</option>
-            <option value="lt50">&lt; 50m</option>
-            <option value="50-120">50–120m</option>
-            <option value="120-180">120–180m</option>
-            <option value="gt180">&gt; 180m</option>
-          </select>
+        <div style="display:flex;align-items:center;gap:4px" title="Prazo restante (em meses)">
+          <label style="color:var(--txt2)">Prazo</label>
+          <input type="number" id="guia-f-prazo-min" class="form-i" placeholder="mín" style="padding:4px 6px;font-size:11px;width:55px" oninput="guiaFilter()">
+          <span style="color:var(--txt2)">–</span>
+          <input type="number" id="guia-f-prazo-max" class="form-i" placeholder="máx" style="padding:4px 6px;font-size:11px;width:55px" oninput="guiaFilter()">
+          <span style="color:var(--txt2);font-size:10.5px">m</span>
         </div>
-        <div style="display:flex;align-items:center;gap:5px">
-          <label style="color:var(--txt2)">Lance atual</label>
-          <select id="guia-f-lance" class="form-i" style="padding:4px 8px;font-size:11px;width:auto" onchange="guiaFilter()">
-            <option value="">Qualquer</option>
-            <option value="lte20">≤ 20%</option>
-            <option value="20-30">20–30%</option>
-            <option value="30-40">30–40%</option>
-            <option value="gt40">&gt; 40%</option>
-          </select>
+        <div style="display:flex;align-items:center;gap:4px" title="Lance atual mínimo (% do crédito)">
+          <label style="color:var(--txt2)">Lance</label>
+          <input type="number" id="guia-f-lance-min" class="form-i" placeholder="mín" style="padding:4px 6px;font-size:11px;width:55px" step="0.5" oninput="guiaFilter()">
+          <span style="color:var(--txt2)">–</span>
+          <input type="number" id="guia-f-lance-max" class="form-i" placeholder="máx" style="padding:4px 6px;font-size:11px;width:55px" step="0.5" oninput="guiaFilter()">
+          <span style="color:var(--txt2);font-size:10.5px">%</span>
         </div>
-        <div style="display:flex;align-items:center;gap:5px">
-          <label style="color:var(--txt2)">Vagas mín.</label>
-          <select id="guia-f-vagas" class="form-i" style="padding:4px 8px;font-size:11px;width:auto" onchange="guiaFilter()">
-            <option value="">Qualquer</option>
-            <option value="1">≥ 1</option>
-            <option value="5">≥ 5</option>
-            <option value="10">≥ 10</option>
-            <option value="20">≥ 20</option>
-            <option value="50">≥ 50</option>
-          </select>
+        <div style="display:flex;align-items:center;gap:4px" title="Vagas mínimas (≥ N)">
+          <label style="color:var(--txt2)">Vagas ≥</label>
+          <input type="number" id="guia-f-vagas" class="form-i" placeholder="0" style="padding:4px 6px;font-size:11px;width:60px" min="0" oninput="guiaFilter()">
         </div>
-        <div style="display:flex;align-items:center;gap:5px">
-          <label style="color:var(--txt2)" title="Média de contemplados/mês nos últimos 6 meses">Contempl./mês</label>
-          <select id="guia-f-cont" class="form-i" style="padding:4px 8px;font-size:11px;width:auto" onchange="guiaFilter()">
-            <option value="">Qualquer</option>
-            <option value="1">≥ 1</option>
-            <option value="3">≥ 3</option>
-            <option value="5">≥ 5</option>
-            <option value="10">≥ 10</option>
-          </select>
+        <div style="display:flex;align-items:center;gap:4px" title="Média de contemplados/mês nos últimos 6 meses (≥ N)">
+          <label style="color:var(--txt2)">Cont./mês ≥</label>
+          <input type="number" id="guia-f-cont" class="form-i" placeholder="0" style="padding:4px 6px;font-size:11px;width:60px" min="0" step="0.5" oninput="guiaFilter()">
         </div>
-        <div style="display:flex;align-items:center;gap:5px">
+        <div style="display:flex;align-items:center;gap:4px" title="Crédito por cota (em R$ mil)">
           <label style="color:var(--txt2)">Crédito</label>
-          <select id="guia-f-cred" class="form-i" style="padding:4px 8px;font-size:11px;width:auto" onchange="guiaFilter()">
-            <option value="">Qualquer</option>
-            <option value="lt100">&lt; R$ 100k</option>
-            <option value="100-300">R$ 100k–300k</option>
-            <option value="300-500">R$ 300k–500k</option>
-            <option value="500-1000">R$ 500k–1M</option>
-            <option value="gt1000">&gt; R$ 1M</option>
-          </select>
+          <input type="number" id="guia-f-cred-min" class="form-i" placeholder="mín" style="padding:4px 6px;font-size:11px;width:65px" min="0" step="10" oninput="guiaFilter()">
+          <span style="color:var(--txt2)">–</span>
+          <input type="number" id="guia-f-cred-max" class="form-i" placeholder="máx" style="padding:4px 6px;font-size:11px;width:65px" min="0" step="10" oninput="guiaFilter()">
+          <span style="color:var(--txt2);font-size:10.5px">k R$</span>
         </div>
         <button class="btn btn-out btn-sm" onclick="guiaClearFilters()" style="margin-left:auto" title="Remover todos os filtros">✕ Limpar</button>
         <span id="guia-count" style="font-size:11px;color:var(--txt2);font-weight:700">560 grupos</span>
@@ -1136,6 +1120,14 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:#fefbf3;border-left:3px so
       <div id="guia-active-chips" style="margin-top:10px;display:none;gap:6px;flex-wrap:wrap"></div>
     </div></div>
     <div id="guia-result" style="display:none">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+        <button class="btn btn-out btn-sm" onclick="guiaClear()" style="font-weight:700">← Voltar à lista</button>
+        <button class="btn btn-out btn-sm" id="guia-result-cmp-btn" onclick="guiaToggleCompareCurrent()">📊 Comparar</button>
+        <button class="btn btn-out btn-sm" onclick="guiaPrevNext(-1)" title="Grupo anterior na lista filtrada">← Anterior</button>
+        <button class="btn btn-out btn-sm" onclick="guiaPrevNext(1)" title="Próximo grupo na lista filtrada">Próximo →</button>
+        <span style="font-size:12px;color:var(--txt2);margin-left:auto" id="guia-result-pos">—</span>
+        <button class="btn btn-pri btn-sm" onclick="usarNaProposta()">→ Usar na Proposta</button>
+      </div>
       <div class="group-info" id="guia-chips"></div>
       <div class="g2">
         <div class="card"><div class="ch"><span class="ct">Lance Mínimo Histórico (%)</span></div><div class="cb"><div class="chart-wrap"><canvas id="ch-min"></canvas></div></div></div>
@@ -1171,7 +1163,7 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:#fefbf3;border-left:3px so
     <div id="guia-empty" style="display:none;text-align:center;padding:44px;color:var(--txt2)"><div style="font-size:44px;margin-bottom:10px">🏦</div><div style="font-size:14px;font-weight:600;color:var(--txt)">Grupo não encontrado</div></div>
 
     <!-- FAB de comparação -->
-    <button id="guia-compare-fab" onclick="guiaOpenCompare()" style="display:none;position:fixed;bottom:24px;right:24px;z-index:998;background:linear-gradient(135deg,var(--sb) 0%,var(--teal) 100%);color:#fff;border:none;border-radius:30px;padding:14px 22px;font-size:14px;font-weight:700;box-shadow:0 8px 24px rgba(0,0,0,.25);cursor:pointer;align-items:center;gap:10px;transition:transform .15s" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">📊 Comparar <span id="guia-compare-count" style="background:rgba(255,255,255,.25);border-radius:14px;padding:2px 10px;font-size:13px">0</span></button>
+    <button id="guia-compare-fab" class="fab-compare" onclick="guiaOpenCompare()" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">📊 Comparar <span id="guia-compare-count" style="background:rgba(255,255,255,.25);border-radius:14px;padding:2px 10px;font-size:13px">0</span></button>
 
     <!-- Modal de comparação -->
     <div id="guia-compare-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;align-items:flex-start;justify-content:center;overflow-y:auto;padding:30px 20px">
@@ -4435,15 +4427,17 @@ function temCotaReduzida(g){
   return d.pr_red==='S';
 }
 function guiaFilter(){
+  // Helper: lê input numérico (string vazia = sem filtro)
+  const numv=id=>{const el=document.getElementById(id);if(!el)return null;const v=el.value;if(v==='')return null;const n=parseFloat(v);return isNaN(n)?null:n;};
   const fTipo =document.getElementById('guia-f-tipo')?.value||'';
   const fSit  =document.getElementById('guia-f-sit')?.value||'';
   const fLf   =document.getElementById('guia-f-lf')?.value||'';
   const fPr   =document.getElementById('guia-f-pr')?.value||'';
-  const fPrazo=document.getElementById('guia-f-prazo')?.value||'';
-  const fLance=document.getElementById('guia-f-lance')?.value||'';
-  const fVagas=document.getElementById('guia-f-vagas')?.value||'';
-  const fCont =document.getElementById('guia-f-cont')?.value||'';
-  const fCred =document.getElementById('guia-f-cred')?.value||'';
+  const fPrazoMin=numv('guia-f-prazo-min'),fPrazoMax=numv('guia-f-prazo-max');
+  const fLanceMin=numv('guia-f-lance-min'),fLanceMax=numv('guia-f-lance-max');
+  const fVagas   =numv('guia-f-vagas');
+  const fCont    =numv('guia-f-cont');
+  const fCredMin =numv('guia-f-cred-min'),fCredMax=numv('guia-f-cred-max');
   browseData=Object.entries(GUIA).filter(([g,d])=>{
     // Tipo
     if(fTipo==='Im'&&!(d.sheet||'').includes('Im'))return false;
@@ -4457,34 +4451,27 @@ function guiaFilter(){
     // PR
     if(fPr==='sim'&&!temCotaReduzida(g))return false;
     if(fPr==='nao'&& temCotaReduzida(g))return false;
-    // Prazo restante
+    // Prazo restante (livre — meses)
     const p=d.pr||0;
-    if(fPrazo==='lt50'    &&!(p>0&&p<50))return false;
-    if(fPrazo==='50-120'  &&!(p>=50&&p<=120))return false;
-    if(fPrazo==='120-180' &&!(p>120&&p<=180))return false;
-    if(fPrazo==='gt180'   &&!(p>180))return false;
+    if(fPrazoMin!=null&&p<fPrazoMin)return false;
+    if(fPrazoMax!=null&&p>fPrazoMax)return false;
     // Lance atual (% — d.at_min vem como fração 0-1)
     const la=(d.at_min||0)*100;
-    if(fLance==='lte20'   &&!(la>0&&la<=20))return false;
-    if(fLance==='20-30'   &&!(la>20&&la<=30))return false;
-    if(fLance==='30-40'   &&!(la>30&&la<=40))return false;
-    if(fLance==='gt40'    &&!(la>40))return false;
+    if(fLanceMin!=null&&la<fLanceMin)return false;
+    if(fLanceMax!=null&&la>fLanceMax)return false;
     // Vagas mínimas
-    if(fVagas&&(d.vagas||0)<parseInt(fVagas))return false;
+    if(fVagas!=null&&(d.vagas||0)<fVagas)return false;
     // Contemplados/mês — média 6 meses
-    if(fCont){
+    if(fCont!=null){
       const hd=HIST.groups[g]||HIST.groups[parseInt(g)]||{};
       const c6=(hd.cont||[]).slice(-6).filter(v=>v>0);
       const avg=c6.length?c6.reduce((a,b)=>a+b,0)/c6.length:0;
-      if(avg<parseFloat(fCont))return false;
+      if(avg<fCont)return false;
     }
-    // Faixa de crédito (vmax como referência, fallback vmin)
-    const cr=d.vmax||d.vmin||0;
-    if(fCred==='lt100'    &&!(cr>0&&cr<100000))return false;
-    if(fCred==='100-300'  &&!(cr>=100000&&cr<300000))return false;
-    if(fCred==='300-500'  &&!(cr>=300000&&cr<500000))return false;
-    if(fCred==='500-1000' &&!(cr>=500000&&cr<1000000))return false;
-    if(fCred==='gt1000'   &&!(cr>=1000000))return false;
+    // Faixa de crédito (input em mil R$, dado em R$)
+    const cr=(d.vmax||d.vmin||0)/1000;
+    if(fCredMin!=null&&cr<fCredMin)return false;
+    if(fCredMax!=null&&cr>fCredMax)return false;
     return true;
   });
   guiaUpdateChips();
@@ -4492,45 +4479,48 @@ function guiaFilter(){
   const total=Object.keys(GUIA).length;
   const txt=browseData.length===total?(total+' grupos'):(browseData.length+' de '+total+' grupos');
   ['guia-count','browse-count'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=txt;});
-  // Animação suave da tabela
-  const tb=document.getElementById('browse-tbody');
-  if(tb){tb.style.transition='opacity .15s';tb.style.opacity='.4';setTimeout(()=>{renderBrowse(browseData,1);tb.style.opacity='1';},80);}
-  else renderBrowse(browseData,1);
+  // Render imediato — sem fade pra evitar travamento percebido
+  renderBrowse(browseData,1);
 }
+// IDs de todos os filtros do guia (mantém em um lugar só)
+const GUIA_FILTER_IDS=['tipo','sit','lf','pr','prazo-min','prazo-max','lance-min','lance-max','vagas','cont','cred-min','cred-max'];
 function guiaUpdateChips(){
   const wrap=document.getElementById('guia-active-chips');if(!wrap)return;
-  const labels={
+  const sel={
     tipo:{Im:'🏠 Imóveis',Ro:'🚗 Veículos/Motos'},
     sit:{Andamento:'Em andamento',off:'Encerrado/cancelado'},
     lf:{sim:'LF disponível',nao:'LF suspenso'},
-    pr:{sim:'Com PR',nao:'Sem PR'},
-    prazo:{lt50:'Prazo < 50m','50-120':'Prazo 50–120m','120-180':'Prazo 120–180m',gt180:'Prazo > 180m'},
-    lance:{lte20:'Lance ≤ 20%','20-30':'Lance 20–30%','30-40':'Lance 30–40%',gt40:'Lance > 40%'},
-    cred:{lt100:'Crédito < 100k','100-300':'Crédito 100k–300k','300-500':'Crédito 300k–500k','500-1000':'Crédito 500k–1M',gt1000:'Crédito > 1M'}
+    pr:{sim:'Com PR',nao:'Sem PR'}
   };
-  const keys=['tipo','sit','lf','pr','prazo','lance','vagas','cont','cred'];
-  const active=keys.map(k=>{
-    const v=document.getElementById('guia-f-'+k)?.value||'';
-    if(!v)return null;
-    let lbl=(labels[k]&&labels[k][v])||v;
-    if(k==='vagas')lbl='Vagas ≥ '+v;
-    if(k==='cont') lbl='Contempl./mês ≥ '+v;
-    return{key:k,lbl};
-  }).filter(Boolean);
-  if(!active.length){wrap.style.display='none';wrap.innerHTML='';return;}
+  const v=id=>document.getElementById('guia-f-'+id)?.value||'';
+  const chips=[];
+  // Categóricos
+  ['tipo','sit','lf','pr'].forEach(k=>{const x=v(k);if(x)chips.push({keys:[k],lbl:sel[k][x]||x});});
+  // Prazo (range livre)
+  const pmn=v('prazo-min'),pmx=v('prazo-max');
+  if(pmn||pmx)chips.push({keys:['prazo-min','prazo-max'],lbl:'Prazo '+(pmn?pmn+'m':'')+(pmn&&pmx?' – ':'')+(pmx?pmx+'m':'')+(pmn&&!pmx?'+':'')+(!pmn&&pmx?' (até)':'')});
+  // Lance (range livre)
+  const lmn=v('lance-min'),lmx=v('lance-max');
+  if(lmn||lmx)chips.push({keys:['lance-min','lance-max'],lbl:'Lance '+(lmn?lmn+'%':'')+(lmn&&lmx?' – ':'')+(lmx?lmx+'%':'')+(lmn&&!lmx?'+':'')+(!lmn&&lmx?' (até)':'')});
+  // Vagas e Contempl. (limites simples)
+  if(v('vagas'))chips.push({keys:['vagas'],lbl:'Vagas ≥ '+v('vagas')});
+  if(v('cont')) chips.push({keys:['cont'], lbl:'Contempl./mês ≥ '+v('cont')});
+  // Crédito (range livre, em mil)
+  const cmn=v('cred-min'),cmx=v('cred-max');
+  if(cmn||cmx)chips.push({keys:['cred-min','cred-max'],lbl:'Crédito '+(cmn?'R$'+cmn+'k':'')+(cmn&&cmx?' – ':'')+(cmx?'R$'+cmx+'k':'')+(cmn&&!cmx?'+':'')+(!cmn&&cmx?' (até)':'')});
+  if(!chips.length){wrap.style.display='none';wrap.innerHTML='';return;}
   wrap.style.display='flex';
   wrap.innerHTML='<span style="font-size:10.5px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:.5px;align-self:center;margin-right:4px">Ativos:</span>'+
-    active.map(a=>`<span style="display:inline-flex;align-items:center;gap:6px;background:#fdf6e3;border:1px solid #e8d09a;border-radius:14px;padding:4px 10px;font-size:11px;font-weight:600;color:var(--acc2);cursor:pointer;transition:all .15s" onmouseover="this.style.background='#fef0d2';this.style.borderColor='var(--acc)'" onmouseout="this.style.background='#fdf6e3';this.style.borderColor='#e8d09a'" onclick="guiaRemoveFilter('${a.key}')" title="Clique pra remover este filtro"><span>${a.lbl}</span><span style="font-weight:800;opacity:.55">✕</span></span>`).join('')+
+    chips.map(c=>`<span style="display:inline-flex;align-items:center;gap:6px;background:#fdf6e3;border:1px solid #e8d09a;border-radius:14px;padding:4px 10px;font-size:11px;font-weight:600;color:var(--acc2);cursor:pointer;transition:all .15s" onmouseover="this.style.background='#fef0d2';this.style.borderColor='var(--acc)'" onmouseout="this.style.background='#fdf6e3';this.style.borderColor='#e8d09a'" onclick="guiaRemoveFilter(${JSON.stringify(c.keys)})" title="Clique pra remover este filtro"><span>${c.lbl}</span><span style="font-weight:800;opacity:.55">✕</span></span>`).join('')+
     `<button class="btn btn-out btn-sm" style="padding:3px 10px;font-size:10.5px;margin-left:4px" onclick="guiaClearFilters()">Limpar todos</button>`;
 }
-function guiaRemoveFilter(key){
-  const el=document.getElementById('guia-f-'+key);
-  if(el){el.value='';guiaFilter();}
+function guiaRemoveFilter(keys){
+  if(typeof keys==='string')keys=[keys];
+  (keys||[]).forEach(k=>{const el=document.getElementById('guia-f-'+k);if(el)el.value='';});
+  guiaFilter();
 }
 function guiaClearFilters(){
-  ['tipo','sit','lf','pr','prazo','lance','vagas','cont','cred'].forEach(k=>{
-    const el=document.getElementById('guia-f-'+k);if(el)el.value='';
-  });
+  GUIA_FILTER_IDS.forEach(k=>{const el=document.getElementById('guia-f-'+k);if(el)el.value='';});
   guiaFilter();
   toast('Filtros limpos');
 }
@@ -4539,9 +4529,7 @@ function guiaClearFilters(){
 function guiaSaveFilters(){
   try{
     const o={};
-    ['tipo','sit','lf','pr','prazo','lance','vagas','cont','cred'].forEach(k=>{
-      const el=document.getElementById('guia-f-'+k);if(el)o[k]=el.value;
-    });
+    GUIA_FILTER_IDS.forEach(k=>{const el=document.getElementById('guia-f-'+k);if(el)o[k]=el.value;});
     localStorage.setItem('hc360_guia_filters',JSON.stringify(o));
   }catch(_){}
 }
@@ -4560,23 +4548,31 @@ let guiaCompare=[];
 try{const __r=localStorage.getItem('hc360_guia_compare');if(__r)guiaCompare=JSON.parse(__r)||[];}catch(_){}
 function guiaSaveCompare(){try{localStorage.setItem('hc360_guia_compare',JSON.stringify(guiaCompare));}catch(_){}}
 function guiaIsInCompare(g){return guiaCompare.includes(String(g));}
-function guiaToggleCompare(g,ev){
-  if(ev){ev.stopPropagation();ev.preventDefault();}
+function guiaToggleCompare(g,checked){
   g=String(g);
   const i=guiaCompare.indexOf(g);
-  if(i>=0){guiaCompare.splice(i,1);}
-  else{
-    if(guiaCompare.length>=3){toast('Máximo de 3 grupos para comparar','err');return;}
+  if(checked&&i<0){
+    if(guiaCompare.length>=3){toast('Máximo de 3 grupos para comparar','err');renderBrowse(browseData,browsePage);return;}
     guiaCompare.push(g);
-  }
+  }else if(!checked&&i>=0){
+    guiaCompare.splice(i,1);
+  }else return;
   guiaSaveCompare();
   guiaUpdateCompareFAB();
+  // Atualizar botão "Comparar" no detalhe se estiver aberto
+  const cb=document.getElementById('guia-result-cmp-btn');
+  if(cb&&selGrupo){const inC=guiaIsInCompare(selGrupo);cb.textContent=inC?'✓ Na comparação':'📊 Comparar';cb.classList.toggle('btn-pri',inC);cb.classList.toggle('btn-out',!inC);}
   renderBrowse(browseData,browsePage);
+}
+function guiaToggleCompareCurrent(){
+  if(!selGrupo)return;
+  const inC=guiaIsInCompare(selGrupo);
+  guiaToggleCompare(selGrupo,!inC);
 }
 function guiaUpdateCompareFAB(){
   const fab=document.getElementById('guia-compare-fab');if(!fab)return;
   const cnt=document.getElementById('guia-compare-count');if(cnt)cnt.textContent=guiaCompare.length;
-  fab.style.display=guiaCompare.length>=2?'inline-flex':'none';
+  fab.classList.toggle('show',guiaCompare.length>=2);
 }
 function guiaClearCompare(){
   guiaCompare=[];guiaSaveCompare();guiaUpdateCompareFAB();
@@ -4769,6 +4765,15 @@ function guiaSel(g){
   document.getElementById('guia-input').value=g;document.getElementById('ac-list').classList.remove('open');
   const d=GUIA[g];if(!d)return;selGrupo=g;
   document.getElementById('guia-result').style.display='block';document.getElementById('guia-browse').style.display='none';document.getElementById('guia-empty').style.display='none';
+  // Posição na lista filtrada + botão "Comparar" sincronizado
+  try{
+    const idx=browseData.findIndex(([gg])=>String(gg)===String(g));
+    const posEl=document.getElementById('guia-result-pos');
+    if(posEl)posEl.textContent=idx>=0?(`${idx+1} de ${browseData.length} na lista filtrada`):'';
+    const cb=document.getElementById('guia-result-cmp-btn');
+    if(cb){const inC=guiaIsInCompare(g);cb.textContent=inC?'✓ Na comparação':'📊 Comparar';cb.classList.toggle('btn-pri',inC);cb.classList.toggle('btn-out',!inC);}
+    window.scrollTo({top:0,behavior:'smooth'});
+  }catch(_){}
   document.getElementById('guia-hist-title').textContent='Histórico do Grupo '+g;
   const chips=[{l:'Grupo',v:g,s:d.tp||'Itaú'},{l:'Indexador',v:d.idx||'—',s:'correção'},{l:'Prazo Rest.',v:d.pr?d.pr+' meses':'—',s:d.po?'de '+d.po+' orig.':''},{l:'Próx. Assembleia',v:d.asm?d.asm.slice(5).split('-').reverse().join('/'):'—',s:''},{l:'Vagas',v:d.vagas!=null?d.vagas:'—',s:d.cap?'cap. '+d.cap:'',hl:true},{l:'Valor Mín.',v:d.vmin?brl(d.vmin,0):'—',s:''},{l:'Valor Máx.',v:d.vmax?brl(d.vmax,0):'—',s:''},{l:'Últ. Lance Mín.',v:d.ul_min&&d.ul_min>0?pct(d.ul_min):'—',s:'ant.'},{l:'Lance Atual Mín.',v:d.at_min&&d.at_min>0?pct(d.at_min):'—',s:'atual',hl:true},{l:'Contemp. Atual',v:d.at_cl||'0',s:''},{l:'F. Reserva',v:d.fr!=null?pct(d.fr):'—',s:''},{l:'Parc. Reduz.',v:d.pr_red==='S'?'Sim':'Não',s:''},];
   document.getElementById('guia-chips').innerHTML=chips.map(c=>`<div class="chip${c.hl?' hl':''}"><div class="chip-l">${c.l}</div><div class="chip-v">${c.v}</div>${c.s?`<div class="chip-s">${c.s}</div>`:''}</div>`).join('');
@@ -4779,7 +4784,16 @@ function guiaSel(g){
   contChart=new Chart(document.getElementById('ch-cont'),{type:'bar',data:{labels:months,datasets:[{label:'Contemp.',data:ct,backgroundColor:'rgba(59,130,246,.7)',borderRadius:5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{stepSize:1}}}}});
   document.getElementById('guia-hist-body').innerHTML=HIST.months.map((m,i)=>`<tr><td>${mpt(m)}</td><td>${mn[i]>0?'<span style="color:var(--ok);font-weight:700">'+mn[i].toFixed(2)+'%</span>':'—'}</td><td>${mx[i]&&mx[i]>0?'<span style="color:var(--err);font-weight:700">'+mx[i].toFixed(2)+'%</span>':'—'}</td><td>${ct[i]>0?ct[i]:'—'}</td></tr>`).join('');
 }
-function guiaClear(){document.getElementById('guia-input').value='';document.getElementById('guia-result').style.display='none';document.getElementById('guia-empty').style.display='none';document.getElementById('guia-browse').style.display='block';selGrupo=null;}
+function guiaClear(){document.getElementById('guia-input').value='';document.getElementById('guia-result').style.display='none';document.getElementById('guia-empty').style.display='none';document.getElementById('guia-browse').style.display='block';selGrupo=null;window.scrollTo({top:0,behavior:'smooth'});}
+function guiaPrevNext(dir){
+  if(!browseData||!browseData.length){toast('Lista vazia','err');return;}
+  let idx=selGrupo?browseData.findIndex(([gg])=>String(gg)===String(selGrupo)):-1;
+  if(idx<0)idx=dir>0?-1:browseData.length;
+  let next=idx+dir;
+  if(next<0)next=browseData.length-1;
+  if(next>=browseData.length)next=0;
+  guiaSel(browseData[next][0]);
+}
 /* ── PÓS-CONTEMPLAÇÃO ────────────────────── */
 let fatCurrentCota=null;
 const FAT_FIN_LABEL={aq:'Aquisição',aqfgts:'Aquisição + FGTS',iq:'Aquisição + IQ',iqfgts:'IQ + FGTS',remb:'Reembolso',quit:'Quitação Própria',ref:'Reforma',constr:'Construção'};
@@ -4970,7 +4984,7 @@ function renderBrowse(data,pg){browsePage=pg;
   let sorted=data;
   if(browseSort.col){const c=browseSort.col;const d2=browseSort.dir;sorted=data.slice().sort(([ag,ad],[bg,bd])=>{const va=c==='g'?ag:(ad[c]??'');const vb=c==='g'?bg:(bd[c]??'');if(typeof va==='number'&&typeof vb==='number')return(va-vb)*d2;return String(va).localeCompare(String(vb),'pt-BR')*d2;});}
   ['g','idx','pr','asm','vagas','vmin','vmax','ul_min','at_min','at_cl'].forEach(c=>{const el=document.getElementById('bsort-'+c);if(el)el.textContent=sortIcon(browseSort,c);});
-  const{items,total,pages}=paginate(sorted,pg,40);document.getElementById('browse-count').textContent=data.length+' grupos';document.getElementById('browse-tbody').innerHTML=items.map(([g,d])=>{const lf=temLanceFixo(g),pr=temCotaReduzida(g);const inCmp=guiaIsInCompare(g);const cmpBtn=`<input type="checkbox" onclick="guiaToggleCompare('${g}',event)" ${inCmp?'checked':''} style="width:18px;height:18px;cursor:pointer;accent-color:var(--acc)" title="${inCmp?'Remover da comparação':'Adicionar à comparação (máx. 3)'}">`;const lfBtn=`<button onclick="event.stopPropagation();toggleLanceFixo('${g}')" style="background:${lf?'#d1fae5':'#fee2e2'};color:${lf?'#065f46':'#991b1b'};border:none;border-radius:6px;padding:2px 8px;font-size:10.5px;font-weight:700;cursor:pointer" title="Clique para ${lf?'desabilitar':'habilitar'}">${lf?'✓ Sim':'✕ Não'}</button>`;const prBadge=`<span style="background:${pr?'#dbeafe':'#f3f4f6'};color:${pr?'#1e40af':'#6b7280'};padding:2px 8px;border-radius:6px;font-size:10.5px;font-weight:700">${pr?'✓ Sim':'—'}</span>`;return `<tr onclick="guiaSel('${g}')" style="cursor:pointer${inCmp?';background:#fdf6e3':''}"><td onclick="event.stopPropagation()" style="text-align:center">${cmpBtn}</td><td><strong style="color:var(--acc)">${g}</strong></td><td style="font-size:11px">${(()=>{const t=(d.tp||'').toUpperCase();if(t.includes('IM'))return'Imóvel';if(t.includes('MOTO'))return'Moto';if(t.includes('PESADO'))return'Veículo Pesado';if(t.includes('LEVE')||t.includes('VEÍ'))return'Veículo';return d.tp||'—';})()}</td><td><span class="badge ${d.sit==='Andamento'?'b-ok':'b-gray'}">${d.sit||'—'}</span></td><td style="font-size:11px">${d.idx||'—'}</td><td>${d.pr||'—'}m</td><td style="font-size:11px">${d.asm||'—'}</td><td>${d.vagas!=null?d.vagas:'—'}</td><td style="font-size:11px">${d.vmin?brl(d.vmin,0):'—'}</td><td style="font-size:11px">${d.vmax?brl(d.vmax,0):'—'}</td><td>${d.ul_min&&d.ul_min>0?'<span style="color:var(--ok);font-weight:700">'+pct(d.ul_min)+'</span>':'—'}</td><td>${d.at_min&&d.at_min>0?'<span style="color:var(--acc);font-weight:700">'+pct(d.at_min)+'</span>':'—'}</td><td>${d.at_cl||'—'}</td><td style="text-align:center">${lfBtn}</td><td style="text-align:center">${prBadge}</td></tr>`;}).join('');renderPag('browse-pag',pg,pages,'browseGo');guiaUpdateCompareFAB();}
+  const{items,total,pages}=paginate(sorted,pg,40);document.getElementById('browse-count').textContent=data.length+' grupos';document.getElementById('browse-tbody').innerHTML=items.map(([g,d])=>{const lf=temLanceFixo(g),pr=temCotaReduzida(g);const inCmp=guiaIsInCompare(g);const cmpBtn=`<input type="checkbox" onchange="guiaToggleCompare('${g}',this.checked)" onclick="event.stopPropagation()" ${inCmp?'checked':''} style="width:18px;height:18px;cursor:pointer;accent-color:var(--acc)" title="${inCmp?'Remover da comparação':'Adicionar à comparação (máx. 3)'}">`;const lfBtn=`<button onclick="event.stopPropagation();toggleLanceFixo('${g}')" style="background:${lf?'#d1fae5':'#fee2e2'};color:${lf?'#065f46':'#991b1b'};border:none;border-radius:6px;padding:2px 8px;font-size:10.5px;font-weight:700;cursor:pointer" title="Clique para ${lf?'desabilitar':'habilitar'}">${lf?'✓ Sim':'✕ Não'}</button>`;const prBadge=`<span style="background:${pr?'#dbeafe':'#f3f4f6'};color:${pr?'#1e40af':'#6b7280'};padding:2px 8px;border-radius:6px;font-size:10.5px;font-weight:700">${pr?'✓ Sim':'—'}</span>`;return `<tr class="${inCmp?'cmp':''}" onclick="guiaSel('${g}')" style="cursor:pointer"><td onclick="event.stopPropagation()" style="text-align:center">${cmpBtn}</td><td><strong style="color:var(--acc)">${g}</strong></td><td style="font-size:11px">${(()=>{const t=(d.tp||'').toUpperCase();if(t.includes('IM'))return'Imóvel';if(t.includes('MOTO'))return'Moto';if(t.includes('PESADO'))return'Veículo Pesado';if(t.includes('LEVE')||t.includes('VEÍ'))return'Veículo';return d.tp||'—';})()}</td><td><span class="badge ${d.sit==='Andamento'?'b-ok':'b-gray'}">${d.sit||'—'}</span></td><td style="font-size:11px">${d.idx||'—'}</td><td>${d.pr||'—'}m</td><td style="font-size:11px">${d.asm||'—'}</td><td>${d.vagas!=null?d.vagas:'—'}</td><td style="font-size:11px">${d.vmin?brl(d.vmin,0):'—'}</td><td style="font-size:11px">${d.vmax?brl(d.vmax,0):'—'}</td><td>${d.ul_min&&d.ul_min>0?'<span style="color:var(--ok);font-weight:700">'+pct(d.ul_min)+'</span>':'—'}</td><td>${d.at_min&&d.at_min>0?'<span style="color:var(--acc);font-weight:700">'+pct(d.at_min)+'</span>':'—'}</td><td>${d.at_cl||'—'}</td><td style="text-align:center">${lfBtn}</td><td style="text-align:center">${prBadge}</td></tr>`;}).join('');renderPag('browse-pag',pg,pages,'browseGo');guiaUpdateCompareFAB();}
 function browseGo(p){renderBrowse(browseData,p);}
 function sortBrowse(col){browseSort.dir=browseSort.col===col?-browseSort.dir:1;browseSort.col=col;renderBrowse(browseData,1);}
 
