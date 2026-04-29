@@ -2273,14 +2273,10 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:#fefbf3;border-left:3px so
         <div class="form-g"><label class="form-l">Tipo do Bem</label>
           <select class="form-i" id="mc-tipo-bem">
             <option value="">Selecione...</option>
-            <option>Imóvel Residencial</option>
-            <option>Imóvel Comercial</option>
-            <option>Imóvel Misto</option>
-            <option>Terreno Urbano</option>
-            <option>Terreno Rural</option>
-            <option>Veículo Leve</option>
-            <option>Veículo Pesado</option>
-            <option>Moto</option>
+            <option>IMÓVEIS</option>
+            <option>VEÍCULOS LEVES</option>
+            <option>VEÍCULOS PESADOS</option>
+            <option>MOTOCICLETAS</option>
           </select>
         </div>
         <div class="form-g"><label class="form-l">Status da Cota</label>
@@ -3291,10 +3287,10 @@ function mcLookupGrupo(forceArg){
   const tipoSel=document.getElementById('mc-tipo-bem');
   if(tipoSel&&(force||!tipoSel.value)){
     const tp=(g.tp||'').toUpperCase();
-    if(tp.includes('IM'))tipoSel.value='Imóvel Residencial';
-    else if(tp.includes('MOTO'))tipoSel.value='Moto';
-    else if(tp.includes('PESADO'))tipoSel.value='Veículo Pesado';
-    else if(tp.includes('LEVE')||tp.includes('VEI'))tipoSel.value='Veículo Leve';
+    if(tp.includes('IM'))tipoSel.value='IMÓVEIS';
+    else if(tp.includes('MOTO'))tipoSel.value='MOTOCICLETAS';
+    else if(tp.includes('PESADO'))tipoSel.value='VEÍCULOS PESADOS';
+    else if(tp.includes('LEVE')||tp.includes('VEI'))tipoSel.value='VEÍCULOS LEVES';
   }
   // Modalidade da Parcela: se grupo tem PR, sugere PR 50% (modalidade padrão Itaú)
   const modSel=document.getElementById('mc-modalidade');
