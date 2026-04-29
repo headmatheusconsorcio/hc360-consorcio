@@ -238,13 +238,39 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:#fefbf3;border-left:3px so
 .pag-btn:hover:not(.act){border-color:var(--sb2);color:var(--sb2)}
 
 /* ── CRM PIPELINE ───────────────────────────── */
-.pipeline{display:flex;gap:14px;overflow-x:auto;padding-bottom:10px;margin-bottom:22px}
-.pipe-col{min-width:235px;background:var(--card2);border-radius:12px;border:1px solid var(--bdr);padding:14px}
-.pipe-hdr{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;margin-bottom:12px;display:flex;align-items:center;gap:7px;color:var(--txt)}
-.pipe-card{background:#fff;border:1px solid var(--bdr);border-radius:10px;padding:13px 14px;margin-bottom:9px;cursor:pointer;transition:all .18s}
-.pipe-card:hover{border-color:var(--sb2);box-shadow:0 3px 10px rgba(34,104,102,.1)}
-.pipe-card-name{font-size:13px;font-weight:700;margin-bottom:3px;color:var(--txt)}
-.pipe-card-meta{font-size:11px;color:var(--txt2)}
+.pipeline{display:flex;gap:18px;overflow-x:auto;padding-bottom:14px;margin-bottom:22px}
+.pipe-fase{display:flex;flex-direction:column;gap:8px;flex-shrink:0}
+.pipe-fase-hdr{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--sb);padding:0 4px 6px;border-bottom:2px solid var(--bdr)}
+.pipe-fase-cols{display:flex;gap:10px}
+.pipe-col{min-width:210px;max-width:230px;background:var(--card2);border-radius:12px;border:1px solid var(--bdr);padding:12px 11px;display:flex;flex-direction:column;transition:background .15s}
+.pipe-col-drop{background:#e0e7ff;border-color:var(--sb2)}
+.pipe-hdr{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;display:flex;align-items:center;gap:7px;color:var(--txt);margin-bottom:4px}
+.pipe-hdr-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.pipe-hdr-name{flex:1;line-height:1.2;font-size:10.5px}
+.pipe-hdr-count{background:#fff;border:1px solid var(--bdr);border-radius:10px;padding:1px 7px;font-size:10.5px;font-weight:700;color:var(--txt2);min-width:22px;text-align:center}
+.pipe-hdr-total{font-size:11.5px;font-weight:700;color:var(--sb2);margin-bottom:10px;padding-bottom:8px;border-bottom:1px dashed var(--bdr)}
+.pipe-cards-wrap{display:flex;flex-direction:column;gap:8px;min-height:60px}
+.pipe-card{background:#fff;border:1px solid var(--bdr);border-radius:10px;padding:10px 11px;cursor:pointer;transition:all .18s;display:flex;flex-direction:column;gap:7px}
+.pipe-card:hover{border-color:var(--sb2);box-shadow:0 3px 10px rgba(34,104,102,.1);transform:translateY(-1px)}
+.pipe-card-row{display:flex;justify-content:space-between;align-items:flex-start;gap:6px}
+.pipe-card-name{font-size:13px;font-weight:700;color:var(--txt);line-height:1.25;margin-bottom:5px;word-break:break-word}
+.pipe-card-tags{display:flex;flex-wrap:wrap;gap:4px}
+.pc-tag{font-size:9.5px;font-weight:700;background:#f1f5f9;color:var(--txt2);padding:2px 7px;border-radius:8px;text-transform:uppercase;letter-spacing:.3px}
+.pc-tag-ass{background:#eef2ff;color:#4338ca}
+.pipe-card-sim{color:#fff;padding:4px 8px;font-size:12px;white-space:nowrap;flex-shrink:0;border-radius:6px}
+.pipe-card-info{display:flex;flex-direction:column;gap:3px;border-top:1px dashed var(--bdr);padding-top:6px}
+.pc-line{font-size:11px;color:var(--txt2);display:flex;align-items:center;gap:5px;line-height:1.35}
+.pc-line strong{color:var(--txt);font-weight:700;margin-left:auto}
+.pc-tel{color:var(--sb2);text-decoration:none;font-weight:600}
+.pc-tel:hover{color:var(--sb);text-decoration:underline}
+.pc-cred{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:6px;padding:4px 7px;color:#065f46;font-size:11px}
+.pc-cred strong{color:#065f46}
+.pc-cotas{background:#bbf7d0;color:#065f46;font-size:9.5px;font-weight:700;padding:1px 5px;border-radius:6px}
+.pc-ind{font-size:10.5px;color:var(--txt2);font-style:italic}
+.pc-reuniao{background:#ecfeff;border:1px solid #a5f3fc;border-radius:6px;padding:4px 7px;font-size:11px;font-weight:700;color:#0e7490}
+.pipe-card-fechar{width:100%;justify-content:center;font-size:11.5px;padding:6px}
+.pipe-empty{font-size:11px;color:var(--txt2);text-align:center;padding:18px 6px;font-style:italic;opacity:.55}
+.pipe-more{font-size:11px;color:var(--txt2);text-align:center;padding:6px;font-weight:600}
 
 /* ── AGENDA ─────────────────────────────────── */
 .agenda-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:22px}
@@ -605,7 +631,7 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:#fefbf3;border-left:3px so
       <input class="fi fi-lg" type="text" id="crm-search" placeholder="🔍  Buscar lead..." oninput="filterCRM()">
       <select class="fi fi-md" id="crm-status-f" onchange="filterCRM()">
         <option value="">Todos os Status</option>
-        <option>Novo Lead</option><option>Qualificando</option><option>Simulação</option><option>Proposta Enviada</option><option>Em Negociação</option><option>Aguard. Docs</option><option>Cota Aberta</option><option>Perdido</option>
+        <option>Novo Lead</option><option>Qualificando</option><option>Reunião Marcada</option><option>Reunião Realizada</option><option>Simulação</option><option>Proposta Enviada</option><option>Em Negociação</option><option>Aguard. Docs</option><option>Cota Aberta</option><option>Perdido</option>
       </select>
       <span id="crm-assessor-f-wrap">
       <select class="fi fi-md" id="crm-assessor-f" onchange="filterCRM()">
@@ -825,23 +851,99 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:#fefbf3;border-left:3px so
   <div class="page" id="page-guia">
     <div class="card"><div class="cb">
       <p style="font-size:12.5px;color:var(--txt2);margin-bottom:14px">Base com <strong>560 grupos Itaú</strong> (242 Imóveis + 318 Rodas) · Dados de Abr/2026 · Histórico Jan/25–Mar/26</p>
-      <div class="frow" style="margin-bottom:0">
+      <!-- Linha 1: Busca direta -->
+      <div class="frow" style="margin-bottom:10px">
         <div class="ac-wrap" style="flex:1;max-width:400px">
           <input class="fi" style="width:100%" type="text" id="guia-input" placeholder="🔍  Número do grupo (ex: 58, 40001, 40201...)" oninput="guiaAC()" onkeydown="guiaKey(event)">
           <div class="ac-list" id="ac-list"></div>
         </div>
-        <select class="fi fi-md" id="guia-tipo" onchange="guiaFilter()">
-          <option value="">Todos</option><option value="Im">Imóveis</option><option value="Ro">Rodas</option>
-        </select>
-        <select class="fi fi-md" id="guia-modal" onchange="guiaFilter()">
-          <option value="">Modalidade: todas</option>
-          <option value="lf">Apenas Lance Fixo</option>
-          <option value="pr">Apenas Cotas Reduzidas (PR)</option>
-          <option value="lfpr">Lance Fixo + PR</option>
-        </select>
-        <button class="btn btn-pri" onclick="guiaSearch()">Analisar</button>
-        <button class="btn btn-out btn-sm" onclick="guiaClear()">✕ Voltar</button>
+        <button class="btn btn-pri" onclick="guiaSearch()">🔎 Analisar Grupo</button>
+        <button class="btn btn-out btn-sm" onclick="guiaClear()">↺ Voltar à lista</button>
       </div>
+      <!-- Linha 2: Barra de filtros (padrão Layout 1) -->
+      <div style="padding:10px 14px;background:var(--card2);border:1px solid var(--bdr);border-radius:10px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:11.5px">
+        <strong style="color:var(--txt2);text-transform:uppercase;letter-spacing:.5px;font-size:10px">Filtros:</strong>
+        <div style="display:flex;align-items:center;gap:5px">
+          <label style="color:var(--txt2)">Tipo</label>
+          <select id="guia-f-tipo" class="form-i" style="padding:4px 8px;font-size:11px;width:auto" onchange="guiaFilter()">
+            <option value="">Todos</option><option value="Im">Imóveis</option><option value="Ro">Veículos/Motos</option>
+          </select>
+        </div>
+        <div style="display:flex;align-items:center;gap:5px">
+          <label style="color:var(--txt2)">Situação</label>
+          <select id="guia-f-sit" class="form-i" style="padding:4px 8px;font-size:11px;width:auto" onchange="guiaFilter()">
+            <option value="">Todas</option><option value="Andamento">Em andamento</option><option value="off">Encerrado/cancelado</option>
+          </select>
+        </div>
+        <div style="display:flex;align-items:center;gap:5px">
+          <label style="color:var(--txt2)" title="Lance Fixo disponível">LF</label>
+          <select id="guia-f-lf" class="form-i" style="padding:4px 8px;font-size:11px;width:auto" onchange="guiaFilter()">
+            <option value="">Todos</option><option value="sim">✓ Disponível</option><option value="nao">✗ Suspenso</option>
+          </select>
+        </div>
+        <div style="display:flex;align-items:center;gap:5px">
+          <label style="color:var(--txt2)" title="Cota com Parcela Reduzida">PR</label>
+          <select id="guia-f-pr" class="form-i" style="padding:4px 8px;font-size:11px;width:auto" onchange="guiaFilter()">
+            <option value="">Todos</option><option value="sim">✓ Sim</option><option value="nao">— Não</option>
+          </select>
+        </div>
+        <div style="display:flex;align-items:center;gap:5px">
+          <label style="color:var(--txt2)">Prazo rest.</label>
+          <select id="guia-f-prazo" class="form-i" style="padding:4px 8px;font-size:11px;width:auto" onchange="guiaFilter()">
+            <option value="">Qualquer</option>
+            <option value="lt50">&lt; 50m</option>
+            <option value="50-120">50–120m</option>
+            <option value="120-180">120–180m</option>
+            <option value="gt180">&gt; 180m</option>
+          </select>
+        </div>
+        <div style="display:flex;align-items:center;gap:5px">
+          <label style="color:var(--txt2)">Lance atual</label>
+          <select id="guia-f-lance" class="form-i" style="padding:4px 8px;font-size:11px;width:auto" onchange="guiaFilter()">
+            <option value="">Qualquer</option>
+            <option value="lte20">≤ 20%</option>
+            <option value="20-30">20–30%</option>
+            <option value="30-40">30–40%</option>
+            <option value="gt40">&gt; 40%</option>
+          </select>
+        </div>
+        <div style="display:flex;align-items:center;gap:5px">
+          <label style="color:var(--txt2)">Vagas mín.</label>
+          <select id="guia-f-vagas" class="form-i" style="padding:4px 8px;font-size:11px;width:auto" onchange="guiaFilter()">
+            <option value="">Qualquer</option>
+            <option value="1">≥ 1</option>
+            <option value="5">≥ 5</option>
+            <option value="10">≥ 10</option>
+            <option value="20">≥ 20</option>
+            <option value="50">≥ 50</option>
+          </select>
+        </div>
+        <div style="display:flex;align-items:center;gap:5px">
+          <label style="color:var(--txt2)" title="Média de contemplados/mês nos últimos 6 meses">Contempl./mês</label>
+          <select id="guia-f-cont" class="form-i" style="padding:4px 8px;font-size:11px;width:auto" onchange="guiaFilter()">
+            <option value="">Qualquer</option>
+            <option value="1">≥ 1</option>
+            <option value="3">≥ 3</option>
+            <option value="5">≥ 5</option>
+            <option value="10">≥ 10</option>
+          </select>
+        </div>
+        <div style="display:flex;align-items:center;gap:5px">
+          <label style="color:var(--txt2)">Crédito</label>
+          <select id="guia-f-cred" class="form-i" style="padding:4px 8px;font-size:11px;width:auto" onchange="guiaFilter()">
+            <option value="">Qualquer</option>
+            <option value="lt100">&lt; R$ 100k</option>
+            <option value="100-300">R$ 100k–300k</option>
+            <option value="300-500">R$ 300k–500k</option>
+            <option value="500-1000">R$ 500k–1M</option>
+            <option value="gt1000">&gt; R$ 1M</option>
+          </select>
+        </div>
+        <button class="btn btn-out btn-sm" onclick="guiaClearFilters()" style="margin-left:auto" title="Remover todos os filtros">✕ Limpar</button>
+        <span id="guia-count" style="font-size:11px;color:var(--txt2);font-weight:700">560 grupos</span>
+      </div>
+      <!-- Linha 3: chips ativos -->
+      <div id="guia-active-chips" style="margin-top:10px;display:none;gap:6px;flex-wrap:wrap"></div>
     </div></div>
     <div id="guia-result" style="display:none">
       <div class="group-info" id="guia-chips"></div>
@@ -2101,10 +2203,14 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:#fefbf3;border-left:3px so
           </select>
         </div>
         <div class="form-g"><label class="form-l">Status</label>
-          <select class="form-i" id="ml-status">
-            <option>Novo Lead</option><option>Qualificando</option><option>Simulação</option><option>Proposta Enviada</option><option>Em Negociação</option><option>Aguard. Docs</option><option>Cota Aberta</option><option>Perdido</option>
+          <select class="form-i" id="ml-status" onchange="mlToggleReuniao()">
+            <option>Novo Lead</option><option>Qualificando</option><option>Reunião Marcada</option><option>Reunião Realizada</option><option>Simulação</option><option>Proposta Enviada</option><option>Em Negociação</option><option>Aguard. Docs</option><option>Cota Aberta</option><option>Perdido</option>
           </select>
         </div>
+      </div>
+      <div class="form-g" id="ml-reuniao-row" style="display:none;margin-bottom:0">
+        <label class="form-l">📅 Data e hora da reunião</label>
+        <input type="datetime-local" class="form-i" id="ml-reuniao">
       </div>
       <div class="g2" style="margin-bottom:0">
         <div class="form-g"><label class="form-l">Interesse</label>
@@ -3158,8 +3264,14 @@ async function dragDropLead(e,stage){
   if(res){Object.assign(lead,res);toast(`${lead.nome} → ${stage}`);filterCRM();}
   dragLead=null;
 }
-const PIPE_STAGES=['Novo Lead','Qualificando','Simulação','Proposta Enviada','Em Negociação','Aguard. Docs','Cota Aberta','Perdido'];
-const PIPE_COLORS={'Novo Lead':'#3b82f6','Qualificando':'#f59e0b','Simulação':'#D6AF5C','Proposta Enviada':'#8b5cf6','Em Negociação':'#6366f1','Aguard. Docs':'#226866','Cota Aberta':'#10b981','Perdido':'#ef4444'};
+const PIPE_STAGES=['Novo Lead','Qualificando','Reunião Marcada','Reunião Realizada','Simulação','Proposta Enviada','Em Negociação','Aguard. Docs','Cota Aberta','Perdido'];
+const PIPE_COLORS={'Novo Lead':'#3b82f6','Qualificando':'#f59e0b','Reunião Marcada':'#06b6d4','Reunião Realizada':'#14b8a6','Simulação':'#D6AF5C','Proposta Enviada':'#8b5cf6','Em Negociação':'#6366f1','Aguard. Docs':'#226866','Cota Aberta':'#10b981','Perdido':'#ef4444'};
+const PIPE_FASES=[
+  {label:'📥 Captação',stages:['Novo Lead','Qualificando']},
+  {label:'🤝 Reunião',stages:['Reunião Marcada','Reunião Realizada']},
+  {label:'💼 Negociação',stages:['Simulação','Proposta Enviada','Em Negociação','Aguard. Docs']},
+  {label:'🏁 Resultado',stages:['Cota Aberta','Perdido']}
+];
 let leadsFiltered=[], crmSort={col:null,dir:1};
 function sortCRM(col){crmSort.dir=crmSort.col===col?-crmSort.dir:1;crmSort.col=col;renderCRM();}
 function filterCRM(){
@@ -3204,6 +3316,65 @@ function renderAssessorLeads(){
   }).join('')||'<tr><td colspan="8" style="text-align:center;color:var(--txt2);padding:14px">Nenhum lead de assessor ainda</td></tr>';
 }
 
+function leadCreditoNegociado(l){
+  const obs=l.observacao||'';
+  if(!obs.startsWith('SIM:'))return null;
+  try{
+    const d=JSON.parse(obs.slice(4));
+    const rows=d.rows||[];
+    if(!rows.length)return null;
+    const credTot=rows.reduce((s,r)=>s+(r.credito||0)*(r.qtd||0),0);
+    const cotas=rows.reduce((s,r)=>s+(r.qtd||0),0);
+    return{credTot,cotas};
+  }catch(e){return null;}
+}
+function pipeCardHtml(l,stage){
+  const lHasSim=l.observacao&&l.observacao.startsWith('SIM:');
+  const sim=leadCreditoNegociado(l);
+  const tel=l.telefone||'';
+  const telDigits=tel.replace(/\D/g,'');
+  const isReuniao=stage==='Reunião Marcada'||stage==='Reunião Realizada';
+  const dtR=l.data_reuniao?new Date(l.data_reuniao):null;
+  const dtRStr=dtR?dtR.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})+' '+dtR.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}):'';
+  const stageColor=PIPE_COLORS[stage]||'#94a3b8';
+  return`<div class="pipe-card" draggable="true" data-lid="${l.id}" ondragstart="dragStartLead(event,'${l.id}')" style="border-left:3px solid ${stageColor}">
+    <div class="pipe-card-row">
+      <div onclick="openModalLead('${l.id}')" style="flex:1;cursor:pointer;min-width:0">
+        <div class="pipe-card-name">${l.nome||'—'}</div>
+        <div class="pipe-card-tags">
+          ${l.interesse?`<span class="pc-tag">${l.interesse}</span>`:''}
+          ${l.assessor?`<span class="pc-tag pc-tag-ass">${l.assessor.split('/')[0].trim()}</span>`:''}
+        </div>
+      </div>
+      <button class="btn btn-sm pipe-card-sim" style="background:${lHasSim?'var(--ok)':'var(--acc)'}" onclick="event.stopPropagation();openModalSim('${l.id}')" title="${lHasSim?'Ver proposta':'Nova simulação'}">${lHasSim?'📋':'📊'}</button>
+    </div>
+    <div class="pipe-card-info">
+      ${tel?`<a class="pc-line pc-tel" href="tel:${telDigits}" onclick="event.stopPropagation()" title="Ligar">📞 ${tel}</a>`:''}
+      ${sim?`<div class="pc-line pc-cred"><span>💰 Negociado</span><strong>${brl(sim.credTot,0)}</strong><span class="pc-cotas">${sim.cotas}c</span></div>`
+           :l.valor_potencial?`<div class="pc-line"><span>💰 Potencial</span><strong>${brl(l.valor_potencial,0)}</strong></div>`:''}
+      ${l.indicado_por?`<div class="pc-line pc-ind">👥 via ${l.indicado_por}</div>`:''}
+      ${isReuniao&&dtRStr?`<div class="pc-line pc-reuniao">📅 ${dtRStr}</div>`:''}
+    </div>
+    ${lHasSim&&(stage==='Proposta Enviada'||stage==='Em Negociação')?`<button class="btn btn-ok btn-sm pipe-card-fechar" onclick="event.stopPropagation();simFecharNegocio('${l.id}')">✓ Fechar Negócio</button>`:''}
+  </div>`;
+}
+function pipeColHtml(stage,leadsFilt){
+  const items=leadsFilt.filter(l=>l.status===stage);
+  const totPot=items.reduce((s,l)=>{const sim=leadCreditoNegociado(l);return s+(sim?sim.credTot:(l.valor_potencial||0));},0);
+  const color=PIPE_COLORS[stage];
+  return`<div class="pipe-col" ondragover="event.preventDefault();this.classList.add('pipe-col-drop')" ondragleave="this.classList.remove('pipe-col-drop')" ondrop="dragDropLead(event,'${stage}');this.classList.remove('pipe-col-drop')" style="--stage-color:${color}">
+    <div class="pipe-hdr">
+      <span class="pipe-hdr-dot" style="background:${color}"></span>
+      <span class="pipe-hdr-name">${stage}</span>
+      <span class="pipe-hdr-count">${items.length}</span>
+    </div>
+    <div class="pipe-hdr-total">${totPot>0?brl(totPot,0):'—'}</div>
+    <div class="pipe-cards-wrap">
+      ${items.slice(0,8).map(l=>pipeCardHtml(l,stage)).join('')||'<div class="pipe-empty">Sem leads</div>'}
+      ${items.length>8?`<div class="pipe-more">+${items.length-8} mais</div>`:''}
+    </div>
+  </div>`;
+}
 function renderCRM(){
   leadsFiltered=leadsFiltered.length?leadsFiltered:[...LEADS];
   const crmSorted=crmSort.col?sortArr(leadsFiltered,crmSort.col,crmSort.dir):leadsFiltered;
@@ -3211,30 +3382,12 @@ function renderCRM(){
   leadsFiltered=crmSorted;
   document.getElementById('crm-count').textContent=leadsFiltered.length+' leads';
   renderAssessorLeads();
-  // Pipeline
-  document.getElementById('crm-pipeline').innerHTML=PIPE_STAGES.map(stage=>{
-    const items=leadsFiltered.filter(l=>l.status===stage);
-    const total=items.reduce((s,l)=>s+(l.valor_potencial||0),0);
-    const hasSim=stage==='Proposta Enviada'||stage==='Em Negociação'||stage==='Aguard. Docs'||stage==='Cota Aberta';
-    return`<div class="pipe-col" ondragover="event.preventDefault();this.style.background='#e0e7ff'" ondragleave="this.style.background=''" ondrop="dragDropLead(event,'${stage}');this.style.background=''">
-      <div class="pipe-hdr"><span style="width:10px;height:10px;border-radius:50%;background:${PIPE_COLORS[stage]};display:inline-block"></span>${stage} <span class="badge b-gray" style="margin-left:auto">${items.length}</span></div>
-      ${total>0?`<div style="font-size:11px;color:var(--txt2);margin-bottom:8px">${brl(total,0)}</div>`:''}
-      ${items.slice(0,6).map(l=>{
-        const lHasSim=l.observacao&&l.observacao.startsWith('SIM:');
-        return`<div class="pipe-card" draggable="true" data-lid="${l.id}" ondragstart="dragStartLead(event,'${l.id}')">
-          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:6px">
-            <div onclick="openModalLead('${l.id}')" style="flex:1;cursor:pointer">
-              <div class="pipe-card-name">${l.nome||'—'}</div>
-              <div class="pipe-card-meta">${l.interesse||''}${l.valor_potencial?' · '+brl(l.valor_potencial,0):''}${l.indicado_por?'<br>via '+l.indicado_por:''}</div>
-            </div>
-            <button class="btn btn-sm" style="background:${lHasSim?'var(--ok)':'var(--acc)'};color:#fff;padding:3px 7px;font-size:11px;white-space:nowrap;flex-shrink:0" onclick="openModalSim('${l.id}')">${lHasSim?'📋':'📊'}</button>
-          </div>
-          ${lHasSim&&(stage==='Proposta Enviada'||stage==='Em Negociação')?`<button class="btn btn-ok btn-sm" style="width:100%;margin-top:6px;justify-content:center" onclick="simFecharNegocio('${l.id}')">✓ Fechar Negócio</button>`:''}
-        </div>`;
-      }).join('')}
-      ${items.length>6?`<div style="font-size:11px;color:var(--txt2);text-align:center;padding:6px">+${items.length-6} mais</div>`:''}
-    </div>`;
-  }).join('');
+  const orfaos=leadsFiltered.filter(l=>!PIPE_STAGES.includes(l.status));
+  if(orfaos.length){console.warn('Leads com status órfão:',orfaos.map(l=>({id:l.id,nome:l.nome,status:l.status})));}
+  document.getElementById('crm-pipeline').innerHTML=PIPE_FASES.map(fase=>`<div class="pipe-fase">
+      <div class="pipe-fase-hdr">${fase.label}</div>
+      <div class="pipe-fase-cols">${fase.stages.map(s=>pipeColHtml(s,leadsFiltered)).join('')}</div>
+    </div>`).join('');
   // Table
   document.getElementById('crm-tbody').innerHTML=leadsFiltered.map(l=>`<tr>
     <td><strong>${l.nome||'—'}</strong></td>
@@ -3252,6 +3405,11 @@ function renderCRM(){
   </tr>`).join('');
 }
 
+function mlToggleReuniao(){
+  const st=document.getElementById('ml-status').value;
+  const show=st==='Reunião Marcada'||st==='Reunião Realizada';
+  document.getElementById('ml-reuniao-row').style.display=show?'block':'none';
+}
 function openModalLead(id){
   currentLead=id;
   const isNew=!id;
@@ -3263,14 +3421,17 @@ function openModalLead(id){
   document.getElementById('ml-email').value=l.email||'';
   document.getElementById('ml-ind').value=l.indicado_por||'';
   document.getElementById('ml-assessor').value=l.assessor||'ALAN / ESCRITORIO';
-  document.getElementById('ml-status').value=l.status||'Novo';
+  document.getElementById('ml-status').value=l.status||'Novo Lead';
   document.getElementById('ml-int').value=l.interesse||'Imóvel';
   document.getElementById('ml-val').value=l.valor_potencial||'';
   document.getElementById('ml-obs').value=l.observacao||'';
+  document.getElementById('ml-reuniao').value=l.data_reuniao?l.data_reuniao.slice(0,16):'';
+  mlToggleReuniao();
   document.getElementById('modal-lead').classList.add('open');
 }
 async function saveLead(){
-  const data={nome:document.getElementById('ml-nome').value,telefone:document.getElementById('ml-tel').value,email:document.getElementById('ml-email').value,indicado_por:document.getElementById('ml-ind').value,assessor:document.getElementById('ml-assessor').value,status:document.getElementById('ml-status').value,interesse:document.getElementById('ml-int').value,valor_potencial:parseFloat(document.getElementById('ml-val').value)||null,observacao:document.getElementById('ml-obs').value,updated_at:new Date().toISOString()};
+  const reuniaoVal=document.getElementById('ml-reuniao').value;
+  const data={nome:document.getElementById('ml-nome').value,telefone:document.getElementById('ml-tel').value,email:document.getElementById('ml-email').value,indicado_por:document.getElementById('ml-ind').value,assessor:document.getElementById('ml-assessor').value,status:document.getElementById('ml-status').value,interesse:document.getElementById('ml-int').value,valor_potencial:parseFloat(document.getElementById('ml-val').value)||null,observacao:document.getElementById('ml-obs').value,data_reuniao:reuniaoVal?new Date(reuniaoVal).toISOString():null,updated_at:new Date().toISOString()};
   if(currentLead)data.id=currentLead;
   showLoad();const res=await upsertLead(data);hideLoad();
   if(res){toast('Lead salvo!');closeModal('modal-lead');filterCRM();document.getElementById('kpi-leads').textContent=LEADS.length;}
