@@ -705,8 +705,11 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:#fefbf3;border-left:3px so
         </div>
         <div style="display:flex;align-items:center;gap:5px">
           <label style="color:var(--txt2)">Prazo</label>
-          <select id="os-prazo" class="form-i" style="padding:4px 8px;font-size:11px;width:auto" onchange="renderOportSugestoes()">
-            <option value="">Qualquer</option><option value="curto">Até 60m</option><option value="medio">61-150m</option><option value="longo">Acima 150m</option>
+          <select id="os-prazo" class="form-i" style="padding:4px 8px;font-size:11px;width:auto" onchange="renderOportSugestoes()" title="Faixas dinâmicas conforme o tipo: Imóvel 50/120/180m · Auto 24/48/72m">
+            <option value="">Qualquer</option>
+            <option value="curto">Curto (Im 50-120m · Auto 24-48m)</option>
+            <option value="medio">Médio (Im 121-180m · Auto 49-72m)</option>
+            <option value="longo">Longo (Im &gt;180m · Auto &gt;72m)</option>
           </select>
         </div>
         <div style="display:flex;align-items:center;gap:5px">
@@ -3943,6 +3946,9 @@ function renderPropSugestoes(){
     const mr2=Math.min(mes2,pr2-1),sp2=Math.max(0,sd2-mr2*amM2-lTot2),pr3=pr2-mr2;
     const pp2=pr3>0?sp2/pr3+liq2*seg2/100:0;
     const isImov=d.tp&&(d.tp.toUpperCase().includes('IM')||d.tp.toUpperCase().includes('RES'));
+    // Filtro mínimo realista: imóvel ≥50m · veículo/moto ≥24m
+    const prazoMinimo2=isImov?50:24;
+    if(pr2<prazoMinimo2)return;
     const dist=targetCred>0?Math.abs(cred2-targetCred)/targetCred:0;
     scored.push({g:g,d:d,avgMin:avgMin,minAll:minAll,maxAll:maxAll,lanceSugerido:lanceSugerido,success:success,vagas:d.vagas||0,pi:pi2,pp:pp2,isIm:isImov,dist:dist});
   });
@@ -4017,8 +4023,11 @@ function renderOportSugestoes(){
     const saldoPos=Math.max(0,sd2-lv);
     const pp2=pr2>1?saldoPos/(pr2-1):0;
     const isImov=d.tp&&(d.tp.toUpperCase().includes('IM')||d.tp.toUpperCase().includes('RES'));
+    // ── Filtro mínimo realista: descarta grupos com prazo muito curto (quase encerrando)
+    const prazoMinimo=isImov?50:24; // Imóvel ≥50m · Veículo/Moto ≥24m
+    if(pr2<prazoMinimo)return;
     const dist=targetCred>0?Math.abs(cred2-targetCred)/targetCred:0;
-    // Aplicar filtros
+    // Aplicar filtros do usuário
     const hasLf=temLanceFixo(g);
     const hasPr=temCotaReduzida(g);
     if(fLf==='sim'&&!hasLf)return;
@@ -4026,9 +4035,16 @@ function renderOportSugestoes(){
     if(fPr==='sim'&&!hasPr)return;
     if(fPr==='nao'&&hasPr)return;
     if(fAssert>0){const succPct=success!=null?success*100:-1;if(succPct<fAssert)return;}
-    if(fPrazo==='curto'&&pr2>60)return;
-    if(fPrazo==='medio'&&(pr2<=60||pr2>150))return;
-    if(fPrazo==='longo'&&pr2<=150)return;
+    // Filtro de prazo (faixas diferentes por tipo: imóvel é mais longo que veículo)
+    if(isImov){
+      if(fPrazo==='curto'&&(pr2<50||pr2>120))return;
+      if(fPrazo==='medio'&&(pr2<=120||pr2>180))return;
+      if(fPrazo==='longo'&&pr2<=180)return;
+    }else{
+      if(fPrazo==='curto'&&(pr2<24||pr2>48))return;
+      if(fPrazo==='medio'&&(pr2<=48||pr2>72))return;
+      if(fPrazo==='longo'&&pr2<=72)return;
+    }
     scored.push({g,d,avgMin,minAll,maxAll,lanceSugerido,success,vagas:d.vagas||0,pi:pi2,pp:pp2,isIm:isImov,dist,prazo:pr2,cred:cred2});
   });
   // Ordenação configurável
