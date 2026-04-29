@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>HC360 — Gestão de Consórcio</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Raleway:wght@300;400;600;700;800&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Raleway:wght@300;400;600;700;800&family=Playfair+Display:wght@700;800&family=Quicksand:wght@400;500;600;700&family=Mulish:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
@@ -420,6 +420,31 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:#fefbf3;border-left:3px so
 .fat-rule.ok{border-left-color:var(--ok);background:#f0fdf8}
 .fat-imp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px}
 .fat-imp{display:flex;align-items:center;gap:8px;padding:9px 13px;background:#fff5f5;border:1px solid #fca5a5;border-radius:8px;font-size:12.5px;color:#991b1b}
+.fat-cota-bar{background:linear-gradient(135deg,var(--cream),#fff);border:1.5px solid var(--bdr);border-radius:12px;padding:14px 18px;margin-bottom:18px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.fat-cota-bar.has-cota{border-color:var(--acc);background:linear-gradient(135deg,#fef9ec,#fff);box-shadow:0 2px 8px rgba(214,175,92,.12)}
+.fat-cota-info{display:flex;flex-direction:column;gap:2px;flex:1;min-width:200px}
+.fat-cota-info b{font-size:14px;color:var(--txt)}
+.fat-cota-info small{font-size:11.5px;color:var(--txt2)}
+.fat-cota-pills{display:flex;gap:6px;flex-wrap:wrap}
+.fat-cota-pill{font-size:11px;font-weight:700;padding:4px 10px;border-radius:6px;background:#fff;border:1px solid var(--bdr);color:var(--txt2);white-space:nowrap}
+.fat-cota-pill.acc{background:var(--acc);border-color:var(--acc);color:#fff}
+.fat-cota-pill.ok{background:#dcfce7;border-color:#86efac;color:#14532d}
+.fat-cota-pill.warn{background:#fef3c7;border-color:#fcd34d;color:#78350f}
+.fat-step{cursor:pointer}
+.fat-doc-row{display:flex;align-items:flex-start;gap:8px}
+.fat-doc-row .fat-doc{flex:1}
+.fat-doc-chk{margin-top:13px;width:18px;height:18px;cursor:pointer;flex-shrink:0;accent-color:var(--ok)}
+.fat-doc-chk:disabled{cursor:not-allowed;opacity:.4}
+.fat-doc.checked{opacity:.55;text-decoration:line-through;text-decoration-color:var(--ok)}
+.fat-iq-card{background:linear-gradient(135deg,#fff7ed,#fef3c7);border:1.5px solid var(--warn);border-left:5px solid var(--warn);border-radius:12px;padding:18px 22px;margin-bottom:20px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.fat-iq-card.crit{border-color:var(--err);border-left-color:var(--err);background:linear-gradient(135deg,#fef2f2,#fee2e2)}
+.fat-iq-num{font-size:38px;font-weight:900;color:var(--warn);font-family:'Raleway',sans-serif;line-height:1}
+.fat-iq-card.crit .fat-iq-num{color:var(--err)}
+.fat-iq-info{flex:1;min-width:240px}
+.fat-iq-info b{font-size:14px;color:var(--txt);display:block;margin-bottom:3px}
+.fat-iq-info small{font-size:12px;color:var(--txt2);display:block}
+.fat-iq-bar{flex-basis:100%;height:8px;background:#fff;border-radius:4px;overflow:hidden;margin-top:6px;border:1px solid var(--bdr)}
+.fat-iq-bar-fill{height:100%;background:linear-gradient(90deg,var(--warn),var(--err));transition:width .3s}
 /* ── PROJ DASHBOARD ─────────────────────────── */
 .pd-tabs{display:flex;gap:4px;background:var(--card2);border-radius:9px;padding:3px;border:1px solid var(--bdr);align-items:center}
 .pd-tab{padding:7px 16px;border-radius:7px;font-size:12.5px;font-weight:600;cursor:pointer;border:none;background:transparent;color:var(--txt2);transition:all .18s;font-family:'Inter',sans-serif}
@@ -1056,7 +1081,10 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:#fefbf3;border-left:3px so
   <!-- GUIA -->
   <div class="page" id="page-guia">
     <div class="card"><div class="cb">
-      <p style="font-size:12.5px;color:var(--txt2);margin-bottom:14px">Base com <strong>560 grupos Itaú</strong> (242 Imóveis + 318 Rodas) · Dados de Abr/2026 · Histórico Jan/25–Mar/26</p>
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px">
+        <p style="font-size:12.5px;color:var(--txt2);margin:0">Base com <strong>560 grupos Itaú</strong> (242 Imóveis + 318 Rodas) · <span id="guia-last-update">Dados de Abr/2026</span> · Histórico Jan/25–Mar/26</p>
+        <button class="btn btn-out btn-sm" data-admin-only="1" onclick="guiaOpenUpdateModal()" title="Atualizar a base do GUIA com novo JSON">📤 Atualizar Base GUIA</button>
+      </div>
       <!-- Linha 1: Busca direta -->
       <div class="frow" style="margin-bottom:10px">
         <div class="ac-wrap" style="flex:1;max-width:400px">
@@ -1494,6 +1522,32 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:#fefbf3;border-left:3px so
 
   <!-- PÓS-CONTEMPLAÇÃO -->
   <div class="page" id="page-fat">
+
+    <!-- Cota selector -->
+    <div class="fat-cota-bar" id="fat-cota-bar">
+      <div style="display:flex;flex-direction:column;gap:4px;flex:1;min-width:280px">
+        <small style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--txt2)">📋 Trabalhar em qual cota contemplada?</small>
+        <select class="fi fi-lg" id="fat-cota-sel" onchange="fatSelectCota(this.value)" style="width:100%;max-width:520px">
+          <option value="">— Visão geral (sem vínculo a cota específica) —</option>
+        </select>
+      </div>
+      <div class="fat-cota-info" id="fat-cota-info" style="display:none"></div>
+      <div class="fat-cota-pills" id="fat-cota-pills"></div>
+      <button class="btn btn-out btn-sm" id="fat-cota-clear" onclick="fatSelectCota('')" style="display:none">✕ Desvincular</button>
+    </div>
+
+    <!-- IQ countdown card -->
+    <div class="fat-iq-card" id="fat-iq-card" style="display:none">
+      <div style="text-align:center">
+        <div class="fat-iq-num" id="fat-iq-num">—</div>
+        <div style="font-size:10px;font-weight:700;color:var(--txt2);text-transform:uppercase;margin-top:2px">dias restantes</div>
+      </div>
+      <div class="fat-iq-info">
+        <b>⏱️ Prazo crítico IQ — 45 dias para registrar contrato</b>
+        <small id="fat-iq-msg">Contrato deve ser registrado no Cartório de Registro de Imóveis e devolvido ao Itaú em 45 dias da assinatura.</small>
+        <div class="fat-iq-bar"><div class="fat-iq-bar-fill" id="fat-iq-fill" style="width:0%"></div></div>
+      </div>
+    </div>
 
     <!-- Hero -->
     <div class="fat-hero">
@@ -2901,7 +2955,7 @@ function setSync(ok){const d=document.getElementById('sync-dot'),s=document.getE
 const PGT={'dash':'Dashboard','ctrl':'Controle de Cotas','agenda':'Agenda','crm':'CRM / Indicações','guia':'Guia de Oportunidades','oport':'Oportunidades','prop':'Gerar Proposta','proj':'Projetos / Cotas','fat':'Pós-Contemplação'};
 function toggleSidebar(){const sb=document.getElementById('sidebar');const ov=document.getElementById('sb-overlay');sb.classList.toggle('mob-open');ov.classList.toggle('open');}
 function nav(id,el){if(window.innerWidth<=700){const sb=document.getElementById('sidebar');const ov=document.getElementById('sb-overlay');sb.classList.remove('mob-open');ov.classList.remove('open');}
-document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));document.getElementById('page-'+id).classList.add('active');if(el)el.classList.add('active');document.getElementById('pg-title').textContent=PGT[id]||id;if(id==='ctrl')filterCtrl();if(id==='agenda')renderAgenda();if(id==='crm')renderCRM();if(id==='guia'){browseData=Object.entries(GUIA);renderBrowse(browseData,1);}if(id==='oport'){ortData=buildOrtData();renderOportunidades();renderOportSugestoes();}if(id==='prop'){renderPropGrupos();calcProp();updLance();}if(id==='proj')renderProj();}
+document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));document.getElementById('page-'+id).classList.add('active');if(el)el.classList.add('active');document.getElementById('pg-title').textContent=PGT[id]||id;if(id==='ctrl')filterCtrl();if(id==='agenda')renderAgenda();if(id==='crm')renderCRM();if(id==='guia'){browseData=Object.entries(GUIA);renderBrowse(browseData,1);}if(id==='oport'){ortData=buildOrtData();renderOportunidades();renderOportSugestoes();}if(id==='prop'){renderPropGrupos();calcProp();updLance();}if(id==='proj')renderProj();if(id==='fat')renderFatPage();}
 
 // ═══ SUPABASE ═══
 async function loadData(){
@@ -2943,7 +2997,7 @@ async function loadData(){
       console.info('[HC360] taxa_adm column not detected yet');
     }
     setSync(true);
-    initDash();ctrlFiltered=[...COTAS];renderCtrl();renderAgenda();renderCRM();renderProj();
+    initDash();ctrlFiltered=[...COTAS];renderCtrl();renderAgenda();renderCRM();renderProj();try{renderFatPage();}catch(_){}
     document.getElementById('kpi-leads').textContent=LEADS.length;
   }catch(err){setSync(false);toast('Erro ao conectar: '+err.message,'err');}
   hideLoad();
@@ -2980,7 +3034,89 @@ async function deleteLeadDB(id){
 }
 
 // ═══ DASHBOARD ═══
+let DASH_PRIV_OPEN=false; let dashEvoMode='adesao';
+let _dashEvoBuckets={}, _dashEvoKeys=[];
+function dashLoadPriv(){ try{const v=localStorage.getItem('hc360_priv_dash'); DASH_PRIV_OPEN=v==='1';}catch(e){} }
+function dashSavePriv(){ try{localStorage.setItem('hc360_priv_dash',DASH_PRIV_OPEN?'1':'0');}catch(e){} }
+function maskName(n){
+  if(DASH_PRIV_OPEN) return n||'—';
+  if(!n) return '—';
+  const parts=String(n).trim().split(/\s+/).filter(Boolean);
+  if(!parts.length) return '—';
+  if(parts.length===1) return parts[0][0].toUpperCase()+'***';
+  return parts[0][0].toUpperCase()+'*** '+parts[parts.length-1][0].toUpperCase()+'***';
+}
+function dashUpdatePrivUI(){
+  const ico=document.getElementById('dash-priv-ico');
+  const lbl=document.getElementById('dash-priv-lbl');
+  if(ico) ico.textContent=DASH_PRIV_OPEN?'👁️':'🙈';
+  if(lbl) lbl.textContent=DASH_PRIV_OPEN?'Nomes visíveis':'Privacidade ativa';
+}
+function dashTogglePriv(){ DASH_PRIV_OPEN=!DASH_PRIV_OPEN; dashSavePriv(); dashUpdatePrivUI(); initDash(); }
+function dashSetEvo(btn,mode){
+  dashEvoMode=mode;
+  document.querySelectorAll('#dash-evo-mode .toggle-btn').forEach(b=>b.classList.toggle('act',b===btn));
+  dashRenderEvo();
+}
+function dashMonthKey(d){
+  if(!d) return null;
+  const s=String(d).slice(0,10);
+  const m=s.match(/^(\d{4})-(\d{2})/);
+  return m?m[1]+'-'+m[2]:null;
+}
+function dashFmtMonth(key){
+  if(!key) return '';
+  const [y,m]=key.split('-');
+  const meses=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  return meses[parseInt(m,10)-1]+'/'+y.slice(2);
+}
+
+function dashRenderEvo(){
+  if(!dashCharts) dashCharts={};
+  if(dashCharts.evo){dashCharts.evo.destroy(); dashCharts.evo=null;}
+  const ativas=COTAS.filter(r=>(r.status||'').toUpperCase()!=='CANCELADO');
+  const dateField=({adesao:'adesao',contemp:'data_contemplada',faturado:'data_faturamento'})[dashEvoMode];
+  const periodEl=document.getElementById('dash-evo-period');
+  const period=periodEl?periodEl.value:'12';
+  const buckets={};
+  ativas.forEach(r=>{
+    const k=dashMonthKey(r[dateField]);
+    if(!k) return;
+    if(!buckets[k]) buckets[k]={cotas:0,vol:0,clientes:{},assessores:{}};
+    buckets[k].cotas++;
+    buckets[k].vol+=(r.credito||0);
+    const cn=r.nome||'—';
+    if(!buckets[k].clientes[cn]) buckets[k].clientes[cn]={c:0,v:0};
+    buckets[k].clientes[cn].c++; buckets[k].clientes[cn].v+=(r.credito||0);
+    const an=r.assessor||'—';
+    if(!buckets[k].assessores[an]) buckets[k].assessores[an]=0;
+    buckets[k].assessores[an]++;
+  });
+  let keys=Object.keys(buckets).sort();
+  if(period!=='all'){
+    const N=parseInt(period,10);
+    const today=new Date();
+    const ks=[];
+    for(let i=N-1;i>=0;i--){
+      const d=new Date(today.getFullYear(),today.getMonth()-i,1);
+      ks.push(d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'));
+    }
+    keys=ks;
+  }
+  _dashEvoBuckets=buckets; _dashEvoKeys=keys;
+  const labels=keys.map(dashFmtMonth);
+  const cotasData=keys.map(k=>buckets[k]?buckets[k].cotas:0);
+  const volData=keys.map(k=>buckets[k]?buckets[k].vol:0);
+  const accent=({adesao:'#3b82f6',contemp:'#10b981',faturado:'#D6AF5C'})[dashEvoMode];
+  const labelByMode=({adesao:'Adesões',contemp:'Contemplações',faturado:'Faturamento'})[dashEvoMode];
+  const ctx=document.getElementById('ch-evo');
+  if(!ctx) return;
+  dashCharts.evo=new Chart(ctx,{type:'bar',data:{labels,datasets:[{type:'bar',label:'Nº cotas',data:cotasData,backgroundColor:accent+'cc',borderRadius:6,yAxisID:'y',order:2},{type:'line',label:'Volume R$',data:volData,borderColor:'#2C3E50',backgroundColor:'rgba(44,62,80,.12)',fill:false,tension:.3,pointRadius:4,pointHoverRadius:6,yAxisID:'y1',order:1}]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{labels:{font:{size:11},padding:10}},tooltip:{callbacks:{title:(items)=>labelByMode+' — '+items[0].label,label:(item)=>item.dataset.label==='Volume R$'?'Volume: '+brl(item.parsed.y,0):'Cotas: '+item.parsed.y,afterBody:(items)=>{const k=_dashEvoKeys[items[0].dataIndex];if(!k||!_dashEvoBuckets[k]) return '';const top=Object.entries(_dashEvoBuckets[k].clientes).sort((a,b)=>b[1].v-a[1].v).slice(0,3);if(!top.length) return '';return ['','Top clientes:',...top.map(([n,d])=>'  • '+maskName(n)+' ('+d.c+' cota'+(d.c>1?'s':'')+', '+brl(d.v,0)+')')];}}}},scales:{y:{beginAtZero:true,position:'left',title:{display:true,text:'Cotas',font:{size:10}},ticks:{precision:0}},y1:{beginAtZero:true,position:'right',title:{display:true,text:'Volume R$',font:{size:10}},grid:{drawOnChartArea:false},ticks:{callback:v=>v>=1e6?(v/1e6).toFixed(1)+'M':(v/1e3).toFixed(0)+'k'}}}}});
+}
+
 function initDash(){
+  if(!dashCharts) dashCharts={};
+  dashLoadPriv(); dashUpdatePrivUI();
   const isCancel=s=>(s||'').toUpperCase()==='CANCELADO';
   const isContemp=s=>s==='Contemplado'||s==='CONTEMPLADO'||s==='Faturado';
   const ativas=COTAS.filter(r=>!isCancel(r.status));
@@ -3000,17 +3136,41 @@ function initDash(){
   document.getElementById('kpi-cancel').textContent=canceladas.length;
   document.getElementById('kpi-cancel-sub').textContent=canceladas.length>0?'- '+brl(credCancel,0)+' da carteira':'excluídas da carteira';
 
-  Object.values(dashCharts).forEach(c=>c.destroy());dashCharts={};
-  dashCharts.status=new Chart(document.getElementById('ch-status'),{type:'doughnut',data:{labels:['Contempladas','Lance Ativo','Sorteio/Espera','Outros'],datasets:[{data:[contemp,lance,aguard,COTAS.length-contemp-lance-aguard],backgroundColor:['#10b981','#f59e0b','#94a3b8','#f97316'],borderWidth:0,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{position:'right',labels:{font:{size:11},padding:12}}}}});
+  Object.values(dashCharts).forEach(c=>{if(c&&c.destroy)c.destroy();}); dashCharts={};
+
+  dashCharts.status=new Chart(document.getElementById('ch-status'),{type:'doughnut',data:{labels:['Contempladas','Lance Ativo','Sorteio/Espera','Outros'],datasets:[{data:[contemp,lance,aguard,COTAS.length-contemp-lance-aguard],backgroundColor:['#10b981','#f59e0b','#94a3b8','#f97316'],borderWidth:0,hoverOffset:6}]},options:{responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{position:'right',labels:{font:{size:11},padding:12}},tooltip:{callbacks:{label:(it)=>{const total=it.dataset.data.reduce((a,b)=>a+b,0)||1;return it.label+': '+it.parsed+' ('+(it.parsed/total*100).toFixed(1)+'%)';}}}}}});
+
   const am={};COTAS.forEach(r=>{let a=r.assessor||'Outros';if(a==='Gil')a='GIL';if(!am[a])am[a]=0;am[a]++;});
   const ta=Object.entries(am).sort((a,b)=>b[1]-a[1]).slice(0,7);
-  dashCharts.assess=new Chart(document.getElementById('ch-assess'),{type:'bar',data:{labels:ta.map(x=>x[0]),datasets:[{data:ta.map(x=>x[1]),backgroundColor:'#3b82f6',borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{beginAtZero:true}}}});
-  const cm={};ativas.forEach(r=>{const n=r.nome;if(!cm[n])cm[n]={cotas:0,contemp:0,credito:0,assessor:r.assessor};cm[n].cotas++;if(isContemp(r.status))cm[n].contemp++;if(r.credito)cm[n].credito+=r.credito;});
-  const tc=Object.entries(cm).sort((a,b)=>b[1].credito-a[1].credito).slice(0,8);
+  dashCharts.assess=new Chart(document.getElementById('ch-assess'),{type:'bar',data:{labels:ta.map(x=>x[0]),datasets:[{label:'Cotas',data:ta.map(x=>x[1]),backgroundColor:'#3b82f6',borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{beginAtZero:true,ticks:{precision:0}}}}});
+
+  const bm={};ativas.forEach(r=>{const b=r.banco||'Sem banco';if(!bm[b])bm[b]={c:0,v:0};bm[b].c++;bm[b].v+=(r.credito||0);});
+  const bk=Object.entries(bm).sort((a,b)=>b[1].v-a[1].v);
+  const bcCores={'Itaú':'#D6AF5C','Santander':'#ef4444','Safra':'#3b82f6','Bradesco':'#ec4899','Banco do Brasil':'#facc15','Caixa':'#1e3a8a','Sem banco':'#94a3b8'};
+  dashCharts.banco=new Chart(document.getElementById('ch-banco'),{type:'doughnut',data:{labels:bk.map(x=>x[0]),datasets:[{data:bk.map(x=>x[1].c),backgroundColor:bk.map(x=>bcCores[x[0]]||'#94a3b8'),borderWidth:0,hoverOffset:6}]},options:{responsive:true,maintainAspectRatio:false,cutout:'55%',plugins:{legend:{position:'right',labels:{font:{size:11},padding:10}},tooltip:{callbacks:{label:(it)=>{const e=bk[it.dataIndex];return e[0]+': '+e[1].c+' cotas · '+brl(e[1].v,0);}}}}}});
+
+  const normTipo=t=>{const u=(t||'').toUpperCase();if(u.includes('IM'))return 'Imóvel';if(u.includes('MOTO'))return 'Moto';if(u.includes('VE'))return 'Veículo';return 'Outros';};
+  const tm={};ativas.forEach(r=>{const t=normTipo(r.tipo_bem);if(!tm[t])tm[t]={c:0,v:0};tm[t].c++;tm[t].v+=(r.credito||0);});
+  const tk=Object.entries(tm).sort((a,b)=>b[1].v-a[1].v);
+  const tpCores={'Imóvel':'#226866','Veículo':'#D6AF5C','Moto':'#f59e0b','Outros':'#94a3b8'};
+  dashCharts.tipo=new Chart(document.getElementById('ch-tipo'),{type:'doughnut',data:{labels:tk.map(x=>x[0]),datasets:[{data:tk.map(x=>x[1].c),backgroundColor:tk.map(x=>tpCores[x[0]]||'#94a3b8'),borderWidth:0,hoverOffset:6}]},options:{responsive:true,maintainAspectRatio:false,cutout:'55%',plugins:{legend:{position:'right',labels:{font:{size:11},padding:10}},tooltip:{callbacks:{label:(it)=>{const e=tk[it.dataIndex];return e[0]+': '+e[1].c+' cotas · '+brl(e[1].v,0);}}}}}});
+
+  const cm={};ativas.forEach(r=>{const n=r.nome||'—';if(!cm[n])cm[n]={cotas:0,contemp:0,credito:0,assessor:r.assessor};cm[n].cotas++;if(isContemp(r.status))cm[n].contemp++;if(r.credito)cm[n].credito+=r.credito;});
+  const tc=Object.entries(cm).sort((a,b)=>b[1].credito-a[1].credito).slice(0,10);
   const totalCarteira=cred||1;
-  document.getElementById('dash-clients').innerHTML=tc.map(([n,d])=>`<tr><td><strong>${n}</strong></td><td>${d.cotas}</td><td><span class="badge b-ok">${d.contemp}</span></td><td>${brl(d.credito,0)}</td><td>${atag(d.assessor)}</td><td><strong>${(d.credito/totalCarteira*100).toFixed(1)}%</strong></td></tr>`).join('');
+
+  dashCharts.clients=new Chart(document.getElementById('ch-clients'),{type:'bar',data:{labels:tc.map(([n])=>maskName(n)),datasets:[{label:'Crédito',data:tc.map(([,d])=>d.credito),backgroundColor:tc.map(([,d])=>{const pct=d.cotas?d.contemp/d.cotas:0;return pct>=1?'#10b981':(pct>=.5?'#D6AF5C':'#3b82f6');}),borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{title:(items)=>maskName(tc[items[0].dataIndex][0]),label:(it)=>{const d=tc[it.dataIndex][1];return ['Volume: '+brl(d.credito,0),'Cotas: '+d.cotas+' · Contempladas: '+d.contemp,'% carteira: '+(d.credito/totalCarteira*100).toFixed(1)+'%','Assessor: '+(d.assessor||'—')];}}}},scales:{x:{beginAtZero:true,ticks:{callback:v=>v>=1e6?(v/1e6).toFixed(1)+'M':(v/1e3).toFixed(0)+'k'}}}}});
+
+  document.getElementById('dash-clients').innerHTML=tc.slice(0,8).map(([n,d])=>`<tr><td><strong>${maskName(n)}</strong></td><td>${d.cotas}</td><td><span class="badge b-ok">${d.contemp}</span></td><td>${brl(d.credito,0)}</td><td>${atag(d.assessor)}</td><td><strong>${(d.credito/totalCarteira*100).toFixed(1)}%</strong></td></tr>`).join('');
+
   const amd={};ativas.forEach(r=>{let a=r.assessor||'Outros';if(a==='Gil')a='GIL';if(!amd[a])amd[a]={cotas:0,contemp:0,credito:0};amd[a].cotas++;if(isContemp(r.status))amd[a].contemp++;if(r.credito)amd[a].credito+=r.credito;});
-  document.getElementById('dash-assess').innerHTML=Object.entries(amd).sort((a,b)=>b[1].cotas-a[1].cotas).slice(0,8).map(([a,d])=>`<tr style="cursor:pointer" onclick="navToAssessor('${a}')" title="Ver clientes de ${a}"><td>${atag(a)}</td><td>${d.cotas}</td><td>${d.contemp}</td><td>${brl(d.credito,0)}</td><td style="font-weight:700">${(d.credito/totalCarteira*100).toFixed(1)}%</td></tr>`).join('');
+  const tamd=Object.entries(amd).sort((a,b)=>b[1].credito-a[1].credito).slice(0,8);
+
+  dashCharts.assessPerf=new Chart(document.getElementById('ch-assess-perf'),{type:'bar',data:{labels:tamd.map(x=>x[0]),datasets:[{label:'Em andamento',data:tamd.map(x=>x[1].cotas-x[1].contemp),backgroundColor:'#f59e0b',borderRadius:4,stack:'cotas'},{label:'Contempladas',data:tamd.map(x=>x[1].contemp),backgroundColor:'#10b981',borderRadius:4,stack:'cotas'}]},options:{responsive:true,maintainAspectRatio:false,onClick:(e,el)=>{if(el&&el.length){const a=tamd[el[0].index][0];navToAssessor(a);}},plugins:{legend:{position:'top',labels:{font:{size:11},boxWidth:14}},tooltip:{callbacks:{afterBody:(items)=>{const i=items[0].dataIndex;const d=tamd[i][1];const tk=d.cotas?d.credito/d.cotas:0;return ['Volume: '+brl(d.credito,0),'Ticket médio: '+brl(tk,0),'Click p/ filtrar →'];}}}},scales:{x:{stacked:true},y:{stacked:true,beginAtZero:true,ticks:{precision:0}}}}});
+
+  document.getElementById('dash-assess').innerHTML=tamd.map(([a,d])=>{const tk=d.cotas?d.credito/d.cotas:0;return `<tr style="cursor:pointer" onclick="navToAssessor('${a}')" title="Ver clientes de ${a}"><td>${atag(a)}</td><td>${d.cotas}</td><td>${d.contemp}</td><td>${brl(d.credito,0)}</td><td>${brl(tk,0)}</td><td style="font-weight:700">${(d.credito/totalCarteira*100).toFixed(1)}%</td></tr>`;}).join('');
+
+  dashRenderEvo();
 }
 function navToAssessor(assessorName){
   // Navega para Projetos e filtra por assessor — mostra clientes consolidados
@@ -4431,21 +4591,179 @@ function guiaSel(g){
 }
 function guiaClear(){document.getElementById('guia-input').value='';document.getElementById('guia-result').style.display='none';document.getElementById('guia-empty').style.display='none';document.getElementById('guia-browse').style.display='block';selGrupo=null;}
 /* ── PÓS-CONTEMPLAÇÃO ────────────────────── */
+let fatCurrentCota=null;
+const FAT_FIN_LABEL={aq:'Aquisição',aqfgts:'Aquisição + FGTS',iq:'Aquisição + IQ',iqfgts:'IQ + FGTS',remb:'Reembolso',quit:'Quitação Própria',ref:'Reforma',constr:'Construção'};
+function fatStateKey(cotaId){return 'fat-state-'+cotaId;}
+function fatStateLoad(cotaId){
+  try{return JSON.parse(localStorage.getItem(fatStateKey(cotaId))||'null')||{};}catch(_){return{};}
+}
+function fatStateSave(cotaId,patch){
+  const cur=fatStateLoad(cotaId);
+  const nxt={...cur,...patch,_updated:new Date().toISOString()};
+  localStorage.setItem(fatStateKey(cotaId),JSON.stringify(nxt));
+  return nxt;
+}
+function fatDocKey(el){
+  const txt=(el.textContent||'').trim().slice(0,160);
+  let h=0;for(let i=0;i<txt.length;i++)h=((h<<5)-h+txt.charCodeAt(i))|0;
+  return 'd'+(h>>>0).toString(36);
+}
+function fatPopulateCotaSelect(){
+  const sel=document.getElementById('fat-cota-sel');if(!sel)return;
+  const cur=sel.value;
+  const cotas=COTAS.filter(r=>{const s=(r.status||'').toLowerCase();return s==='contemplado'||s==='faturado';});
+  cotas.sort((a,b)=>(b.data_contemplada||'').localeCompare(a.data_contemplada||'')||(a.nome||'').localeCompare(b.nome||''));
+  sel.innerHTML='<option value="">— Visão geral (sem vínculo a cota específica) —</option>'+cotas.map(c=>{
+    const dt=c.data_contemplada?(' · '+c.data_contemplada.split('-').reverse().join('/')):'';
+    const fat=c.status==='Faturado'?' ✓':'';
+    return `<option value="${c.id}">${(c.nome||'?').slice(0,42)} — Gr ${c.grupo}/${c.cota}${dt}${fat}</option>`;
+  }).join('');
+  if(cur)sel.value=cur;
+}
+function fatSelectCota(id){
+  const sel=document.getElementById('fat-cota-sel');
+  if(sel&&sel.value!==id)sel.value=id;
+  fatCurrentCota=id?(COTAS.find(r=>String(r.id)===String(id))||null):null;
+  const bar=document.getElementById('fat-cota-bar');
+  const info=document.getElementById('fat-cota-info');
+  const pills=document.getElementById('fat-cota-pills');
+  const clr=document.getElementById('fat-cota-clear');
+  if(!fatCurrentCota){
+    bar.classList.remove('has-cota');
+    info.style.display='none';info.innerHTML='';
+    pills.innerHTML='';
+    clr.style.display='none';
+    fatRenderStepper(0);
+    fatRenderDocs();
+    fatRenderIQCard();
+    fatTab('aq',document.querySelector('.fat-tab'));
+    return;
+  }
+  bar.classList.add('has-cota');
+  clr.style.display='inline-block';
+  const r=fatCurrentCota;
+  const cred=r.carta_atualizada||r.credito||0;
+  info.style.display='flex';
+  info.innerHTML=`<b>${r.nome||'—'}</b><small>Grupo ${r.grupo} · Cota ${r.cota} · ${brl(cred,0)}</small>`;
+  const pillsHtml=[];
+  if(r.data_contemplada){
+    const dt=r.data_contemplada.split('-').reverse().join('/');
+    const dias=Math.floor((Date.now()-new Date(r.data_contemplada).getTime())/86400000);
+    pillsHtml.push(`<span class="fat-cota-pill acc">📅 ${dt}</span>`);
+    pillsHtml.push(`<span class="fat-cota-pill">${dias} ${dias===1?'dia':'dias'}</span>`);
+  }
+  if(r.tipo_contemp)pillsHtml.push(`<span class="fat-cota-pill">${r.tipo_contemp}</span>`);
+  if(r.status==='Faturado')pillsHtml.push(`<span class="fat-cota-pill ok">✓ Faturado</span>`);
+  pills.innerHTML=pillsHtml.join('');
+  const st=fatStateLoad(r.id);
+  fatRenderStepper(st.step||0);
+  const fin=st.finalidade||'aq';
+  const tabEl=document.querySelector(`.fat-tab[onclick*="'${fin}'"]`);
+  fatTab(fin,tabEl);
+}
+function fatRenderStepper(stepIdx){
+  const steps=document.querySelectorAll('#fat-stepper .fat-step');
+  steps.forEach((s,i)=>{
+    s.classList.remove('active','done');
+    if(stepIdx>0){
+      if(i<stepIdx-1)s.classList.add('done');
+      else if(i===stepIdx-1)s.classList.add('active');
+    }else if(i===0){s.classList.add('active');}
+  });
+}
+function fatStepClick(idx){
+  if(!fatCurrentCota){
+    const steps=document.querySelectorAll('#fat-stepper .fat-step');
+    steps.forEach((s,i)=>{
+      s.classList.remove('active','done');
+      if(i<idx)s.classList.add('done');
+      else if(i===idx)s.classList.add('active');
+    });
+    return;
+  }
+  fatStateSave(fatCurrentCota.id,{step:idx+1});
+  fatRenderStepper(idx+1);
+  toast(`Etapa ${idx+1} marcada como atual`,'ok');
+}
 function fatTab(id,el){
   document.querySelectorAll('.fat-finalidade').forEach(d=>d.classList.remove('act'));
   document.querySelectorAll('.fat-tab').forEach(t=>t.classList.remove('act'));
   const d=document.getElementById('fat-'+id);if(d)d.classList.add('act');
   if(el)el.classList.add('act');
+  if(fatCurrentCota){fatStateSave(fatCurrentCota.id,{finalidade:id});}
+  fatRenderIQCard();
+  fatRenderDocs();
+}
+function fatRenderDocs(){
+  const docs=document.querySelectorAll('#page-fat .fat-doc');
+  const st=fatCurrentCota?fatStateLoad(fatCurrentCota.id):null;
+  const checked=(st&&st.docs)||{};
+  docs.forEach(d=>{
+    if(d.classList.contains('block'))return;
+    const k=d.dataset.fkey||(d.dataset.fkey=fatDocKey(d));
+    let row=d.parentNode;
+    if(!row||!row.classList||!row.classList.contains('fat-doc-row')){
+      const wrap=document.createElement('div');wrap.className='fat-doc-row';
+      d.parentNode.insertBefore(wrap,d);
+      const cb=document.createElement('input');cb.type='checkbox';cb.className='fat-doc-chk';
+      cb.dataset.fkey=k;
+      cb.addEventListener('change',function(){fatToggleDoc(k,this.checked,d);});
+      wrap.appendChild(cb);wrap.appendChild(d);
+      row=wrap;
+    }
+    const cb=row.querySelector('.fat-doc-chk');
+    if(cb){cb.disabled=!fatCurrentCota;cb.checked=!!checked[k];}
+    d.classList.toggle('checked',!!checked[k]);
+  });
+}
+function fatToggleDoc(key,val,el){
+  if(!fatCurrentCota)return;
+  const st=fatStateLoad(fatCurrentCota.id);
+  st.docs=st.docs||{};
+  if(val)st.docs[key]=true;else delete st.docs[key];
+  fatStateSave(fatCurrentCota.id,{docs:st.docs});
+  if(el)el.classList.toggle('checked',val);
+}
+function fatRenderIQCard(){
+  const card=document.getElementById('fat-iq-card');if(!card)return;
+  const r=fatCurrentCota;
+  const st=r?fatStateLoad(r.id):null;
+  const fin=(st&&st.finalidade)||'';
+  const isIQ=fin==='iq'||fin==='iqfgts';
+  if(!r||!isIQ||!r.data_contemplada){card.style.display='none';return;}
+  const dias=Math.floor((Date.now()-new Date(r.data_contemplada).getTime())/86400000);
+  const restante=Math.max(0,45-dias);
+  const pctP=Math.min(100,Math.round(dias/45*100));
+  const num=document.getElementById('fat-iq-num');
+  const fill=document.getElementById('fat-iq-fill');
+  const msg=document.getElementById('fat-iq-msg');
+  num.textContent=restante;
+  card.classList.toggle('crit',restante<=10);
+  fill.style.width=pctP+'%';
+  if(restante<=0){
+    msg.innerHTML='<b style="color:var(--err)">⛔ PRAZO VENCIDO</b> — '+(dias-45)+' dia(s) após o limite. Verificar se o contrato foi registrado no CRI.';
+  }else if(restante<=10){
+    msg.innerHTML=`<b style="color:var(--err)">⚠️ Faltam apenas ${restante} dia(s)</b> — registre o contrato no Cartório de Registro de Imóveis o quanto antes.`;
+  }else{
+    msg.textContent=`Faltam ${restante} dias para registrar o contrato no CRI e devolvê-lo ao Itaú. ${dias} dia(s) decorrido(s) desde a contemplação.`;
+  }
+  card.style.display='flex';
+}
+function renderFatPage(){
+  fatPopulateCotaSelect();
+  fatRenderDocs();
+  const sel=document.getElementById('fat-cota-sel');
+  if(sel&&sel.value)fatSelectCota(sel.value);
+  else fatRenderIQCard();
 }
 (function(){
-  const steps=document.querySelectorAll('.fat-step');
-  steps.forEach((s,i)=>s.addEventListener('click',()=>{
-    steps.forEach((ss,ii)=>{
-      ss.classList.remove('active','done');
-      if(ii<i)ss.classList.add('done');
-      else if(ii===i)ss.classList.add('active');
-    });
-  }));
+  document.addEventListener('click',function(e){
+    const s=e.target.closest('#fat-stepper .fat-step');
+    if(!s)return;
+    const steps=Array.from(document.querySelectorAll('#fat-stepper .fat-step'));
+    const idx=steps.indexOf(s);
+    if(idx>=0)fatStepClick(idx);
+  });
 })();
 /* ── ─────────────────────────────────────── */
 function usarNaProposta(){
