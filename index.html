@@ -279,40 +279,78 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:#fefbf3;border-left:3px so
 .pag-btn.act{background:var(--sb2);border-color:var(--sb2);color:#fff}
 .pag-btn:hover:not(.act){border-color:var(--sb2);color:var(--sb2)}
 
+/* ── CRM HERO + KPIs ─────────────────────────── */
+.crm-hero{background:linear-gradient(135deg,var(--sb) 0%,var(--sb2) 100%);border-radius:14px;padding:28px 34px;color:#fff;margin-bottom:18px;position:relative;overflow:hidden;display:flex;align-items:center;gap:24px;box-shadow:0 4px 18px rgba(34,71,80,.18)}
+.crm-hero::before{content:'';position:absolute;left:0;top:0;right:0;height:3px;background:linear-gradient(90deg,#D6AF5C 0%,#e6c780 100%)}
+.crm-hero::after{content:'';position:absolute;right:-50px;top:-50px;width:240px;height:240px;border-radius:50%;background:rgba(255,255,255,.05);pointer-events:none}
+.crm-hero-content{flex:1;z-index:1}
+.crm-hero-title{font-size:24px;font-weight:800;font-family:'Playfair Display',serif;letter-spacing:-.5px;margin-bottom:6px;line-height:1.1}
+.crm-hero-sub{font-size:13.5px;opacity:.78;line-height:1.55;max-width:560px;font-weight:400}
+.crm-hero-cta{z-index:1;flex-shrink:0}
+.crm-hero-cta .btn-acc{background:var(--acc);color:#fff;border:none;font-weight:700;padding:11px 22px;font-size:13px;border-radius:9px;display:inline-flex;align-items:center;gap:8px;box-shadow:0 4px 14px rgba(214,175,92,.4);transition:all .18s}
+.crm-hero-cta .btn-acc:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(214,175,92,.55);background:#e0bb6f}
+
+.crm-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:18px}
+.crm-kpi{background:#fff;border:1.5px solid var(--bdr);border-radius:12px;padding:14px 18px;border-top:3px solid transparent;transition:all .18s;position:relative;overflow:hidden}
+.crm-kpi:hover{box-shadow:0 4px 14px rgba(0,0,0,.07);transform:translateY(-2px)}
+.crm-kpi.k-tot{border-top-color:var(--sb)}
+.crm-kpi.k-reu{border-top-color:#06b6d4}
+.crm-kpi.k-neg{border-top-color:var(--acc)}
+.crm-kpi.k-fch{border-top-color:var(--ok)}
+.crm-kpi.k-conv{border-top-color:#8b5cf6}
+.crm-kpi-lbl{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.7px;color:var(--txt2);margin-bottom:7px;font-family:'Raleway',sans-serif}
+.crm-kpi-val{font-size:24px;font-weight:800;font-family:'Playfair Display',serif;letter-spacing:-.4px;line-height:1;color:var(--txt)}
+.crm-kpi-sub{font-size:11px;color:var(--txt2);margin-top:5px;font-weight:500}
+
+.crm-filters{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:18px;background:var(--card2);border:1px solid var(--bdr);border-radius:10px;padding:10px 12px}
+.crm-filters .fi{margin:0}
+
 /* ── CRM PIPELINE ───────────────────────────── */
-.pipeline{display:flex;gap:18px;overflow-x:auto;padding-bottom:14px;margin-bottom:22px}
-.pipe-fase{display:flex;flex-direction:column;gap:8px;flex-shrink:0}
-.pipe-fase-hdr{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--sb);padding:0 4px 6px;border-bottom:2px solid var(--bdr)}
-.pipe-fase-cols{display:flex;gap:10px}
-.pipe-col{min-width:210px;max-width:230px;background:var(--card2);border-radius:12px;border:1px solid var(--bdr);padding:12px 11px;display:flex;flex-direction:column;transition:background .15s}
-.pipe-col-drop{background:#e0e7ff;border-color:var(--sb2)}
-.pipe-hdr{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;display:flex;align-items:center;gap:7px;color:var(--txt);margin-bottom:4px}
-.pipe-hdr-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
-.pipe-hdr-name{flex:1;line-height:1.2;font-size:10.5px}
-.pipe-hdr-count{background:#fff;border:1px solid var(--bdr);border-radius:10px;padding:1px 7px;font-size:10.5px;font-weight:700;color:var(--txt2);min-width:22px;text-align:center}
-.pipe-hdr-total{font-size:11.5px;font-weight:700;color:var(--sb2);margin-bottom:10px;padding-bottom:8px;border-bottom:1px dashed var(--bdr)}
-.pipe-cards-wrap{display:flex;flex-direction:column;gap:8px;min-height:60px}
-.pipe-card{background:#fff;border:1px solid var(--bdr);border-radius:10px;padding:10px 11px;cursor:pointer;transition:all .18s;display:flex;flex-direction:column;gap:7px}
-.pipe-card:hover{border-color:var(--sb2);box-shadow:0 3px 10px rgba(34,104,102,.1);transform:translateY(-1px)}
-.pipe-card-row{display:flex;justify-content:space-between;align-items:flex-start;gap:6px}
-.pipe-card-name{font-size:13px;font-weight:700;color:var(--txt);line-height:1.25;margin-bottom:5px;word-break:break-word}
+.pipeline{display:flex;gap:24px;overflow-x:auto;padding:4px 2px 14px;margin-bottom:22px;scroll-behavior:smooth}
+.pipe-fase{display:flex;flex-direction:column;gap:10px;flex-shrink:0}
+.pipe-fase-hdr{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1.1px;color:var(--sb);padding:0 6px 8px;display:flex;align-items:center;gap:8px;border-bottom:2px solid var(--acc);position:relative}
+.pipe-fase-hdr::after{content:'';position:absolute;left:0;bottom:-2px;width:30%;height:2px;background:var(--sb)}
+.pipe-fase-hdr-count{margin-left:auto;font-size:10.5px;background:var(--card2);color:var(--txt2);border:1px solid var(--bdr);border-radius:10px;padding:2px 9px;font-weight:700}
+.pipe-fase-cols{display:flex;gap:12px}
+.pipe-col{min-width:230px;max-width:248px;background:var(--card2);border-radius:14px;border:1px solid var(--bdr);padding:14px 12px;display:flex;flex-direction:column;transition:all .2s;position:relative}
+.pipe-col::before{content:'';position:absolute;left:0;top:0;right:0;height:3px;background:var(--stage-color,var(--sb));border-radius:14px 14px 0 0;opacity:.85}
+.pipe-col-drop{background:linear-gradient(180deg,#eef2ff 0%,#fefbf3 100%);border-color:var(--acc);box-shadow:inset 0 0 0 2px var(--acc)}
+.pipe-hdr{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.7px;display:flex;align-items:center;gap:8px;color:var(--txt);margin-bottom:6px;margin-top:4px}
+.pipe-hdr-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;box-shadow:0 0 0 3px rgba(255,255,255,.9),0 0 0 4px var(--stage-color,var(--bdr))}
+.pipe-hdr-name{flex:1;line-height:1.2;font-size:11px;color:var(--txt)}
+.pipe-hdr-count{background:#fff;border:1px solid var(--bdr);border-radius:10px;padding:2px 8px;font-size:11px;font-weight:800;color:var(--sb);min-width:24px;text-align:center;font-family:'Raleway',sans-serif}
+.pipe-hdr-total{font-size:14px;font-weight:800;color:var(--sb);margin-bottom:12px;padding-bottom:10px;border-bottom:1px dashed var(--bdr);font-family:'Playfair Display',serif;letter-spacing:-.2px;line-height:1}
+.pipe-hdr-total-empty{color:var(--txt2);font-style:italic;font-weight:400;font-family:'Inter',sans-serif;font-size:11px}
+.pipe-cards-wrap{display:flex;flex-direction:column;gap:10px;min-height:80px}
+.pipe-card{background:#fff;border:1.5px solid var(--bdr);border-left:4px solid var(--stage-color,var(--sb));border-radius:11px;padding:11px 12px 11px;cursor:pointer;transition:all .18s;display:flex;flex-direction:column;gap:9px;animation:pipeFadeUp .35s ease both;position:relative}
+.pipe-card:hover{border-color:var(--sb2);border-left-color:var(--acc);border-left-width:5px;box-shadow:0 4px 14px rgba(34,104,102,.12);transform:translateY(-2px)}
+.pipe-card.dragging{opacity:.4;transform:scale(.98) rotate(-1deg);box-shadow:0 12px 28px rgba(0,0,0,.18)}
+@keyframes pipeFadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.pipe-card-row{display:flex;align-items:flex-start;gap:9px}
+.pipe-card-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--sb) 0%,var(--sb2) 100%);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;font-family:'Raleway',sans-serif;flex-shrink:0;box-shadow:0 2px 6px rgba(34,71,80,.22)}
+.pipe-card-main{flex:1;cursor:pointer;min-width:0}
+.pipe-card-name{font-size:13.5px;font-weight:700;color:var(--sb);line-height:1.2;margin-bottom:4px;font-family:'Playfair Display',serif;letter-spacing:-.2px;word-break:break-word;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .pipe-card-tags{display:flex;flex-wrap:wrap;gap:4px}
-.pc-tag{font-size:9.5px;font-weight:700;background:#f1f5f9;color:var(--txt2);padding:2px 7px;border-radius:8px;text-transform:uppercase;letter-spacing:.3px}
+.pc-tag{font-size:9.5px;font-weight:700;background:#f1f5f9;color:var(--txt2);padding:2px 7px;border-radius:8px;text-transform:uppercase;letter-spacing:.4px;line-height:1.4}
 .pc-tag-ass{background:#eef2ff;color:#4338ca}
-.pipe-card-sim{color:#fff;padding:4px 8px;font-size:12px;white-space:nowrap;flex-shrink:0;border-radius:6px}
-.pipe-card-info{display:flex;flex-direction:column;gap:3px;border-top:1px dashed var(--bdr);padding-top:6px}
-.pc-line{font-size:11px;color:var(--txt2);display:flex;align-items:center;gap:5px;line-height:1.35}
-.pc-line strong{color:var(--txt);font-weight:700;margin-left:auto}
-.pc-tel{color:var(--sb2);text-decoration:none;font-weight:600}
+.pc-tag-int{background:#fdf6e3;color:#92400e}
+.pipe-card-sim{color:#fff;padding:5px 9px;font-size:13px;white-space:nowrap;flex-shrink:0;border-radius:7px;cursor:pointer;border:none;transition:all .15s;align-self:flex-start;box-shadow:0 2px 6px rgba(0,0,0,.1)}
+.pipe-card-sim:hover{transform:scale(1.08)}
+.pipe-card-info{display:flex;flex-direction:column;gap:4px;border-top:1px dashed var(--bdr);padding-top:8px}
+.pc-line{font-size:11.5px;color:var(--txt2);display:flex;align-items:center;gap:5px;line-height:1.4}
+.pc-line strong{color:var(--txt);font-weight:700;margin-left:auto;font-family:'Raleway',sans-serif}
+.pc-tel{color:var(--sb2);text-decoration:none;font-weight:600;transition:color .15s}
 .pc-tel:hover{color:var(--sb);text-decoration:underline}
-.pc-cred{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:6px;padding:4px 7px;color:#065f46;font-size:11px}
-.pc-cred strong{color:#065f46}
-.pc-cotas{background:#bbf7d0;color:#065f46;font-size:9.5px;font-weight:700;padding:1px 5px;border-radius:6px}
-.pc-ind{font-size:10.5px;color:var(--txt2);font-style:italic}
-.pc-reuniao{background:#ecfeff;border:1px solid #a5f3fc;border-radius:6px;padding:4px 7px;font-size:11px;font-weight:700;color:#0e7490}
-.pipe-card-fechar{width:100%;justify-content:center;font-size:11.5px;padding:6px}
-.pipe-empty{font-size:11px;color:var(--txt2);text-align:center;padding:18px 6px;font-style:italic;opacity:.55}
-.pipe-more{font-size:11px;color:var(--txt2);text-align:center;padding:6px;font-weight:600}
+.pc-cred{background:linear-gradient(90deg,#f0fdf4 0%,#dcfce7 100%);border:1px solid #bbf7d0;border-radius:7px;padding:6px 9px;color:#065f46;font-size:11px;font-weight:600}
+.pc-cred strong{color:#065f46;font-size:12.5px;font-family:'Raleway',sans-serif;letter-spacing:-.2px}
+.pc-cotas{background:#bbf7d0;color:#065f46;font-size:9.5px;font-weight:800;padding:2px 6px;border-radius:6px;font-family:'Raleway',sans-serif;letter-spacing:.3px}
+.pc-ind{font-size:10.5px;color:var(--txt2);font-style:italic;display:flex;align-items:center;gap:4px}
+.pc-reuniao{background:linear-gradient(90deg,#ecfeff 0%,#cffafe 100%);border:1px solid #a5f3fc;border-radius:7px;padding:6px 9px;font-size:11.5px;font-weight:700;color:#0e7490;font-family:'Raleway',sans-serif;letter-spacing:.2px}
+.pipe-card-fechar{width:100%;justify-content:center;font-size:11.5px;padding:7px;font-weight:700;border-radius:7px;letter-spacing:.3px;text-transform:uppercase;box-shadow:0 2px 8px rgba(16,185,129,.3)}
+.pipe-empty{font-size:11px;color:var(--txt2);text-align:center;padding:24px 6px;font-style:italic;opacity:.55;border:1.5px dashed var(--bdr);border-radius:9px;background:#fff}
+.pipe-empty::before{content:'∅';display:block;font-size:18px;margin-bottom:4px;opacity:.5;font-style:normal}
+.pipe-more{font-size:11px;color:var(--sb2);text-align:center;padding:8px;font-weight:700;cursor:pointer;border-top:1px dashed var(--bdr);margin-top:4px;transition:color .15s}
+.pipe-more:hover{color:var(--acc)}
 
 /* ── AGENDA ─────────────────────────────────── */
 .agenda-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:22px}
@@ -323,6 +361,27 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:#fefbf3;border-left:3px so
 .agenda-title{font-size:13px;font-weight:600;color:var(--txt)}
 .agenda-sub{font-size:11.5px;color:var(--txt2)}
 .agenda-date{font-size:11px;font-weight:700;color:var(--txt2);white-space:nowrap}
+.ag-group{border-bottom:1px solid var(--bdr)}
+.ag-group:last-child{border-bottom:none}
+.ag-group>summary{display:flex;align-items:center;gap:10px;padding:11px 14px;cursor:pointer;list-style:none;user-select:none;transition:background .15s}
+.ag-group>summary::-webkit-details-marker{display:none}
+.ag-group>summary:hover{background:#f8fafc}
+.ag-group[open]>summary{background:#f1f5f9}
+.ag-group .ag-chev{display:inline-block;width:12px;color:var(--txt2);font-size:11px;transition:transform .2s;flex-shrink:0}
+.ag-group[open] .ag-chev{transform:rotate(90deg)}
+.ag-group .ag-title{font-size:13px;font-weight:700;color:var(--txt);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ag-group .ag-count{display:inline-block;padding:1px 7px;background:var(--bdr);color:var(--txt2);font-size:10.5px;font-weight:700;border-radius:10px;margin-left:6px}
+.ag-group .ag-sub{font-size:11px;color:var(--txt2)}
+.ag-group .ag-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.ag-group .ag-dot.ok{background:var(--ok)}.ag-group .ag-dot.warn{background:var(--warn)}.ag-group .ag-dot.err{background:var(--err)}.ag-group .ag-dot.info{background:var(--sb2)}
+.ag-group .ag-body{padding:2px 14px 8px 38px;background:#fafbfc}
+.ag-group .ag-cota{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px dashed #e5e7eb;font-size:12px}
+.ag-group .ag-cota:last-child{border-bottom:none}
+.ag-group .ag-cota-info{flex:1;min-width:0;cursor:pointer}
+.ag-group .ag-cota-info:hover .ag-cota-name{color:var(--acc)}
+.ag-group .ag-cota-name{font-weight:600;color:var(--txt);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ag-group .ag-cota-meta{font-size:10.5px;color:var(--txt2);margin-top:1px}
+.ag-group .ag-cota-right{font-size:11px;text-align:right;color:var(--txt2);flex-shrink:0;white-space:nowrap}
 
 /* ── ALERTS ─────────────────────────────────── */
 .alert{padding:11px 15px;border-radius:9px;font-size:13px;margin-bottom:14px;display:flex;align-items:center;gap:10px}
@@ -807,30 +866,23 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:#fefbf3;border-left:3px so
       </div>
     </div>
 
-    <!-- Q5: Sem Lance · Q6: Por Assessor (admin only) -->
-    <div class="g2">
-      <div class="card" style="border-left:4px solid #7c3aed">
-        <div class="ch"><span class="ct">📤 Cotas Sem Lance — Candidatas</span><span class="badge b-warn" id="agenda-semlance-count" style="margin-left:8px">0</span></div>
-        <div style="padding:6px 14px;border-bottom:1px solid var(--bdr);display:flex;gap:6px;align-items:center">
-          <input class="form-i" id="sl-filter" placeholder="🔍 Cliente..." style="flex:1;padding:5px 9px;font-size:12px;margin:0" oninput="renderQSemLance()">
-          <select class="form-i" id="sl-sort" style="width:150px;padding:5px 7px;font-size:12px;margin:0" onchange="renderQSemLance()">
-            <option value="credito-desc">Maior crédito</option>
-            <option value="nome">Nome A-Z</option>
-            <option value="adesao">Mais antiga</option>
-          </select>
-        </div>
-        <div class="cb" id="agenda-semlance" style="max-height:340px;overflow-y:auto;padding:0 14px"><div style="color:var(--txt2);font-size:13px;text-align:center;padding:20px">Carregando...</div></div>
+    <!-- Q5: Cotas Sem Lance (full-width) -->
+    <div class="card" style="border-left:4px solid #7c3aed">
+      <div class="ch"><span class="ct">📤 Cotas Sem Lance — Candidatas</span><span class="badge b-warn" id="agenda-semlance-count" style="margin-left:8px">0</span></div>
+      <div style="padding:6px 14px;border-bottom:1px solid var(--bdr);display:flex;gap:6px;align-items:center">
+        <input class="form-i" id="sl-filter" placeholder="🔍 Cliente..." style="flex:1;padding:5px 9px;font-size:12px;margin:0" oninput="renderQSemLance()">
+        <select class="form-i" id="sl-sort" style="width:170px;padding:5px 7px;font-size:12px;margin:0" onchange="renderQSemLance()">
+          <option value="credito-desc">Maior crédito (cliente)</option>
+          <option value="qtd-desc">Mais cotas (cliente)</option>
+          <option value="nome">Nome A-Z</option>
+        </select>
       </div>
-
-      <div class="card" id="card-agenda-assessor" style="border-left:4px solid #be185d;display:none">
-        <div class="ch"><span class="ct">👥 Por Assessor</span><span class="badge b-gray" id="agenda-assessor-count" style="margin-left:8px">0</span></div>
-        <div class="cb" id="agenda-assessor" style="max-height:380px;overflow-y:auto"><div style="color:var(--txt2);font-size:13px;text-align:center;padding:20px">Carregando...</div></div>
-      </div>
+      <div class="cb" id="agenda-semlance" style="max-height:380px;overflow-y:auto;padding:0"><div style="color:var(--txt2);font-size:13px;text-align:center;padding:20px">Carregando...</div></div>
     </div>
 
     <!-- Q7: Oportunidades do dia (full-width) -->
     <div class="card" style="border-left:4px solid var(--ok)">
-      <div class="ch"><span class="ct">🎁 Oportunidades do Dia</span><span class="badge b-ok" id="agenda-oport-count" style="margin-left:8px">0</span><span style="margin-left:8px;font-size:11px;color:var(--txt2);font-weight:500">— cotas nas últimas 3 parcelas (gancho de venda nova)</span></div>
+      <div class="ch"><span class="ct">🎁 Oportunidades do Dia</span><span class="badge b-ok" id="agenda-oport-count" style="margin-left:8px">0</span><span style="margin-left:8px;font-size:11px;color:var(--txt2);font-weight:500">— cotas nos últimos 20% do prazo (gancho de venda nova)</span></div>
       <div style="padding:6px 14px;border-bottom:1px solid var(--bdr);display:flex;gap:6px;align-items:center">
         <input class="form-i" id="oport-filter" placeholder="🔍 Cliente..." style="flex:1;padding:5px 9px;font-size:12px;margin:0" oninput="renderQOport()">
         <select class="form-i" id="oport-sort" style="width:170px;padding:5px 7px;font-size:12px;margin:0" onchange="renderQOport()">
@@ -870,8 +922,23 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:#fefbf3;border-left:3px so
           <div id="assessor-tracking-body"></div>
         </div>
     <div id="crm-main-content">
-    <div class="frow">
-      <input class="fi fi-lg" type="text" id="crm-search" placeholder="🔍  Buscar lead..." oninput="filterCRM()">
+    <!-- Hero CRM -->
+    <div class="crm-hero">
+      <div class="crm-hero-content">
+        <div class="crm-hero-title">CRM · Pipeline Comercial</div>
+        <div class="crm-hero-sub">Acompanhamento da jornada de cada lead — da captação à abertura da cota.</div>
+      </div>
+      <div class="crm-hero-cta">
+        <button class="btn btn-acc" data-admin-only onclick="openModalLead(null)"><span style="font-size:16px">+</span> Novo Lead</button>
+      </div>
+    </div>
+
+    <!-- KPIs comerciais -->
+    <div class="crm-kpis" id="crm-kpis"></div>
+
+    <!-- Filtros -->
+    <div class="crm-filters">
+      <input class="fi fi-lg" type="text" id="crm-search" placeholder="🔍  Buscar lead, telefone, indicação..." oninput="filterCRM()">
       <select class="fi fi-md" id="crm-status-f" onchange="filterCRM()">
         <option value="">Todos os Status</option>
         <option>Novo Lead</option><option>Qualificando</option><option>Reunião Marcada</option><option>Reunião Realizada</option><option>Simulação</option><option>Proposta Enviada</option><option>Em Negociação</option><option>Aguard. Docs</option><option>Cota Aberta</option><option>Perdido</option>
@@ -882,7 +949,7 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:#fefbf3;border-left:3px so
         <option>ALAN / ESCRITORIO</option><option>ALE / ESCRITORIO</option><option>GLAUCO</option><option>GIL</option><option>SZPIN</option><option>Coyote</option>
       </select>
       </span>
-      <button class="btn btn-pri btn-sm" data-admin-only onclick="openModalLead(null)">+ Novo Lead</button>
+      <button class="btn btn-out btn-sm" onclick="crmClearFilters()">Limpar</button>
     </div>
 
     <div class="pipeline" id="crm-pipeline"></div>
@@ -3734,7 +3801,7 @@ function renderAgenda(){
   setText('ag-sum-sl',semLanceArr.length);
   setText('ag-sum-rec',brl(totalReceber,0));
 
-  // Badge na nav (urgência: vencidas + AGOs ≤7d + dia 1 NF)
+  // Badge na nav (urgência)
   const urgTotal=nVencidas+nAgo7+(isDay1?1:0);
   const badgeAg=document.getElementById('badge-agenda');
   if(badgeAg){
@@ -3748,7 +3815,6 @@ function renderAgenda(){
   renderQ30d();
   renderAgendaAsm();
   renderQSemLance();
-  renderQAssessor();
   renderQOport();
 }
 
@@ -3773,94 +3839,115 @@ function limparFiltrosAgenda(){
   renderAgenda();
 }
 
-// Helper: gera <div class="agenda-item"> padrão, com nome clicável e ações à direita
-function _agItemHtml(r,cor,opts){
-  opts=opts||{};
-  const dotCor=cor||'info';
-  const titulo=`${r.nome||'—'} — ${r.grupo||''}/${r.cota||''}`;
-  const sub=`${brl(r.parcela||r.parcela_pos||0)} · ${atag(r.assessor)}${r.banco?' · '+r.banco:''}`;
-  const direita=opts.direita||'';
-  const acoes=opts.acoes||'';
-  return `<div class="agenda-item">
-    <div class="agenda-dot ${dotCor}"></div>
-    <div style="flex:1;min-width:0;cursor:pointer" onclick="openModalCota('${r.id}')" title="Ver/Editar cota">
-      <div class="agenda-title" style="overflow:hidden;text-overflow:ellipsis">${titulo}</div>
-      <div class="agenda-sub">${sub}</div>
-    </div>
-    ${direita?`<div class="agenda-date" style="text-align:right">${direita}</div>`:''}
-    ${acoes?`<div style="display:flex;gap:4px;align-items:center;flex-shrink:0;margin-left:6px">${acoes}</div>`:''}
-  </div>`;
+// ─── Helpers de agrupamento ────────────────────────────────────────────
+function _agruparPorCliente(arr){
+  const map={};
+  arr.forEach(r=>{
+    const k=r.nome||'(sem nome)';
+    if(!map[k])map[k]={nome:k,items:[],totalParc:0,totalCred:0,bancos:new Set(),assessores:new Set(),grupos:new Set(),maisUrg:null};
+    const g=map[k];
+    g.items.push(r);
+    g.totalParc+=parcelaEfetiva(r)||0;
+    g.totalCred+=r.credito||0;
+    if(r.banco)g.bancos.add(r.banco);
+    if(r.assessor)g.assessores.add(r.assessor);
+    if(r.grupo)g.grupos.add(String(r.grupo));
+    if(r.diffDias!=null&&(g.maisUrg==null||r.diffDias<g.maisUrg))g.maisUrg=r.diffDias;
+  });
+  return Object.values(map);
+}
+function _setLabel(set){
+  const arr=[...set];
+  if(arr.length===0)return '—';
+  if(arr.length===1)return arr[0];
+  return arr[0]+` <span style="color:var(--txt2);font-weight:500">+${arr.length-1}</span>`;
+}
+function _diasLabel(diff){
+  if(diff==null)return '';
+  if(diff<0)return `<span style="color:var(--err);font-weight:800">${Math.abs(diff)}d atraso</span>`;
+  if(diff===0)return `<span style="color:var(--err);font-weight:800">HOJE</span>`;
+  if(diff<=3)return `<span style="color:var(--warn);font-weight:800">${diff}d</span>`;
+  if(diff<=7)return `<span style="color:var(--warn);font-weight:700">${diff}d</span>`;
+  return `<span style="color:var(--txt2);font-weight:700">${diff}d</span>`;
 }
 
-// Helper: HTML do botão "Marcar Pago" (ou "Pago hoje" + Desfazer, ou "Pago em DD/MM" desabilitado)
-function _btnPagamento(r){
-  if(pagoHoje(r)){
-    return `<button class="btn btn-sm" onclick="event.stopPropagation();confirmarPagamento('${r.id}')" disabled style="background:var(--ok);color:#fff;opacity:.7;cursor:not-allowed;font-size:10.5px;padding:3px 8px">✓ Pago hoje</button>`+
-      `<button class="btn btn-sm" onclick="event.stopPropagation();desfazerPagamento('${r.id}')" style="background:#fef3c7;color:#92400e;border:1px solid #d97706;font-size:10.5px;padding:3px 6px" title="Desfazer (só hoje)">↺</button>`;
-  }
-  if(jaPagoNoMes(r)){
-    const dt=new Date(r.ultima_parcela_paga+'T00:00:00').toLocaleDateString('pt-BR').slice(0,5);
-    return `<button class="btn btn-sm" disabled style="background:#dcfce7;color:#15803d;opacity:.85;cursor:not-allowed;font-size:10.5px;padding:3px 8px" title="Pagamento já registrado neste mês">✓ Pago ${dt}</button>`;
-  }
-  return `<button class="btn btn-sm" onclick="event.stopPropagation();confirmarPagamento('${r.id}')" style="background:var(--ok);color:#fff;font-size:10.5px;padding:3px 10px;font-weight:600" title="Confirmar pagamento da parcela">✓ Pago</button>`;
+// Renderiza um <details> de cliente para quadros de pagamento (Vencidas/Semana/30d)
+function _renderGrupoVenc(g,corDot){
+  const cnt=g.items.length;
+  const grupos=[...g.grupos].slice(0,2).join(', ')+(g.grupos.size>2?` +${g.grupos.size-2}`:'');
+  const right=`<div class="agenda-date" style="text-align:right">${_diasLabel(g.maisUrg)}<br><span style="color:var(--txt2);font-weight:600;font-size:10.5px">${brl(g.totalParc,0)}</span></div>`;
+  const cotas=g.items.map(r=>{
+    return `<div class="ag-cota">
+      <div class="ag-cota-info" onclick="openModalCota('${r.id}')" title="Ver/Editar cota">
+        <div class="ag-cota-name">Grupo ${r.grupo||'—'}/${r.cota||'—'}</div>
+        <div class="ag-cota-meta">${brl(parcelaEfetiva(r))} · vence dia ${r.vencimento} · ${_diasLabel(r.diffDias)}</div>
+      </div>
+      <div style="display:flex;gap:4px;flex-shrink:0">${_btnPagamento(r)}</div>
+    </div>`;
+  }).join('');
+  return `<details class="ag-group">
+    <summary>
+      <span class="ag-chev">▸</span>
+      <span class="ag-dot ${corDot}"></span>
+      <div style="flex:1;min-width:0">
+        <div class="ag-title">${g.nome} <span class="ag-count">${cnt} ${cnt===1?'cota':'cotas'}</span></div>
+        <div class="ag-sub">${_setLabel(g.bancos)} · ${_setLabel(g.assessores)} · ${grupos||'—'}</div>
+      </div>
+      ${right}
+    </summary>
+    <div class="ag-body">${cotas}</div>
+  </details>`;
 }
 
-// Helper: HTML do botão de oferta de lance (reusa renderToggleOferta)
-function _btnOferta(r){
-  // renderToggleOferta retorna o botão completo; reescrevemos só o evento pra parar propagação
-  const html=renderToggleOferta(r.id);
-  return html.replace('onclick="', 'onclick="event.stopPropagation();');
+function _renderQuadroVenc(opts){
+  const {filtroId,sortId,bodyId,countId,filterFn,sortFns,corDot,vazioMsg}=opts;
+  const filtro=(document.getElementById(filtroId)||{value:''}).value.toLowerCase().trim();
+  const sortV=(document.getElementById(sortId)||{value:'dias'}).value;
+  let list=_parcVencAll.filter(filterFn);
+  if(filtro)list=list.filter(r=>(r.nome||'').toLowerCase().includes(filtro));
+  // agrupa
+  let grupos=_agruparPorCliente(list);
+  // Sort no nível do grupo
+  const sortFn=sortFns[sortV]||sortFns['dias']||((a,b)=>(a.maisUrg||0)-(b.maisUrg||0));
+  grupos.sort(sortFn);
+  document.getElementById(countId).textContent=list.length;
+  const el=document.getElementById(bodyId);if(!el)return;
+  el.innerHTML=grupos.length?grupos.map(g=>_renderGrupoVenc(g,corDot)).join(''):`<div style="color:var(--txt2);font-size:13px;padding:18px;text-align:center">${vazioMsg}</div>`;
 }
 
 function renderQVencidas(){
-  const filtro=(document.getElementById('vencidas-filter')||{value:''}).value.toLowerCase().trim();
-  const sortV=(document.getElementById('vencidas-sort')||{value:'dias'}).value;
-  let list=_parcVencAll.filter(r=>r.diffDias<=0);
-  if(filtro)list=list.filter(r=>(r.nome||'').toLowerCase().includes(filtro));
-  if(sortV==='nome')list=[...list].sort((a,b)=>(a.nome||'').localeCompare(b.nome||'','pt-BR'));
-  else if(sortV==='valor-desc')list=[...list].sort((a,b)=>(parcelaEfetiva(b)||0)-(parcelaEfetiva(a)||0));
-  else list=[...list].sort((a,b)=>a.diffDias-b.diffDias);
-  document.getElementById('agenda-vencidas-count').textContent=list.length;
-  const el=document.getElementById('agenda-vencidas');if(!el)return;
-  el.innerHTML=list.length?list.map(r=>{
-    const dias=r.diffDias<=0?(r.diffDias===0?'HOJE':Math.abs(r.diffDias)+'d atraso'):r.diffDias+'d';
-    const corTxt=r.diffDias<0?'var(--err)':'var(--warn)';
-    const dir=`<div style="font-size:10.5px;color:var(--txt2)">dia ${r.vencimento}</div><div style="color:${corTxt};font-size:11.5px;font-weight:800">${dias}</div>`;
-    return _agItemHtml(r,'err',{direita:dir,acoes:_btnPagamento(r)});
-  }).join(''):'<div style="color:var(--txt2);font-size:13px;padding:14px;text-align:center">Nenhuma vencida ✓</div>';
+  _renderQuadroVenc({
+    filtroId:'vencidas-filter',sortId:'vencidas-sort',bodyId:'agenda-vencidas',countId:'agenda-vencidas-count',
+    filterFn:r=>r.diffDias<=0,corDot:'err',vazioMsg:'Nenhuma vencida ✓',
+    sortFns:{
+      'dias':(a,b)=>(a.maisUrg||0)-(b.maisUrg||0),
+      'nome':(a,b)=>(a.nome||'').localeCompare(b.nome||'','pt-BR'),
+      'valor-desc':(a,b)=>b.totalParc-a.totalParc,
+    }
+  });
 }
-
 function renderQSemana(){
-  const filtro=(document.getElementById('semana-filter')||{value:''}).value.toLowerCase().trim();
-  const sortV=(document.getElementById('semana-sort')||{value:'dias'}).value;
-  let list=_parcVencAll.filter(r=>r.diffDias>=1&&r.diffDias<=7);
-  if(filtro)list=list.filter(r=>(r.nome||'').toLowerCase().includes(filtro));
-  if(sortV==='nome')list=[...list].sort((a,b)=>(a.nome||'').localeCompare(b.nome||'','pt-BR'));
-  else if(sortV==='valor-desc')list=[...list].sort((a,b)=>(parcelaEfetiva(b)||0)-(parcelaEfetiva(a)||0));
-  else list=[...list].sort((a,b)=>a.diffDias-b.diffDias);
-  document.getElementById('agenda-semana-count').textContent=list.length;
-  const el=document.getElementById('agenda-semana');if(!el)return;
-  el.innerHTML=list.length?list.map(r=>{
-    const dir=`<div style="font-size:10.5px;color:var(--txt2)">dia ${r.vencimento}</div><div style="color:var(--warn);font-size:11.5px;font-weight:800">${r.diffDias}d</div>`;
-    return _agItemHtml(r,r.diffDias<=3?'warn':'info',{direita:dir,acoes:_btnPagamento(r)});
-  }).join(''):'<div style="color:var(--txt2);font-size:13px;padding:14px;text-align:center">Nada nesta semana ✓</div>';
+  _renderQuadroVenc({
+    filtroId:'semana-filter',sortId:'semana-sort',bodyId:'agenda-semana',countId:'agenda-semana-count',
+    filterFn:r=>r.diffDias>=1&&r.diffDias<=7,corDot:'warn',vazioMsg:'Nada nesta semana ✓',
+    sortFns:{
+      'dias':(a,b)=>(a.maisUrg||0)-(b.maisUrg||0),
+      'nome':(a,b)=>(a.nome||'').localeCompare(b.nome||'','pt-BR'),
+      'valor-desc':(a,b)=>b.totalParc-a.totalParc,
+    }
+  });
 }
-
 function renderQ30d(){
-  const filtro=(document.getElementById('d30-filter')||{value:''}).value.toLowerCase().trim();
-  const sortV=(document.getElementById('d30-sort')||{value:'dias'}).value;
-  let list=_parcVencAll.filter(r=>r.diffDias>=8&&r.diffDias<=30);
-  if(filtro)list=list.filter(r=>(r.nome||'').toLowerCase().includes(filtro));
-  if(sortV==='dias-desc')list=[...list].sort((a,b)=>b.diffDias-a.diffDias);
-  else if(sortV==='nome')list=[...list].sort((a,b)=>(a.nome||'').localeCompare(b.nome||'','pt-BR'));
-  else if(sortV==='valor-desc')list=[...list].sort((a,b)=>(parcelaEfetiva(b)||0)-(parcelaEfetiva(a)||0));
-  else list=[...list].sort((a,b)=>a.diffDias-b.diffDias);
-  document.getElementById('agenda-30d-count').textContent=list.length;
-  const el=document.getElementById('agenda-30d');if(!el)return;
-  el.innerHTML=list.length?list.map(r=>{
-    const dir=`<div style="font-size:10.5px;color:var(--txt2)">dia ${r.vencimento}</div><div style="color:var(--txt2);font-size:11.5px;font-weight:700">${r.diffDias}d</div>`;
-    return _agItemHtml(r,'info',{direita:dir,acoes:_btnPagamento(r)});
-  }).join(''):'<div style="color:var(--txt2);font-size:13px;padding:14px;text-align:center">Nenhuma nos próximos 30 dias</div>';
+  _renderQuadroVenc({
+    filtroId:'d30-filter',sortId:'d30-sort',bodyId:'agenda-30d',countId:'agenda-30d-count',
+    filterFn:r=>r.diffDias>=8&&r.diffDias<=30,corDot:'info',vazioMsg:'Nenhuma nos próximos 30 dias',
+    sortFns:{
+      'dias':(a,b)=>(a.maisUrg||0)-(b.maisUrg||0),
+      'dias-desc':(a,b)=>(b.maisUrg||0)-(a.maisUrg||0),
+      'nome':(a,b)=>(a.nome||'').localeCompare(b.nome||'','pt-BR'),
+      'valor-desc':(a,b)=>b.totalParc-a.totalParc,
+    }
+  });
 }
 
 function renderAgendaAsm(){
@@ -3877,19 +3964,29 @@ function renderAgendaAsm(){
     const cor=d.asm.diffDias<0?'err':d.asm.diffDias<=5?'warn':d.asm.diffDias<=14?'info':'ok';
     const src=d.asm.source==='manual'?'':'<span style="font-size:10px;color:var(--txt2);margin-left:4px">(calc.)</span>';
     const corTxt=cor==='err'?'var(--err)':cor==='warn'?'var(--warn)':'var(--txt2)';
-    const cotasNomes=d.cotas.slice(0,3).map(r=>r.nome).join(', ')+(d.cotas.length>3?` +${d.cotas.length-3}`:'');
-    return `<div class="agenda-item">
-      <div class="agenda-dot ${cor}"></div>
-      <div style="flex:1;min-width:0">
-        <div class="agenda-title">🏛 Grupo ${d.grupo} — ${d.cotas.length} cota(s)${src}</div>
-        <div class="agenda-sub" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${cotasNomes}</div>
-      </div>
-      <div class="agenda-date" style="font-size:11px;text-align:right;flex-shrink:0">
-        ${d.asm.label}<br>
-        <span style="color:${corTxt};font-weight:700">${d.asm.diffDias<0?'passou':d.asm.diffDias+'d'}</span>
-      </div>
-    </div>`;
-  }).join(''):'<div style="color:var(--txt2);font-size:13px;padding:14px;text-align:center">Nenhuma assembleia encontrada</div>';
+    const cotas=d.cotas.map(r=>{
+      const lance=r.lance1?(+(r.lance1*100).toFixed(2))+'%':'sem lance';
+      return `<div class="ag-cota">
+        <div class="ag-cota-info" onclick="openModalCota('${r.id}')" title="Ver/Editar cota">
+          <div class="ag-cota-name">${r.nome}</div>
+          <div class="ag-cota-meta">Cota ${r.cota||'—'} · ${brl(parcelaEfetiva(r))} · lance: ${lance} · ${atag(r.assessor)}</div>
+        </div>
+        <div style="flex-shrink:0">${_btnOferta(r)}</div>
+      </div>`;
+    }).join('');
+    return `<details class="ag-group">
+      <summary>
+        <span class="ag-chev">▸</span>
+        <span class="ag-dot ${cor}"></span>
+        <div style="flex:1;min-width:0">
+          <div class="ag-title">🏛 Grupo ${d.grupo} <span class="ag-count">${d.cotas.length} ${d.cotas.length===1?'cota':'cotas'}</span>${src}</div>
+          <div class="ag-sub">${d.cotas.slice(0,3).map(r=>r.nome).join(', ')}${d.cotas.length>3?` +${d.cotas.length-3}`:''}</div>
+        </div>
+        <div class="agenda-date" style="text-align:right;flex-shrink:0">${d.asm.label}<br><span style="color:${corTxt};font-weight:700">${d.asm.diffDias<0?'passou':d.asm.diffDias+'d'}</span></div>
+      </summary>
+      <div class="ag-body">${cotas}</div>
+    </details>`;
+  }).join(''):'<div style="color:var(--txt2);font-size:13px;padding:18px;text-align:center">Nenhuma assembleia encontrada</div>';
 }
 
 function renderQSemLance(){
@@ -3898,65 +3995,35 @@ function renderQSemLance(){
   const baseCotas=_aplicarFiltrosGlobaisAgenda(COTAS);
   let list=baseCotas.filter(r=>(r.status==='SORTEIO / LANCE'||r.status==='Sorteio'||r.status==='Em Andamento')&&!r.lance1);
   if(filtro)list=list.filter(r=>(r.nome||'').toLowerCase().includes(filtro));
-  if(sortV==='nome')list=[...list].sort((a,b)=>(a.nome||'').localeCompare(b.nome||'','pt-BR'));
-  else if(sortV==='adesao')list=[...list].sort((a,b)=>(a.adesao||'').localeCompare(b.adesao||''));
-  else list=[...list].sort((a,b)=>(b.credito||0)-(a.credito||0));
+  let grupos=_agruparPorCliente(list);
+  if(sortV==='nome')grupos.sort((a,b)=>(a.nome||'').localeCompare(b.nome||'','pt-BR'));
+  else if(sortV==='qtd-desc')grupos.sort((a,b)=>b.items.length-a.items.length);
+  else grupos.sort((a,b)=>b.totalCred-a.totalCred);
   document.getElementById('agenda-semlance-count').textContent=list.length;
   const el=document.getElementById('agenda-semlance');if(!el)return;
-  el.innerHTML=list.length?list.slice(0,40).map(r=>{
-    const dir=`<div style="font-size:10.5px;color:var(--txt2);font-weight:600">${brl(r.credito||0,0)}</div><div style="font-size:10px;color:var(--txt2)">${r.adesao||'—'}</div>`;
-    return _agItemHtml(r,'warn',{direita:dir,acoes:_btnOferta(r)});
-  }).join(''):'<div style="color:var(--txt2);font-size:13px;padding:14px;text-align:center">Todas as cotas têm lance ofertado ✓</div>';
-}
-
-function renderQAssessor(){
-  const card=document.getElementById('card-agenda-assessor');
-  if(!card)return;
-  // Só admin vê
-  if(!CURRENT_USER||!CURRENT_USER.isAdmin){card.style.display='none';return;}
-  card.style.display='';
-  const baseCotas=_aplicarFiltrosGlobaisAgenda(COTAS);
-  const isCancel=s=>(s||'').toUpperCase()==='CANCELADO';
-  const isContemp=s=>s==='Contemplado'||s==='CONTEMPLADO'||s==='Faturado';
-  const map={};
-  baseCotas.forEach(r=>{
-    if(isCancel(r.status))return;
-    const a=r.assessor||'(sem)';
-    if(!map[a])map[a]={cotas:0,contemp:0,semLance:0,vencidas:0,semana:0,parcMes:0};
-    map[a].cotas++;
-    if(isContemp(r.status))map[a].contemp++;
-    if((r.status==='SORTEIO / LANCE'||r.status==='Sorteio'||r.status==='Em Andamento')&&!r.lance1)map[a].semLance++;
-    map[a].parcMes+=parcelaEfetiva(r)||0;
-  });
-  _parcVencAll.forEach(r=>{
-    const a=r.assessor||'(sem)';
-    if(!map[a])return;
-    if(r.diffDias<=0)map[a].vencidas++;
-    else if(r.diffDias<=7)map[a].semana++;
-  });
-  const arr=Object.entries(map).sort((a,b)=>b[1].cotas-a[1].cotas);
-  document.getElementById('agenda-assessor-count').textContent=arr.length;
-  const el=document.getElementById('agenda-assessor');
-  el.innerHTML=arr.length?`<div class="tw" style="max-height:380px;overflow-y:auto"><table style="font-size:11.5px">
-    <thead><tr>
-      <th style="text-align:left">Assessor</th>
-      <th>Cotas</th>
-      <th style="color:var(--ok)">Contempl.</th>
-      <th style="color:var(--err)">Vencidas</th>
-      <th style="color:var(--warn)">≤7d</th>
-      <th style="color:#7c3aed">S/Lance</th>
-      <th style="text-align:right">Parc/mês</th>
-    </tr></thead>
-    <tbody>${arr.map(([a,d])=>`<tr style="cursor:pointer" onclick="document.getElementById('ag-f-assessor').value='${a}';renderAgenda()" title="Filtrar por ${a}">
-      <td style="text-align:left">${atag(a)}</td>
-      <td><strong>${d.cotas}</strong></td>
-      <td>${d.contemp}</td>
-      <td style="color:${d.vencidas>0?'var(--err)':'var(--txt2)'};font-weight:${d.vencidas>0?'700':'400'}">${d.vencidas}</td>
-      <td style="color:${d.semana>0?'var(--warn)':'var(--txt2)'};font-weight:${d.semana>0?'700':'400'}">${d.semana}</td>
-      <td style="color:${d.semLance>0?'#7c3aed':'var(--txt2)'};font-weight:${d.semLance>0?'700':'400'}">${d.semLance}</td>
-      <td style="text-align:right;font-weight:600">${brl(d.parcMes,0)}</td>
-    </tr>`).join('')}</tbody>
-  </table></div>`:'<div style="color:var(--txt2);font-size:13px;padding:14px;text-align:center">Nenhum assessor com cotas ativas</div>';
+  el.innerHTML=grupos.length?grupos.map(g=>{
+    const cnt=g.items.length;
+    const cotas=g.items.map(r=>`<div class="ag-cota">
+      <div class="ag-cota-info" onclick="openModalCota('${r.id}')" title="Ver/Editar cota">
+        <div class="ag-cota-name">Grupo ${r.grupo||'—'}/${r.cota||'—'}</div>
+        <div class="ag-cota-meta">${brl(r.credito||0,0)} crédito · ${brl(parcelaEfetiva(r))} parc. · adesão: ${r.adesao||'—'}</div>
+      </div>
+      <div style="flex-shrink:0">${_btnOferta(r)}</div>
+    </div>`).join('');
+    const right=`<div class="agenda-date" style="text-align:right"><span style="color:#7c3aed;font-weight:800">${brl(g.totalCred,0)}</span><br><span style="color:var(--txt2);font-weight:600;font-size:10.5px">crédito</span></div>`;
+    return `<details class="ag-group">
+      <summary>
+        <span class="ag-chev">▸</span>
+        <span class="ag-dot warn"></span>
+        <div style="flex:1;min-width:0">
+          <div class="ag-title">${g.nome} <span class="ag-count">${cnt} ${cnt===1?'cota':'cotas'}</span></div>
+          <div class="ag-sub">${_setLabel(g.bancos)} · ${_setLabel(g.assessores)}</div>
+        </div>
+        ${right}
+      </summary>
+      <div class="ag-body">${cotas}</div>
+    </details>`;
+  }).join(''):'<div style="color:var(--txt2);font-size:13px;padding:18px;text-align:center">Todas as cotas têm lance ofertado ✓</div>';
 }
 
 function renderQOport(){
@@ -3964,33 +4031,93 @@ function renderQOport(){
   const sortV=(document.getElementById('oport-sort')||{value:'prazo'}).value;
   const isCancel=s=>(s||'').toUpperCase()==='CANCELADO';
   const baseCotas=_aplicarFiltrosGlobaisAgenda(COTAS);
-  let list=baseCotas.filter(r=>!isCancel(r.status)&&r.prazo_restante!=null&&r.prazo_restante>0&&r.prazo_restante<=3);
+  // Critério: cotas nos últimos 20% do prazo (gancho de venda nova)
+  let list=baseCotas.filter(r=>{
+    if(isCancel(r.status))return false;
+    const pr=Number(r.prazo_restante||0);
+    const pt=Number(r.prazo_total||0);
+    if(pr<=0||pt<=0)return false;
+    return (pr/pt)<=0.20;
+  });
   if(filtro)list=list.filter(r=>(r.nome||'').toLowerCase().includes(filtro));
-  if(sortV==='nome')list=[...list].sort((a,b)=>(a.nome||'').localeCompare(b.nome||'','pt-BR'));
-  else if(sortV==='credito-desc')list=[...list].sort((a,b)=>(b.credito||0)-(a.credito||0));
-  else list=[...list].sort((a,b)=>(a.prazo_restante||0)-(b.prazo_restante||0));
+  let grupos=_agruparPorCliente(list);
+  if(sortV==='nome')grupos.sort((a,b)=>(a.nome||'').localeCompare(b.nome||'','pt-BR'));
+  else if(sortV==='credito-desc')grupos.sort((a,b)=>b.totalCred-a.totalCred);
+  else grupos.sort((a,b)=>{
+    const minA=Math.min(...a.items.map(r=>Number(r.prazo_restante||9999)));
+    const minB=Math.min(...b.items.map(r=>Number(r.prazo_restante||9999)));
+    return minA-minB;
+  });
   document.getElementById('agenda-oport-count').textContent=list.length;
   const el=document.getElementById('agenda-oport');if(!el)return;
-  el.innerHTML=list.length?list.map(r=>{
-    const pr=r.prazo_restante||0;
-    const dir=`<div style="font-size:10.5px;color:var(--txt2)">${brl(r.credito||0,0)}</div><div style="color:var(--ok);font-size:11.5px;font-weight:800">${pr} ${pr===1?'parcela':'parcelas'}</div>`;
-    const acoes=`<button class="btn btn-sm" onclick="event.stopPropagation();oportSimularNova('${r.id}')" style="background:var(--acc);color:#fff;font-size:10.5px;padding:3px 9px;font-weight:600" title="Simular nova cota para este cliente">📊 Nova</button>`;
-    return _agItemHtml(r,'ok',{direita:dir,acoes});
-  }).join(''):'<div style="color:var(--txt2);font-size:13px;padding:14px;text-align:center">Nenhuma cota nas últimas 3 parcelas</div>';
+  el.innerHTML=grupos.length?grupos.map(g=>{
+    const cnt=g.items.length;
+    const minPr=Math.min(...g.items.map(r=>Number(r.prazo_restante||9999)));
+    const cotas=g.items.map(r=>{
+      const pr=Number(r.prazo_restante||0);
+      const pt=Number(r.prazo_total||0);
+      const pct=pt>0?Math.round(pr/pt*100):0;
+      return `<div class="ag-cota">
+        <div class="ag-cota-info" onclick="openModalCota('${r.id}')" title="Ver/Editar cota">
+          <div class="ag-cota-name">Grupo ${r.grupo||'—'}/${r.cota||'—'}</div>
+          <div class="ag-cota-meta">${brl(r.credito||0,0)} · ${pr} de ${pt} parcelas restantes (${pct}%)</div>
+        </div>
+        <div style="flex-shrink:0"><button class="btn btn-sm" onclick="event.stopPropagation();oportSimularNova('${r.id}')" style="background:var(--acc);color:#fff;font-size:10.5px;padding:3px 9px;font-weight:600" title="Simular nova cota para este cliente">📊 Nova</button></div>
+      </div>`;
+    }).join('');
+    const right=`<div class="agenda-date" style="text-align:right"><span style="color:var(--ok);font-weight:800">${minPr} ${minPr===1?'parc.':'parcs.'}</span><br><span style="color:var(--txt2);font-weight:600;font-size:10.5px">${brl(g.totalCred,0)}</span></div>`;
+    return `<details class="ag-group">
+      <summary>
+        <span class="ag-chev">▸</span>
+        <span class="ag-dot ok"></span>
+        <div style="flex:1;min-width:0">
+          <div class="ag-title">${g.nome} <span class="ag-count">${cnt} ${cnt===1?'cota':'cotas'}</span></div>
+          <div class="ag-sub">${_setLabel(g.bancos)} · ${_setLabel(g.assessores)}</div>
+        </div>
+        ${right}
+      </summary>
+      <div class="ag-body">${cotas}</div>
+    </details>`;
+  }).join(''):'<div style="color:var(--txt2);font-size:13px;padding:18px;text-align:center">Nenhuma cota nos últimos 20% do prazo</div>';
 }
 
 function oportSimularNova(cotaId){
   const r=COTAS.find(c=>String(c.id)===String(cotaId));
   if(!r){toast('Cota não encontrada','err');return;}
-  // Navega para Gerar Proposta — usuário continua a partir daí
   const ni=document.querySelector('.ni[onclick*="prop"]');
   if(ni)nav('prop',ni);
   toast(`Simule nova cota para ${r.nome} (cliente nas últimas ${r.prazo_restante} parcelas)`,'ok');
 }
 
+// Helper: HTML do botão Pagamento (estados: pago hoje | pago no mês | pode pagar)
+function _btnPagamento(r){
+  if(pagoHoje(r)){
+    return `<button class="btn btn-sm" disabled style="background:var(--ok);color:#fff;opacity:.7;cursor:not-allowed;font-size:10.5px;padding:3px 8px">✓ Pago hoje</button>`+
+      `<button class="btn btn-sm" onclick="event.stopPropagation();desfazerPagamento('${r.id}')" style="background:#fef3c7;color:#92400e;border:1px solid #d97706;font-size:10.5px;padding:3px 6px" title="Desfazer (só hoje)">↺</button>`;
+  }
+  if(jaPagoNoMes(r)){
+    const dt=new Date(r.ultima_parcela_paga+'T00:00:00').toLocaleDateString('pt-BR').slice(0,5);
+    return `<button class="btn btn-sm" disabled style="background:#dcfce7;color:#15803d;opacity:.85;cursor:not-allowed;font-size:10.5px;padding:3px 8px" title="Pagamento já registrado neste mês">✓ Pago ${dt}</button>`;
+  }
+  return `<button class="btn btn-sm" onclick="event.stopPropagation();confirmarPagamento('${r.id}')" style="background:var(--ok);color:#fff;font-size:10.5px;padding:3px 10px;font-weight:600" title="Confirmar pagamento da parcela">✓ Pago</button>`;
+}
+
+function _btnOferta(r){
+  const html=renderToggleOferta(r.id);
+  return html.replace('onclick="', 'onclick="event.stopPropagation();');
+}
+
 // ═══ CRM ═══
 let dragLead=null;
-function dragStartLead(e,id){dragLead=id;e.dataTransfer.effectAllowed='move';e.currentTarget.style.opacity='.5';setTimeout(()=>{if(document.querySelector(`[data-lid="${id}"]`))document.querySelector(`[data-lid="${id}"]`).style.opacity='1';},0);}
+function dragStartLead(e,id){
+  dragLead=id;
+  e.dataTransfer.effectAllowed='move';
+  e.currentTarget.classList.add('dragging');
+}
+function dragEndLead(e){
+  if(e.currentTarget&&e.currentTarget.classList)e.currentTarget.classList.remove('dragging');
+  document.querySelectorAll('.pipe-col-drop').forEach(c=>c.classList.remove('pipe-col-drop'));
+}
 async function dragDropLead(e,stage){
   e.preventDefault();
   if(!dragLead)return;
@@ -3999,6 +4126,38 @@ async function dragDropLead(e,stage){
   const res=await upsertLead({id:dragLead,status:stage,updated_at:new Date().toISOString()});
   if(res){Object.assign(lead,res);toast(`${lead.nome} → ${stage}`);filterCRM();}
   dragLead=null;
+}
+function crmClearFilters(){
+  const s=document.getElementById('crm-search');if(s)s.value='';
+  const st=document.getElementById('crm-status-f');if(st)st.value='';
+  const a=document.getElementById('crm-assessor-f');if(a)a.value='';
+  filterCRM();
+}
+function crmInitial(nome){
+  if(!nome)return'?';
+  const parts=nome.trim().split(/\s+/);
+  if(parts.length>=2)return(parts[0][0]+parts[parts.length-1][0]).toUpperCase();
+  return parts[0].slice(0,2).toUpperCase();
+}
+function crmRenderKpis(){
+  const el=document.getElementById('crm-kpis');if(!el)return;
+  const tot=LEADS.length;
+  const reuStages=['Reunião Marcada','Reunião Realizada'];
+  const negStages=['Simulação','Proposta Enviada','Em Negociação','Aguard. Docs'];
+  const reu=LEADS.filter(l=>reuStages.includes(l.status)).length;
+  const neg=LEADS.filter(l=>negStages.includes(l.status)).length;
+  const fechados=LEADS.filter(l=>l.status==='Cota Aberta').length;
+  const perdidos=LEADS.filter(l=>l.status==='Perdido').length;
+  const decididos=fechados+perdidos;
+  const conv=decididos>0?Math.round(fechados/decididos*100):0;
+  const credNeg=LEADS.reduce((s,l)=>{const sim=leadCreditoNegociado(l);return s+(sim?sim.credTot:0);},0);
+  el.innerHTML=`
+    <div class="crm-kpi k-tot"><div class="crm-kpi-lbl">Leads Ativos</div><div class="crm-kpi-val">${tot}</div><div class="crm-kpi-sub">no pipeline</div></div>
+    <div class="crm-kpi k-reu"><div class="crm-kpi-lbl">Em Reunião</div><div class="crm-kpi-val">${reu}</div><div class="crm-kpi-sub">marcadas / realizadas</div></div>
+    <div class="crm-kpi k-neg"><div class="crm-kpi-lbl">Em Negociação</div><div class="crm-kpi-val">${neg}</div><div class="crm-kpi-sub">${credNeg>0?brl(credNeg,0)+' negociado':'sem propostas'}</div></div>
+    <div class="crm-kpi k-fch"><div class="crm-kpi-lbl">Fechados</div><div class="crm-kpi-val">${fechados}</div><div class="crm-kpi-sub">${perdidos} perdidos</div></div>
+    <div class="crm-kpi k-conv"><div class="crm-kpi-lbl">Conversão</div><div class="crm-kpi-val">${conv}%</div><div class="crm-kpi-sub">fechados ÷ decididos</div></div>
+  `;
 }
 const PIPE_STAGES=['Novo Lead','Qualificando','Reunião Marcada','Reunião Realizada','Simulação','Proposta Enviada','Em Negociação','Aguard. Docs','Cota Aberta','Perdido'];
 const PIPE_COLORS={'Novo Lead':'#3b82f6','Qualificando':'#f59e0b','Reunião Marcada':'#06b6d4','Reunião Realizada':'#14b8a6','Simulação':'#D6AF5C','Proposta Enviada':'#8b5cf6','Em Negociação':'#6366f1','Aguard. Docs':'#226866','Cota Aberta':'#10b981','Perdido':'#ef4444'};
@@ -4064,7 +4223,7 @@ function leadCreditoNegociado(l){
     return{credTot,cotas};
   }catch(e){return null;}
 }
-function pipeCardHtml(l,stage){
+function pipeCardHtml(l,stage,idx){
   const lHasSim=l.observacao&&l.observacao.startsWith('SIM:');
   const sim=leadCreditoNegociado(l);
   const tel=l.telefone||'';
@@ -4072,20 +4231,23 @@ function pipeCardHtml(l,stage){
   const isReuniao=stage==='Reunião Marcada'||stage==='Reunião Realizada';
   const dtR=l.data_reuniao?new Date(l.data_reuniao):null;
   const dtRStr=dtR?dtR.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})+' '+dtR.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}):'';
-  const stageColor=PIPE_COLORS[stage]||'#94a3b8';
-  return`<div class="pipe-card" draggable="true" data-lid="${l.id}" ondragstart="dragStartLead(event,'${l.id}')" style="border-left:3px solid ${stageColor}">
+  const initial=crmInitial(l.nome);
+  const ass=l.assessor?l.assessor.split('/')[0].trim():'';
+  const delay=Math.min(idx*40,280);
+  return`<div class="pipe-card" draggable="true" data-lid="${l.id}" ondragstart="dragStartLead(event,'${l.id}')" ondragend="dragEndLead(event)" onclick="openModalLead('${l.id}')" style="animation-delay:${delay}ms">
     <div class="pipe-card-row">
-      <div onclick="openModalLead('${l.id}')" style="flex:1;cursor:pointer;min-width:0">
+      <div class="pipe-card-avatar" title="${(l.nome||'').replace(/"/g,'&quot;')}">${initial}</div>
+      <div class="pipe-card-main">
         <div class="pipe-card-name">${l.nome||'—'}</div>
         <div class="pipe-card-tags">
-          ${l.interesse?`<span class="pc-tag">${l.interesse}</span>`:''}
-          ${l.assessor?`<span class="pc-tag pc-tag-ass">${l.assessor.split('/')[0].trim()}</span>`:''}
+          ${l.interesse?`<span class="pc-tag pc-tag-int">${l.interesse}</span>`:''}
+          ${ass?`<span class="pc-tag pc-tag-ass">${ass}</span>`:''}
         </div>
       </div>
-      <button class="btn btn-sm pipe-card-sim" style="background:${lHasSim?'var(--ok)':'var(--acc)'}" onclick="event.stopPropagation();openModalSim('${l.id}')" title="${lHasSim?'Ver proposta':'Nova simulação'}">${lHasSim?'📋':'📊'}</button>
+      <button class="pipe-card-sim" style="background:${lHasSim?'var(--ok)':'var(--acc)'}" onclick="event.stopPropagation();openModalSim('${l.id}')" title="${lHasSim?'Ver proposta':'Nova simulação'}">${lHasSim?'📋':'📊'}</button>
     </div>
     <div class="pipe-card-info">
-      ${tel?`<a class="pc-line pc-tel" href="tel:${telDigits}" onclick="event.stopPropagation()" title="Ligar">📞 ${tel}</a>`:''}
+      ${tel?`<a class="pc-line pc-tel" href="tel:${telDigits}" onclick="event.stopPropagation()" title="Ligar para ${tel}">📞 ${tel}</a>`:''}
       ${sim?`<div class="pc-line pc-cred"><span>💰 Negociado</span><strong>${brl(sim.credTot,0)}</strong><span class="pc-cotas">${sim.cotas}c</span></div>`
            :l.valor_potencial?`<div class="pc-line"><span>💰 Potencial</span><strong>${brl(l.valor_potencial,0)}</strong></div>`:''}
       ${l.indicado_por?`<div class="pc-line pc-ind">👥 via ${l.indicado_por}</div>`:''}
@@ -4098,15 +4260,16 @@ function pipeColHtml(stage,leadsFilt){
   const items=leadsFilt.filter(l=>l.status===stage);
   const totPot=items.reduce((s,l)=>{const sim=leadCreditoNegociado(l);return s+(sim?sim.credTot:(l.valor_potencial||0));},0);
   const color=PIPE_COLORS[stage];
+  const totalLabel=totPot>0?brl(totPot,0):'<span class="pipe-hdr-total-empty">sem volume</span>';
   return`<div class="pipe-col" ondragover="event.preventDefault();this.classList.add('pipe-col-drop')" ondragleave="this.classList.remove('pipe-col-drop')" ondrop="dragDropLead(event,'${stage}');this.classList.remove('pipe-col-drop')" style="--stage-color:${color}">
     <div class="pipe-hdr">
-      <span class="pipe-hdr-dot" style="background:${color}"></span>
+      <span class="pipe-hdr-dot"></span>
       <span class="pipe-hdr-name">${stage}</span>
       <span class="pipe-hdr-count">${items.length}</span>
     </div>
-    <div class="pipe-hdr-total">${totPot>0?brl(totPot,0):'—'}</div>
+    <div class="pipe-hdr-total">${totalLabel}</div>
     <div class="pipe-cards-wrap">
-      ${items.slice(0,8).map(l=>pipeCardHtml(l,stage)).join('')||'<div class="pipe-empty">Sem leads</div>'}
+      ${items.slice(0,8).map((l,i)=>pipeCardHtml(l,stage,i)).join('')||'<div class="pipe-empty">Sem leads</div>'}
       ${items.length>8?`<div class="pipe-more">+${items.length-8} mais</div>`:''}
     </div>
   </div>`;
