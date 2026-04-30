@@ -3434,10 +3434,15 @@ function openMddet(title, sub, htmlBody){
   document.getElementById('modal-dash-det').classList.add('open');
 }
 function openEvoVendas(monthKey){
-  const dateField=({adesao:'adesao',contemp:'data_contemplada',faturado:'data_faturamento'})[dashEvoMode];
   const labelMode=({adesao:'Adesões',contemp:'Contemplações',faturado:'Faturamento'})[dashEvoMode];
   const ativas=COTAS.filter(r=>(r.status||'').toUpperCase()!=='CANCELADO').filter(dashTipoMatch);
-  const list=ativas.filter(r=>dashMonthKey(r[dateField])===monthKey).sort((a,b)=>(b.credito||0)-(a.credito||0));
+  const getDate=r=>{
+    if(dashEvoMode==='adesao') return r.adesao||r.created_at||null;
+    if(dashEvoMode==='contemp') return r.data_contemplada||null;
+    if(dashEvoMode==='faturado') return r.data_faturamento||null;
+    return null;
+  };
+  const list=ativas.filter(r=>dashMonthKey(getDate(r))===monthKey).sort((a,b)=>(b.credito||0)-(a.credito||0));
   const totVol=list.reduce((s,r)=>s+(r.credito||0),0);
   const tipoLbl=({todos:'Total',imovel:'Imóveis',veiculo:'Veículos'})[dashEvoTipo];
   const html=list.length?(`<table class="dash-modal-tbl">
@@ -3468,13 +3473,23 @@ function dashRenderEvo(){
   if(!dashCharts) dashCharts={};
   if(dashCharts.evo){dashCharts.evo.destroy(); dashCharts.evo=null;}
   const ativas=COTAS.filter(r=>(r.status||'').toUpperCase()!=='CANCELADO').filter(dashTipoMatch);
-  const dateField=({adesao:'adesao',contemp:'data_contemplada',faturado:'data_faturamento'})[dashEvoMode];
+  // Universe total (matches KPI logic — tipo já aplicado)
+  const universeCount=ativas.length;
+  const universeVol=ativas.reduce((s,r)=>s+(r.credito||0),0);
+  // Date field por modo, com fallback para created_at em modo Adesão
+  const getDate=r=>{
+    if(dashEvoMode==='adesao') return r.adesao||r.created_at||null;
+    if(dashEvoMode==='contemp') return r.data_contemplada||null;
+    if(dashEvoMode==='faturado') return r.data_faturamento||null;
+    return null;
+  };
   const periodEl=document.getElementById('dash-evo-period');
   const period=periodEl?periodEl.value:'12';
   const buckets={};
+  let semDataCount=0, semDataVol=0;
   ativas.forEach(r=>{
-    const k=dashMonthKey(r[dateField]);
-    if(!k) return;
+    const k=dashMonthKey(getDate(r));
+    if(!k){ semDataCount++; semDataVol+=(r.credito||0); return; }
     if(!buckets[k]) buckets[k]={cotas:0,vol:0,clientes:{},assessores:{},rows:[]};
     buckets[k].cotas++;
     buckets[k].vol+=(r.credito||0);
@@ -3508,18 +3523,31 @@ function dashRenderEvo(){
   let pkIdx=-1, pkVol=0;
   volData.forEach((v,i)=>{ if(v>pkVol){pkVol=v;pkIdx=i;} });
   const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
-  set('evo-tot-cotas',totCotas);
-  set('evo-tot-vol',brl(totVol,0));
-  set('evo-tot-tk',brl(ticket,0));
+  const setHtml=(id,v)=>{const e=document.getElementById(id);if(e)e.innerHTML=v;};
+  // Cotas: período + total carteira (lado a lado, claro)
+  const periodLbl=period==='all'?'todo o histórico':'últimos '+period+'m';
+  const cotasOut=period==='all'?
+    universeCount+' <span style="font-size:11px;color:var(--txt2);font-weight:500">total</span>':
+    totCotas+' <span style="font-size:11px;color:var(--txt2);font-weight:500">/ '+universeCount+' carteira</span>';
+  setHtml('evo-tot-cotas',cotasOut);
+  const volOut=period==='all'?
+    brl(universeVol,0):
+    brl(totVol,0);
+  setHtml('evo-tot-vol',volOut+(period==='all'?'':'<span style="font-size:11px;color:var(--txt2);font-weight:500"> / '+brl(universeVol,0)+'</span>'));
+  // Ticket sempre do que está visível no chart
+  const ticketBase=period==='all'?(universeCount?universeVol/universeCount:0):ticket;
+  set('evo-tot-tk',brl(ticketBase,0));
   set('evo-tot-pk',pkIdx>=0?(labels[pkIdx]+' · '+brl(pkVol,0)):'—');
   const labelMode=({adesao:'Adesões',contemp:'Contemplações',faturado:'Faturamento'})[dashEvoMode];
   const labelTipo=({todos:'Total',imovel:'Imóveis',veiculo:'Veículos'})[dashEvoTipo];
-  set('evo-mode-lbl',labelMode+' · '+labelTipo);
+  const semDataNote=semDataCount>0&&dashEvoMode!=='adesao'?(' · '+semDataCount+' sem '+labelMode.toLowerCase()):'';
+  set('evo-mode-lbl',labelMode+' · '+labelTipo+' · '+periodLbl+semDataNote);
 
   const ctx=document.getElementById('ch-evo');
   if(!ctx) return;
   dashCharts.evo=new Chart(ctx,{type:'bar',data:{labels,datasets:[{label:'Volume R$',data:volData,backgroundColor:'#D6AF5C',hoverBackgroundColor:'#b8923a',borderWidth:0,borderRadius:4,categoryPercentage:.7,barPercentage:.85}]},options:{responsive:true,maintainAspectRatio:false,onClick:(e,el)=>{if(el&&el.length){const k=keys[el[0].index];if(k)openEvoVendas(k);}},onHover:(e,el)=>{e.native.target.style.cursor=(el&&el.length)?'pointer':'default';},layout:{padding:{top:6}},plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(44,62,80,.96)',titleFont:{size:12,family:'Mulish',weight:'600'},bodyFont:{size:11,family:'Mulish'},padding:10,cornerRadius:6,displayColors:false,callbacks:{title:(items)=>labelMode+' — '+items[0].label,label:(item)=>'Volume: '+brl(item.parsed.y,0),afterBody:(items)=>{const k=_dashEvoKeys[items[0].dataIndex];if(!k||!_dashEvoBuckets[k]) return '';const b=_dashEvoBuckets[k];const top=Object.entries(b.clientes).sort((a,b)=>b[1].v-a[1].v).slice(0,3);const lines=['','Cotas: '+b.cotas];if(top.length){lines.push('','Top clientes:');top.forEach(([n,d])=>lines.push('  • '+pn(n)+' ('+d.c+', '+brl(d.v,0)+')'));}lines.push('','› clique para abrir vendas do mês');return lines;}}}},scales:{x:{grid:{display:false},ticks:{font:{size:10.5,family:'Mulish'},color:'#515151'}},y:{beginAtZero:true,grace:'12%',grid:{color:'rgba(0,0,0,.04)'},ticks:{font:{size:10,family:'Mulish'},color:'#515151',callback:v=>v>=1e6?(v/1e6).toFixed(1)+'M':(v/1e3).toFixed(0)+'k'}}}}});
 }
+
 
 function initDash(){
   if(!dashCharts) dashCharts={};
