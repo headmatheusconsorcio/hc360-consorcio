@@ -4683,8 +4683,7 @@ async function pagarSelecionadasAgenda(safeId){
   const total=pagaveis.reduce((s,r)=>s+parcelaEfetiva(r),0);
   const skipped=cotas.length-pagaveis.length;
   if(pagaveis.length===0){toast('Nenhuma cota pagável selecionada','warn');return;}
-  const detalhes=pagaveis.map(r=>`· Grupo ${r.grupo||'—'}/${r.cota||'—'}: ${brl(parcelaEfetiva(r))}`).join('
-');
+  const detalhes=pagaveis.map(r=>`· Grupo ${r.grupo||'—'}/${r.cota||'—'}: ${brl(parcelaEfetiva(r))}`).join('\n');
   const msg=`Confirmar pagamento de ${pagaveis.length} parcela${pagaveis.length!==1?'s':''} para ${nomeCliente}?
 
 ${detalhes}
