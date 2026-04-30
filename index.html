@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>HC360 — Gestão de Consórcio</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -5120,7 +5123,8 @@ function guiaRenderCompare(){
     const cArr=(hd.cont||[]).slice(-6).filter(v=>v>0);
     const avgCont=cArr.length?cArr.reduce((a,b)=>a+b,0)/cArr.length:0;
     const lanMed=getLanceMed(g);
-    return{g,d,avgCont,vagas:d.vagas||0,prazo:d.pr||0,laMin:(d.at_min||0)*100,laMax:(d.at_max||0)*100,cred:d.vmax||d.vmin||0,lanceMed:lanMed||0};
+    const laMin=getLanceAtualMinPct(g)||0,laMax=getLanceAtualMaxPct(g)||0;
+    return{g,d,avgCont,vagas:d.vagas||0,prazo:d.pr||0,laMin,laMax,cred:d.vmax||d.vmin||0,lanceMed:lanMed||0};
   });
   const best={
     vagas:Math.max(...stats.map(s=>s.vagas)),
@@ -5313,7 +5317,7 @@ async function guiaSel(g){
     window.scrollTo({top:0,behavior:'smooth'});
   }catch(_){}
   document.getElementById('guia-hist-title').textContent='Histórico do Grupo '+g;
-  const chips=[{l:'Grupo',v:g,s:d.tp||'Itaú'},{l:'Indexador',v:d.idx||'—',s:'correção'},{l:'Prazo Rest.',v:d.pr?d.pr+' meses':'—',s:d.po?'de '+d.po+' orig.':''},{l:'Próx. AGO',v:d.asm?d.asm.slice(5).split('-').reverse().join('/'):'—',s:''},{l:'Vagas',v:d.vagas!=null?d.vagas:'—',s:d.cap?'cap. '+d.cap:'',hl:true},{l:'Crédito Mín.',v:d.vmin?brl(d.vmin,0):'—',s:''},{l:'Crédito Máx.',v:d.vmax?brl(d.vmax,0):'—',s:''},{l:'Lance Médio',v:(()=>{const lm=getLanceMed(g);return lm!=null?lm.toFixed(1)+'%':'—';})(),s:LANCE_MEDIO_PERIODO==='total'?'Tudo':LANCE_MEDIO_PERIODO},{l:'Lance Atual Mín.',v:d.at_min&&d.at_min>0?pct(d.at_min):'—',s:'última AGO',hl:true},{l:'Lance Atual Máx.',v:d.at_max&&d.at_max>0?pct(d.at_max):'—',s:'última AGO'},{l:'Contemp. (LL)',v:d.at_cl||'0',s:'lance livre'},{l:'Contemp. (LF)',v:d.at_cl_lf||'0',s:'lance fixo'},{l:'F. Reserva',v:d.fr!=null?pct(d.fr):'—',s:''},{l:'Parc. Reduz.',v:d.pr_red==='S'?'Sim':'Não',s:''}];
+  const chips=[{l:'Grupo',v:g,s:d.tp||'Itaú'},{l:'Indexador',v:d.idx||'—',s:'correção'},{l:'Prazo Rest.',v:d.pr?d.pr+' meses':'—',s:d.po?'de '+d.po+' orig.':''},{l:'Próx. AGO',v:d.asm?d.asm.slice(5).split('-').reverse().join('/'):'—',s:''},{l:'Vagas',v:d.vagas!=null?d.vagas:'—',s:d.cap?'cap. '+d.cap:'',hl:true},{l:'Crédito Mín.',v:d.vmin?brl(d.vmin,0):'—',s:''},{l:'Crédito Máx.',v:d.vmax?brl(d.vmax,0):'—',s:''},{l:'Lance Médio',v:(()=>{const lm=getLanceMed(g);return lm!=null?lm.toFixed(1)+'%':'—';})(),s:LANCE_MEDIO_PERIODO==='total'?'Tudo':LANCE_MEDIO_PERIODO},{l:'Lance Atual Mín.',v:(()=>{const m=getLanceAtualMinPct(g);return m!=null?m.toFixed(2)+'%':'—';})(),s:'última AGO',hl:true},{l:'Lance Atual Máx.',v:(()=>{const m=getLanceAtualMaxPct(g);return m!=null?m.toFixed(2)+'%':'—';})(),s:'última AGO'},{l:'Contemp. (LL)',v:d.at_cl||'0',s:'lance livre'},{l:'Contemp. (LF)',v:d.at_cl_lf||'0',s:'lance fixo'},{l:'F. Reserva',v:d.fr!=null?pct(d.fr):'—',s:''},{l:'Parc. Reduz.',v:d.pr_red==='S'?'Sim':'Não',s:''}];
   document.getElementById('guia-chips').innerHTML=chips.map(c=>`<div class="chip${c.hl?' hl':''}"><div class="chip-l">${c.l}</div><div class="chip-v">${c.v}</div>${c.s?`<div class="chip-s">${c.s}</div>`:''}</div>`).join('');
   // Carrega histórico do banco (fonte da verdade — já com defesa contra inversão)
   guiaHistData=await fetchHistGrupoSupabase(g);
@@ -5383,6 +5387,8 @@ function renderGuiaCharts(){
     mn=guiaPeriodoSlice(guiaHistData.min).map(v=>v||0);
     mx=guiaPeriodoSlice(guiaHistData.max).map(v=>v||0);
     ct=guiaPeriodoSlice(guiaHistData.cont_ll).map(v=>v||0);
+    // Defesa em profundidade: se algum mês vier com min>max, faz swap
+    for(let i=0;i<mn.length;i++){if(mn[i]>0&&mx[i]>0&&mn[i]>mx[i]){const t=mn[i];mn[i]=mx[i];mx[i]=t;}}
   }
   // Média móvel 3m sobre os mín
   const med=mn.map((_,i)=>{
@@ -5404,12 +5410,14 @@ function renderGuiaHist(){
   const dtAgo=guiaPeriodoSlice(guiaHistData.data_ago);
   let mn,mx,cll,clf,csup,msup;
   // Sempre puxa todos pra mostrar tudo (na coluna de cada um)
-  mn  =guiaPeriodoSlice(guiaHistData.min);
-  mx  =guiaPeriodoSlice(guiaHistData.max);
+  mn  =guiaPeriodoSlice(guiaHistData.min).map(v=>v||0);
+  mx  =guiaPeriodoSlice(guiaHistData.max).map(v=>v||0);
   cll =guiaPeriodoSlice(guiaHistData.cont_ll);
   clf =guiaPeriodoSlice(guiaHistData.cont_lf);
   csup=guiaPeriodoSlice(guiaHistData.cont_sup);
   msup=guiaPeriodoSlice(guiaHistData.min_sup);
+  // Swap defensivo (min nunca > max)
+  for(let i=0;i<mn.length;i++){if(mn[i]>0&&mx[i]>0&&mn[i]>mx[i]){const t=mn[i];mn[i]=mx[i];mx[i]=t;}}
   const hideEmpty=document.getElementById('ghv-hide-empty')?.checked;
   // Linhas em ordem decrescente (mais recente primeiro)
   const rows=[];
@@ -5635,15 +5643,23 @@ function browseSetPageSize(v){
   try{localStorage.setItem('hc360_browse_pp',v);}catch(_){}
   renderBrowse(browseData,1);
 }
+// CONVENÇÃO ÚNICA: Lance Atual Mín/Máx vêm SEMPRE de GUIA[g].at_min e at_max
+// (que mapeiam para guia_grupos.ult_assemb_lance_min/max no banco).
+// Banco tem CHECK constraint que garante min ≤ max — não há mais como inverter.
+// NÃO usar HIST.max[last] aqui (HIST é histórico mensal, pode ter mês recente sem max).
 function getLanceAtualMaxPct(g){
-  const hd=HIST.groups[g]||HIST.groups[parseInt(g)]||{};
-  const mx=hd.max||[];
-  for(let i=mx.length-1;i>=0;i--)if(mx[i]>0)return mx[i];
-  return null;
+  const d=GUIA[g]||GUIA[parseInt(g)]||{};
+  let mn=d.at_min&&d.at_min>0?d.at_min*100:null;
+  let mx=d.at_max&&d.at_max>0?d.at_max*100:null;
+  if(mn!=null&&mx!=null&&mn>mx){const t=mn;mn=mx;mx=t;}
+  return mx;
 }
 function getLanceAtualMinPct(g){
   const d=GUIA[g]||GUIA[parseInt(g)]||{};
-  return d.at_min&&d.at_min>0?d.at_min*100:null;
+  let mn=d.at_min&&d.at_min>0?d.at_min*100:null;
+  let mx=d.at_max&&d.at_max>0?d.at_max*100:null;
+  if(mn!=null&&mx!=null&&mn>mx){const t=mn;mn=mx;mx=t;}
+  return mn;
 }
 function browseSortKey(c,g,d){
   if(c==='g')return parseInt(g)||g;
@@ -5656,41 +5672,6 @@ function browseSortKey(c,g,d){
   if(c==='asm')return d.asm||'';
   if(c==='idx')return d.idx||'';
   return d[c]??'';
-}
-
-function renderBrowseCard(g,d){
-  const inCmp=guiaIsInCompare(g);
-  const lf=temLanceFixo(g),pr=temCotaReduzida(g);
-  const tipoLbl=(()=>{const t=(d.tp||'').toUpperCase();if(t.includes('IM'))return'Imóvel';if(t.includes('MOTO'))return'Moto';if(t.includes('PESADO'))return'Veículo Pesado';return'Veículo';})();
-  const isImov=tipoLbl==='Imóvel';
-  const lanMin=getLanceAtualMinPct(g),lanMax=getLanceAtualMaxPct(g),lanMed=getLanceMed(g);
-  const credLbl=d.vmax?(d.vmax>=1e6?(d.vmax/1e6).toFixed(2)+'M':brl(d.vmax,0)):'—';
-  return `<div class="guia-card${inCmp?' sel':''}" onclick="guiaSel('${g}')">
-    <div class="guia-card-head" style="background:${isImov?'linear-gradient(135deg,var(--sb) 0%,var(--teal) 100%)':'linear-gradient(135deg,#7c4a1e 0%,#b97725 100%)'}">
-      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
-        <div>
-          <div style="font-size:10px;opacity:.75;text-transform:uppercase;letter-spacing:.5px">${isImov?'🏠 Imóvel':tipoLbl==='Moto'?'🏍 Moto':'🚗 '+tipoLbl}</div>
-          <div style="font-size:22px;font-weight:900;letter-spacing:-.3px">Grupo ${g}</div>
-          <div style="font-size:11px;opacity:.85;margin-top:2px">${d.idx||'—'} · ${d.pr||'—'}m · ${d.sit||'—'}</div>
-        </div>
-        <input type="checkbox" onchange="guiaToggleCompare('${g}',this.checked)" onclick="event.stopPropagation()" ${inCmp?'checked':''} style="width:20px;height:20px;cursor:pointer;accent-color:#fff" title="Comparar">
-      </div>
-    </div>
-    <div class="guia-card-body">
-      <div class="guia-card-grid">
-        <div><div class="gck-l">Vagas</div><div class="gck-v">${d.vagas??'—'}</div></div>
-        <div><div class="gck-l">Crédito</div><div class="gck-v">${credLbl}</div></div>
-        <div><div class="gck-l">L. Atual Mín.</div><div class="gck-v" style="color:var(--ok)">${lanMin!=null?lanMin.toFixed(1)+'%':'—'}</div></div>
-        <div><div class="gck-l">L. Atual Máx.</div><div class="gck-v" style="color:var(--err)">${lanMax!=null?lanMax.toFixed(1)+'%':'—'}</div></div>
-        <div style="grid-column:1/-1"><div class="gck-l">Lance Médio (${LANCE_MEDIO_PERIODO==='total'?'Tudo':LANCE_MEDIO_PERIODO})</div><div class="gck-v" style="color:var(--acc)">${lanMed!=null?lanMed.toFixed(1)+'%':'—'}</div></div>
-      </div>
-      <div style="display:flex;gap:5px;margin-top:10px;flex-wrap:wrap">
-        <span style="font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;background:${lf?'#d1fae5':'#fee2e2'};color:${lf?'#065f46':'#991b1b'}">${lf?'LF ✓':'LF ✗'}</span>
-        <span style="font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;background:${pr?'#dbeafe':'#f3f4f6'};color:${pr?'#1e40af':'#6b7280'}">${pr?'PR ✓':'PR —'}</span>
-        <span style="font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;background:#fef3c7;color:#92400e" title="Próxima Assembleia">${d.asm||'—'}</span>
-      </div>
-    </div>
-  </div>`;
 }
 
 function renderBrowse(data,pg){
