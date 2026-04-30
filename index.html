@@ -841,8 +841,8 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:#fefbf3;border-left:3px so
         <div><div style="font-size:10.5px;color:var(--err);font-weight:600;text-transform:uppercase;letter-spacing:.5px">⚠️ Vencidas + Hoje</div><div id="ag-sum-venc" style="font-size:20px;font-weight:800;color:var(--err)">0</div></div>
         <div><div style="font-size:10.5px;color:var(--warn);font-weight:600;text-transform:uppercase;letter-spacing:.5px">⚡ Vencem ≤7d</div><div id="ag-sum-sem" style="font-size:20px;font-weight:800;color:var(--warn)">0</div></div>
         <div><div style="font-size:10.5px;color:#0891b2;font-weight:600;text-transform:uppercase;letter-spacing:.5px">📅 AGOs ≤7d</div><div id="ag-sum-ago" style="font-size:20px;font-weight:800;color:#0891b2">0</div></div>
-        <div><div style="font-size:10.5px;color:#7c3aed;font-weight:600;text-transform:uppercase;letter-spacing:.5px">📤 Sem Lance</div><div id="ag-sum-sl" style="font-size:20px;font-weight:800;color:#7c3aed">0</div></div>
-        <div><div style="font-size:10.5px;color:var(--ok);font-weight:600;text-transform:uppercase;letter-spacing:.5px">💵 A receber (30d)</div><div id="ag-sum-rec" style="font-size:14px;font-weight:800;color:var(--ok)">R$ 0</div></div>
+        
+        
       </div>
     </div>
 
@@ -925,20 +925,6 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:#fefbf3;border-left:3px so
         </div>
         <div class="cb" id="agenda-assembleias" style="max-height:340px;overflow-y:auto;padding:0 14px"><div style="color:var(--txt2);font-size:13px;text-align:center;padding:20px">Carregando...</div></div>
       </div>
-    </div>
-
-    <!-- Q5: Cotas Sem Lance (full-width) -->
-    <div class="card" style="border-left:4px solid #7c3aed">
-      <div class="ch"><span class="ct">📤 Cotas Sem Lance — Candidatas</span><span class="badge b-warn" id="agenda-semlance-count" style="margin-left:8px">0</span></div>
-      <div style="padding:6px 14px;border-bottom:1px solid var(--bdr);display:flex;gap:6px;align-items:center">
-        <input class="form-i" id="sl-filter" placeholder="🔍 Cliente..." style="flex:1;padding:5px 9px;font-size:12px;margin:0" oninput="renderQSemLance()">
-        <select class="form-i" id="sl-sort" style="width:170px;padding:5px 7px;font-size:12px;margin:0" onchange="renderQSemLance()">
-          <option value="credito-desc">Maior crédito (cliente)</option>
-          <option value="qtd-desc">Mais cotas (cliente)</option>
-          <option value="nome">Nome A-Z</option>
-        </select>
-      </div>
-      <div class="cb" id="agenda-semlance" style="max-height:380px;overflow-y:auto;padding:0"><div style="color:var(--txt2);font-size:13px;text-align:center;padding:20px">Carregando...</div></div>
     </div>
 
     <!-- Q7: Oportunidades do dia (full-width) -->
@@ -3921,6 +3907,24 @@ function calcProxAssembleia(vencDia){
   return{date:d,label:`${rs} a ${re}/${mm}/${d.getFullYear()}`,diffDias:Math.round((d-hoje)/(1000*60*60*24)),source:'calc'};
 }
 
+// Calcula próximo vencimento e diffDias considerando ultima_parcela_paga
+// - Se pagou neste mês: alvo = mesmo dia mês que vem
+// - Senão: alvo = mesmo dia neste mês (pode ficar negativo = VENCIDA)
+function _calcDiffParcela(r,hoje){
+  if(!r.vencimento)return null;
+  const venc=Number(r.vencimento);
+  const inicioMes=new Date(hoje.getFullYear(),hoje.getMonth(),1);
+  const ultimaPaga=r.ultima_parcela_paga?new Date(r.ultima_parcela_paga+'T00:00:00'):null;
+  const pagouMesCorrente=ultimaPaga&&ultimaPaga>=inicioMes;
+  let alvo;
+  if(pagouMesCorrente){
+    alvo=new Date(hoje.getFullYear(),hoje.getMonth()+1,venc);
+  }else{
+    alvo=new Date(hoje.getFullYear(),hoje.getMonth(),venc);
+  }
+  return {proxVenc:alvo,diffDias:Math.round((alvo-hoje)/(1000*60*60*24))};
+}
+
 function renderAgenda(){
   const hoje=new Date();hoje.setHours(0,0,0,0);
   const isDay1=hoje.getDate()===1;
@@ -3944,20 +3948,21 @@ function renderAgenda(){
 
   // Aplica filtros globais sobre o universo
   const baseCotas=_aplicarFiltrosGlobaisAgenda(COTAS);
+  const isCancel=s=>(s||'').toUpperCase()==='CANCELADO';
+  const isFatContemp=s=>s==='Contemplado'||s==='CONTEMPLADO'||s==='Faturado'||s==='FATURADO';
 
-  // Parcelas vencendo (não contempladas)
+  // Parcelas vencendo: TODAS as cotas (incluindo contempladas/faturadas, que continuam pagando boleto), exceto canceladas
   _parcVencAll=[];
-  baseCotas.filter(r=>r.vencimento&&r.status!=='CONTEMPLADO'&&r.status!=='Contemplado').forEach(r=>{
-    const d=new Date(hoje.getFullYear(),hoje.getMonth(),r.vencimento);
-    if(d<hoje)d.setMonth(d.getMonth()+1);
-    const diff=Math.round((d-hoje)/(1000*60*60*24));
-    _parcVencAll.push({...r,proxVenc:d,diffDias:diff});
+  baseCotas.filter(r=>r.vencimento&&!isCancel(r.status)).forEach(r=>{
+    const calc=_calcDiffParcela(r,hoje);
+    if(!calc)return;
+    _parcVencAll.push({...r,proxVenc:calc.proxVenc,diffDias:calc.diffDias});
   });
   _parcVencAll.sort((a,b)=>a.diffDias-b.diffDias);
 
-  // Assembleias: agrupa por grupo; usa [ASM:] tag se existir, senão calcula pelo vencimento
+  // Assembleias: só ativas (não contempladas/faturadas, não canceladas) E só futuras (diffDias >= 0)
   const grpMap={};
-  baseCotas.filter(r=>r.status!=='CONTEMPLADO'&&r.status!=='Contemplado'&&r.grupo).forEach(r=>{
+  baseCotas.filter(r=>!isFatContemp(r.status)&&!isCancel(r.status)&&r.grupo).forEach(r=>{
     const g=String(r.grupo);
     let asmInfo=null;
     if(r.informacao&&r.informacao.includes('[ASM:')){
@@ -3970,23 +3975,19 @@ function renderAgenda(){
     else if(asmInfo.source==='manual'&&grpMap[g].asm.source!=='manual')grpMap[g].asm=asmInfo;
     grpMap[g].cotas.push(r);
   });
-  _asmListAll=Object.entries(grpMap).map(([g,d])=>{return{grupo:g,...d};});
+  _asmListAll=Object.entries(grpMap).filter(([_,d])=>d.asm.diffDias>=0).map(([g,d])=>{return{grupo:g,...d};});
   _asmListAll.sort((a,b)=>a.asm.diffDias-b.asm.diffDias);
 
   // KPIs barra resumo
   const nVencidas=_parcVencAll.filter(r=>r.diffDias<=0).length;
   const nSemana=_parcVencAll.filter(r=>r.diffDias>0&&r.diffDias<=7).length;
   const nAgo7=_asmListAll.filter(d=>d.asm.diffDias>=0&&d.asm.diffDias<=7).length;
-  const semLanceArr=baseCotas.filter(r=>(r.status==='SORTEIO / LANCE'||r.status==='Sorteio'||r.status==='Em Andamento')&&!r.lance1);
-  const totalReceber=_parcVencAll.filter(r=>r.diffDias<=30).reduce((s,r)=>s+(parcelaEfetiva(r)||0),0);
   const setText=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
   setText('ag-sum-venc',nVencidas);
   setText('ag-sum-sem',nSemana);
   setText('ag-sum-ago',nAgo7);
-  setText('ag-sum-sl',semLanceArr.length);
-  setText('ag-sum-rec',brl(totalReceber,0));
 
-  // Badge na nav (urgência)
+  // Badge na nav
   const urgTotal=nVencidas+nAgo7+(isDay1?1:0);
   const badgeAg=document.getElementById('badge-agenda');
   if(badgeAg){
@@ -3994,12 +3995,10 @@ function renderAgenda(){
     else badgeAg.style.display='none';
   }
 
-  // Render quadros
   renderQVencidas();
   renderQSemana();
   renderQ30d();
   renderAgendaAsm();
-  renderQSemLance();
   renderQOport();
 }
 
@@ -4020,7 +4019,7 @@ function _aplicarFiltrosGlobaisAgenda(arr){
 
 function limparFiltrosAgenda(){
   ['ag-f-assessor','ag-f-banco','ag-f-modal'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-  ['vencidas-filter','semana-filter','d30-filter','asm-filter','sl-filter','oport-filter'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['vencidas-filter','semana-filter','d30-filter','asm-filter','oport-filter'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   renderAgenda();
 }
 
@@ -4049,18 +4048,17 @@ function _setLabel(set){
 }
 function _diasLabel(diff){
   if(diff==null)return '';
-  if(diff<0)return `<span style="color:var(--err);font-weight:800">${Math.abs(diff)}d atraso</span>`;
-  if(diff===0)return `<span style="color:var(--err);font-weight:800">HOJE</span>`;
-  if(diff<=3)return `<span style="color:var(--warn);font-weight:800">${diff}d</span>`;
-  if(diff<=7)return `<span style="color:var(--warn);font-weight:700">${diff}d</span>`;
-  return `<span style="color:var(--txt2);font-weight:700">${diff}d</span>`;
+  if(diff<0)return `<span style="color:var(--err);font-weight:700">${Math.abs(diff)}d atraso</span>`;
+  if(diff===0)return `<span style="color:var(--err);font-weight:700">HOJE</span>`;
+  if(diff<=3)return `<span style="color:var(--warn);font-weight:700">${diff}d</span>`;
+  if(diff<=7)return `<span style="color:var(--warn);font-weight:600">${diff}d</span>`;
+  return `<span style="color:var(--txt2);font-weight:600">${diff}d</span>`;
 }
 
-// Renderiza um <details> de cliente para quadros de pagamento (Vencidas/Semana/30d)
 function _renderGrupoVenc(g,corDot){
   const cnt=g.items.length;
   const grupos=[...g.grupos].slice(0,2).join(', ')+(g.grupos.size>2?` +${g.grupos.size-2}`:'');
-  const right=`<div class="agenda-date" style="text-align:right">${_diasLabel(g.maisUrg)}<br><span style="color:var(--txt2);font-weight:600;font-size:10.5px">${brl(g.totalParc,0)}</span></div>`;
+  const right=`<div class="agenda-date" style="text-align:right">${_diasLabel(g.maisUrg)}<br><span style="color:var(--txt2);font-weight:500;font-size:10.5px">${brl(g.totalParc,0)}</span></div>`;
   const cotas=g.items.map(r=>{
     return `<div class="ag-cota">
       <div class="ag-cota-info" onclick="openModalCota('${r.id}')" title="Ver/Editar cota">
@@ -4090,9 +4088,7 @@ function _renderQuadroVenc(opts){
   const sortV=(document.getElementById(sortId)||{value:'dias'}).value;
   let list=_parcVencAll.filter(filterFn);
   if(filtro)list=list.filter(r=>(r.nome||'').toLowerCase().includes(filtro));
-  // agrupa
   let grupos=_agruparPorCliente(list);
-  // Sort no nível do grupo
   const sortFn=sortFns[sortV]||sortFns['dias']||((a,b)=>(a.maisUrg||0)-(b.maisUrg||0));
   grupos.sort(sortFn);
   document.getElementById(countId).textContent=list.length;
@@ -4146,9 +4142,9 @@ function renderAgendaAsm(){
   document.getElementById('agenda-asm-count').textContent=list.length;
   const el=document.getElementById('agenda-assembleias');if(!el)return;
   el.innerHTML=list.length?list.map(d=>{
-    const cor=d.asm.diffDias<0?'err':d.asm.diffDias<=5?'warn':d.asm.diffDias<=14?'info':'ok';
+    const cor=d.asm.diffDias<=5?'warn':d.asm.diffDias<=14?'info':'ok';
     const src=d.asm.source==='manual'?'':'<span style="font-size:10px;color:var(--txt2);margin-left:4px">(calc.)</span>';
-    const corTxt=cor==='err'?'var(--err)':cor==='warn'?'var(--warn)':'var(--txt2)';
+    const corTxt=cor==='warn'?'var(--warn)':'var(--txt2)';
     const cotas=d.cotas.map(r=>{
       const lance=r.lance1?(+(r.lance1*100).toFixed(2))+'%':'sem lance';
       return `<div class="ag-cota">
@@ -4167,48 +4163,11 @@ function renderAgendaAsm(){
           <div class="ag-title">🏛 Grupo ${d.grupo} <span class="ag-count">${d.cotas.length} ${d.cotas.length===1?'cota':'cotas'}</span>${src}</div>
           <div class="ag-sub">${d.cotas.slice(0,3).map(r=>r.nome).join(', ')}${d.cotas.length>3?` +${d.cotas.length-3}`:''}</div>
         </div>
-        <div class="agenda-date" style="text-align:right;flex-shrink:0">${d.asm.label}<br><span style="color:${corTxt};font-weight:700">${d.asm.diffDias<0?'passou':d.asm.diffDias+'d'}</span></div>
+        <div class="agenda-date" style="text-align:right;flex-shrink:0">${d.asm.label}<br><span style="color:${corTxt};font-weight:600">${d.asm.diffDias}d</span></div>
       </summary>
       <div class="ag-body">${cotas}</div>
     </details>`;
   }).join(''):'<div style="color:var(--txt2);font-size:13px;padding:18px;text-align:center">Nenhuma assembleia encontrada</div>';
-}
-
-function renderQSemLance(){
-  const filtro=(document.getElementById('sl-filter')||{value:''}).value.toLowerCase().trim();
-  const sortV=(document.getElementById('sl-sort')||{value:'credito-desc'}).value;
-  const baseCotas=_aplicarFiltrosGlobaisAgenda(COTAS);
-  let list=baseCotas.filter(r=>(r.status==='SORTEIO / LANCE'||r.status==='Sorteio'||r.status==='Em Andamento')&&!r.lance1);
-  if(filtro)list=list.filter(r=>(r.nome||'').toLowerCase().includes(filtro));
-  let grupos=_agruparPorCliente(list);
-  if(sortV==='nome')grupos.sort((a,b)=>(a.nome||'').localeCompare(b.nome||'','pt-BR'));
-  else if(sortV==='qtd-desc')grupos.sort((a,b)=>b.items.length-a.items.length);
-  else grupos.sort((a,b)=>b.totalCred-a.totalCred);
-  document.getElementById('agenda-semlance-count').textContent=list.length;
-  const el=document.getElementById('agenda-semlance');if(!el)return;
-  el.innerHTML=grupos.length?grupos.map(g=>{
-    const cnt=g.items.length;
-    const cotas=g.items.map(r=>`<div class="ag-cota">
-      <div class="ag-cota-info" onclick="openModalCota('${r.id}')" title="Ver/Editar cota">
-        <div class="ag-cota-name">Grupo ${r.grupo||'—'}/${r.cota||'—'}</div>
-        <div class="ag-cota-meta">${brl(r.credito||0,0)} crédito · ${brl(parcelaEfetiva(r))} parc. · adesão: ${r.adesao||'—'}</div>
-      </div>
-      <div style="flex-shrink:0">${_btnOferta(r)}</div>
-    </div>`).join('');
-    const right=`<div class="agenda-date" style="text-align:right"><span style="color:#7c3aed;font-weight:800">${brl(g.totalCred,0)}</span><br><span style="color:var(--txt2);font-weight:600;font-size:10.5px">crédito</span></div>`;
-    return `<details class="ag-group">
-      <summary>
-        <span class="ag-chev">▸</span>
-        <span class="ag-dot warn"></span>
-        <div style="flex:1;min-width:0">
-          <div class="ag-title">${g.nome} <span class="ag-count">${cnt} ${cnt===1?'cota':'cotas'}</span></div>
-          <div class="ag-sub">${_setLabel(g.bancos)} · ${_setLabel(g.assessores)}</div>
-        </div>
-        ${right}
-      </summary>
-      <div class="ag-body">${cotas}</div>
-    </details>`;
-  }).join(''):'<div style="color:var(--txt2);font-size:13px;padding:18px;text-align:center">Todas as cotas têm lance ofertado ✓</div>';
 }
 
 function renderQOport(){
@@ -4247,10 +4206,10 @@ function renderQOport(){
           <div class="ag-cota-name">Grupo ${r.grupo||'—'}/${r.cota||'—'}</div>
           <div class="ag-cota-meta">${brl(r.credito||0,0)} · ${pr} de ${pt} parcelas restantes (${pct}%)</div>
         </div>
-        <div style="flex-shrink:0"><button class="btn btn-sm" onclick="event.stopPropagation();oportSimularNova('${r.id}')" style="background:var(--acc);color:#fff;font-size:10.5px;padding:3px 9px;font-weight:600" title="Simular nova cota para este cliente">📊 Nova</button></div>
+        <div style="flex-shrink:0"><button class="btn btn-sm" onclick="event.stopPropagation();oportSimularNova('${r.id}')" style="background:var(--acc);color:#fff;font-size:10.5px;padding:3px 9px;font-weight:500" title="Simular nova cota para este cliente">📊 Nova</button></div>
       </div>`;
     }).join('');
-    const right=`<div class="agenda-date" style="text-align:right"><span style="color:var(--ok);font-weight:800">${minPr} ${minPr===1?'parc.':'parcs.'}</span><br><span style="color:var(--txt2);font-weight:600;font-size:10.5px">${brl(g.totalCred,0)}</span></div>`;
+    const right=`<div class="agenda-date" style="text-align:right"><span style="color:var(--ok);font-weight:700">${minPr} ${minPr===1?'parc.':'parcs.'}</span><br><span style="color:var(--txt2);font-weight:500;font-size:10.5px">${brl(g.totalCred,0)}</span></div>`;
     return `<details class="ag-group">
       <summary>
         <span class="ag-chev">▸</span>
@@ -4274,17 +4233,16 @@ function oportSimularNova(cotaId){
   toast(`Simule nova cota para ${r.nome} (cliente nas últimas ${r.prazo_restante} parcelas)`,'ok');
 }
 
-// Helper: HTML do botão Pagamento (estados: pago hoje | pago no mês | pode pagar)
 function _btnPagamento(r){
   if(pagoHoje(r)){
-    return `<button class="btn btn-sm" disabled style="background:var(--ok);color:#fff;opacity:.7;cursor:not-allowed;font-size:10.5px;padding:3px 8px">✓ Pago hoje</button>`+
+    return `<button class="btn btn-sm" disabled style="background:var(--ok);color:#fff;opacity:.7;cursor:not-allowed;font-size:10.5px;padding:3px 8px;font-weight:500">✓ Pago hoje</button>`+
       `<button class="btn btn-sm" onclick="event.stopPropagation();desfazerPagamento('${r.id}')" style="background:#fef3c7;color:#92400e;border:1px solid #d97706;font-size:10.5px;padding:3px 6px" title="Desfazer (só hoje)">↺</button>`;
   }
   if(jaPagoNoMes(r)){
     const dt=new Date(r.ultima_parcela_paga+'T00:00:00').toLocaleDateString('pt-BR').slice(0,5);
-    return `<button class="btn btn-sm" disabled style="background:#dcfce7;color:#15803d;opacity:.85;cursor:not-allowed;font-size:10.5px;padding:3px 8px" title="Pagamento já registrado neste mês">✓ Pago ${dt}</button>`;
+    return `<button class="btn btn-sm" disabled style="background:#dcfce7;color:#15803d;opacity:.85;cursor:not-allowed;font-size:10.5px;padding:3px 8px;font-weight:500" title="Pagamento já registrado neste mês">✓ Pago ${dt}</button>`;
   }
-  return `<button class="btn btn-sm" onclick="event.stopPropagation();confirmarPagamento('${r.id}')" style="background:var(--ok);color:#fff;font-size:10.5px;padding:3px 10px;font-weight:600" title="Confirmar pagamento da parcela">✓ Pago</button>`;
+  return `<button class="btn btn-sm" onclick="event.stopPropagation();confirmarPagamento('${r.id}')" style="background:var(--ok);color:#fff;font-size:10.5px;padding:3px 10px;font-weight:500" title="Confirmar pagamento da parcela">✓ Pago</button>`;
 }
 
 function _btnOferta(r){
