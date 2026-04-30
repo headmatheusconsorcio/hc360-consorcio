@@ -4280,13 +4280,17 @@ function renderCRM(){
   ['nome','indicado_por','assessor','interesse','valor_potencial','status','created_at'].forEach(c=>{const el=document.getElementById('lsort-'+c);if(el)el.textContent=sortIcon(crmSort,c);});
   leadsFiltered=crmSorted;
   document.getElementById('crm-count').textContent=leadsFiltered.length+' leads';
+  crmRenderKpis();
   renderAssessorLeads();
   const orfaos=leadsFiltered.filter(l=>!PIPE_STAGES.includes(l.status));
   if(orfaos.length){console.warn('Leads com status órfão:',orfaos.map(l=>({id:l.id,nome:l.nome,status:l.status})));}
-  document.getElementById('crm-pipeline').innerHTML=PIPE_FASES.map(fase=>`<div class="pipe-fase">
-      <div class="pipe-fase-hdr">${fase.label}</div>
+  document.getElementById('crm-pipeline').innerHTML=PIPE_FASES.map(fase=>{
+    const faseCount=fase.stages.reduce((s,st)=>s+leadsFiltered.filter(l=>l.status===st).length,0);
+    return`<div class="pipe-fase">
+      <div class="pipe-fase-hdr">${fase.label}<span class="pipe-fase-hdr-count">${faseCount}</span></div>
       <div class="pipe-fase-cols">${fase.stages.map(s=>pipeColHtml(s,leadsFiltered)).join('')}</div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
   // Table
   document.getElementById('crm-tbody').innerHTML=leadsFiltered.map(l=>`<tr>
     <td><strong>${l.nome||'—'}</strong></td>
