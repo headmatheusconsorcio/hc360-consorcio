@@ -1377,7 +1377,7 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
     <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:20px">
       <div>
         <div style="font-size:22px;font-weight:700;color:var(--sb);font-family:'Quicksand',sans-serif">🌟 Oportunidades da Semana</div>
-        <div style="font-size:12.5px;color:var(--txt2);margin-top:3px">Top grupos por assertividade de lance · Dados GUIA Itaú · Atualizado automaticamente</div>
+        <div style="font-size:12.5px;color:var(--txt2);margin-top:3px">Resumo semanal — top grupos do Guia Itaú filtrados por <strong>chance histórica</strong> de contemplação</div>
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <div class="toggle-group" id="oport-tipo-toggle">
@@ -1388,8 +1388,8 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
         <button class="btn btn-pri btn-sm" onclick="openCarrossel()">🎠 Carrossel de Divulgação</button>
       </div>
     </div>
-    <!-- Grid de oportunidades -->
-    <div id="oport-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-bottom:24px"></div>
+    <!-- Top 3 cards por segmento -->
+    <div id="oport-top-cards" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px"></div>
     <!-- Grupos Sugeridos -->
     <div class="card" style="margin-bottom:16px">
       <div class="ch" style="flex-wrap:wrap;gap:10px">
@@ -1399,8 +1399,8 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
             <label style="font-size:12px;color:var(--txt2);white-space:nowrap">Crédito (R$)</label>
             <input type="number" id="os-cred" class="form-i" style="width:120px;padding:5px 8px;font-size:12px" placeholder="340000" oninput="renderOportSugestoes()">
           </div>
-          <div style="display:flex;align-items:center;gap:6px">
-            <label style="font-size:12px;color:var(--txt2);white-space:nowrap">Lance (%)</label>
+          <div style="display:flex;align-items:center;gap:6px" title="Lance que voce vai ofertar — base para calcular Chance">
+            <label style="font-size:12px;color:var(--txt2);white-space:nowrap">Lance ofertado (%)</label>
             <input type="number" id="os-lance" class="form-i" style="width:70px;padding:5px 8px;font-size:12px" value="40" oninput="renderOportSugestoes()">
           </div>
         </div>
@@ -1419,8 +1419,8 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
             <option value="">Todos</option><option value="sim">✓ Sim</option><option value="nao">✗ Não</option>
           </select>
         </div>
-        <div style="display:flex;align-items:center;gap:5px">
-          <label style="color:var(--txt2)">Assertividade min.</label>
+        <div style="display:flex;align-items:center;gap:5px" title="Chance: % dos meses do historico em que seu lance teria batido o minimo">
+          <label style="color:var(--txt2)">Chance mín.</label>
           <select id="os-assert" class="form-i" style="padding:4px 8px;font-size:11px;width:auto" onchange="renderOportSugestoes()">
             <option value="">Qualquer</option><option value="80">≥ 80%</option><option value="60">≥ 60%</option><option value="40">≥ 40%</option>
           </select>
@@ -1438,11 +1438,10 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
           <label style="color:var(--txt2)">Ordenar por</label>
           <select id="os-sort" class="form-i" style="padding:4px 8px;font-size:11px;width:auto" onchange="renderOportSugestoes()">
             <option value="match">Mais próximo do crédito alvo</option>
-            <option value="assert-desc">Maior assertividade</option>
+            <option value="chance-desc">Maior chance</option>
             <option value="lance-asc">Menor lance médio</option>
             <option value="lance-desc">Maior lance médio</option>
-            <option value="parcela-asc">Menor parcela pré</option>
-            <option value="parcela-desc">Maior parcela pré</option>
+            <option value="atual-asc">Menor lance atual</option>
             <option value="prazo-desc">Maior prazo</option>
             <option value="prazo-asc">Menor prazo</option>
             <option value="vagas-desc">Mais vagas</option>
@@ -1453,29 +1452,21 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
         <span id="os-count" style="font-size:11px;color:var(--txt2);font-weight:700"></span>
       </div>
       <div id="oport-lance-toggle" style="padding:6px 16px;border-top:1px solid var(--bdr);background:var(--card2);display:flex;align-items:center"></div>
-      <div style="padding:8px 16px 4px;font-size:12px;font-weight:700;color:#1e40af;background:#eff6ff;border-bottom:1px solid #dbeafe;display:flex;align-items:center;gap:6px">🏠 Imóveis</div>
       <div class="tw" style="padding:0;margin-bottom:0"><table style="font-size:12px"><thead><tr>
-        <th>Grupo</th><th>Faixa de Crédito</th><th>Prazo</th><th>Lance Médio</th><th>Assertividade</th><th>Parcela Pré</th><th>Parcela Pós</th><th title="Lance Fixo disponível">LF</th><th title="Cota com Parcela Reduzida">PR</th><th></th>
-      </tr></thead><tbody id="oport-sug-im"><tr><td colspan="10" style="text-align:center;color:var(--txt2);padding:10px">Carregando...</td></tr></tbody></table></div>
-      <div style="padding:8px 16px 4px;font-size:12px;font-weight:700;color:#92400e;background:#fffbeb;border-top:2px solid var(--bdr);border-bottom:1px solid #fef3c7;display:flex;align-items:center;gap:6px">🚗 Veículos</div>
-      <div class="tw" style="padding:0"><table style="font-size:12px"><thead><tr>
-        <th>Grupo</th><th>Faixa de Crédito</th><th>Prazo</th><th>Lance Médio</th><th>Assertividade</th><th>Parcela Pré</th><th>Parcela Pós</th><th title="Lance Fixo disponível">LF</th><th title="Cota com Parcela Reduzida">PR</th><th></th>
-      </tr></thead><tbody id="oport-sug-ro"><tr><td colspan="10" style="text-align:center;color:var(--txt2);padding:10px">Carregando...</td></tr></tbody></table></div>
-    </div>
-    <!-- Seção inferior: tabela completa -->
-    <div class="card">
-      <div class="ch">
-        <span class="ct">📋 Todos os Grupos em Andamento</span>
-        <span style="font-size:12px;color:var(--txt2)" id="oport-all-count">—</span>
-        <button class="btn btn-out btn-sm" style="margin-left:auto" onclick="nav('guia',document.querySelector('.ni[onclick*=guia]'))">🔍 Analisar grupo →</button>
-      </div>
-      <div class="tw"><table style="font-size:12px">
-        <thead><tr>
-          <th>Grupo</th><th>Tipo</th><th>Crédito</th><th>Prazo</th>
-          <th>Lance Mín. Atual</th><th>Média 6m</th><th>Vagas</th><th>Contempl./mês</th><th>Score</th>
-        </tr></thead>
-        <tbody id="oport-all-tbody"></tbody>
-      </table></div>
+        <th>Grupo</th>
+        <th title="Imovel ou Veiculo">Tipo</th>
+        <th title="Credito maximo do grupo">Crédito</th>
+        <th title="Vagas disponiveis no grupo">Vagas</th>
+        <th title="Data da proxima assembleia">Próx. AGO</th>
+        <th title="Lance minimo da assembleia mais recente">Lance Atual</th>
+        <th title="Media historica do lance minimo (toggle no header da seção)">Lance Médio</th>
+        <th title="Variacao do lance medio: ultimo mes vs anterior">Tend.</th>
+        <th title="Media de contemplados por mes (ultimos 6m)">Contempl./mês</th>
+        <th id="os-chance-th" title="Em quantos % dos ultimos meses o lance ofertado bateu o minimo. Alta ≥70% · Media 40-69% · Baixa <40%">Chance c/ <span id="os-chance-lbl">40</span>% <span style="color:var(--acc);cursor:help">ℹ️</span></th>
+        <th title="Lance Fixo disponivel" style="text-align:center">LF</th>
+        <th title="Cota com Parcela Reduzida" style="text-align:center">PR</th>
+        <th></th>
+      </tr></thead><tbody id="oport-sug-body"><tr><td colspan="13" style="text-align:center;color:var(--txt2);padding:14px">Carregando...</td></tr></tbody></table></div>
     </div>
   </div>
 
@@ -6511,6 +6502,7 @@ function ortSetTipo(btn,val){
   ortTipo=val;
   document.querySelectorAll('#oport-tipo-toggle .toggle-btn').forEach(b=>b.classList.toggle('act',b===btn));
   renderOportunidades();
+  renderOportSugestoes();
 }
 function buildOrtData(){
   const TAX_ADM=23,FR=3;
@@ -6531,76 +6523,54 @@ function buildOrtData(){
 }
 function renderOportunidades(){
   if(!ortData.length)ortData=buildOrtData();
-  const filtered=ortTipo==='Im'?ortData.filter(o=>o.isIm):ortTipo==='Ro'?ortData.filter(o=>o.isRo):ortData;
-  const top=filtered.slice(0,12);
-  const maxScore=top[0]?.score||1;
-  const grid=document.getElementById('oport-grid');
-  if(!grid)return;
-  grid.innerHTML=top.map((o,i)=>{
-    const compat=Math.min(100,Math.round(o.score/maxScore*100));
-    const compatColor=compat>=80?'#059669':compat>=55?'#d97706':'#dc2626';
-    const medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':'';
-    const tpIcon='';
-    const lanceFmt=o.lanceMed>0?o.lanceMed.toFixed(1)+'%':'—';
-    const contFmt=o.avgCont>0?o.avgCont.toFixed(1)+'/mês':'—';
-    return`<div style="background:var(--card);border-radius:14px;border:1.5px solid var(--bdr);overflow:hidden;cursor:pointer;transition:box-shadow .2s;box-shadow:0 2px 8px rgba(0,0,0,.05)" onmouseover="this.style.boxShadow='0 8px 24px rgba(0,0,0,.12)'" onmouseout="this.style.boxShadow='0 2px 8px rgba(0,0,0,.05)'" onclick="guiaSel('${o.g}');nav('guia',document.querySelector('.ni[onclick*=guia]'))">
-      <div style="background:linear-gradient(135deg,var(--sb) 0%,var(--teal) 100%);padding:14px 16px;color:#fff">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-          <span style="font-size:11px;opacity:.7;font-weight:600;text-transform:uppercase;letter-spacing:.5px">${o.isIm?'Imóvel':'Automóvel'}</span>
-          <span style="font-size:18px">${medal}</span>
-        </div>
-        <div style="font-size:26px;font-weight:700;letter-spacing:-.5px">Grupo ${o.g}</div>
-        <div style="font-size:13px;opacity:.8;margin-top:2px">${o.cred>=1e6?(o.cred/1e6).toFixed(2)+'M':brl(o.cred,0)}${o.d.pr?' · '+o.d.pr+'m':''}</div>
-      </div>
-      <div style="padding:14px 16px">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
-          <div style="text-align:center;background:#f0fdf4;border-radius:8px;padding:8px">
-            <div style="font-size:10px;font-weight:700;color:#064e3b;text-transform:uppercase;margin-bottom:2px">Lance Mín.</div>
-            <div style="font-size:18px;font-weight:700;color:#059669">${lanceFmt}</div>
-          </div>
-          <div style="text-align:center;background:#fff7ed;border-radius:8px;padding:8px">
-            <div style="font-size:10px;font-weight:700;color:#78350f;text-transform:uppercase;margin-bottom:2px">Vagas</div>
-            <div style="font-size:18px;font-weight:700;color:#d97706">${o.d.vagas??'—'}</div>
-          </div>
-        </div>
-        <div style="margin-bottom:10px">
-          <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px">
-            <span style="color:var(--txt2)">Assertividade</span>
-            <span style="font-weight:700;color:${compatColor}">${compat}%</span>
-          </div>
-          <div style="height:6px;background:var(--bdr);border-radius:3px;overflow:hidden">
-            <div style="height:100%;width:${compat}%;background:${compatColor};border-radius:3px"></div>
-          </div>
-        </div>
-        <div style="font-size:11px;color:var(--txt2);display:flex;justify-content:space-between">
-          <span>Contempl.: <strong>${contFmt}</strong></span>
-          <span style="color:var(--acc);font-weight:600">Ver histórico →</span>
-        </div>
-      </div>
-    </div>`;
-  }).join('');
-  // Tabela completa
-  const tbody=document.getElementById('oport-all-tbody');
-  const countEl=document.getElementById('oport-all-count');
-  if(tbody){
-    tbody.innerHTML=filtered.slice(0,50).map(o=>{
-      const compat=Math.min(100,Math.round(o.score/(ortData[0]?.score||1)*100));
-      const cc=compat>=70?'var(--ok)':compat>=40?'var(--warn)':'var(--err)';
-      return`<tr onclick="guiaSel('${o.g}');nav('guia',document.querySelector('.ni[onclick*=guia]'))" style="cursor:pointer">
-        <td><strong style="color:var(--acc2)">${o.g}</strong></td>
-        <td style="font-size:11px">${o.isIm?'Imóvel':'Veículo'}</td>
-        <td>${o.cred?brl(o.cred,0):'—'}</td>
-        <td>${o.d.pr?o.d.pr+'m':'—'}</td>
-        <td><span style="color:var(--ok);font-weight:700">${o.d.at_min?(o.d.at_min*100).toFixed(1)+'%':'—'}</span></td>
-        <td><span style="color:var(--acc2);font-weight:700">${o.lanceMed>0?o.lanceMed.toFixed(1)+'%':'—'}</span></td>
-        <td><strong style="color:${(o.d.vagas||0)>20?'var(--ok)':(o.d.vagas||0)>5?'var(--warn)':'var(--err)'}">${o.d.vagas??'—'}</strong></td>
-        <td>${o.avgCont>0?o.avgCont.toFixed(1):'—'}</td>
-        <td><div style="display:flex;align-items:center;gap:5px"><div style="height:5px;width:${Math.round(compat*.6)}px;background:${cc};border-radius:3px"></div><span style="font-size:10.5px;font-weight:700;color:${cc}">${compat}%</span></div></td>
-      </tr>`;
-    }).join('');
-    if(countEl)countEl.textContent=filtered.length+' grupos';
+  const lt=parseFloat(document.getElementById('os-lance')?.value)||40;
+  const filterSeg=ortTipo==='Im'?o=>o.isIm:ortTipo==='Ro'?o=>o.isRo:()=>true;
+  const cont=document.getElementById('oport-top-cards');
+  if(!cont)return;
+  function chance(o){
+    const hd=HIST.groups[o.g]||HIST.groups[parseInt(o.g)]||{};
+    const mn=(hd.min||[]).filter(v=>v>0);
+    return mn.length?mn.filter(v=>lt>=v).length/mn.length:null;
   }
+  function rankSeg(predicate){
+    return ortData.filter(predicate).map(o=>({...o,ch:chance(o)})).filter(o=>o.ch!=null).sort((a,b)=>(b.ch-a.ch)||(b.vagas-a.vagas)).slice(0,3);
+  }
+  const top3Im=rankSeg(o=>o.isIm);
+  const top3Ro=rankSeg(o=>o.isRo);
+  function renderCard(label,emoji,bg,items,segKey){
+    const visible=ortTipo===''||ortTipo===segKey;
+    if(!visible)return '';
+    if(!items.length)return '<div class="card" style="padding:32px;text-align:center;color:var(--txt2);font-size:13px">'+emoji+' Sem dados de '+label+'</div>';
+    const head='<div style="background:linear-gradient(135deg,var(--sb) 0%,var(--sb2) 100%);padding:14px 18px;color:#fff;display:flex;align-items:center;justify-content:space-between"><div style="font-family:Quicksand,sans-serif;font-size:16px;font-weight:600;letter-spacing:.5px">'+emoji+' Top 3 '+label+'</div><div style="font-size:10.5px;color:rgba(255,243,221,.7);text-transform:uppercase;letter-spacing:1.5px">Maior chance</div></div>';
+    const rows=items.map((o,i)=>{
+      const ch=Math.round(o.ch*100);
+      const cat=ch>=70?{lbl:'Alta',bg:'#d1fae5',fg:'#065f46',icon:'🎯'}:ch>=40?{lbl:'Média',bg:'#fef3c7',fg:'#92400e',icon:'⚠️'}:{lbl:'Baixa',bg:'#fee2e2',fg:'#991b1b',icon:'⚡'};
+      const medal=['🥇','🥈','🥉'][i]||'';
+      const credFmt=o.cred>=1e6?(o.cred/1e6).toFixed(2)+'M':brl(o.cred,0);
+      const lmFmt=o.lanceMed>0?o.lanceMed.toFixed(1)+'%':'—';
+      return '<div data-g="'+o.g+'" onclick="oportTopCardClick(this)" style="padding:12px 18px;border-bottom:1px solid var(--bdr);cursor:pointer;display:flex;align-items:center;gap:14px;transition:background .15s">'+
+        '<span style="font-size:22px;width:28px;text-align:center">'+medal+'</span>'+
+        '<div style="flex:1;min-width:0">'+
+          '<div style="font-family:Quicksand,sans-serif;font-size:18px;font-weight:700;color:var(--sb);line-height:1.1">Grupo '+o.g+'</div>'+
+          '<div style="font-size:11.5px;color:var(--txt2);margin-top:2px">'+credFmt+' · '+(o.d.pr||'?')+'m · <strong style="color:var(--ok)">'+(o.d.vagas??'—')+'</strong> vagas · Lance médio '+lmFmt+'</div>'+
+        '</div>'+
+        '<span style="background:'+cat.bg+';color:'+cat.fg+';padding:4px 11px;border-radius:10px;font-size:10.5px;font-weight:700;white-space:nowrap" title="Em '+ch+'% dos meses, lance de '+lt.toFixed(0)+'% bateu o mínimo">'+cat.icon+' '+cat.lbl+'</span>'+
+      '</div>';
+    }).join('');
+    return '<div class="card" style="overflow:hidden;padding:0">'+head+rows+'</div>';
+  }
+  const html=[renderCard('Imóveis','🏠','#1e40af',top3Im,'Im'),renderCard('Veículos','🚗','#92400e',top3Ro,'Ro')].filter(Boolean).join('');
+  cont.style.gridTemplateColumns=ortTipo===''?'1fr 1fr':'1fr';
+  cont.innerHTML=html||'<div style="grid-column:1/-1;padding:32px;text-align:center;color:var(--txt2);font-size:13px">Sem oportunidades para este filtro</div>';
 }
+
+function oportTopCardClick(el){
+  const g=el.dataset.g;if(!g)return;
+  if(typeof guiaSel==='function')guiaSel(g);
+  const ni=document.querySelector('.ni[onclick*=guia]');
+  if(typeof nav==='function'&&ni)nav('guia',ni);
+}
+
 /* ── CARROSSEL HC360 ── */
 let carrSlides=[],_carrLibsReady=false,_carrLibsLoading=false;
 
@@ -7013,53 +6983,45 @@ function clearOportFiltros(){
   renderOportSugestoes();
 }
 function renderOportSugestoes(){
-  // Injeta toggle de período do Lance Médio (3m/6m/12m/Tudo) no header se ainda não existe
+  // Toggle de periodo do Lance Medio
   const toggleEl=document.getElementById('oport-lance-toggle');
   if(toggleEl&&!toggleEl.innerHTML)toggleEl.innerHTML=lanceTogglehtml();
   const targetCred=parseFloat(document.getElementById('os-cred').value)||0;
   const lt=parseFloat(document.getElementById('os-lance').value)||40;
+  // Atualiza label "Chance c/ X%" na coluna
+  const chanceLbl=document.getElementById('os-chance-lbl');
+  if(chanceLbl)chanceLbl.textContent=lt.toFixed(0);
   const fLf=(document.getElementById('os-lf')?.value)||'';
   const fPr=(document.getElementById('os-pr')?.value)||'';
   const fAssert=parseFloat((document.getElementById('os-assert')?.value)||'0')||0;
   const fPrazo=(document.getElementById('os-prazo')?.value)||'';
   const sortBy=(document.getElementById('os-sort')?.value)||'match';
-  const tbodyIm=document.getElementById('oport-sug-im');
-  const tbodyRo=document.getElementById('oport-sug-ro');
-  if(!tbodyIm&&!tbodyRo)return;
+  const tbody=document.getElementById('oport-sug-body');
+  if(!tbody)return;
   const scored=[];
   Object.entries(GUIA).forEach(([g,d])=>{
+    if(d.sit&&d.sit!=='Andamento')return;
     if(!d.vmax||!d.pr)return;
     if(targetCred>0){const lo=d.vmin||0,hi=d.vmax;if(hi<targetCred*0.6||lo>targetCred*1.5)return;}
     const hd=HIST.groups[g]||HIST.groups[parseInt(g)]||{};
     const mn=(hd.min||[]).filter(v=>v>0);
     const mx=(hd.max||[]).filter(v=>v>0);
     const avgMin=mn.length?mn.reduce((a,b)=>a+b,0)/mn.length:null;
-    const minAll=mn.length?Math.min(...mn):null;
-    const maxAll=mx.length?Math.max(...mx):null;
-    // Lance sugerido: média histórica + margem de segurança (5% acima da média + 2% acima do máximo recente)
-    let lanceSugerido=null;
-    if(avgMin!=null){
-      // Estratégia: média + 1.5*desvio padrão (cobre ~93% dos casos)
-      const sumSq=mn.reduce((s,v)=>s+(v-avgMin)**2,0);
-      const std=Math.sqrt(sumSq/mn.length);
-      lanceSugerido=Math.min(40,Math.max(avgMin+std*0.5,avgMin+1));
-    }
-    // Probabilidade de sucesso = % de meses em que o lance que vou ofertar (lt) bateu o mínimo
+    // Lance Medio segundo o periodo (3m/6m/12m/Tudo) — fallback para avgMin se nao tiver
+    const lmSb=getLanceMed(g);const lanceMed=lmSb!=null?lmSb:avgMin;
+    // Tendencia: ultimo mes vs penultimo
+    const trend=mn.length>=2?(mn[mn.length-1]-mn[mn.length-2]):null;
+    // Chance: % dos meses em que lt bate o minimo
     const success=mn.length?mn.filter(v=>lt>=v).length/mn.length:null;
-    const ta2=d.ta?+(d.ta*100).toFixed(1):23;
-    const fr2=d.fr?+(d.fr*100).toFixed(1):3;
-    const pr2=d.pr;const cred2=d.vmax;
-    const sd2=cred2*(1+ta2/100+fr2/100);
-    const pi2=sd2/pr2;
-    const lv=cred2*lt/100;
-    const saldoPos=Math.max(0,sd2-lv);
-    const pp2=pr2>1?saldoPos/(pr2-1):0;
+    const successCount=mn.length?mn.filter(v=>lt>=v).length:0;
+    const successTotal=mn.length;
     const isImov=d.tp&&(d.tp.toUpperCase().includes('IM')||d.tp.toUpperCase().includes('RES'));
-    // ── Filtro mínimo realista: descarta grupos com prazo muito curto (quase encerrando)
-    const prazoMinimo=isImov?50:24; // Imóvel ≥50m · Veículo/Moto ≥24m
-    if(pr2<prazoMinimo)return;
-    const dist=targetCred>0?Math.abs(cred2-targetCred)/targetCred:0;
-    // Aplicar filtros do usuário
+    const prazoMinimo=isImov?50:24;
+    if(d.pr<prazoMinimo)return;
+    // Filtro por segmento (toggle topo)
+    if(ortTipo==='Im'&&!isImov)return;
+    if(ortTipo==='Ro'&&isImov)return;
+    const dist=targetCred>0?Math.abs(d.vmax-targetCred)/targetCred:0;
     const hasLf=temLanceFixo(g);
     const hasPr=temCotaReduzida(g);
     if(fLf==='sim'&&!hasLf)return;
@@ -7067,68 +7029,80 @@ function renderOportSugestoes(){
     if(fPr==='sim'&&!hasPr)return;
     if(fPr==='nao'&&hasPr)return;
     if(fAssert>0){const succPct=success!=null?success*100:-1;if(succPct<fAssert)return;}
-    // Filtro de prazo (faixas diferentes por tipo: imóvel é mais longo que veículo)
     if(isImov){
-      if(fPrazo==='curto'&&(pr2<50||pr2>120))return;
-      if(fPrazo==='medio'&&(pr2<=120||pr2>180))return;
-      if(fPrazo==='longo'&&pr2<=180)return;
+      if(fPrazo==='curto'&&(d.pr<50||d.pr>120))return;
+      if(fPrazo==='medio'&&(d.pr<=120||d.pr>180))return;
+      if(fPrazo==='longo'&&d.pr<=180)return;
     }else{
-      if(fPrazo==='curto'&&(pr2<24||pr2>48))return;
-      if(fPrazo==='medio'&&(pr2<=48||pr2>72))return;
-      if(fPrazo==='longo'&&pr2<=72)return;
+      if(fPrazo==='curto'&&(d.pr<24||d.pr>48))return;
+      if(fPrazo==='medio'&&(d.pr<=48||d.pr>72))return;
+      if(fPrazo==='longo'&&d.pr<=72)return;
     }
-    scored.push({g,d,avgMin,minAll,maxAll,lanceSugerido,success,vagas:d.vagas||0,pi:pi2,pp:pp2,isIm:isImov,dist,prazo:pr2,cred:cred2});
+    const atualPct=d.at_min?d.at_min*100:null;
+    const cont6=(hd.cont||[]).slice(-6).filter(v=>v>0);
+    const avgCont=cont6.length?cont6.reduce((a,b)=>a+b,0)/cont6.length:0;
+    scored.push({g,d,avgMin,lanceMed,trend,success,successCount,successTotal,vagas:d.vagas||0,isIm:isImov,dist,prazo:d.pr,cred:d.vmax,atualPct,avgCont,hasLf,hasPr});
   });
-  // Ordenação configurável
+  // Ordenacao
   const cmpFn={
-    'match':(a,b)=>{if(targetCred>0){const dd=a.dist-b.dist;if(Math.abs(dd)>0.05)return dd;}const sa=a.success!=null?a.success:-1,sb2=b.success!=null?b.success:-1;return sb2-sa||b.vagas-a.vagas;},
-    'assert-desc':(a,b)=>(b.success??-1)-(a.success??-1),
-    'lance-asc':(a,b)=>(a.avgMin??99)-(b.avgMin??99),
-    'lance-desc':(a,b)=>(b.avgMin??-1)-(a.avgMin??-1),
-    'parcela-asc':(a,b)=>a.pi-b.pi,
-    'parcela-desc':(a,b)=>b.pi-a.pi,
+    'match':(a,b)=>{if(targetCred>0){const dd=a.dist-b.dist;if(Math.abs(dd)>0.05)return dd;}const sa=a.success??-1,sb2=b.success??-1;return sb2-sa||b.vagas-a.vagas;},
+    'chance-desc':(a,b)=>(b.success??-1)-(a.success??-1),
+    'lance-asc':(a,b)=>(a.lanceMed??99)-(b.lanceMed??99),
+    'lance-desc':(a,b)=>(b.lanceMed??-1)-(a.lanceMed??-1),
+    'atual-asc':(a,b)=>(a.atualPct??99)-(b.atualPct??99),
     'prazo-desc':(a,b)=>b.prazo-a.prazo,
     'prazo-asc':(a,b)=>a.prazo-b.prazo,
     'vagas-desc':(a,b)=>b.vagas-a.vagas,
     'cred-desc':(a,b)=>b.cred-a.cred,
-  }[sortBy]||cmpFn['match'];
+  }[sortBy]||((a,b)=>0);
   scored.sort(cmpFn);
-  function mkRow(item){
-    const {g,d,avgMin,minAll,maxAll,success,lanceSugerido}=item;
-    // Categoria de Probabilidade — baseada no histórico do meu lance ofertado
-    let assertCat='—',assertCol='var(--txt2)',assertBg='#f3f4f6',assertIcon='';
-    if(success!=null){
-      const succPct=success*100;
-      if(succPct>=70){assertCat='Alta';assertCol='#065f46';assertBg='#d1fae5';assertIcon='🎯';}
-      else if(succPct>=40){assertCat='Média';assertCol='#92400e';assertBg='#fef3c7';assertIcon='⚠️';}
-      else{assertCat='Baixa';assertCol='#991b1b';assertBg='#fee2e2';assertIcon='⚡';}
+  function mkRow(o){
+    const credFmt=o.cred>=1e6?(o.cred/1e6).toFixed(2)+'M':brl(o.cred,0);
+    const matchDot=targetCred>0&&o.dist<0.15?'<span style="color:var(--ok);margin-left:4px" title="Bate com o credito alvo">✓</span>':'';
+    const tipoBadge=o.isIm?'<span style="background:#dbeafe;color:#1e40af;padding:2px 8px;border-radius:8px;font-size:10px;font-weight:700;white-space:nowrap">🏠 Imóvel</span>':'<span style="background:#fef3c7;color:#92400e;padding:2px 8px;border-radius:8px;font-size:10px;font-weight:700;white-space:nowrap">🚗 Veículo</span>';
+    const vagasCol=o.vagas>20?'var(--ok)':o.vagas>5?'var(--warn)':'var(--err)';
+    const ago=o.d.asm||'—';
+    const atualTxt=o.atualPct!=null?'<strong style="color:var(--ok)">'+o.atualPct.toFixed(1)+'%</strong>':'<span style="color:var(--txt2)">—</span>';
+    const lmTxt=o.lanceMed!=null?'<strong style="color:var(--sb2)">'+o.lanceMed.toFixed(1)+'%</strong>':'<span style="color:var(--txt2)">—</span>';
+    let trendTxt='<span style="color:var(--txt2);font-size:11px">—</span>';
+    if(o.trend!=null){
+      if(o.trend>0.5)trendTxt='<span style="color:#dc2626;font-weight:700;font-size:11px" title="Lance subindo: +'+o.trend.toFixed(1)+'pp vs mes anterior">📈 +'+o.trend.toFixed(1)+'pp</span>';
+      else if(o.trend<-0.5)trendTxt='<span style="color:#059669;font-weight:700;font-size:11px" title="Lance caindo: '+o.trend.toFixed(1)+'pp vs mes anterior">📉 '+o.trend.toFixed(1)+'pp</span>';
+      else trendTxt='<span style="color:var(--txt2);font-size:11px" title="Lance estavel">↔ '+o.trend.toFixed(1)+'pp</span>';
     }
-    const assertTxt=success!=null?'<span style="background:'+assertBg+';color:'+assertCol+';padding:3px 10px;border-radius:8px;font-size:10.5px;font-weight:700;white-space:nowrap" title="Histórico: lance de '+lt.toFixed(0)+'% bate o mínimo em '+(success*100).toFixed(0)+'% dos meses">'+assertIcon+' '+assertCat+'</span>':'<span style="color:var(--txt2);font-size:10.5px">s/hist.</span>';
-    // Lance Médio + lance sugerido com margem
-    let lanceTxt='<span style="color:var(--txt2)">—</span>';
-    if(avgMin!=null){
-      const sug=lanceSugerido!=null?lanceSugerido.toFixed(1)+'%':'';
-      const med=avgMin.toFixed(1)+'%';
-      const faixa=(minAll!=null&&maxAll!=null)?'<small style="display:block;font-size:9.5px;color:var(--txt2);font-weight:500">faixa '+minAll.toFixed(1)+'%–'+maxAll.toFixed(1)+'%</small>':'';
-      lanceTxt='<div title="Lance médio histórico do grupo (12 meses)"><strong style="color:var(--sb2)">'+med+'</strong>'+(sug?' <span style="color:var(--acc);font-weight:700;font-size:11px" title="Lance sugerido com margem de segurança">→ '+sug+'</span>':'')+faixa+'</div>';
+    const contTxt=o.avgCont>0?'<strong>'+o.avgCont.toFixed(1)+'</strong>':'<span style="color:var(--txt2)">—</span>';
+    let chTxt='<span style="color:var(--txt2);font-size:10.5px">s/hist.</span>';
+    if(o.success!=null){
+      const pct=Math.round(o.success*100);
+      const cat=pct>=70?{lbl:'Alta',bg:'#d1fae5',fg:'#065f46',icon:'🎯'}:pct>=40?{lbl:'Média',bg:'#fef3c7',fg:'#92400e',icon:'⚠️'}:{lbl:'Baixa',bg:'#fee2e2',fg:'#991b1b',icon:'⚡'};
+      chTxt='<span style="background:'+cat.bg+';color:'+cat.fg+';padding:3px 9px;border-radius:8px;font-size:10.5px;font-weight:700;white-space:nowrap" title="'+o.successCount+'/'+o.successTotal+' meses ('+pct+'%) — seu lance teria batido o minimo">'+cat.icon+' '+cat.lbl+' <span style="opacity:.7;font-weight:600">'+o.successCount+'/'+o.successTotal+'</span></span>';
     }
-    const credTxt=d.vmin?brl(d.vmin,0)+' – '+brl(d.vmax,0):brl(d.vmax,0);
-    const matchDot=targetCred>0&&item.dist<0.15?'<span style="color:var(--ok);margin-left:4px">✓</span>':'';
-    const inList=propGrupos.some(pg=>pg.grupo===g);
-    const btn=inList?'<span style="color:var(--ok);font-size:11px;font-weight:600">✓ adicionado</span>':'<button class="btn btn-pri btn-sm" data-g="'+g+'" onclick="usarGrupoSugerido(this.dataset.g)" title="Usar este grupo na proposta">+ Simular</button>';
-    const lf=temLanceFixo(g);const pr=temCotaReduzida(g);
-    const lfBadge='<span style="background:'+(lf?'#d1fae5':'#fee2e2')+';color:'+(lf?'#065f46':'#991b1b')+';padding:2px 8px;border-radius:8px;font-size:10px;font-weight:700;white-space:nowrap">'+(lf?'✓ Sim':'✕ Não')+'</span>';
-    const prBadge='<span style="background:'+(pr?'#dbeafe':'#f3f4f6')+';color:'+(pr?'#1e40af':'#6b7280')+';padding:2px 8px;border-radius:8px;font-size:10px;font-weight:700;white-space:nowrap">'+(pr?'✓ Sim':'✕ Não')+'</span>';
-    return '<tr><td><strong>'+g+'</strong></td><td style="white-space:nowrap">'+credTxt+matchDot+'</td><td>'+d.pr+'m</td><td style="min-width:130px">'+lanceTxt+'</td><td>'+assertTxt+'</td><td>'+brl(item.pi)+'</td><td>'+brl(item.pp)+'</td><td style="text-align:center">'+lfBadge+'</td><td style="text-align:center">'+prBadge+'</td><td>'+btn+'</td></tr>';
+    const lfBadge='<span style="background:'+(o.hasLf?'#d1fae5':'#fee2e2')+';color:'+(o.hasLf?'#065f46':'#991b1b')+';padding:2px 8px;border-radius:8px;font-size:10px;font-weight:700;white-space:nowrap">'+(o.hasLf?'✓':'✕')+'</span>';
+    const prBadge='<span style="background:'+(o.hasPr?'#dbeafe':'#f3f4f6')+';color:'+(o.hasPr?'#1e40af':'#6b7280')+';padding:2px 8px;border-radius:8px;font-size:10px;font-weight:700;white-space:nowrap">'+(o.hasPr?'✓':'✕')+'</span>';
+    const inList=propGrupos.some(pg=>pg.grupo===o.g);
+    const btn=inList?'<span style="color:var(--ok);font-size:11px;font-weight:600">✓ adicionado</span>':'<button class="btn btn-pri btn-sm" data-g="'+o.g+'" onclick="usarGrupoSugerido(this.dataset.g)" title="Usar este grupo na proposta">+ Simular</button>';
+    return '<tr>'+
+      '<td><strong>'+o.g+'</strong></td>'+
+      '<td>'+tipoBadge+'</td>'+
+      '<td style="white-space:nowrap">'+credFmt+matchDot+' <small style="color:var(--txt2);font-weight:500">· '+o.prazo+'m</small></td>'+
+      '<td><strong style="color:'+vagasCol+'">'+(o.vagas??'—')+'</strong></td>'+
+      '<td style="font-size:11px">'+ago+'</td>'+
+      '<td>'+atualTxt+'</td>'+
+      '<td>'+lmTxt+'</td>'+
+      '<td>'+trendTxt+'</td>'+
+      '<td>'+contTxt+'</td>'+
+      '<td>'+chTxt+'</td>'+
+      '<td style="text-align:center">'+lfBadge+'</td>'+
+      '<td style="text-align:center">'+prBadge+'</td>'+
+      '<td>'+btn+'</td>'+
+    '</tr>';
   }
-  const empty='<tr><td colspan="10" style="text-align:center;color:var(--txt2);padding:10px">Nenhum grupo encontrado</td></tr>';
-  const im=scored.filter(s=>s.isIm).slice(0,20);
-  const ro=scored.filter(s=>!s.isIm).slice(0,20);
-  tbodyIm.innerHTML=im.map(mkRow).join('')||empty;
-  tbodyRo.innerHTML=ro.map(mkRow).join('')||empty;
+  const top=scored.slice(0,40);
+  tbody.innerHTML=top.map(mkRow).join('')||'<tr><td colspan="13" style="text-align:center;color:var(--txt2);padding:14px">Nenhum grupo encontrado com os filtros atuais</td></tr>';
   const cntEl=document.getElementById('os-count');
-  if(cntEl)cntEl.textContent=`${im.length} imóveis · ${ro.length} veículos`;
+  if(cntEl)cntEl.textContent=top.length+' grupos · '+scored.length+' total';
 }
+
 function usarGrupoSugerido(g){
   // Adiciona o grupo na lista de propGrupos (se ainda não tiver)
   if(!propGrupos.some(pg=>pg.grupo===g)){
@@ -8377,95 +8351,8 @@ function hist12mo(g){
   };
 }
 function mptShort(m){const p=m.split('-');const mnames=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];return mnames[parseInt(p[1])-1]+'/'+p[0].slice(2);}
-function renderOportunidades(){
-  const isIm=d=>{const t=(d.tp||'').toUpperCase();return t.includes('IMÓV');}
-  const isRo=d=>{const t=(d.tp||'').toUpperCase();return!t.includes('IMÓV');}
-  function topGroups(filterFn,n){
-    return Object.entries(GUIA)
-      .filter(([g,d])=>d.sit==='Andamento'&&(d.vagas||0)>0&&filterFn(d))
-      .map(([g,d])=>{
-        const h=hist12mo(g);
-        if(!h.avgMin)return null;
-        const score=(d.vagas||0)*2+Math.max(0,40-h.avgMin)+Math.max(0,10-h.trend*200);
-        return{g,d,h,score};
-      })
-      .filter(Boolean)
-      .sort((a,b)=>b.score-a.score)
-      .slice(0,n);
-  }
-  function renderCard({g,d,h}){
-    const minPct=v=>v>0?(v*100).toFixed(1)+'%':'—';
-    const rows=h.months.map((m,i)=>{
-      const mn=h.lmin[i];const mx=h.lmax[i];const ct=h.contemp[i];
-      const hasMn=mn>0;
-      return`<tr>
-        <td style="padding:5px 10px;font-size:11px;color:var(--txt2);white-space:nowrap">${mptShort(m)}</td>
-        <td style="padding:5px 10px;font-size:12px;font-weight:700;color:${hasMn?'var(--ok)':'var(--txt2)'}">${hasMn?mn.toFixed(1)+'%':'—'}</td>
-        <td style="padding:5px 10px;font-size:12px;font-weight:700;color:${mx>0?'var(--err)':'var(--txt2)'}">${mx>0?mx.toFixed(1)+'%':'—'}</td>
-        <td style="padding:5px 10px;font-size:12px;color:var(--txt2)">${ct>0?ct:'—'}</td>
-      </tr>`;
-    }).join('');
-    const trendIco=h.trend<-0.5?'📉':h.trend>0.5?'📈':'➡️';
-    const avgMinPct=h.avgMin?h.avgMin.toFixed(1)+'%':'—';
-    const avgMaxPct=h.avgMax?h.avgMax.toFixed(1)+'%':'—';
-    const lf=temLanceFixo(g);const pr=temCotaReduzida(g);
-    return`<div class="card" style="margin-bottom:14px">
-      <div class="ch" style="background:linear-gradient(90deg,var(--sb) 0%,var(--sb2) 100%);border-radius:14px 14px 0 0">
-        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
-          <span style="font-size:20px;font-weight:700;color:var(--acc);font-family:'Quicksand',sans-serif">${g}</span>
-          <div>
-            <div style="color:#fff;font-size:13px;font-weight:700">${d.vmax?brl(d.vmax,0):d.vmin?'A partir de '+brl(d.vmin,0):'—'}</div>
-            <div style="color:rgba(255,255,255,.55);font-size:11px">${d.pr?d.pr+'m':''}${d.pr&&d.tp?' · ':''}${(d.tp||'').split(' ')[0]}</div>
-          </div>
-          <div style="display:flex;gap:5px;align-items:center;margin-left:6px">
-            ${lf?'<span style="background:rgba(214,175,92,.25);color:#FFD89E;border:1px solid var(--acc);padding:2px 9px;border-radius:8px;font-size:10px;font-weight:700">LF</span>':''}
-            ${pr?'<span style="background:rgba(59,130,246,.25);color:#bfdbfe;border:1px solid #60a5fa;padding:2px 9px;border-radius:8px;font-size:10px;font-weight:700">PR</span>':''}
-          </div>
-        </div>
-        <div style="display:flex;gap:14px;align-items:center">
-          <div style="text-align:center">
-            <div style="color:rgba(255,255,255,.5);font-size:9.5px;text-transform:uppercase;letter-spacing:.5px">Vagas</div>
-            <div style="color:${(d.vagas||0)>20?'#6ee7b7':(d.vagas||0)>5?'var(--warn)':'#fca5a5'};font-size:16px;font-weight:700">${d.vagas!=null?d.vagas:'—'}</div>
-          </div>
-          <div style="text-align:center">
-            <div style="color:rgba(255,255,255,.5);font-size:9.5px;text-transform:uppercase;letter-spacing:.5px">Méd. Mín.</div>
-            <div style="color:var(--acc);font-size:16px;font-weight:700">${avgMinPct}</div>
-          </div>
-          <div style="text-align:center">
-            <div style="color:rgba(255,255,255,.5);font-size:9.5px;text-transform:uppercase;letter-spacing:.5px">Tendência</div>
-            <div style="font-size:18px">${trendIco}</div>
-          </div>
-        </div>
-      </div>
-      <div style="overflow-x:auto">
-        <table style="width:100%;border-collapse:collapse;font-size:12px">
-          <thead><tr style="background:var(--card2)">
-            <th style="padding:6px 10px;font-size:9.5px;color:var(--txt2);text-transform:uppercase;letter-spacing:.5px;text-align:left;border-bottom:1px solid var(--bdr)">Mês</th>
-            <th style="padding:6px 10px;font-size:9.5px;color:var(--ok);text-transform:uppercase;letter-spacing:.5px;text-align:left;border-bottom:1px solid var(--bdr)">Lance Mín.</th>
-            <th style="padding:6px 10px;font-size:9.5px;color:var(--err);text-transform:uppercase;letter-spacing:.5px;text-align:left;border-bottom:1px solid var(--bdr)">Lance Máx.</th>
-            <th style="padding:6px 10px;font-size:9.5px;color:var(--txt2);text-transform:uppercase;letter-spacing:.5px;text-align:left;border-bottom:1px solid var(--bdr)">Contemp.</th>
-          </tr></thead>
-          <tbody>${rows}</tbody>
-          <tfoot><tr style="background:#fdf6e3">
-            <td style="padding:7px 10px;font-size:11px;font-weight:700;color:var(--acc2)">Média 12m</td>
-            <td style="padding:7px 10px;font-size:12px;font-weight:700;color:var(--ok)">${avgMinPct}</td>
-            <td style="padding:7px 10px;font-size:12px;font-weight:700;color:var(--err)">${avgMaxPct}</td>
-            <td style="padding:7px 10px;font-size:11px;color:var(--txt2)">${trendIco} ${h.trend<0?'Em queda':h.trend>0?'Em alta':'Estável'}</td>
-          </tr></tfoot>
-        </table>
-      </div>
-      <div style="padding:10px 14px;display:flex;justify-content:flex-end;gap:8px">
-        <button class="btn btn-out btn-sm" onclick="guiaSel('${g}')">Ver análise completa →</button>
-      </div>
-    </div>`;
-  }
-  const topIm=topGroups(isIm,5);
-  const topRo=topGroups(isRo,5);
-  const elBadgeIm=document.getElementById('oport-im-badge');if(elBadgeIm)elBadgeIm.textContent=topIm.length+' grupos';
-  const elBadgeRo=document.getElementById('oport-ro-badge');if(elBadgeRo)elBadgeRo.textContent=topRo.length+' grupos';
-  const elIm=document.getElementById('oport-im');if(elIm)elIm.innerHTML=topIm.map(renderCard).join('');
-  const elRo=document.getElementById('oport-ro');if(elRo)elRo.innerHTML=topRo.map(renderCard).join('');
-}
+/* renderOportunidades antiga removida (substituida pela nova versao acima) */
+
 
 // ═══ INIT ═══
 window.addEventListener('DOMContentLoaded',async ()=>{
