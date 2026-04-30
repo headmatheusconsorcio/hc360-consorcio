@@ -1333,7 +1333,7 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
           </div>
           <div class="gfb-fld"><label title="Lance Fixo disponível">Lance Fixo</label>
             <select id="guia-f-lf" onchange="guiaFilter()">
-              <option value="">Todos</option><option value="sim">Disponível</option><option value="nao">Suspenso</option>
+              <option value="">Todos</option><option value="sim">Sim</option><option value="nao">Não</option>
             </select>
           </div>
           <div class="gfb-fld"><label title="Parcela Reduzida">Parc. Reduz.</label>
@@ -5189,7 +5189,7 @@ function guiaUpdateChips(){
   const sel={
     tipo:{Im:'🏠 Imóveis',Ro:'🚗 Veículos/Motos'},
     sit:{Andamento:'Em andamento',off:'Encerrado/cancelado'},
-    lf:{sim:'LF disponível',nao:'LF suspenso'},
+    lf:{sim:'LF: Sim',nao:'LF: Não'},
     pr:{sim:'Com PR',nao:'Sem PR'}
   };
   const v=id=>document.getElementById('guia-f-'+id)?.value||'';
