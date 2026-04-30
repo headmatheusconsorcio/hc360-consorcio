@@ -581,11 +581,11 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
 .sb-overlay.open{display:block}
 
 /* ── PÓS-CONTEMPLAÇÃO ───────────────────────── */
-.fat-hero{background:linear-gradient(135deg,var(--sb) 0%,var(--sb2) 100%);border-radius:var(--r-md);padding:var(--sp-8) var(--sp-8);color:#fff;margin-bottom:var(--sp-6);position:relative;overflow:hidden;box-shadow:var(--sh-2)}
-.fat-hero::after{content:'';position:absolute;right:-40px;top:-40px;width:220px;height:220px;border-radius:50%;background:rgba(255,255,255,.05)}
-.fat-hero-title{font-size:22px;font-weight:700;font-family:'Quicksand',sans-serif;margin-bottom:6px}
-.fat-hero-sub{font-size:14px;opacity:.75;max-width:600px;line-height:1.6}
-.fat-steps{display:flex;gap:0;margin-bottom:28px;overflow-x:auto;padding-bottom:4px}
+.fat-hero{background:linear-gradient(135deg,var(--sb) 0%,var(--sb2) 100%);border-radius:var(--r-md);padding:var(--sp-4) var(--sp-6);color:#fff;margin-bottom:var(--sp-4);position:relative;overflow:hidden;box-shadow:var(--sh-2)}
+.fat-hero::after{content:'';position:absolute;right:-40px;top:-40px;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,.05)}
+.fat-hero-title{font-size:17px;font-weight:700;font-family:'Quicksand',sans-serif;margin-bottom:3px}
+.fat-hero-sub{font-size:12.5px;opacity:.75;max-width:680px;line-height:1.5}
+.fat-steps{display:flex;gap:0;margin-bottom:14px;overflow-x:auto;padding-bottom:4px}
 .fat-step{flex:1;min-width:96px;display:flex;flex-direction:column;align-items:center;position:relative}
 .fat-step:not(:last-child)::after{content:'';position:absolute;top:20px;left:60%;width:80%;height:2px;background:var(--bdr);z-index:0}
 .fat-step-num{width:40px;height:40px;border-radius:50%;background:var(--card2);border:2px solid var(--bdr);display:flex;align-items:center;justify-content:center;font-size:var(--fs-md);font-weight:700;color:var(--txt2);z-index:1;transition:background var(--t-base),border-color var(--t-base),color var(--t-base),box-shadow var(--t-base);flex-shrink:0;font-family:'Quicksand',sans-serif}
@@ -612,31 +612,46 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
 .fat-rule.ok{border-left-color:var(--ok);background:var(--ok-tint)}
 .fat-imp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px}
 .fat-imp{display:flex;align-items:center;gap:var(--sp-2);padding:9px 13px;background:#FFF5F5;border:1px solid #FCA5A5;border-radius:var(--r-sm);font-size:var(--fs-sm);color:var(--err-deep)}
-.fat-cota-bar{background:linear-gradient(135deg,var(--cream),var(--card));border:1.5px solid var(--bdr);border-radius:var(--r-md);padding:var(--sp-3) var(--sp-5);margin-bottom:var(--sp-4);display:flex;align-items:center;gap:var(--sp-4);flex-wrap:wrap;transition:border-color var(--t-base),box-shadow var(--t-base)}
+.fat-cota-bar{background:linear-gradient(135deg,var(--cream),var(--card));border:1.5px solid var(--bdr);border-radius:var(--r-md);padding:var(--sp-3) var(--sp-4);margin-bottom:var(--sp-3);display:flex;flex-direction:column;gap:var(--sp-2);transition:border-color var(--t-base),box-shadow var(--t-base)}
 .fat-cota-bar.has-cota{border-color:var(--acc);background:linear-gradient(135deg,var(--acc-tint),var(--card));box-shadow:0 2px 12px rgba(214,175,92,.16)}
-.fat-cota-info{display:flex;flex-direction:column;gap:2px;flex:1;min-width:200px}
-.fat-cota-info b{font-size:14px;color:var(--txt)}
-.fat-cota-info small{font-size:11.5px;color:var(--txt2)}
-.fat-cota-pills{display:flex;gap:6px;flex-wrap:wrap}
-.fat-cota-pill{font-size:11px;font-weight:700;padding:4px 10px;border-radius:6px;background:#fff;border:1px solid var(--bdr);color:var(--txt2);white-space:nowrap}
-.fat-cota-pill.acc{background:var(--acc);border-color:var(--acc);color:#fff}
-.fat-cota-pill.ok{background:#dcfce7;border-color:#86efac;color:#14532d}
-.fat-cota-pill.warn{background:#fef3c7;border-color:#fcd34d;color:#78350f}
+.fat-cli-row{display:flex;align-items:center;gap:var(--sp-3);flex-wrap:wrap}
+.fat-cli-info{display:flex;flex-direction:column;gap:2px;flex:1;min-width:200px}
+.fat-cli-info b{font-size:13px;color:var(--txt)}
+.fat-cli-info small{font-size:11px;color:var(--txt2)}
+.fat-cli-stats{display:flex;gap:5px;flex-wrap:wrap}
+.fat-cli-stat{font-size:11px;font-weight:700;padding:3px 9px;border-radius:6px;background:var(--card);border:1px solid var(--bdr);color:var(--txt2);white-space:nowrap}
+.fat-cli-stat.acc{background:var(--acc);border-color:var(--acc);color:#fff}
+.fat-cli-stat.ok{background:#dcfce7;border-color:#86efac;color:#14532d}
+.fat-chips-row{display:flex;gap:5px;flex-wrap:wrap;align-items:center}
+.fat-chip{display:inline-flex;align-items:center;gap:5px;padding:4px 8px 4px 6px;border-radius:6px;background:var(--card);border:1.5px solid var(--bdr);font-size:11px;font-weight:600;color:var(--txt2);cursor:pointer;transition:all .14s;user-select:none}
+.fat-chip:hover{border-color:var(--acc)}
+.fat-chip.on{background:var(--acc-tint);border-color:var(--acc);color:var(--txt)}
+.fat-chip.on .fat-chip-mark{background:var(--acc);color:#fff;border-color:var(--acc)}
+.fat-chip-mark{display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;border-radius:3px;background:#fff;border:1.5px solid var(--bdr);font-size:9px;color:transparent;line-height:1;font-weight:900}
+.fat-chip.fat{border-style:dashed}
+.fat-chip-mini{font-size:9.5px;opacity:.7;font-weight:500}
 .fat-step{cursor:pointer}
 .fat-doc-row{display:flex;align-items:flex-start;gap:8px}
 .fat-doc-row .fat-doc{flex:1}
 .fat-doc-chk{margin-top:13px;width:18px;height:18px;cursor:pointer;flex-shrink:0;accent-color:var(--ok)}
 .fat-doc-chk:disabled{cursor:not-allowed;opacity:.4}
 .fat-doc.checked{opacity:.55;text-decoration:line-through;text-decoration-color:var(--ok)}
-.fat-iq-card{background:linear-gradient(135deg,#FFF7ED,var(--warn-tint));border:1.5px solid var(--warn);border-left:5px solid var(--warn);border-radius:var(--r-md);padding:var(--sp-4) var(--sp-6);margin-bottom:var(--sp-5);display:flex;align-items:center;gap:var(--sp-5);flex-wrap:wrap;box-shadow:var(--sh-1)}
+.fat-iq-card{background:linear-gradient(135deg,#FFF7ED,var(--warn-tint));border:1.5px solid var(--warn);border-left:4px solid var(--warn);border-radius:var(--r-md);padding:var(--sp-3) var(--sp-4);margin-bottom:var(--sp-3);display:flex;align-items:center;gap:var(--sp-4);flex-wrap:wrap;box-shadow:var(--sh-1)}
 .fat-iq-card.crit{border-color:var(--err);border-left-color:var(--err);background:linear-gradient(135deg,#FEF2F2,var(--err-tint))}
-.fat-iq-num{font-size:38px;font-weight:700;color:var(--warn);font-family:'Quicksand',sans-serif;line-height:1}
+.fat-iq-num{font-size:30px;font-weight:700;color:var(--warn);font-family:'Quicksand',sans-serif;line-height:1}
 .fat-iq-card.crit .fat-iq-num{color:var(--err)}
 .fat-iq-info{flex:1;min-width:240px}
-.fat-iq-info b{font-size:14px;color:var(--txt);display:block;margin-bottom:3px}
-.fat-iq-info small{font-size:12px;color:var(--txt2);display:block}
-.fat-iq-bar{flex-basis:100%;height:8px;background:#fff;border-radius:4px;overflow:hidden;margin-top:6px;border:1px solid var(--bdr)}
+.fat-iq-info b{font-size:13px;color:var(--txt);display:block;margin-bottom:2px}
+.fat-iq-info small{font-size:11.5px;color:var(--txt2);display:block;line-height:1.4}
+.fat-iq-bar{flex-basis:100%;height:6px;background:#fff;border-radius:4px;overflow:hidden;margin-top:5px;border:1px solid var(--bdr)}
 .fat-iq-bar-fill{height:100%;background:linear-gradient(90deg,var(--warn),var(--err));transition:width .3s}
+.fat-side-tabs{display:flex;gap:0;border-bottom:1px solid var(--bdr);overflow-x:auto;padding:0 var(--sp-2)}
+.fat-side-tab{padding:9px 13px;font-size:11.5px;font-weight:600;background:transparent;border:none;color:var(--txt2);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;font-family:'Mulish',sans-serif;transition:color var(--t-fast),border-color var(--t-fast)}
+.fat-side-tab:hover{color:var(--txt)}
+.fat-side-tab.act{color:var(--acc);border-bottom-color:var(--acc);font-weight:700}
+.fat-side-pane{display:none;padding:var(--sp-3) var(--sp-4)}
+.fat-side-pane.act{display:block}
+.fat-section{margin-bottom:14px}
 /* ── PROJ DASHBOARD ─────────────────────────── */
 .pd-tabs{display:flex;gap:4px;background:var(--card2);border-radius:9px;padding:3px;border:1px solid var(--bdr);align-items:center}
 .pd-tab{padding:7px 16px;border-radius:7px;font-size:12.5px;font-weight:600;cursor:pointer;border:none;background:transparent;color:var(--txt2);transition:all .18s;font-family:'Mulish',sans-serif}
@@ -1823,17 +1838,20 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
   <!-- PÓS-CONTEMPLAÇÃO -->
   <div class="page" id="page-fat">
 
-    <!-- Cota selector -->
+    <!-- Cliente selector + chips de cotas -->
     <div class="fat-cota-bar" id="fat-cota-bar">
-      <div style="display:flex;flex-direction:column;gap:4px;flex:1;min-width:280px">
-        <small style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--txt2)">📋 Trabalhar em qual cota contemplada?</small>
-        <select class="fi fi-lg" id="fat-cota-sel" onchange="fatSelectCota(this.value)" style="width:100%;max-width:520px">
-          <option value="">— Visão geral (sem vínculo a cota específica) —</option>
-        </select>
+      <div class="fat-cli-row">
+        <div style="display:flex;flex-direction:column;gap:3px;flex:1;min-width:240px">
+          <small style="font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--txt2)">👤 Trabalhar em qual cliente?</small>
+          <select class="fi fi-md" id="fat-cli-sel" onchange="fatSelectCliente(this.value)" style="width:100%;max-width:380px">
+            <option value="">— Visão geral —</option>
+          </select>
+        </div>
+        <div class="fat-cli-info" id="fat-cli-info" style="display:none"></div>
+        <div class="fat-cli-stats" id="fat-cli-stats"></div>
+        <button class="btn btn-out btn-sm" id="fat-cli-clear" onclick="fatSelectCliente('')" style="display:none">✕ Limpar</button>
       </div>
-      <div class="fat-cota-info" id="fat-cota-info" style="display:none"></div>
-      <div class="fat-cota-pills" id="fat-cota-pills"></div>
-      <button class="btn btn-out btn-sm" id="fat-cota-clear" onclick="fatSelectCota('')" style="display:none">✕ Desvincular</button>
+      <div class="fat-chips-row" id="fat-chips-row" style="display:none"></div>
     </div>
 
     <!-- IQ countdown card -->
@@ -2102,116 +2120,114 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
         </div>
       </div>
 
-      <!-- Coluna direita: Regras + Impedimentos -->
-      <div style="display:flex;flex-direction:column;gap:18px">
-
-        <!-- Regras críticas -->
+      <!-- Coluna direita: card único com tabs internas -->
+      <div>
         <div class="card">
-          <div class="ch"><span class="ct">📌 Regras Críticas do Imóvel</span></div>
-          <div class="cb" style="display:flex;flex-direction:column;gap:8px">
-            <div class="fat-rule warn"><span style="font-size:18px">⏱️</span><div><b>Matrícula válida por 30 dias</b> — deve ser emitida há menos de 30 dias com certidão negativa de ônus, ações pessoais e reipersecutórias.</div></div>
-            <div class="fat-rule warn"><span style="font-size:18px">📜</span><div><b>Procuração válida por 90 dias</b> — se emitida há mais de 90 dias, exige translado atualizado.</div></div>
-            <div class="fat-rule"><span style="font-size:18px">📐</span><div><b>Área idêntica</b> — metragem do terreno e construção deve ser exatamente a registrada na matrícula E no IPTU. Divergência paralisa o processo.</div></div>
-            <div class="fat-rule"><span style="font-size:18px">🔒</span><div><b>Alienação fiduciária</b> — o imóvel fica como garantia até quitação total. O imóvel <b>NÃO pode ser alugado</b> enquanto estiver alienado.</div></div>
-            <div class="fat-rule"><span style="font-size:18px">🏷️</span><div><b>Endereço idêntico</b> em todos os documentos (matrícula, IPTU, formulário). Imóvel deve ter delimitação física: muro, grade ou cerca.</div></div>
-            <div class="fat-rule"><span style="font-size:18px">📑</span><div><b>Averbações obrigatórias</b> na matrícula: construção/demolição, estado civil (divórcio + partilha), óbito + partilha. Todos os proprietários listados devem constar na matrícula.</div></div>
-            <div class="fat-rule ok"><span style="font-size:18px">💰</span><div><b>Custos do consorciado:</b> ITBI (pago na Prefeitura) + Despesas cartorárias (Cartório de Registro de Imóveis e Cartório de Notas).</div></div>
-            <div class="fat-rule ok"><span style="font-size:18px">📄</span><div><b>Documentação reprovada?</b> A contemplação permanece ativa. O consorciado pode corrigir e reenviar os documentos — não perde a contemplação.</div></div>
-          </div>
-        </div>
+          <div class="ch"><span class="ct">📚 Informações de Apoio</span></div>
+          <div class="cb" style="padding:0">
+            <div class="fat-side-tabs">
+              <button class="fat-side-tab act" onclick="fatSideTab('reg',this)">📌 Regras</button>
+              <button class="fat-side-tab" onclick="fatSideTab('praz',this)">⏱️ Prazos</button>
+              <button class="fat-side-tab" onclick="fatSideTab('sob',this)">💳 Sobra</button>
+              <button class="fat-side-tab" onclick="fatSideTab('pode',this)">✅ Pode comprar</button>
+              <button class="fat-side-tab" onclick="fatSideTab('nao',this)">🚫 Não aceitos</button>
+            </div>
 
-        <!-- Prazos Contratuais -->
-        <div class="card">
-          <div class="ch"><span class="ct">⏱️ Prazos Contratuais Pós-Contemplação</span></div>
-          <div class="cb">
-            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px">
-              <div style="background:var(--cream);border-radius:10px;padding:14px 16px;border-left:3px solid var(--acc)">
-                <div style="font-size:22px;font-weight:700;color:var(--acc);font-family:'Quicksand',sans-serif">3 dias úteis</div>
-                <div style="font-size:12px;font-weight:700;color:var(--txt);margin-top:4px">Crédito disponível</div>
-                <div style="font-size:11px;color:var(--txt2);margin-top:2px">Após homologação da contemplação pelo Itaú</div>
+            <div id="fat-side-reg" class="fat-side-pane act" style="display:flex;flex-direction:column;gap:7px">
+              <div class="fat-rule warn"><span style="font-size:16px">⏱️</span><div><b>Matrícula válida por 30 dias</b> — emitida há menos de 30 dias com certidão negativa de ônus, ações pessoais e reipersecutórias.</div></div>
+              <div class="fat-rule warn"><span style="font-size:16px">📜</span><div><b>Procuração válida por 90 dias</b> — se emitida há mais de 90 dias, exige translado atualizado.</div></div>
+              <div class="fat-rule"><span style="font-size:16px">📐</span><div><b>Área idêntica</b> — metragem do terreno e construção exata na matrícula E no IPTU. Divergência paralisa o processo.</div></div>
+              <div class="fat-rule"><span style="font-size:16px">🔒</span><div><b>Alienação fiduciária</b> — imóvel fica como garantia até quitação total. <b>NÃO pode ser alugado</b> enquanto alienado.</div></div>
+              <div class="fat-rule"><span style="font-size:16px">🏷️</span><div><b>Endereço idêntico</b> em todos os documentos. Imóvel deve ter delimitação física (muro, grade, cerca).</div></div>
+              <div class="fat-rule"><span style="font-size:16px">📑</span><div><b>Averbações obrigatórias</b>: construção/demolição, estado civil (divórcio+partilha), óbito+partilha. Todos os proprietários devem constar na matrícula.</div></div>
+              <div class="fat-rule ok"><span style="font-size:16px">💰</span><div><b>Custos do consorciado:</b> ITBI (Prefeitura) + Despesas cartorárias (CRI + Cartório de Notas).</div></div>
+              <div class="fat-rule ok"><span style="font-size:16px">📄</span><div><b>Documentação reprovada?</b> Contemplação permanece ativa. Consorciado pode corrigir e reenviar — não perde.</div></div>
+            </div>
+
+            <div id="fat-side-praz" class="fat-side-pane">
+              <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px">
+                <div style="background:var(--cream);border-radius:9px;padding:11px 14px;border-left:3px solid var(--acc)">
+                  <div style="font-size:18px;font-weight:700;color:var(--acc);font-family:'Quicksand',sans-serif">3 dias úteis</div>
+                  <div style="font-size:11.5px;font-weight:700;color:var(--txt);margin-top:3px">Crédito disponível</div>
+                  <div style="font-size:10.5px;color:var(--txt2);margin-top:1px">Após homologação da contemplação</div>
+                </div>
+                <div style="background:var(--cream);border-radius:9px;padding:11px 14px;border-left:3px solid var(--sb2)">
+                  <div style="font-size:18px;font-weight:700;color:var(--sb2);font-family:'Quicksand',sans-serif">10 dias úteis</div>
+                  <div style="font-size:11.5px;font-weight:700;color:var(--txt);margin-top:3px">Pagamento ao vendedor</div>
+                  <div style="font-size:10.5px;color:var(--txt2);margin-top:1px">Após aprovação da análise</div>
+                </div>
+                <div style="background:#fff7ed;border-radius:9px;padding:11px 14px;border-left:3px solid var(--warn)">
+                  <div style="font-size:18px;font-weight:700;color:var(--warn);font-family:'Quicksand',sans-serif">5 dias úteis</div>
+                  <div style="font-size:11.5px;font-weight:700;color:var(--txt);margin-top:3px">Extrato FGTS</div>
+                  <div style="font-size:10.5px;color:var(--txt2);margin-top:1px">Da contemplação. Sem arrecadações posteriores.</div>
+                </div>
+                <div style="background:#f0fdf8;border-radius:9px;padding:11px 14px;border-left:3px solid var(--ok)">
+                  <div style="font-size:18px;font-weight:700;color:var(--ok);font-family:'Quicksand',sans-serif">180 dias</div>
+                  <div style="font-size:11.5px;font-weight:700;color:var(--txt);margin-top:3px">Receber sem bem</div>
+                  <div style="font-size:10.5px;color:var(--txt2);margin-top:1px">Contemplado + cota quitada</div>
+                </div>
+                <div style="background:#fef2f2;border-radius:9px;padding:11px 14px;border-left:3px solid var(--err)">
+                  <div style="font-size:18px;font-weight:700;color:var(--err);font-family:'Quicksand',sans-serif">45 dias</div>
+                  <div style="font-size:11.5px;font-weight:700;color:var(--txt);margin-top:3px">Registrar contrato IQ</div>
+                  <div style="font-size:10.5px;color:var(--txt2);margin-top:1px">No CRI + devolver ao Itaú</div>
+                </div>
               </div>
-              <div style="background:var(--cream);border-radius:10px;padding:14px 16px;border-left:4px solid var(--sb2)">
-                <div style="font-size:22px;font-weight:700;color:var(--sb2);font-family:'Quicksand',sans-serif">10 dias úteis</div>
-                <div style="font-size:12px;font-weight:700;color:var(--txt);margin-top:4px">Pagamento ao vendedor</div>
-                <div style="font-size:11px;color:var(--txt2);margin-top:2px">Após aprovação da análise documental e do imóvel</div>
+            </div>
+
+            <div id="fat-side-sob" class="fat-side-pane" style="display:none">
+              <p style="font-size:12.5px;color:var(--txt2);margin-bottom:8px">Quando o imóvel escolhido vale <b>menos</b> que o saldo da carta, o excedente pode ser usado para:</p>
+              <div style="display:flex;flex-direction:column;gap:6px">
+                <div class="fat-rule ok"><span style="font-size:16px">1</span><div><b>Reembolso de ITBI e cartório</b> — até <b>10% do crédito</b>, com comprovante.</div></div>
+                <div class="fat-rule ok"><span style="font-size:16px">2</span><div><b>Pagar parcelas vincendas</b> — liquidação na ordem inversa, reduz prazo.</div></div>
+                <div class="fat-rule ok"><span style="font-size:16px">3</span><div><b>Reduzir o valor das parcelas</b> — amortização mantendo prazo.</div></div>
+                <div class="fat-rule warn"><span style="font-size:16px">4</span><div><b>Devolução em espécie</b> — só se grupo estiver totalmente quitado.</div></div>
+                <div class="fat-rule ok"><span style="font-size:16px">5</span><div><b>Comprar outro bem</b> do mesmo segmento (alienação fiduciária).</div></div>
               </div>
-              <div style="background:#fff7ed;border-radius:10px;padding:14px 16px;border-left:3px solid var(--warn)">
-                <div style="font-size:22px;font-weight:700;color:var(--warn);font-family:'Quicksand',sans-serif">5 dias úteis</div>
-                <div style="font-size:12px;font-weight:700;color:var(--txt);margin-top:4px">Extrato FGTS (se lance FGTS)</div>
-                <div style="font-size:11px;color:var(--txt2);margin-top:2px">Contados da data da contemplação. Não aceita arrecadações posteriores.</div>
+            </div>
+
+            <div id="fat-side-pode" class="fat-side-pane" style="display:none">
+              <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:6px">
+                <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:7px;padding:7px 11px;font-size:11.5px;color:#14532d">Casa, apartamento, kitnet, edifício</div>
+                <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:7px;padding:7px 11px;font-size:11.5px;color:#14532d">Terreno urbano</div>
+                <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:7px;padding:7px 11px;font-size:11.5px;color:#14532d">Comercial, residencial ou misto</div>
+                <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:7px;padding:7px 11px;font-size:11.5px;color:#14532d">Pré-fabricado, madeira, praia, edícula</div>
+                <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:7px;padding:7px 11px;font-size:11.5px;color:#14532d">Flat / hotel residencial (sem FGTS)</div>
+                <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:7px;padding:7px 11px;font-size:11.5px;color:#14532d">MCMV faixas 2 e 3</div>
+                <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:7px;padding:7px 11px;font-size:11.5px;color:#14532d">Sítio / chácara urbano</div>
+                <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:7px;padding:7px 11px;font-size:11.5px;color:#14532d">Rural: garantia urbana + CAR</div>
+                <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:7px;padding:7px 11px;font-size:11.5px;color:#14532d">Divergência terreno até 5% (maior)</div>
+                <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:7px;padding:7px 11px;font-size:11.5px;color:#14532d">Divergência área constr. até 150%</div>
+                <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:7px;padding:7px 11px;font-size:11.5px;color:#14532d">APP em área comum do condomínio</div>
+                <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:7px;padding:7px 11px;font-size:11.5px;color:#14532d">Quitar CCB/CGI do próprio Itaú</div>
               </div>
-              <div style="background:#f0fdf8;border-radius:10px;padding:14px 16px;border-left:3px solid var(--ok)">
-                <div style="font-size:22px;font-weight:700;color:var(--ok);font-family:'Quicksand',sans-serif">180 dias</div>
-                <div style="font-size:12px;font-weight:700;color:var(--txt);margin-top:4px">Para receber sem comprar bem</div>
-                <div style="font-size:11px;color:var(--txt2);margin-top:2px">Mínimo contemplado + cota quitada. Antes disso, saldo devedor é descontado.</div>
+              <div class="fat-rule warn" style="margin-top:10px"><span style="font-size:16px">⚠️</span><div><b>Não pode:</b> 2 imóveis com 1 cota · 1 imóvel com 2 cotas · imóvel no exterior · só vaga de garagem.</div></div>
+            </div>
+
+            <div id="fat-side-nao" class="fat-side-pane" style="display:none">
+              <div class="fat-imp-grid">
+                <div class="fat-imp">🪵 Pré-fabricado / madeira</div>
+                <div class="fat-imp">🏭 Galpão / armazém / barracão</div>
+                <div class="fat-imp">🏛️ Patrimônio histórico</div>
+                <div class="fat-imp">🚗 Estacionamento</div>
+                <div class="fat-imp">🌿 Área de preservação permanente</div>
+                <div class="fat-imp">🌊 Área de alagamento</div>
+                <div class="fat-imp">☣️ Solo contaminado</div>
+                <div class="fat-imp">⚠️ Produtos perigosos</div>
+                <div class="fat-imp">📋 Sem averbação da construção</div>
+                <div class="fat-imp">🔨 Em processo de leilão</div>
+                <div class="fat-imp">⛪ Templos / Igrejas</div>
+                <div class="fat-imp">🌱 Rural sem garantia urbana</div>
+                <div class="fat-imp">🪶 Áreas indígenas</div>
+                <div class="fat-imp">⚡ Locais de risco</div>
+                <div class="fat-imp">🏗️ Na planta (sem habite-se)</div>
+                <div class="fat-imp">🎁 Doação de pagamento</div>
+                <div class="fat-imp">🛤️ Servidão administrativa</div>
+                <div class="fat-imp">🏗️ Estrutura metálica</div>
               </div>
+              <div class="note" style="margin-top:10px;font-size:11.5px">⚠️ <b>Imóvel Rural:</b> permitido somente com documentação regular E garantia urbana adicional (mesmo titular, doc regular).</div>
             </div>
           </div>
         </div>
-
-        <!-- Sobra da carta -->
-        <div class="card">
-          <div class="ch"><span class="ct">💳 Sobra da Carta de Crédito</span></div>
-          <div class="cb" style="display:flex;flex-direction:column;gap:8px">
-            <p style="font-size:13px;color:var(--txt2);margin-bottom:4px">Quando o imóvel escolhido vale <b>menos</b> que o saldo da carta, o excedente pode ser usado para:</p>
-            <div class="fat-rule ok"><span style="font-size:18px">1</span><div><b>Reembolso de ITBI e cartório</b> — limitado a <b>10% do crédito</b>, mediante comprovante de pagamento ou nota fiscal.</div></div>
-            <div class="fat-rule ok"><span style="font-size:18px">2</span><div><b>Pagar parcelas vincendas</b> — liquidação antecipada na ordem inversa dos vencimentos, reduzindo o prazo.</div></div>
-            <div class="fat-rule ok"><span style="font-size:18px">3</span><div><b>Reduzir o valor das parcelas</b> — amortização mantendo o prazo original.</div></div>
-            <div class="fat-rule warn"><span style="font-size:18px">4</span><div><b>Devolução em espécie</b> — somente se <b>todas as obrigações com o grupo estiverem quitadas</b>.</div></div>
-            <div class="fat-rule ok"><span style="font-size:18px">5</span><div><b>Comprar outro bem</b> do mesmo segmento (imóvel), que ficará sujeito à alienação fiduciária.</div></div>
-          </div>
-        </div>
-
-        <!-- O que PODE comprar -->
-        <div class="card">
-          <div class="ch"><span class="ct">✅ O que PODE Comprar com a Carta</span></div>
-          <div class="cb">
-            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:8px">
-              <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:9px 13px;font-size:12.5px;color:#14532d">Casa, apartamento, kitnet, edifício</div>
-              <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:9px 13px;font-size:12.5px;color:#14532d">Terreno urbano</div>
-              <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:9px 13px;font-size:12.5px;color:#14532d">Imóvel comercial, residencial ou misto</div>
-              <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:9px 13px;font-size:12.5px;color:#14532d">Pré-fabricado, madeira, praia, com edícula</div>
-              <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:9px 13px;font-size:12.5px;color:#14532d">Flat / hotel residencial (sem FGTS)</div>
-              <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:9px 13px;font-size:12.5px;color:#14532d">MCMV faixas 2 e 3</div>
-              <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:9px 13px;font-size:12.5px;color:#14532d">Sítio / chácara urbano (doc. regularizada)</div>
-              <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:9px 13px;font-size:12.5px;color:#14532d">Rural: permitido com garantia urbana + CAR regularizado</div>
-              <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:9px 13px;font-size:12.5px;color:#14532d">Divergência de metragem terreno até 5% (usa a maior)</div>
-              <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:9px 13px;font-size:12.5px;color:#14532d">Divergência de área construída até 150% (usa a maior entre matrícula e IPTU)</div>
-              <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:9px 13px;font-size:12.5px;color:#14532d">Imóvel em APP: área preservada na área comum do condomínio</div>
-              <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:9px 13px;font-size:12.5px;color:#14532d">Quitar CCB/CGI do próprio Itaú (com imóvel alienado como garantia)</div>
-            </div>
-            <div class="fat-rule warn" style="margin-top:12px"><span style="font-size:18px">⚠️</span><div><b>Não pode:</b> 2 imóveis com 1 cota · 1 imóvel com 2 cotas · imóvel no exterior · só vaga de garagem.</div></div>
-          </div>
-        </div>
-
-        <!-- Imóveis NÃO aceitos -->
-        <div class="card">
-          <div class="ch"><span class="ct">🚫 Imóveis NÃO Aceitos pelo Itaú</span></div>
-          <div class="cb">
-            <div class="fat-imp-grid">
-              <div class="fat-imp">🪵 Pré-fabricado / madeira</div>
-              <div class="fat-imp">🏭 Galpão / armazém / barracão</div>
-              <div class="fat-imp">🏛️ Patrimônio histórico</div>
-              <div class="fat-imp">🚗 Estacionamento</div>
-              <div class="fat-imp">🌿 Área de preservação permanente</div>
-              <div class="fat-imp">🌊 Área de alagamento</div>
-              <div class="fat-imp">☣️ Solo contaminado (posto, cemitério, hospital)</div>
-              <div class="fat-imp">⚠️ Atividade com produtos perigosos</div>
-              <div class="fat-imp">📋 Sem averbação da construção</div>
-              <div class="fat-imp">🔨 Em processo de leilão</div>
-              <div class="fat-imp">⛪ Templos / Igrejas</div>
-              <div class="fat-imp">🌱 Rural sem garantia urbana adicional</div>
-              <div class="fat-imp">🪶 Áreas indígenas</div>
-              <div class="fat-imp">⚡ Locais de risco</div>
-              <div class="fat-imp">🏗️ Na planta (sem habite-se)</div>
-              <div class="fat-imp">🎁 Doação de pagamento</div>
-              <div class="fat-imp">🛤️ Servidão administrativa</div>
-              <div class="fat-imp">🏗️ Estrutura metálica / similar</div>
-            </div>
-            <div class="note" style="margin-top:14px">⚠️ <b>Imóvel Rural:</b> permitido somente se o imóvel rural estiver com documentação regular E for dado um imóvel urbano como garantia adicional (mesmo titular, documentação regular).</div>
-          </div>
-        </div>
-
       </div>
     </div>
   </div>
@@ -5690,16 +5706,19 @@ function guiaPrevNext(dir){
   guiaSel(browseData[next][0]);
 }
 /* ── PÓS-CONTEMPLAÇÃO ────────────────────── */
-let fatCurrentCota=null;
+let fatCurrentCli=null;        // string: nome do cliente selecionado
+let fatCotasCli=[];            // todas cotas do cliente (Contempl./Faturado)
+let fatSelectedIds=new Set();  // ids das cotas atualmente trabalhadas
 const FAT_FIN_LABEL={aq:'Aquisição',aqfgts:'Aquisição + FGTS',iq:'Aquisição + IQ',iqfgts:'IQ + FGTS',remb:'Reembolso',quit:'Quitação Própria',ref:'Reforma',constr:'Construção'};
-function fatStateKey(cotaId){return 'fat-state-'+cotaId;}
-function fatStateLoad(cotaId){
-  try{return JSON.parse(localStorage.getItem(fatStateKey(cotaId))||'null')||{};}catch(_){return{};}
+function fatNorm(s){return (s||'').trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');}
+function fatStateKey(cliNome){return 'fat-cli-'+fatNorm(cliNome);}
+function fatStateLoad(cliNome){
+  try{return JSON.parse(localStorage.getItem(fatStateKey(cliNome))||'null')||{};}catch(_){return{};}
 }
-function fatStateSave(cotaId,patch){
-  const cur=fatStateLoad(cotaId);
+function fatStateSave(cliNome,patch){
+  const cur=fatStateLoad(cliNome);
   const nxt={...cur,...patch,_updated:new Date().toISOString()};
-  localStorage.setItem(fatStateKey(cotaId),JSON.stringify(nxt));
+  localStorage.setItem(fatStateKey(cliNome),JSON.stringify(nxt));
   return nxt;
 }
 function fatDocKey(el){
@@ -5707,30 +5726,40 @@ function fatDocKey(el){
   let h=0;for(let i=0;i<txt.length;i++)h=((h<<5)-h+txt.charCodeAt(i))|0;
   return 'd'+(h>>>0).toString(36);
 }
-function fatPopulateCotaSelect(){
-  const sel=document.getElementById('fat-cota-sel');if(!sel)return;
+function fatPopulateClienteSelect(){
+  const sel=document.getElementById('fat-cli-sel');if(!sel)return;
   const cur=sel.value;
-  const cotas=COTAS.filter(r=>{const s=(r.status||'').toLowerCase();return s==='contemplado'||s==='faturado';});
-  cotas.sort((a,b)=>(b.data_contemplada||'').localeCompare(a.data_contemplada||'')||(a.nome||'').localeCompare(b.nome||''));
-  sel.innerHTML='<option value="">— Visão geral (sem vínculo a cota específica) —</option>'+cotas.map(c=>{
-    const dt=c.data_contemplada?(' · '+c.data_contemplada.split('-').reverse().join('/')):'';
-    const fat=c.status==='Faturado'?' ✓':'';
-    return `<option value="${c.id}">${(c.nome||'?').slice(0,42)} — Gr ${c.grupo}/${c.cota}${dt}${fat}</option>`;
+  const map=new Map();
+  COTAS.forEach(r=>{
+    const s=(r.status||'').toLowerCase();
+    if(s!=='contemplado'&&s!=='faturado')return;
+    const nome=(r.nome||'').trim();if(!nome)return;
+    if(!map.has(nome))map.set(nome,{tot:0,fat:0,latest:''});
+    const o=map.get(nome);o.tot++;
+    if(s==='faturado')o.fat++;
+    if(r.data_contemplada&&r.data_contemplada>o.latest)o.latest=r.data_contemplada;
+  });
+  const list=Array.from(map.entries()).sort((a,b)=>(b[1].latest||'').localeCompare(a[1].latest||'')||a[0].localeCompare(b[0],'pt-BR'));
+  sel.innerHTML='<option value="">— Visão geral (sem vínculo a cliente) —</option>'+list.map(([n,o])=>{
+    const tag=o.fat===o.tot?' ✓':(o.fat?' ('+o.fat+'/'+o.tot+' fat)':'');
+    return `<option value="${n.replace(/"/g,'&quot;')}">${pn(n).slice(0,52)} — ${o.tot} cota${o.tot>1?'s':''}${tag}</option>`;
   }).join('');
   if(cur)sel.value=cur;
 }
-function fatSelectCota(id){
-  const sel=document.getElementById('fat-cota-sel');
-  if(sel&&sel.value!==id)sel.value=id;
-  fatCurrentCota=id?(COTAS.find(r=>String(r.id)===String(id))||null):null;
+function fatSelectCliente(nome){
+  const sel=document.getElementById('fat-cli-sel');
+  if(sel&&sel.value!==nome)sel.value=nome;
   const bar=document.getElementById('fat-cota-bar');
-  const info=document.getElementById('fat-cota-info');
-  const pills=document.getElementById('fat-cota-pills');
-  const clr=document.getElementById('fat-cota-clear');
-  if(!fatCurrentCota){
+  const info=document.getElementById('fat-cli-info');
+  const stats=document.getElementById('fat-cli-stats');
+  const chips=document.getElementById('fat-chips-row');
+  const clr=document.getElementById('fat-cli-clear');
+  if(!nome){
+    fatCurrentCli=null;fatCotasCli=[];fatSelectedIds=new Set();
     bar.classList.remove('has-cota');
     info.style.display='none';info.innerHTML='';
-    pills.innerHTML='';
+    stats.innerHTML='';
+    chips.innerHTML='';chips.style.display='none';
     clr.style.display='none';
     fatRenderStepper(0);
     fatRenderDocs();
@@ -5738,27 +5767,80 @@ function fatSelectCota(id){
     fatTab('aq',document.querySelector('.fat-tab'));
     return;
   }
+  fatCurrentCli=nome;
+  fatCotasCli=COTAS.filter(r=>{
+    const s=(r.status||'').toLowerCase();
+    return (s==='contemplado'||s==='faturado')&&(r.nome||'').trim()===nome;
+  }).sort((a,b)=>(a.data_contemplada||'').localeCompare(b.data_contemplada||''));
+  const st=fatStateLoad(nome);
+  // selectedIds: usa o saved se houver, senão default = todas
+  const saved=(st.selectedIds||[]).map(String);
+  if(saved.length&&saved.some(id=>fatCotasCli.find(c=>String(c.id)===id))){
+    fatSelectedIds=new Set(saved.filter(id=>fatCotasCli.find(c=>String(c.id)===id)));
+  }else{
+    fatSelectedIds=new Set(fatCotasCli.map(c=>String(c.id)));
+  }
   bar.classList.add('has-cota');
   clr.style.display='inline-block';
-  const r=fatCurrentCota;
-  const cred=r.carta_atualizada||r.credito||0;
+  // info
+  const totCarta=fatCotasCli.filter(c=>fatSelectedIds.has(String(c.id))).reduce((s,c)=>s+(c.carta_atualizada||c.credito||0),0);
   info.style.display='flex';
-  info.innerHTML=`<b>${pn(r.nome)}</b><small>Grupo ${r.grupo} · Cota ${r.cota} · ${brl(cred,0)}</small>`;
-  const pillsHtml=[];
-  if(r.data_contemplada){
-    const dt=r.data_contemplada.split('-').reverse().join('/');
-    const dias=Math.floor((Date.now()-new Date(r.data_contemplada).getTime())/86400000);
-    pillsHtml.push(`<span class="fat-cota-pill acc">📅 ${dt}</span>`);
-    pillsHtml.push(`<span class="fat-cota-pill">${dias} ${dias===1?'dia':'dias'}</span>`);
-  }
-  if(r.tipo_contemp)pillsHtml.push(`<span class="fat-cota-pill">${r.tipo_contemp}</span>`);
-  if(r.status==='Faturado')pillsHtml.push(`<span class="fat-cota-pill ok">✓ Faturado</span>`);
-  pills.innerHTML=pillsHtml.join('');
-  const st=fatStateLoad(r.id);
+  info.innerHTML=`<b>${pn(nome)}</b><small>${fatSelectedIds.size} de ${fatCotasCli.length} cota${fatCotasCli.length>1?'s':''} contemplada${fatCotasCli.length>1?'s':''}</small>`;
+  // stats agregadas
+  const fatCount=fatCotasCli.filter(c=>(c.status||'').toLowerCase()==='faturado'&&fatSelectedIds.has(String(c.id))).length;
+  const stHtml=[];
+  stHtml.push(`<span class="fat-cli-stat acc">${brl(totCarta,0)}</span>`);
+  if(fatCount>0)stHtml.push(`<span class="fat-cli-stat ok">${fatCount} ✓ faturada${fatCount>1?'s':''}</span>`);
+  stats.innerHTML=stHtml.join('');
+  // chips
+  fatRenderChips();
+  chips.style.display='flex';
+  // restaurar step + finalidade
   fatRenderStepper(st.step||0);
   const fin=st.finalidade||'aq';
   const tabEl=document.querySelector(`.fat-tab[onclick*="'${fin}'"]`);
   fatTab(fin,tabEl);
+}
+function fatRenderChips(){
+  const chips=document.getElementById('fat-chips-row');if(!chips)return;
+  if(!fatCotasCli.length){chips.innerHTML='<span style="font-size:11px;color:var(--txt2)">Nenhuma cota Contemplada/Faturada para este cliente.</span>';return;}
+  chips.innerHTML='<span style="font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--txt2);margin-right:4px">Cotas:</span>'+fatCotasCli.map(c=>{
+    const sel=fatSelectedIds.has(String(c.id));
+    const dt=c.data_contemplada?c.data_contemplada.split('-').reverse().slice(0,2).join('/'):'—';
+    const fat=(c.status||'').toLowerCase()==='faturado';
+    return `<span class="fat-chip ${sel?'on':''} ${fat?'fat':''}" onclick="fatToggleChip('${c.id}')" title="${c.tipo_contemp||''} · ${brl(c.carta_atualizada||c.credito||0,0)}${fat?' · Faturada':''}"><span class="fat-chip-mark">${sel?'✓':''}</span>Gr ${c.grupo}/${c.cota} <span class="fat-chip-mini">${dt}</span></span>`;
+  }).join('')+`<button class="btn btn-out" onclick="fatChipsAll(true)" style="padding:2px 8px;font-size:10.5px;height:24px;margin-left:4px">Todas</button><button class="btn btn-out" onclick="fatChipsAll(false)" style="padding:2px 8px;font-size:10.5px;height:24px">Nenhuma</button>`;
+}
+function fatToggleChip(cotaId){
+  if(!fatCurrentCli)return;
+  const k=String(cotaId);
+  if(fatSelectedIds.has(k))fatSelectedIds.delete(k);else fatSelectedIds.add(k);
+  fatStateSave(fatCurrentCli,{selectedIds:Array.from(fatSelectedIds)});
+  // re-render só os chips e o IQ, não tudo
+  fatRenderChips();
+  fatRenderClienteInfo();
+  fatRenderIQCard();
+}
+function fatChipsAll(on){
+  if(!fatCurrentCli)return;
+  if(on)fatSelectedIds=new Set(fatCotasCli.map(c=>String(c.id)));
+  else fatSelectedIds=new Set();
+  fatStateSave(fatCurrentCli,{selectedIds:Array.from(fatSelectedIds)});
+  fatRenderChips();
+  fatRenderClienteInfo();
+  fatRenderIQCard();
+}
+function fatRenderClienteInfo(){
+  if(!fatCurrentCli)return;
+  const info=document.getElementById('fat-cli-info');
+  const stats=document.getElementById('fat-cli-stats');
+  const totCarta=fatCotasCli.filter(c=>fatSelectedIds.has(String(c.id))).reduce((s,c)=>s+(c.carta_atualizada||c.credito||0),0);
+  info.innerHTML=`<b>${pn(fatCurrentCli)}</b><small>${fatSelectedIds.size} de ${fatCotasCli.length} cota${fatCotasCli.length>1?'s':''} contemplada${fatCotasCli.length>1?'s':''}</small>`;
+  const fatCount=fatCotasCli.filter(c=>(c.status||'').toLowerCase()==='faturado'&&fatSelectedIds.has(String(c.id))).length;
+  const stHtml=[];
+  stHtml.push(`<span class="fat-cli-stat acc">${brl(totCarta,0)}</span>`);
+  if(fatCount>0)stHtml.push(`<span class="fat-cli-stat ok">${fatCount} ✓ faturada${fatCount>1?'s':''}</span>`);
+  stats.innerHTML=stHtml.join('');
 }
 function fatRenderStepper(stepIdx){
   const steps=document.querySelectorAll('#fat-stepper .fat-step');
@@ -5771,7 +5853,7 @@ function fatRenderStepper(stepIdx){
   });
 }
 function fatStepClick(idx){
-  if(!fatCurrentCota){
+  if(!fatCurrentCli){
     const steps=document.querySelectorAll('#fat-stepper .fat-step');
     steps.forEach((s,i)=>{
       s.classList.remove('active','done');
@@ -5780,22 +5862,28 @@ function fatStepClick(idx){
     });
     return;
   }
-  fatStateSave(fatCurrentCota.id,{step:idx+1});
+  fatStateSave(fatCurrentCli,{step:idx+1});
   fatRenderStepper(idx+1);
-  toast(`Etapa ${idx+1} marcada como atual`,'ok');
+  toast(`Etapa ${idx+1} marcada`,'ok');
 }
 function fatTab(id,el){
   document.querySelectorAll('.fat-finalidade').forEach(d=>d.classList.remove('act'));
   document.querySelectorAll('.fat-tab').forEach(t=>t.classList.remove('act'));
   const d=document.getElementById('fat-'+id);if(d)d.classList.add('act');
   if(el)el.classList.add('act');
-  if(fatCurrentCota){fatStateSave(fatCurrentCota.id,{finalidade:id});}
+  if(fatCurrentCli){fatStateSave(fatCurrentCli,{finalidade:id});}
   fatRenderIQCard();
   fatRenderDocs();
 }
+function fatSideTab(id,el){
+  document.querySelectorAll('.fat-side-pane').forEach(d=>{d.classList.remove('act');d.style.display='none';});
+  document.querySelectorAll('.fat-side-tab').forEach(t=>t.classList.remove('act'));
+  const d=document.getElementById('fat-side-'+id);if(d){d.classList.add('act');d.style.display='';}
+  if(el)el.classList.add('act');
+}
 function fatRenderDocs(){
   const docs=document.querySelectorAll('#page-fat .fat-doc');
-  const st=fatCurrentCota?fatStateLoad(fatCurrentCota.id):null;
+  const st=fatCurrentCli?fatStateLoad(fatCurrentCli):null;
   const checked=(st&&st.docs)||{};
   docs.forEach(d=>{
     if(d.classList.contains('block'))return;
@@ -5811,26 +5899,31 @@ function fatRenderDocs(){
       row=wrap;
     }
     const cb=row.querySelector('.fat-doc-chk');
-    if(cb){cb.disabled=!fatCurrentCota;cb.checked=!!checked[k];}
+    if(cb){cb.disabled=!fatCurrentCli;cb.checked=!!checked[k];}
     d.classList.toggle('checked',!!checked[k]);
   });
 }
 function fatToggleDoc(key,val,el){
-  if(!fatCurrentCota)return;
-  const st=fatStateLoad(fatCurrentCota.id);
+  if(!fatCurrentCli)return;
+  const st=fatStateLoad(fatCurrentCli);
   st.docs=st.docs||{};
   if(val)st.docs[key]=true;else delete st.docs[key];
-  fatStateSave(fatCurrentCota.id,{docs:st.docs});
+  fatStateSave(fatCurrentCli,{docs:st.docs});
   if(el)el.classList.toggle('checked',val);
 }
 function fatRenderIQCard(){
   const card=document.getElementById('fat-iq-card');if(!card)return;
-  const r=fatCurrentCota;
-  const st=r?fatStateLoad(r.id):null;
-  const fin=(st&&st.finalidade)||'';
+  if(!fatCurrentCli){card.style.display='none';return;}
+  const st=fatStateLoad(fatCurrentCli);
+  const fin=st.finalidade||'';
   const isIQ=fin==='iq'||fin==='iqfgts';
-  if(!r||!isIQ||!r.data_contemplada){card.style.display='none';return;}
-  const dias=Math.floor((Date.now()-new Date(r.data_contemplada).getTime())/86400000);
+  if(!isIQ){card.style.display='none';return;}
+  // Pega cotas selecionadas com data_contemplada
+  const sel=fatCotasCli.filter(c=>fatSelectedIds.has(String(c.id))&&c.data_contemplada);
+  if(!sel.length){card.style.display='none';return;}
+  // Pior caso: cota mais antiga (menor data_contemplada / mais dias decorridos)
+  const worst=sel.reduce((a,b)=>(a.data_contemplada<b.data_contemplada?a:b));
+  const dias=Math.floor((Date.now()-new Date(worst.data_contemplada).getTime())/86400000);
   const restante=Math.max(0,45-dias);
   const pctP=Math.min(100,Math.round(dias/45*100));
   const num=document.getElementById('fat-iq-num');
@@ -5839,20 +5932,21 @@ function fatRenderIQCard(){
   num.textContent=restante;
   card.classList.toggle('crit',restante<=10);
   fill.style.width=pctP+'%';
+  const ref=`(cota Gr ${worst.grupo}/${worst.cota} — contemplada ${worst.data_contemplada.split('-').reverse().join('/')})`;
   if(restante<=0){
-    msg.innerHTML='<b style="color:var(--err)">⛔ PRAZO VENCIDO</b> — '+(dias-45)+' dia(s) após o limite. Verificar se o contrato foi registrado no CRI.';
+    msg.innerHTML='<b style="color:var(--err)">⛔ PRAZO VENCIDO</b> '+(dias-45)+' dia(s) atrás. Verificar registro do contrato no CRI. '+ref;
   }else if(restante<=10){
-    msg.innerHTML=`<b style="color:var(--err)">⚠️ Faltam apenas ${restante} dia(s)</b> — registre o contrato no Cartório de Registro de Imóveis o quanto antes.`;
+    msg.innerHTML=`<b style="color:var(--err)">⚠️ Faltam ${restante} dia(s)</b> para registrar contrato no CRI. ${ref}`;
   }else{
-    msg.textContent=`Faltam ${restante} dias para registrar o contrato no CRI e devolvê-lo ao Itaú. ${dias} dia(s) decorrido(s) desde a contemplação.`;
+    msg.innerHTML=`Faltam <b>${restante} dias</b> para registrar contrato no CRI. ${dias} dia(s) decorridos. ${ref}`;
   }
   card.style.display='flex';
 }
 function renderFatPage(){
-  fatPopulateCotaSelect();
+  fatPopulateClienteSelect();
   fatRenderDocs();
-  const sel=document.getElementById('fat-cota-sel');
-  if(sel&&sel.value)fatSelectCota(sel.value);
+  const sel=document.getElementById('fat-cli-sel');
+  if(sel&&sel.value)fatSelectCliente(sel.value);
   else fatRenderIQCard();
 }
 (function(){
