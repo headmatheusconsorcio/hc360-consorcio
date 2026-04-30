@@ -81,6 +81,18 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 
 /* ── CARD ─── identidade Layout 1 (Cards) aplicada globalmente ── */
 .card{background:var(--card);border-radius:12px;border:1.5px solid var(--bdr);border-left:4px solid var(--sb);overflow:hidden;margin-bottom:18px;box-shadow:0 1px 6px rgba(0,0,0,.05);transition:all .15s}
+.card-min{background:#fff;border:1px solid var(--bdr);border-radius:14px;overflow:hidden;margin-bottom:16px;box-shadow:0 1px 4px rgba(0,0,0,.035);transition:all .15s}
+.card-min:hover{box-shadow:0 2px 10px rgba(0,0,0,.06);border-color:#d4d8e0}
+.card-min .ch{padding:14px 20px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;background:#fff}
+.card-min .ct{font-size:14px;font-weight:600;color:var(--sb);font-family:'Playfair Display',serif;letter-spacing:-.2px}
+.card-min .cb{padding:18px 20px}
+.evo-totals{display:flex;gap:24px;padding:12px 20px 0;flex-wrap:wrap}
+.evo-tot{display:flex;flex-direction:column;gap:2px}
+.evo-tot-l{font-size:10px;color:var(--txt2);text-transform:uppercase;letter-spacing:.6px;font-weight:700}
+.evo-tot-v{font-size:18px;font-weight:700;color:var(--sb);font-family:'Raleway',sans-serif}
+.priv-tb{display:flex;align-items:center;gap:6px;padding:5px 11px;font-size:12px;font-weight:600;color:var(--txt2);background:transparent;border:1px solid var(--bdr);border-radius:8px;cursor:pointer;transition:all .15s;font-family:'Inter',sans-serif}
+.priv-tb:hover{border-color:var(--sb);color:var(--sb)}
+.priv-tb.on{background:var(--sb);color:#fff;border-color:var(--sb)}
 .card:hover{border-color:var(--sb2);border-left-color:var(--acc);box-shadow:0 3px 14px rgba(0,0,0,.08)}
 .ch{padding:16px 22px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;background:var(--card)}
 .ct{font-size:15px;font-weight:700;color:var(--sb);font-family:'Playfair Display',serif;letter-spacing:-.2px}.cb{padding:20px}
@@ -663,6 +675,7 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:#fefbf3;border-left:3px so
     </div>
     <div class="tb-acts">
       <span style="font-size:11px;color:var(--txt2)" id="sync-status">Conectando...</span>
+      <button id="priv-tb" class="priv-tb" onclick="togglePriv()" title="Ocultar nomes/CPFs em toda a página (apresentações)"><span id="priv-tb-ico">👁️</span><span id="priv-tb-lbl">Visível</span></button>
       <button id="topbar-nova-cota" class="btn btn-out btn-sm" onclick="openModalCota(-1)">+ Nova Cota</button>
       <button class="btn btn-pri btn-sm" onclick="nav('crm',document.querySelectorAll('.ni')[3])">+ Novo Lead</button>
     </div>
@@ -671,10 +684,6 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:#fefbf3;border-left:3px so
 
   <!-- DASHBOARD -->
   <div class="page active" id="page-dash">
-    <div style="display:flex;align-items:center;justify-content:flex-end;gap:8px;margin-bottom:10px">
-      <span style="font-size:11.5px;color:var(--txt2)" id="dash-priv-lbl">Privacidade ativa</span>
-      <button id="dash-priv-btn" class="btn btn-out btn-sm" onclick="dashTogglePriv()" title="Alternar visibilidade dos nomes" style="font-size:14px;padding:4px 10px"><span id="dash-priv-ico">🙈</span></button>
-    </div>
     <div class="kpi-grid" id="dash-kpis">
       <div class="kpi a"><div class="kpi-lbl">Total de Cotas</div><div class="kpi-val" id="kpi-total">—</div><div class="kpi-sub">carteira do escritório</div></div>
       <div class="kpi s"><div class="kpi-lbl">Contempladas</div><div class="kpi-val" id="kpi-contemp">—</div><div class="kpi-sub" id="kpi-contemp-sub">—</div></div>
@@ -685,42 +694,49 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:#fefbf3;border-left:3px so
       <div class="kpi e"><div class="kpi-lbl">Canceladas</div><div class="kpi-val" id="kpi-cancel" style="color:var(--err)">—</div><div class="kpi-sub" id="kpi-cancel-sub">excluídas da carteira</div></div>
     </div>
 
-    <div class="card">
+    <div class="card-min">
       <div class="ch" style="display:flex;align-items:center;flex-wrap:wrap;gap:10px">
-        <span class="ct">📈 Evolução Mensal</span>
+        <span class="ct">Evolução Mensal</span>
         <div id="dash-evo-mode" style="display:flex;background:var(--card2);border:1px solid var(--bdr);border-radius:8px;padding:2px;margin-left:auto">
-          <button class="toggle-btn act" data-val="adesao" onclick="dashSetEvo(this,'adesao')" style="padding:5px 10px;font-size:11.5px;border-radius:6px;flex:none">Adesões</button>
-          <button class="toggle-btn" data-val="contemp" onclick="dashSetEvo(this,'contemp')" style="padding:5px 10px;font-size:11.5px;border-radius:6px;flex:none">Contemplações</button>
-          <button class="toggle-btn" data-val="faturado" onclick="dashSetEvo(this,'faturado')" style="padding:5px 10px;font-size:11.5px;border-radius:6px;flex:none">Faturamento</button>
+          <button class="toggle-btn act" data-val="adesao" onclick="dashSetEvo(this,'adesao')" style="padding:5px 12px;font-size:11.5px;border-radius:6px;flex:none">Adesões</button>
+          <button class="toggle-btn" data-val="contemp" onclick="dashSetEvo(this,'contemp')" style="padding:5px 12px;font-size:11.5px;border-radius:6px;flex:none">Contemplações</button>
+          <button class="toggle-btn" data-val="faturado" onclick="dashSetEvo(this,'faturado')" style="padding:5px 12px;font-size:11.5px;border-radius:6px;flex:none">Faturamento</button>
         </div>
-        <select class="form-i" id="dash-evo-period" style="padding:5px 8px;font-size:11.5px;width:auto;margin:0" onchange="dashRenderEvo()">
-          <option value="6">Últimos 6m</option>
-          <option value="12" selected>Últimos 12m</option>
-          <option value="24">Últimos 24m</option>
+        <select class="form-i" id="dash-evo-period" style="padding:5px 9px;font-size:11.5px;width:auto;margin:0" onchange="dashRenderEvo()">
+          <option value="3">3 meses</option>
+          <option value="6">6 meses</option>
+          <option value="12" selected>12 meses</option>
+          <option value="24">24 meses</option>
           <option value="all">Tudo</option>
         </select>
       </div>
-      <div class="cb"><div class="chart-wrap" style="height:300px"><canvas id="ch-evo"></canvas></div></div>
+      <div class="evo-totals" id="dash-evo-totals">
+        <div class="evo-tot"><span class="evo-tot-l">Cotas no período</span><span class="evo-tot-v" id="evo-tot-cotas">—</span></div>
+        <div class="evo-tot"><span class="evo-tot-l">Volume no período</span><span class="evo-tot-v" id="evo-tot-vol">—</span></div>
+        <div class="evo-tot"><span class="evo-tot-l">Ticket médio</span><span class="evo-tot-v" id="evo-tot-tk">—</span></div>
+        <div class="evo-tot"><span class="evo-tot-l">Pico do período</span><span class="evo-tot-v" id="evo-tot-pk" style="font-size:13px;font-weight:600">—</span></div>
+      </div>
+      <div class="cb"><div class="chart-wrap" style="height:280px"><canvas id="ch-evo"></canvas></div></div>
     </div>
 
     <div class="g2">
-      <div class="card"><div class="ch"><span class="ct">Status das Cotas</span></div><div class="cb"><div class="chart-wrap"><canvas id="ch-status"></canvas></div></div></div>
-      <div class="card"><div class="ch"><span class="ct">Distribuição por Assessor</span></div><div class="cb"><div class="chart-wrap"><canvas id="ch-assess"></canvas></div></div></div>
+      <div class="card-min"><div class="ch"><span class="ct">Status das Cotas</span></div><div class="cb"><div class="chart-wrap"><canvas id="ch-status"></canvas></div></div></div>
+      <div class="card-min"><div class="ch"><span class="ct">Distribuição por Assessor</span></div><div class="cb"><div class="chart-wrap"><canvas id="ch-assess"></canvas></div></div></div>
     </div>
 
     <div class="g2">
-      <div class="card"><div class="ch"><span class="ct">🏦 Por Banco</span></div><div class="cb"><div class="chart-wrap"><canvas id="ch-banco"></canvas></div></div></div>
-      <div class="card"><div class="ch"><span class="ct">🏠 Por Tipo de Bem</span></div><div class="cb"><div class="chart-wrap"><canvas id="ch-tipo"></canvas></div></div></div>
+      <div class="card-min"><div class="ch"><span class="ct">Por Banco</span></div><div class="cb"><div class="chart-wrap"><canvas id="ch-banco"></canvas></div></div></div>
+      <div class="card-min"><div class="ch"><span class="ct">Por Tipo de Bem</span></div><div class="cb"><div class="chart-wrap"><canvas id="ch-tipo"></canvas></div></div></div>
     </div>
 
-    <div class="card">
-      <div class="ch"><span class="ct">🏆 Maiores Clientes</span><span style="font-size:11px;color:var(--txt2);margin-left:8px">Top 10 por crédito</span></div>
+    <div class="card-min">
+      <div class="ch"><span class="ct">Maiores Clientes</span><span style="font-size:11px;color:var(--txt2);margin-left:8px">Top 10 por crédito</span></div>
       <div class="cb"><div class="chart-wrap" style="height:340px"><canvas id="ch-clients"></canvas></div></div>
       <div class="tw"><table><thead><tr><th>Cliente</th><th>Cotas</th><th>Contempl.</th><th>Volume</th><th>Assessor</th><th>% Carteira</th></tr></thead><tbody id="dash-clients"></tbody></table></div>
     </div>
 
-    <div class="card">
-      <div class="ch"><span class="ct">👥 Por Assessor — Performance</span><span style="font-size:11px;color:var(--txt2);margin-left:8px">Click na barra para filtrar</span></div>
+    <div class="card-min">
+      <div class="ch"><span class="ct">Por Assessor — Performance</span><span style="font-size:11px;color:var(--txt2);margin-left:8px">Click na barra para filtrar</span></div>
       <div class="cb"><div class="chart-wrap" style="height:300px"><canvas id="ch-assess-perf"></canvas></div></div>
       <div class="tw"><table><thead><tr><th>Assessor</th><th>Cotas</th><th>Contempl.</th><th>Volume</th><th>Ticket Médio</th><th>%</th></tr></thead><tbody id="dash-assess"></tbody></table></div>
     </div>
@@ -1213,24 +1229,42 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:#fefbf3;border-left:3px so
     </div>
     <div id="guia-browse">
       <div class="card">
-        <div class="ch"><span class="ct">Todos os Grupos</span><span id="browse-lance-toggle" style="margin-left:14px"></span><span style="font-size:12px;color:var(--txt2);margin-left:auto" id="browse-count">560 grupos</span></div>
-        <div class="tw"><table><thead><tr>
+        <div class="ch" style="flex-wrap:wrap;gap:10px;align-items:center">
+          <span class="ct">Todos os Grupos</span>
+          <span id="browse-lance-toggle" style="margin-left:8px"></span>
+          <div style="margin-left:auto;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+            <div style="display:inline-flex;border:1.5px solid var(--bdr);border-radius:8px;overflow:hidden">
+              <button id="browse-view-tbl" class="toggle-btn act" onclick="browseSetView('table')" style="padding:5px 12px;font-size:11.5px">📋 Tabela</button>
+              <button id="browse-view-card" class="toggle-btn" onclick="browseSetView('cards')" style="padding:5px 12px;font-size:11.5px">🃏 Cards</button>
+            </div>
+            <div style="display:inline-flex;align-items:center;gap:6px;font-size:11.5px;color:var(--txt2)">
+              <label>Mostrar</label>
+              <select id="browse-page-size" onchange="browseSetPageSize(this.value)" class="form-i" style="padding:4px 8px;font-size:11px;width:auto">
+                <option value="40">40</option><option value="100">100</option><option value="200">200</option><option value="500">500</option><option value="all">Todos</option>
+              </select>
+            </div>
+            <span style="font-size:12px;color:var(--txt2);font-weight:700" id="browse-count">560 grupos</span>
+          </div>
+        </div>
+        <div id="browse-table-wrap" class="tw"><table><thead><tr>
           <th title="Marque até 3 grupos para comparar lado a lado" style="text-align:center;width:36px">📊</th>
           <th onclick="sortBrowse('g')" style="cursor:pointer">Grupo <span id="bsort-g" class="sort-ico">⇅</span></th>
-          <th>Tipo</th><th>Situação</th>
+          <th onclick="sortBrowse('tp')" style="cursor:pointer">Tipo <span id="bsort-tp" class="sort-ico">⇅</span></th>
+          <th onclick="sortBrowse('sit')" style="cursor:pointer">Situação <span id="bsort-sit" class="sort-ico">⇅</span></th>
           <th onclick="sortBrowse('idx')" style="cursor:pointer">Indexador <span id="bsort-idx" class="sort-ico">⇅</span></th>
           <th onclick="sortBrowse('pr')" style="cursor:pointer">Prazo Rest. <span id="bsort-pr" class="sort-ico">⇅</span></th>
-          <th onclick="sortBrowse('asm')" style="cursor:pointer">Próx. Assembleia <span id="bsort-asm" class="sort-ico">⇅</span></th>
+          <th onclick="sortBrowse('asm')" style="cursor:pointer">Próx. AGO <span id="bsort-asm" class="sort-ico">⇅</span></th>
           <th onclick="sortBrowse('vagas')" style="cursor:pointer">Vagas <span id="bsort-vagas" class="sort-ico">⇅</span></th>
-          <th onclick="sortBrowse('vmin')" style="cursor:pointer">Valor Mín. <span id="bsort-vmin" class="sort-ico">⇅</span></th>
-          <th onclick="sortBrowse('vmax')" style="cursor:pointer">Valor Máx. <span id="bsort-vmax" class="sort-ico">⇅</span></th>
-          <th id="browse-th-media" title="Média de lance no período selecionado (3m/6m/12m/Tudo) calculada do histórico">Lance Médio <span style="font-size:10px;font-weight:600;color:var(--acc)" id="browse-th-media-suffix">3m</span></th>
-          <th onclick="sortBrowse('ul_min')" style="cursor:pointer">Últ. Lance Mín. <span id="bsort-ul_min" class="sort-ico">⇅</span></th>
-          <th onclick="sortBrowse('at_min')" style="cursor:pointer">Lance Atual <span id="bsort-at_min" class="sort-ico">⇅</span></th>
+          <th onclick="sortBrowse('vmin')" style="cursor:pointer">Crédito Mín. <span id="bsort-vmin" class="sort-ico">⇅</span></th>
+          <th onclick="sortBrowse('vmax')" style="cursor:pointer">Crédito Máx. <span id="bsort-vmax" class="sort-ico">⇅</span></th>
+          <th onclick="sortBrowse('lance_med')" style="cursor:pointer" id="browse-th-media" title="Média histórica de lance (3m/6m/12m/Tudo)">Lance Médio <span style="font-size:10px;font-weight:600;color:var(--acc)" id="browse-th-media-suffix">3m</span> <span id="bsort-lance_med" class="sort-ico">⇅</span></th>
+          <th onclick="sortBrowse('at_min')" style="cursor:pointer" title="Menor lance ofertado na assembleia atual">Lance Atual Mín. <span id="bsort-at_min" class="sort-ico">⇅</span></th>
+          <th onclick="sortBrowse('at_max')" style="cursor:pointer" title="Maior lance ofertado na assembleia atual">Lance Atual Máx. <span id="bsort-at_max" class="sort-ico">⇅</span></th>
           <th onclick="sortBrowse('at_cl')" style="cursor:pointer">Contemp. <span id="bsort-at_cl" class="sort-ico">⇅</span></th>
-          <th title="Lance Fixo disponível (clique pra desabilitar/habilitar)" style="text-align:center">LF</th>
-          <th title="Cota Reduzida (Parcela Reduzida)" style="text-align:center">PR</th>
+          <th onclick="sortBrowse('lf')" style="cursor:pointer;text-align:center" title="Lance Fixo disponível">LF <span id="bsort-lf" class="sort-ico">⇅</span></th>
+          <th onclick="sortBrowse('pr_red')" style="cursor:pointer;text-align:center" title="Cota com Parcela Reduzida">PR <span id="bsort-pr_red" class="sort-ico">⇅</span></th>
         </tr></thead><tbody id="browse-tbody"></tbody></table></div>
+        <div id="browse-cards-wrap" style="display:none;padding:14px;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:12px"></div>
         <div class="pag" id="browse-pag"></div>
       </div>
     </div>
@@ -2731,7 +2765,7 @@ function renderAssessorTracking(){
     const dt=l.updated_at?new Date(l.updated_at).toLocaleDateString('pt-BR'):l.created_at?new Date(l.created_at).toLocaleDateString('pt-BR'):'—';
     return`<div style="background:var(--card2);border-radius:10px;padding:14px;border:1.5px solid var(--bdr);border-left:4px solid ${staBg[sta]||'var(--bdr)'}">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:6px">
-        <div style="font-weight:700;font-size:13.5px">${l.nome||'—'}</div>
+        <div style="font-weight:700;font-size:13.5px">${pn(l.nome)}</div>
         <span style="padding:2px 8px;border-radius:20px;font-size:10.5px;font-weight:700;background:${staBg[sta]||'#f1f5f9'};color:${staTx[sta]||'#475569'};white-space:nowrap">${sta}</span>
       </div>
       <div style="font-size:11.5px;color:var(--txt2)">${l.interesse||''}${l.valor_potencial?' · '+brl(l.valor_potencial,0):''}${l.telefone?'<br>📱 '+l.telefone:''}</div>
@@ -2920,7 +2954,7 @@ async function fecharOfertaContemplada(cotaId){
 function openHistoricoOfertas(cotaId){
   const r=COTAS.find(c=>String(c.id)===String(cotaId));if(!r)return;
   const arr=(OFERTAS[String(cotaId)]||[]).slice().sort((a,b)=>new Date(b.data_assembleia)-new Date(a.data_assembleia));
-  const tit=`📜 Histórico de Ofertas — ${r.nome} · ${r.grupo}/${r.cota}`;
+  const tit=`📜 Histórico de Ofertas — ${pn(r.nome)} · ${r.grupo}/${r.cota}`;
   const corResultado={Pendente:'#fbbf24',Contemplado:'#10b981','Nao contemplado':'#94a3b8',Cancelado:'#ef4444'};
   const lblResultado={Pendente:'⏳ Pendente',Contemplado:'✓ Contemplado','Nao contemplado':'✗ Não contemplado'};
   const linhas=arr.length?arr.map(o=>`<tr>
@@ -3178,26 +3212,56 @@ async function deleteLeadDB(id){
   LEADS=LEADS.filter(l=>l.id!==id);return true;
 }
 
-// ═══ DASHBOARD ═══
-let DASH_PRIV_OPEN=false; let dashEvoMode='adesao';
-let _dashEvoBuckets={}, _dashEvoKeys=[];
-function dashLoadPriv(){ try{const v=localStorage.getItem('hc360_priv_dash'); DASH_PRIV_OPEN=v==='1';}catch(e){} }
-function dashSavePriv(){ try{localStorage.setItem('hc360_priv_dash',DASH_PRIV_OPEN?'1':'0');}catch(e){} }
-function maskName(n){
-  if(DASH_PRIV_OPEN) return n||'—';
+// ═══ PRIVACIDADE GLOBAL (nomes/CPF/telefone em toda página) ═══
+let PRIV_HIDE=false;  // default: mostrar (para que o usuário veja tudo ao abrir)
+function privLoad(){ try{ PRIV_HIDE=localStorage.getItem('hc360_priv_global')==='1'; }catch(e){} }
+function privSave(){ try{ localStorage.setItem('hc360_priv_global',PRIV_HIDE?'1':'0'); }catch(e){} }
+function pn(n){
+  if(!PRIV_HIDE) return n||'—';
   if(!n) return '—';
   const parts=String(n).trim().split(/\s+/).filter(Boolean);
   if(!parts.length) return '—';
   if(parts.length===1) return parts[0][0].toUpperCase()+'***';
   return parts[0][0].toUpperCase()+'*** '+parts[parts.length-1][0].toUpperCase()+'***';
 }
-function dashUpdatePrivUI(){
-  const ico=document.getElementById('dash-priv-ico');
-  const lbl=document.getElementById('dash-priv-lbl');
-  if(ico) ico.textContent=DASH_PRIV_OPEN?'👁️':'🙈';
-  if(lbl) lbl.textContent=DASH_PRIV_OPEN?'Nomes visíveis':'Privacidade ativa';
+function pcpf(c){
+  if(!PRIV_HIDE) return c||'';
+  if(!c) return '';
+  const d=String(c).replace(/\D/g,'');
+  if(d.length<6) return '***';
+  return d.slice(0,3)+'.***.***-'+d.slice(-2);
 }
-function dashTogglePriv(){ DASH_PRIV_OPEN=!DASH_PRIV_OPEN; dashSavePriv(); dashUpdatePrivUI(); initDash(); }
+function pphone(p){
+  if(!PRIV_HIDE) return p||'';
+  if(!p) return '';
+  const d=String(p).replace(/\D/g,'');
+  if(d.length<6) return '(**) ****-****';
+  return '(**) ****-'+d.slice(-4);
+}
+function privUpdateUI(){
+  const ico=document.getElementById('priv-tb-ico');
+  const lbl=document.getElementById('priv-tb-lbl');
+  const btn=document.getElementById('priv-tb');
+  if(ico) ico.textContent=PRIV_HIDE?'🙈':'👁️';
+  if(lbl) lbl.textContent=PRIV_HIDE?'Oculto':'Visível';
+  if(btn) btn.classList.toggle('on',PRIV_HIDE);
+}
+function privRerenderAll(){
+  // Re-renderiza qualquer view ativa para aplicar o mascaramento
+  try{ if(typeof initDash==='function') initDash(); }catch(e){}
+  try{ if(typeof renderCtrl==='function') renderCtrl(); }catch(e){}
+  try{ if(typeof renderProj==='function') renderProj(); }catch(e){}
+  try{ if(typeof renderCRM==='function') renderCRM(); }catch(e){}
+  try{ if(typeof renderAgenda==='function') renderAgenda(); }catch(e){}
+  try{ if(typeof renderProjList==='function') renderProjList(); }catch(e){}
+}
+function togglePriv(){ PRIV_HIDE=!PRIV_HIDE; privSave(); privUpdateUI(); privRerenderAll(); }
+// Compatibilidade: chamadas antigas
+function maskName(n){ return pn(n); }
+
+// ═══ DASHBOARD ═══
+let dashEvoMode='adesao';
+let _dashEvoBuckets={}, _dashEvoKeys=[];
 function dashSetEvo(btn,mode){
   dashEvoMode=mode;
   document.querySelectorAll('#dash-evo-mode .toggle-btn').forEach(b=>b.classList.toggle('act',b===btn));
@@ -3252,16 +3316,34 @@ function dashRenderEvo(){
   const labels=keys.map(dashFmtMonth);
   const cotasData=keys.map(k=>buckets[k]?buckets[k].cotas:0);
   const volData=keys.map(k=>buckets[k]?buckets[k].vol:0);
-  const accent=({adesao:'#3b82f6',contemp:'#10b981',faturado:'#D6AF5C'})[dashEvoMode];
+
+  // Totalizadores do período
+  const totCotas=cotasData.reduce((a,b)=>a+b,0);
+  const totVol=volData.reduce((a,b)=>a+b,0);
+  const ticket=totCotas?totVol/totCotas:0;
+  let pkIdx=-1, pkVol=0;
+  volData.forEach((v,i)=>{ if(v>pkVol){pkVol=v;pkIdx=i;} });
+  const elTotC=document.getElementById('evo-tot-cotas');
+  const elTotV=document.getElementById('evo-tot-vol');
+  const elTotT=document.getElementById('evo-tot-tk');
+  const elTotP=document.getElementById('evo-tot-pk');
+  if(elTotC) elTotC.textContent=totCotas;
+  if(elTotV) elTotV.textContent=brl(totVol,0);
+  if(elTotT) elTotT.textContent=brl(ticket,0);
+  if(elTotP) elTotP.textContent=pkIdx>=0?(labels[pkIdx]+' · '+brl(pkVol,0)):'—';
+
   const labelByMode=({adesao:'Adesões',contemp:'Contemplações',faturado:'Faturamento'})[dashEvoMode];
+  // Paleta harmônica: cotas em verde-petróleo (--sb2), volume em dourado (--acc)
+  const corCotas='#226866';
+  const corVol='#D6AF5C';
   const ctx=document.getElementById('ch-evo');
   if(!ctx) return;
-  dashCharts.evo=new Chart(ctx,{type:'bar',data:{labels,datasets:[{type:'bar',label:'Nº cotas',data:cotasData,backgroundColor:accent+'cc',borderRadius:6,yAxisID:'y',order:2},{type:'line',label:'Volume R$',data:volData,borderColor:'#2C3E50',backgroundColor:'rgba(44,62,80,.12)',fill:false,tension:.3,pointRadius:4,pointHoverRadius:6,yAxisID:'y1',order:1}]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{labels:{font:{size:11},padding:10}},tooltip:{callbacks:{title:(items)=>labelByMode+' — '+items[0].label,label:(item)=>item.dataset.label==='Volume R$'?'Volume: '+brl(item.parsed.y,0):'Cotas: '+item.parsed.y,afterBody:(items)=>{const k=_dashEvoKeys[items[0].dataIndex];if(!k||!_dashEvoBuckets[k]) return '';const top=Object.entries(_dashEvoBuckets[k].clientes).sort((a,b)=>b[1].v-a[1].v).slice(0,3);if(!top.length) return '';return ['','Top clientes:',...top.map(([n,d])=>'  • '+maskName(n)+' ('+d.c+' cota'+(d.c>1?'s':'')+', '+brl(d.v,0)+')')];}}}},scales:{y:{beginAtZero:true,position:'left',title:{display:true,text:'Cotas',font:{size:10}},ticks:{precision:0}},y1:{beginAtZero:true,position:'right',title:{display:true,text:'Volume R$',font:{size:10}},grid:{drawOnChartArea:false},ticks:{callback:v=>v>=1e6?(v/1e6).toFixed(1)+'M':(v/1e3).toFixed(0)+'k'}}}}});
+  dashCharts.evo=new Chart(ctx,{type:'bar',data:{labels,datasets:[{label:'Nº cotas',data:cotasData,backgroundColor:corCotas,borderColor:corCotas,borderWidth:0,borderRadius:5,yAxisID:'y',categoryPercentage:.7,barPercentage:.85},{label:'Volume R$',data:volData,backgroundColor:corVol,borderColor:corVol,borderWidth:0,borderRadius:5,yAxisID:'y1',categoryPercentage:.7,barPercentage:.85}]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},layout:{padding:{top:6}},plugins:{legend:{position:'top',align:'end',labels:{font:{size:11,family:'Inter'},padding:14,boxWidth:12,boxHeight:12,usePointStyle:false}},tooltip:{backgroundColor:'rgba(44,62,80,.96)',titleFont:{size:12,family:'Inter',weight:'600'},bodyFont:{size:11.5,family:'Inter'},padding:11,cornerRadius:8,displayColors:true,boxPadding:6,callbacks:{title:(items)=>labelByMode+' — '+items[0].label,label:(item)=>item.dataset.label==='Volume R$'?'Volume: '+brl(item.parsed.y,0):'Cotas: '+item.parsed.y,afterBody:(items)=>{const k=_dashEvoKeys[items[0].dataIndex];if(!k||!_dashEvoBuckets[k]) return '';const top=Object.entries(_dashEvoBuckets[k].clientes).sort((a,b)=>b[1].v-a[1].v).slice(0,3);if(!top.length) return '';return ['','Top clientes:',...top.map(([n,d])=>'  • '+pn(n)+' ('+d.c+' cota'+(d.c>1?'s':'')+', '+brl(d.v,0)+')')];}}}},scales:{x:{grid:{display:false},ticks:{font:{size:11,family:'Inter'},color:'#515151'}},y:{beginAtZero:true,position:'left',grace:'15%',title:{display:true,text:'Nº cotas',font:{size:10,family:'Inter'},color:'#515151'},grid:{color:'rgba(0,0,0,.04)'},ticks:{precision:0,font:{size:10,family:'Inter'},color:'#515151'}},y1:{beginAtZero:true,position:'right',grace:'15%',title:{display:true,text:'Volume R$',font:{size:10,family:'Inter'},color:'#515151'},grid:{drawOnChartArea:false},ticks:{font:{size:10,family:'Inter'},color:'#515151',callback:v=>v>=1e6?(v/1e6).toFixed(1)+'M':(v/1e3).toFixed(0)+'k'}}}}});
 }
 
 function initDash(){
   if(!dashCharts) dashCharts={};
-  dashLoadPriv(); dashUpdatePrivUI();
+  privLoad(); privUpdateUI();
   const isCancel=s=>(s||'').toUpperCase()==='CANCELADO';
   const isContemp=s=>s==='Contemplado'||s==='CONTEMPLADO'||s==='Faturado';
   const ativas=COTAS.filter(r=>!isCancel(r.status));
@@ -3283,35 +3365,35 @@ function initDash(){
 
   Object.values(dashCharts).forEach(c=>{if(c&&c.destroy)c.destroy();}); dashCharts={};
 
-  dashCharts.status=new Chart(document.getElementById('ch-status'),{type:'doughnut',data:{labels:['Contempladas','Lance Ativo','Sorteio/Espera','Outros'],datasets:[{data:[contemp,lance,aguard,COTAS.length-contemp-lance-aguard],backgroundColor:['#10b981','#f59e0b','#94a3b8','#f97316'],borderWidth:0,hoverOffset:6}]},options:{responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{position:'right',labels:{font:{size:11},padding:12}},tooltip:{callbacks:{label:(it)=>{const total=it.dataset.data.reduce((a,b)=>a+b,0)||1;return it.label+': '+it.parsed+' ('+(it.parsed/total*100).toFixed(1)+'%)';}}}}}});
+  dashCharts.status=new Chart(document.getElementById('ch-status'),{type:'doughnut',data:{labels:['Contempladas','Lance Ativo','Sorteio/Espera','Outros'],datasets:[{data:[contemp,lance,aguard,COTAS.length-contemp-lance-aguard],backgroundColor:['#226866','#D6AF5C','#94a3b8','#cbd5e1'],borderWidth:0,hoverOffset:6}]},options:{responsive:true,maintainAspectRatio:false,cutout:'62%',plugins:{legend:{position:'right',labels:{font:{size:11,family:'Inter'},padding:12,boxWidth:12,boxHeight:12,usePointStyle:false}},tooltip:{backgroundColor:'rgba(44,62,80,.96)',padding:10,cornerRadius:8,callbacks:{label:(it)=>{const total=it.dataset.data.reduce((a,b)=>a+b,0)||1;return it.label+': '+it.parsed+' ('+(it.parsed/total*100).toFixed(1)+'%)';}}}}}});
 
   const am={};COTAS.forEach(r=>{let a=r.assessor||'Outros';if(a==='Gil')a='GIL';if(!am[a])am[a]=0;am[a]++;});
   const ta=Object.entries(am).sort((a,b)=>b[1]-a[1]).slice(0,7);
-  dashCharts.assess=new Chart(document.getElementById('ch-assess'),{type:'bar',data:{labels:ta.map(x=>x[0]),datasets:[{label:'Cotas',data:ta.map(x=>x[1]),backgroundColor:'#3b82f6',borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{beginAtZero:true,ticks:{precision:0}}}}});
+  dashCharts.assess=new Chart(document.getElementById('ch-assess'),{type:'bar',data:{labels:ta.map(x=>x[0]),datasets:[{label:'Cotas',data:ta.map(x=>x[1]),backgroundColor:'#226866',borderRadius:5}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(44,62,80,.96)',padding:10,cornerRadius:8}},scales:{x:{beginAtZero:true,grid:{color:'rgba(0,0,0,.04)'},ticks:{precision:0,font:{size:10,family:'Inter'},color:'#515151'}},y:{grid:{display:false},ticks:{font:{size:11,family:'Inter'},color:'#515151'}}}}});
 
   const bm={};ativas.forEach(r=>{const b=r.banco||'Sem banco';if(!bm[b])bm[b]={c:0,v:0};bm[b].c++;bm[b].v+=(r.credito||0);});
   const bk=Object.entries(bm).sort((a,b)=>b[1].v-a[1].v);
   const bcCores={'Itaú':'#D6AF5C','Santander':'#ef4444','Safra':'#3b82f6','Bradesco':'#ec4899','Banco do Brasil':'#facc15','Caixa':'#1e3a8a','Sem banco':'#94a3b8'};
-  dashCharts.banco=new Chart(document.getElementById('ch-banco'),{type:'doughnut',data:{labels:bk.map(x=>x[0]),datasets:[{data:bk.map(x=>x[1].c),backgroundColor:bk.map(x=>bcCores[x[0]]||'#94a3b8'),borderWidth:0,hoverOffset:6}]},options:{responsive:true,maintainAspectRatio:false,cutout:'55%',plugins:{legend:{position:'right',labels:{font:{size:11},padding:10}},tooltip:{callbacks:{label:(it)=>{const e=bk[it.dataIndex];return e[0]+': '+e[1].c+' cotas · '+brl(e[1].v,0);}}}}}});
+  dashCharts.banco=new Chart(document.getElementById('ch-banco'),{type:'doughnut',data:{labels:bk.map(x=>x[0]),datasets:[{data:bk.map(x=>x[1].c),backgroundColor:bk.map(x=>bcCores[x[0]]||'#94a3b8'),borderWidth:0,hoverOffset:6}]},options:{responsive:true,maintainAspectRatio:false,cutout:'58%',plugins:{legend:{position:'right',labels:{font:{size:11,family:'Inter'},padding:10,boxWidth:12,boxHeight:12}},tooltip:{backgroundColor:'rgba(44,62,80,.96)',padding:10,cornerRadius:8,callbacks:{label:(it)=>{const e=bk[it.dataIndex];return e[0]+': '+e[1].c+' cotas · '+brl(e[1].v,0);}}}}}});
 
   const normTipo=t=>{const u=(t||'').toUpperCase();if(u.includes('IM'))return 'Imóvel';if(u.includes('MOTO'))return 'Moto';if(u.includes('VE'))return 'Veículo';return 'Outros';};
   const tm={};ativas.forEach(r=>{const t=normTipo(r.tipo_bem);if(!tm[t])tm[t]={c:0,v:0};tm[t].c++;tm[t].v+=(r.credito||0);});
   const tk=Object.entries(tm).sort((a,b)=>b[1].v-a[1].v);
-  const tpCores={'Imóvel':'#226866','Veículo':'#D6AF5C','Moto':'#f59e0b','Outros':'#94a3b8'};
-  dashCharts.tipo=new Chart(document.getElementById('ch-tipo'),{type:'doughnut',data:{labels:tk.map(x=>x[0]),datasets:[{data:tk.map(x=>x[1].c),backgroundColor:tk.map(x=>tpCores[x[0]]||'#94a3b8'),borderWidth:0,hoverOffset:6}]},options:{responsive:true,maintainAspectRatio:false,cutout:'55%',plugins:{legend:{position:'right',labels:{font:{size:11},padding:10}},tooltip:{callbacks:{label:(it)=>{const e=tk[it.dataIndex];return e[0]+': '+e[1].c+' cotas · '+brl(e[1].v,0);}}}}}});
+  const tpCores={'Imóvel':'#226866','Veículo':'#D6AF5C','Moto':'#1a4f4d','Outros':'#94a3b8'};
+  dashCharts.tipo=new Chart(document.getElementById('ch-tipo'),{type:'doughnut',data:{labels:tk.map(x=>x[0]),datasets:[{data:tk.map(x=>x[1].c),backgroundColor:tk.map(x=>tpCores[x[0]]||'#94a3b8'),borderWidth:0,hoverOffset:6}]},options:{responsive:true,maintainAspectRatio:false,cutout:'58%',plugins:{legend:{position:'right',labels:{font:{size:11,family:'Inter'},padding:10,boxWidth:12,boxHeight:12}},tooltip:{backgroundColor:'rgba(44,62,80,.96)',padding:10,cornerRadius:8,callbacks:{label:(it)=>{const e=tk[it.dataIndex];return e[0]+': '+e[1].c+' cotas · '+brl(e[1].v,0);}}}}}});
 
   const cm={};ativas.forEach(r=>{const n=r.nome||'—';if(!cm[n])cm[n]={cotas:0,contemp:0,credito:0,assessor:r.assessor};cm[n].cotas++;if(isContemp(r.status))cm[n].contemp++;if(r.credito)cm[n].credito+=r.credito;});
   const tc=Object.entries(cm).sort((a,b)=>b[1].credito-a[1].credito).slice(0,10);
   const totalCarteira=cred||1;
 
-  dashCharts.clients=new Chart(document.getElementById('ch-clients'),{type:'bar',data:{labels:tc.map(([n])=>maskName(n)),datasets:[{label:'Crédito',data:tc.map(([,d])=>d.credito),backgroundColor:tc.map(([,d])=>{const pct=d.cotas?d.contemp/d.cotas:0;return pct>=1?'#10b981':(pct>=.5?'#D6AF5C':'#3b82f6');}),borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{title:(items)=>maskName(tc[items[0].dataIndex][0]),label:(it)=>{const d=tc[it.dataIndex][1];return ['Volume: '+brl(d.credito,0),'Cotas: '+d.cotas+' · Contempladas: '+d.contemp,'% carteira: '+(d.credito/totalCarteira*100).toFixed(1)+'%','Assessor: '+(d.assessor||'—')];}}}},scales:{x:{beginAtZero:true,ticks:{callback:v=>v>=1e6?(v/1e6).toFixed(1)+'M':(v/1e3).toFixed(0)+'k'}}}}});
+  dashCharts.clients=new Chart(document.getElementById('ch-clients'),{type:'bar',data:{labels:tc.map(([n])=>pn(n)),datasets:[{label:'Crédito',data:tc.map(([,d])=>d.credito),backgroundColor:tc.map(([,d])=>{const pct=d.cotas?d.contemp/d.cotas:0;return pct>=1?'#226866':(pct>=.5?'#D6AF5C':'#94a3b8');}),borderRadius:5}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(44,62,80,.96)',padding:11,cornerRadius:8,callbacks:{title:(items)=>pn(tc[items[0].dataIndex][0]),label:(it)=>{const d=tc[it.dataIndex][1];return ['Volume: '+brl(d.credito,0),'Cotas: '+d.cotas+' · Contempladas: '+d.contemp,'% carteira: '+(d.credito/totalCarteira*100).toFixed(1)+'%','Assessor: '+(d.assessor||'—')];}}}},scales:{x:{beginAtZero:true,grid:{color:'rgba(0,0,0,.04)'},ticks:{font:{size:10,family:'Inter'},color:'#515151',callback:v=>v>=1e6?(v/1e6).toFixed(1)+'M':(v/1e3).toFixed(0)+'k'}},y:{grid:{display:false},ticks:{font:{size:11,family:'Inter'},color:'#515151'}}}}});
 
-  document.getElementById('dash-clients').innerHTML=tc.slice(0,8).map(([n,d])=>`<tr><td><strong>${maskName(n)}</strong></td><td>${d.cotas}</td><td><span class="badge b-ok">${d.contemp}</span></td><td>${brl(d.credito,0)}</td><td>${atag(d.assessor)}</td><td><strong>${(d.credito/totalCarteira*100).toFixed(1)}%</strong></td></tr>`).join('');
+  document.getElementById('dash-clients').innerHTML=tc.slice(0,8).map(([n,d])=>`<tr><td><strong>${pn(n)}</strong></td><td>${d.cotas}</td><td><span class="badge b-ok">${d.contemp}</span></td><td>${brl(d.credito,0)}</td><td>${atag(d.assessor)}</td><td><strong>${(d.credito/totalCarteira*100).toFixed(1)}%</strong></td></tr>`).join('');
 
   const amd={};ativas.forEach(r=>{let a=r.assessor||'Outros';if(a==='Gil')a='GIL';if(!amd[a])amd[a]={cotas:0,contemp:0,credito:0};amd[a].cotas++;if(isContemp(r.status))amd[a].contemp++;if(r.credito)amd[a].credito+=r.credito;});
   const tamd=Object.entries(amd).sort((a,b)=>b[1].credito-a[1].credito).slice(0,8);
 
-  dashCharts.assessPerf=new Chart(document.getElementById('ch-assess-perf'),{type:'bar',data:{labels:tamd.map(x=>x[0]),datasets:[{label:'Em andamento',data:tamd.map(x=>x[1].cotas-x[1].contemp),backgroundColor:'#f59e0b',borderRadius:4,stack:'cotas'},{label:'Contempladas',data:tamd.map(x=>x[1].contemp),backgroundColor:'#10b981',borderRadius:4,stack:'cotas'}]},options:{responsive:true,maintainAspectRatio:false,onClick:(e,el)=>{if(el&&el.length){const a=tamd[el[0].index][0];navToAssessor(a);}},plugins:{legend:{position:'top',labels:{font:{size:11},boxWidth:14}},tooltip:{callbacks:{afterBody:(items)=>{const i=items[0].dataIndex;const d=tamd[i][1];const tk=d.cotas?d.credito/d.cotas:0;return ['Volume: '+brl(d.credito,0),'Ticket médio: '+brl(tk,0),'Click p/ filtrar →'];}}}},scales:{x:{stacked:true},y:{stacked:true,beginAtZero:true,ticks:{precision:0}}}}});
+  dashCharts.assessPerf=new Chart(document.getElementById('ch-assess-perf'),{type:'bar',data:{labels:tamd.map(x=>x[0]),datasets:[{label:'Em andamento',data:tamd.map(x=>x[1].cotas-x[1].contemp),backgroundColor:'#D6AF5C',borderRadius:4,stack:'cotas'},{label:'Contempladas',data:tamd.map(x=>x[1].contemp),backgroundColor:'#226866',borderRadius:4,stack:'cotas'}]},options:{responsive:true,maintainAspectRatio:false,onClick:(e,el)=>{if(el&&el.length){const a=tamd[el[0].index][0];navToAssessor(a);}},plugins:{legend:{position:'top',labels:{font:{size:11,family:'Inter'},boxWidth:12,boxHeight:12,padding:12}},tooltip:{backgroundColor:'rgba(44,62,80,.96)',padding:11,cornerRadius:8,callbacks:{afterBody:(items)=>{const i=items[0].dataIndex;const d=tamd[i][1];const tk=d.cotas?d.credito/d.cotas:0;return ['Volume: '+brl(d.credito,0),'Ticket médio: '+brl(tk,0),'Click p/ filtrar →'];}}}},scales:{x:{stacked:true,grid:{display:false},ticks:{font:{size:11,family:'Inter'},color:'#515151'}},y:{stacked:true,beginAtZero:true,grid:{color:'rgba(0,0,0,.04)'},ticks:{precision:0,font:{size:10,family:'Inter'},color:'#515151'}}}}});
 
   document.getElementById('dash-assess').innerHTML=tamd.map(([a,d])=>{const tk=d.cotas?d.credito/d.cotas:0;return `<tr style="cursor:pointer" onclick="navToAssessor('${a}')" title="Ver clientes de ${a}"><td>${atag(a)}</td><td>${d.cotas}</td><td>${d.contemp}</td><td>${brl(d.credito,0)}</td><td>${brl(tk,0)}</td><td style="font-weight:700">${(d.credito/totalCarteira*100).toFixed(1)}%</td></tr>`;}).join('');
 
@@ -3359,7 +3441,7 @@ function renderCtrl(){
     const parcEf=isCp?(r.parcela_pos||r.parcela||0):(r.parcela||0);
     const proxAgo=calcProxAgo(r.grupo);
     return `<tr id="ctrl-row-${r.id}" style="${isCan?'opacity:.4;background:#fafafa':''}">
-      <td><strong>${r.nome||'—'}</strong><br><span style="font-size:10.5px;color:var(--txt2)">${r.cpf||''}</span></td>
+      <td><strong>${pn(r.nome)}</strong><br><span style="font-size:10.5px;color:var(--txt2)">${pcpf(r.cpf)}</span></td>
       <td><strong>${r.grupo||'—'}</strong> / ${r.cota||'—'}</td>
       <td>${bancoBadge(r.banco)}</td>
       <td style="text-align:right">${brl(r.credito,0)}</td>
@@ -3484,7 +3566,7 @@ function openModalCota(id){
   currentCotaId=id;
   const isNew=id===-1||id===null;
   const r=isNew?{}:COTAS.find(c=>String(c.id)===String(id))||{};
-  document.getElementById('modal-cota-title').textContent=isNew?'Nova Cota':`Editar — ${r.nome||''} · ${r.grupo||''}/${r.cota||''}`;
+  document.getElementById('modal-cota-title').textContent=isNew?'Nova Cota':`Editar — ${pn(r.nome)} · ${r.grupo||''}/${r.cota||''}`;
   document.getElementById('mc-del-btn').style.display=isNew?'none':'inline-flex';
   const brlFields=['credito','parcela'];
   ['nome','cpf','grupo','cota','credito','parcela','assessor','adesao','status','taxa'].forEach(k=>{
@@ -3675,7 +3757,7 @@ async function deleteCota(){
 function openModalContemp(id){
   const r=COTAS.find(c=>c.id===id);if(!r)return;
   currentCotaId=id;
-  document.getElementById('mc2-title').textContent=`Contemplar — ${r.nome} · ${r.grupo}/${r.cota}`;
+  document.getElementById('mc2-title').textContent=`Contemplar — ${pn(r.nome)} · ${r.grupo}/${r.cota}`;
   document.getElementById('cc-grupocota').value=`${r.grupo}/${r.cota}`;
   document.getElementById('cc-data').value=new Date().toISOString().slice(0,10);
   document.getElementById('cc-carta').value=r.credito||0;
@@ -4199,7 +4281,7 @@ function renderAssessorLeads(){
     const sta=l.status||'Novo';
     const staCls=sta==='Cota Aberta'?'b-ok':sta==='Perdido'?'b-err':sta==='Novo Lead'?'b-ora':'b-warn';
     return `<tr>
-      <td><strong>${l.nome||'—'}</strong></td>
+      <td><strong>${pn(l.nome)}</strong></td>
       <td style="font-size:11px">${l.telefone||'—'}</td>
       <td><span class="badge b-ora" style="font-size:10px">${l.indicado_por||'—'}</span></td>
       <td style="font-size:11px">${l.interesse||'—'}</td>
@@ -4238,7 +4320,7 @@ function pipeCardHtml(l,stage,idx){
     <div class="pipe-card-row">
       <div class="pipe-card-avatar" title="${(l.nome||'').replace(/"/g,'&quot;')}">${initial}</div>
       <div class="pipe-card-main">
-        <div class="pipe-card-name">${l.nome||'—'}</div>
+        <div class="pipe-card-name">${pn(l.nome)}</div>
         <div class="pipe-card-tags">
           ${l.interesse?`<span class="pc-tag pc-tag-int">${l.interesse}</span>`:''}
           ${ass?`<span class="pc-tag pc-tag-ass">${ass}</span>`:''}
@@ -4293,7 +4375,7 @@ function renderCRM(){
   }).join('');
   // Table
   document.getElementById('crm-tbody').innerHTML=leadsFiltered.map(l=>`<tr>
-    <td><strong>${l.nome||'—'}</strong></td>
+    <td><strong>${pn(l.nome)}</strong></td>
     <td style="font-size:12px">${l.telefone||'—'}</td>
     <td style="font-size:12px">${l.indicado_por||'—'}</td>
     <td>${atag(l.assessor)}</td>
@@ -4317,7 +4399,7 @@ function openModalLead(id){
   currentLead=id;
   const isNew=!id;
   const l=isNew?{}:LEADS.find(x=>x.id===id)||{};
-  document.getElementById('ml-title').textContent=isNew?'Novo Lead':`Editar — ${l.nome||''}`;
+  document.getElementById('ml-title').textContent=isNew?'Novo Lead':`Editar — ${pn(l.nome)}`;
   document.getElementById('ml-del-btn').style.display=isNew?'none':'inline-flex';
   document.getElementById('ml-nome').value=l.nome||'';
   document.getElementById('ml-tel').value=l.telefone||'';
@@ -5130,7 +5212,7 @@ function fatSelectCota(id){
   const r=fatCurrentCota;
   const cred=r.carta_atualizada||r.credito||0;
   info.style.display='flex';
-  info.innerHTML=`<b>${r.nome||'—'}</b><small>Grupo ${r.grupo} · Cota ${r.cota} · ${brl(cred,0)}</small>`;
+  info.innerHTML=`<b>${pn(r.nome)}</b><small>Grupo ${r.grupo} · Cota ${r.cota} · ${brl(cred,0)}</small>`;
   const pillsHtml=[];
   if(r.data_contemplada){
     const dt=r.data_contemplada.split('-').reverse().join('/');
@@ -6429,7 +6511,7 @@ function renderProj(){
     const rows=enriched.map(({n,d,c,t,cr,p})=>{
       const sel=selProj===n?' class="sel"':'';
       return `<tr${sel} data-proj="${encodeURIComponent(n)}" onclick="selProjFn(decodeURIComponent(this.getAttribute('data-proj')))">
-        <td><div class="pcard-table-name" title="${n}">${n}</div></td>
+        <td><div class="pcard-table-name" title="${pn(n)}">${pn(n)}</div></td>
         <td>${atag(d.assessor)}</td>
         <td><div class="pcard-table-bancos">${renderBancos(Array.from(d.bancos),'mini')}</div></td>
         <td style="text-align:center;font-weight:700;color:var(--info)">${t}</td>
@@ -6468,7 +6550,7 @@ function renderProj(){
       return `<div class="pcard-h${sel}" data-proj="${encodeURIComponent(n)}" onclick="selProjFn(decodeURIComponent(this.getAttribute('data-proj')))">
         <div class="pcard-h-avatar">${initial}</div>
         <div class="pcard-h-info">
-          <div class="pcard-h-name" title="${n}">${n}</div>
+          <div class="pcard-h-name" title="${pn(n)}">${pn(n)}</div>
           <div class="pcard-h-meta">${atag(d.assessor)}</div>
         </div>
         <div class="pcard-h-info">
@@ -7061,7 +7143,7 @@ function renderProjList(){
     const chkCell=bulkMode?`<td><input type="checkbox" id="pchk-${r.id}" ${isSelected?'checked':''} data-rid="${r.id}" onchange="projSelectRow(this.dataset.rid,this.checked)"></td>`:'';
     return `<tr id="plist-row-${r.id}" style="${rowStyle}">
       ${chkCell}
-      <td><strong>${r.nome||'—'}</strong><br><span style="font-size:10.5px;color:var(--txt2)">${r.cpf||''}</span></td>
+      <td><strong>${pn(r.nome)}</strong><br><span style="font-size:10.5px;color:var(--txt2)">${pcpf(r.cpf)}</span></td>
       <td><strong>${r.grupo||'—'}</strong> / ${r.cota||'—'}</td>
       <td>${bancoBadge(r.banco)}</td>
       <td style="text-align:right">${brl(r.credito,0)}</td>
@@ -7329,7 +7411,7 @@ function openLanceInteligente(cotaId,btnEl){
       <div class="lpop-h">
         <div>
           <div class="lpop-t">🎯 Inteligência de Lance</div>
-          <div class="lpop-sub">${r.nome} · Grupo ${r.grupo||'—'} / ${r.cota||'—'} · Próx AGO: ${fmtDataBr(proxAgo)||'—'}</div>
+          <div class="lpop-sub">${pn(r.nome)} · Grupo ${r.grupo||'—'} / ${r.cota||'—'} · Próx AGO: ${fmtDataBr(proxAgo)||'—'}</div>
         </div>
         <button onclick="lpopFechar()" title="Fechar (Esc)">×</button>
       </div>
