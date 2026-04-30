@@ -209,6 +209,9 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
 .chip-v{font-size:18px;font-weight:700;color:var(--txt);margin-top:3px;font-family:'Quicksand',sans-serif}
 .chip-s{font-size:11px;color:var(--txt2);margin-top:1px}
 .chip.hl{border-color:var(--acc);background:#fdf6e3}.chip.hl .chip-v{color:var(--acc2)}
+.chip-l{display:flex;align-items:center;justify-content:space-between;gap:6px}
+.lm-chip-sel{font-size:9.5px;font-weight:700;color:var(--acc2);background:#fff;border:1px solid var(--acc);border-radius:5px;padding:1px 4px;cursor:pointer;outline:none;font-family:'Inter',sans-serif;letter-spacing:.3px;text-transform:none}
+.lm-chip-sel:hover{background:#fdf6e3;border-color:var(--acc2)}
 
 /* ── GUIA: hover destacado + animação chips ─── */
 #browse-tbody tr{transition:background .15s,box-shadow .15s}
@@ -2875,6 +2878,11 @@ function setLanceMedPeriodo(p){
   // Re-renderiza as páginas que mostram lance médio
   if(typeof browseData!=='undefined'&&typeof renderBrowse==='function')try{renderBrowse(browseData,browsePage||1);}catch(_){}
   if(typeof renderOportSugestoes==='function')try{renderOportSugestoes();}catch(_){}
+  // Re-renderiza detalhe do grupo (chip "Lance Médio" + linha do gráfico)
+  if(typeof selGrupo!=='undefined'&&selGrupo){
+    try{renderGuiaChips(selGrupo);}catch(_){}
+    try{renderGuiaCharts();}catch(_){}
+  }
 }
 
 function lanceTogglehtml(){
@@ -5464,8 +5472,7 @@ async function guiaSel(g){
     window.scrollTo({top:0,behavior:'smooth'});
   }catch(_){}
   document.getElementById('guia-hist-title').textContent='Histórico do Grupo '+g;
-  const chips=[{l:'Grupo',v:g,s:d.tp||'Itaú'},{l:'Indexador',v:d.idx||'—',s:'correção'},{l:'Prazo Rest.',v:d.pr?d.pr+' meses':'—',s:d.po?'de '+d.po+' orig.':''},{l:'Próx. AGO',v:d.asm?d.asm.slice(5).split('-').reverse().join('/'):'—',s:''},{l:'Vagas',v:d.vagas!=null?d.vagas:'—',s:d.cap?'cap. '+d.cap:'',hl:true},{l:'Crédito Mín.',v:d.vmin?brl(d.vmin,0):'—',s:''},{l:'Crédito Máx.',v:d.vmax?brl(d.vmax,0):'—',s:''},{l:'Lance Médio',v:(()=>{const lm=getLanceMed(g);return lm!=null?lm.toFixed(1)+'%':'—';})(),s:LANCE_MEDIO_PERIODO==='total'?'Tudo':LANCE_MEDIO_PERIODO},{l:'Lance Atual Mín.',v:(()=>{const m=getLanceAtualMinPct(g);return m!=null?m.toFixed(2)+'%':'—';})(),s:'última AGO',hl:true},{l:'Lance Atual Máx.',v:(()=>{const m=getLanceAtualMaxPct(g);return m!=null?m.toFixed(2)+'%':'—';})(),s:'última AGO'},{l:'Contemp. (LL)',v:d.at_cl||'0',s:'lance livre'},{l:'Contemp. (LF)',v:d.at_cl_lf||'0',s:'lance fixo'},{l:'F. Reserva',v:d.fr!=null?pct(d.fr):'—',s:''},{l:'Parc. Reduz.',v:d.pr_red==='S'?'Sim':'Não',s:''}];
-  document.getElementById('guia-chips').innerHTML=chips.map(c=>`<div class="chip${c.hl?' hl':''}"><div class="chip-l">${c.l}</div><div class="chip-v">${c.v}</div>${c.s?`<div class="chip-s">${c.s}</div>`:''}</div>`).join('');
+  renderGuiaChips(g);
   // Carrega histórico do banco (fonte da verdade — já com defesa contra inversão)
   guiaHistData=await fetchHistGrupoSupabase(g);
   if(!guiaHistData){
@@ -5495,6 +5502,38 @@ async function guiaSel(g){
   renderGuiaCharts();
   renderGuiaHist();
 }
+// Renderiza apenas os chips do detalhe (sem refazer o histórico/gráficos)
+function renderGuiaChips(g){
+  const d=GUIA[g]||GUIA[parseInt(g)];if(!d)return;
+  const periodLbl=LANCE_MEDIO_PERIODO==='total'?'Tudo':LANCE_MEDIO_PERIODO;
+  const lm=getLanceMed(g);
+  const lmMeses=getLanceMedMeses(g);
+  // Mini select inline pra mudar período do Lance Médio direto no chip
+  const lmSelect=`<select class="lm-chip-sel" onchange="setLanceMedPeriodo(this.value);event.stopPropagation()" title="Janela do Lance Médio" onclick="event.stopPropagation()">`+
+    ['3m','6m','12m','total'].map(k=>{
+      const lbl=k==='total'?'Tudo':k;
+      const sel=k===LANCE_MEDIO_PERIODO?' selected':'';
+      return `<option value="${k}"${sel}>${lbl}</option>`;
+    }).join('')+
+    `</select>`;
+  const chips=[
+    {l:'Grupo',v:g,s:d.tp||'Itaú'},
+    {l:'Indexador',v:d.idx||'—',s:'correção'},
+    {l:'Prazo Rest.',v:d.pr?d.pr+' meses':'—',s:d.po?'de '+d.po+' orig.':''},
+    {l:'Próx. AGO',v:d.asm?d.asm.slice(5).split('-').reverse().join('/'):'—',s:''},
+    {l:'Vagas',v:d.vagas!=null?d.vagas:'—',s:d.cap?'cap. '+d.cap:'',hl:true},
+    {l:'Crédito Mín.',v:d.vmin?brl(d.vmin,0):'—',s:''},
+    {l:'Crédito Máx.',v:d.vmax?brl(d.vmax,0):'—',s:''},
+    {l:'Lance Médio',v:lm!=null?lm.toFixed(1)+'%':'—',s:lmMeses?lmMeses+' mês'+(lmMeses>1?'es':'')+' válidos':'sem dados',hl:true,sel:lmSelect},
+    {l:'Lance Atual Mín.',v:(()=>{const m=getLanceAtualMinPct(g);return m!=null?m.toFixed(2)+'%':'—';})(),s:'última AGO',hl:true},
+    {l:'Lance Atual Máx.',v:(()=>{const m=getLanceAtualMaxPct(g);return m!=null?m.toFixed(2)+'%':'—';})(),s:'última AGO'},
+    {l:'Contemp. (LL)',v:d.at_cl||'0',s:'lance livre'},
+    {l:'Contemp. (LF)',v:d.at_cl_lf||'0',s:'lance fixo'},
+    {l:'F. Reserva',v:d.fr!=null?pct(d.fr):'—',s:''},
+    {l:'Parc. Reduz.',v:d.pr_red==='S'?'Sim':'Não',s:''}
+  ];
+  document.getElementById('guia-chips').innerHTML=chips.map(c=>`<div class="chip${c.hl?' hl':''}"><div class="chip-l">${c.l}${c.sel||''}</div><div class="chip-v">${c.v}</div>${c.s?`<div class="chip-s">${c.s}</div>`:''}</div>`).join('');
+}
 // Estado da visualização do detalhe
 let guiaHistData=null;
 let guiaVisao='normal';      // 'normal' (LL+LF) ou 'supl'
@@ -5510,9 +5549,17 @@ function guiaSetVisao(v){
 }
 function guiaSetPeriodo(p){
   guiaPeriodo=p;
-  // Sincroniza todos os selects de período (gráfico de lances + contemplados)
+  // Sincroniza todos os selects de período do gráfico (lances + contemplados)
   document.querySelectorAll('.ghv-periodo-sel').forEach(el=>{if(el.value!==p)el.value=p;});
-  renderGuiaCharts();
+  // Sincroniza Lance Médio: período do gráfico → janela do Lance Médio
+  // 'all'→'total', '3'→'3m', '6'→'6m', '12'→'12m', '24'→'12m' (24m não existe na view, fallback)
+  const map={'all':'total','3':'3m','6':'6m','12':'12m','24':'12m'};
+  const lmP=map[p]||'12m';
+  if(LANCE_MEDIO_PERIODO!==lmP){
+    setLanceMedPeriodo(lmP); // já re-renderiza chips + gráfico + tabela do browse
+  }else{
+    renderGuiaCharts();
+  }
   // Tabela histórica NÃO aplica filtro de período (mantém scroll com tudo)
 }
 function guiaPeriodoSlice(arr){
@@ -5541,17 +5588,16 @@ function renderGuiaCharts(){
     // Defesa em profundidade: se algum mês vier com min>max, faz swap
     for(let i=0;i<mn.length;i++){if(mn[i]>0&&mx[i]>0&&mn[i]>mx[i]){const t=mn[i];mn[i]=mx[i];mx[i]=t;}}
   }
-  // Média móvel 3m sobre os mín
-  const med=mn.map((_,i)=>{
-    const w=mn.slice(Math.max(0,i-2),i+1).filter(v=>v>0);
-    return w.length?w.reduce((a,b)=>a+b,0)/w.length:0;
-  });
+  // Lance Médio do banco (LANCES_MEDIAS) — linha horizontal de referência (período sincronizado com chip)
+  const lmRef=selGrupo?getLanceMed(selGrupo):null;
+  const lmLabel='Médio '+(LANCE_MEDIO_PERIODO==='total'?'Tudo':LANCE_MEDIO_PERIODO);
   if(window.minChart)window.minChart.destroy();
   if(window.contChart)window.contChart.destroy();
   // Identidade visual brand book: traços finos, suaves, sem sobreposição visual
   const datasets=[{label:'Mín.',data:mn.map(v=>v>0?v:null),borderColor:'#226866',backgroundColor:'rgba(34,104,102,.04)',tension:.4,fill:false,pointRadius:1.8,pointHoverRadius:4,pointBackgroundColor:'#226866',pointBorderWidth:0,borderWidth:1.1,spanGaps:true}];
   if(mx)datasets.push({label:'Máx.',data:mx.map(v=>v>0?v:null),borderColor:'#b8923a',backgroundColor:'rgba(184,146,58,.04)',tension:.4,fill:false,pointRadius:1.8,pointHoverRadius:4,pointBackgroundColor:'#b8923a',pointBorderWidth:0,borderWidth:1.1,spanGaps:true});
-  datasets.push({label:'Médio (3m)',data:med.map(v=>v>0?v:null),borderColor:'#94a3b8',backgroundColor:'transparent',tension:.5,fill:false,pointRadius:0,pointHoverRadius:0,borderWidth:.9,borderDash:[2,3],spanGaps:true});
+  // Linha horizontal do Lance Médio do período (sincronizada com chip e Selector)
+  if(lmRef!=null)datasets.push({label:lmLabel,data:Array(mn.length).fill(lmRef),borderColor:'#94a3b8',backgroundColor:'transparent',tension:0,fill:false,pointRadius:0,pointHoverRadius:0,borderWidth:1,borderDash:[2,3],spanGaps:true});
   window.minChart=new Chart(document.getElementById('ch-lance'),{
     type:'line',
     data:{labels,datasets},
