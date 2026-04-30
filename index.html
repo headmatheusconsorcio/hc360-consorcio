@@ -4608,12 +4608,21 @@ function _diasLabel(diff){
   return `<span style="color:var(--txt2);font-weight:600">${diff}d</span>`;
 }
 
-function _renderGrupoVenc(g,corDot){
+function _renderGrupoVenc(g,corDot,quadro){
   const cnt=g.items.length;
   const grupos=[...g.grupos].slice(0,2).join(', ')+(g.grupos.size>2?` +${g.grupos.size-2}`:'');
   const right=`<div class="agenda-date" style="text-align:right">${_diasLabel(g.maisUrg)}<br><span style="color:var(--txt2);font-weight:500;font-size:10.5px">${brl(g.totalParc,0)}</span></div>`;
+  // Batch: só em "vencidas" e quando o cliente tem >1 cota pagável (não paga ainda no mês)
+  const pagaveis=g.items.filter(r=>!jaPagoNoMes(r));
+  const showBatch=quadro==='vencidas'&&cnt>1&&pagaveis.length>=2;
+  const safeId=(g.nome||'').replace(/[^a-zA-Z0-9]/g,'_');
   const cotas=g.items.map(r=>{
+    const podePagar=!jaPagoNoMes(r);
+    const checkbox=showBatch?(podePagar
+      ? `<input type="checkbox" class="agbatch" data-cliente="${safeId}" data-id="${r.id}" onclick="event.stopPropagation();_atualizarBatchAgenda('${safeId}')" style="margin-right:10px;cursor:pointer;flex-shrink:0;width:16px;height:16px">`
+      : `<span style="display:inline-block;width:16px;margin-right:10px;flex-shrink:0" title="Já paga este mês"></span>`):'';
     return `<div class="ag-cota">
+      ${checkbox}
       <div class="ag-cota-info" onclick="openModalCota('${r.id}')" title="Ver/Editar cota">
         <div class="ag-cota-name">Grupo ${r.grupo||'—'}/${r.cota||'—'}</div>
         <div class="ag-cota-meta">${brl(parcelaEfetiva(r))} · vence dia ${r.vencimento} · ${_diasLabel(r.diffDias)}</div>
@@ -4621,6 +4630,13 @@ function _renderGrupoVenc(g,corDot){
       <div style="display:flex;gap:4px;flex-shrink:0">${_btnPagamento(r)}</div>
     </div>`;
   }).join('');
+  const batchBar=showBatch?`<div class="ag-batch-bar" style="display:flex;gap:10px;align-items:center;padding:8px 14px;background:var(--cream);border-bottom:1px solid #fcd9b6;font-size:11.5px;font-weight:500">
+      <label style="display:flex;align-items:center;gap:6px;cursor:pointer;color:var(--txt)">
+        <input type="checkbox" id="ag-batch-all-${safeId}" onclick="event.stopPropagation();_toggleAllBatchAgenda(this,'${safeId}')" style="cursor:pointer;width:16px;height:16px">
+        Selecionar todas (${pagaveis.length})
+      </label>
+      <button class="btn btn-sm" disabled onclick="event.stopPropagation();pagarSelecionadasAgenda('${safeId}',${JSON.stringify(g.nome)})" id="ag-batch-btn-${safeId}" style="background:var(--ok);color:#fff;font-size:11px;padding:5px 12px;font-weight:500;margin-left:auto;opacity:.5;cursor:not-allowed">✓ Pagar selecionadas (0)</button>
+    </div>`:'';
   return `<details class="ag-group">
     <summary>
       <span class="ag-chev">▸</span>
@@ -4631,8 +4647,67 @@ function _renderGrupoVenc(g,corDot){
       </div>
       ${right}
     </summary>
-    <div class="ag-body">${cotas}</div>
+    <div class="ag-body">${batchBar}${cotas}</div>
   </details>`;
+}
+
+function _atualizarBatchAgenda(safeId){
+  const checks=document.querySelectorAll(`.agbatch[data-cliente="${safeId}"]:checked`);
+  const all=document.querySelectorAll(`.agbatch[data-cliente="${safeId}"]`);
+  const btn=document.getElementById(`ag-batch-btn-${safeId}`);
+  const allCb=document.getElementById(`ag-batch-all-${safeId}`);
+  if(!btn)return;
+  const n=checks.length;
+  btn.textContent=`✓ Pagar selecionadas (${n})`;
+  btn.disabled=n===0;
+  btn.style.opacity=n===0?'.5':'1';
+  btn.style.cursor=n===0?'not-allowed':'pointer';
+  if(allCb)allCb.checked=n>0&&n===all.length;
+}
+
+function _toggleAllBatchAgenda(checkbox,safeId){
+  const checks=document.querySelectorAll(`.agbatch[data-cliente="${safeId}"]`);
+  checks.forEach(c=>c.checked=checkbox.checked);
+  _atualizarBatchAgenda(safeId);
+}
+
+async function pagarSelecionadasAgenda(safeId,nomeCliente){
+  const checks=document.querySelectorAll(`.agbatch[data-cliente="${safeId}"]:checked`);
+  const ids=[...checks].map(c=>c.dataset.id);
+  if(ids.length===0)return;
+  const cotas=ids.map(id=>COTAS.find(c=>String(c.id)===String(id))).filter(Boolean);
+  // Filtra: só pagáveis (não pagas no mês, parcela > 0, prazo > 0)
+  const pagaveis=cotas.filter(r=>!jaPagoNoMes(r)&&parcelaEfetiva(r)>0&&(r.prazo_restante||0)>0);
+  const total=pagaveis.reduce((s,r)=>s+parcelaEfetiva(r),0);
+  const skipped=cotas.length-pagaveis.length;
+  if(pagaveis.length===0){toast('Nenhuma cota pagável selecionada','warn');return;}
+  const detalhes=pagaveis.map(r=>`· Grupo ${r.grupo||'—'}/${r.cota||'—'}: ${brl(parcelaEfetiva(r))}`).join('
+');
+  const msg=`Confirmar pagamento de ${pagaveis.length} parcela${pagaveis.length!==1?'s':''} para ${nomeCliente}?
+
+${detalhes}
+
+Total: ${brl(total)}`+
+    (skipped>0?`
+
+(${skipped} cota${skipped!==1?'s':''} ignorada${skipped!==1?'s':''} — já paga${skipped!==1?'s':''} este mês)`:'');
+  if(!confirm(msg))return;
+  showLoad();
+  let ok=0,errors=0;
+  const hojeStr=_hojeStr();
+  for(const r of pagaveis){
+    const parcPaga=parcelaEfetiva(r);
+    const novoSaldo=Math.max(0,(r.saldo_devedor||0)-parcPaga);
+    const updates={id:r.id,saldo_devedor:novoSaldo,prazo_restante:(r.prazo_restante||0)-1,ultima_parcela_paga:hojeStr,updated_at:new Date().toISOString()};
+    const res=await upsertCota(updates);
+    if(res)ok++;else errors++;
+  }
+  hideLoad();
+  let msgFinal=`${ok} pagamento${ok!==1?'s':''} confirmado${ok!==1?'s':''}`;
+  if(skipped>0)msgFinal+=` · ${skipped} ignorada${skipped!==1?'s':''}`;
+  if(errors>0)msgFinal+=` · ${errors} erro${errors!==1?'s':''}`;
+  toast(msgFinal,errors>0?'warn':'ok');
+  refreshCotaViews();
 }
 
 function _renderQuadroVenc(opts){
@@ -4646,11 +4721,12 @@ function _renderQuadroVenc(opts){
   grupos.sort(sortFn);
   document.getElementById(countId).textContent=list.length;
   const el=document.getElementById(bodyId);if(!el)return;
-  el.innerHTML=grupos.length?grupos.map(g=>_renderGrupoVenc(g,corDot)).join(''):`<div style="color:var(--txt2);font-size:13px;padding:18px;text-align:center">${vazioMsg}</div>`;
+  el.innerHTML=grupos.length?grupos.map(g=>_renderGrupoVenc(g,corDot,opts.quadro)).join(''):`<div style="color:var(--txt2);font-size:13px;padding:18px;text-align:center">${vazioMsg}</div>`;
 }
 
 function renderQVencidas(){
   _renderQuadroVenc({
+    quadro:'vencidas',
     filtroId:'vencidas-filter',sortId:'vencidas-sort',bodyId:'agenda-vencidas',countId:'agenda-vencidas-count',
     filterFn:r=>r.diffDias<=0,corDot:'err',vazioMsg:'Nenhuma vencida ✓',
     sortFns:{
