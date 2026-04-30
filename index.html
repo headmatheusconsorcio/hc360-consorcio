@@ -3429,7 +3429,7 @@ function togglePriv(){ PRIV_HIDE=!PRIV_HIDE; privSave(); privUpdateUI(); privRer
 function maskName(n){ return pn(n); }
 
 // ═══ DASHBOARD ═══
-let dashEvoMode='adesao', dashEvoTipo='todos';
+let dashEvoMode='adesao', dashEvoTipo='todos', dashEvoScale='linear';
 let _dashEvoBuckets={}, _dashEvoKeys=[];
 
 // Paleta limitada por assessor (tons da identidade visual)
@@ -3452,6 +3452,11 @@ function dashSetEvo(btn,mode){
 function dashSetEvoTipo(btn,tipo){
   dashEvoTipo=tipo;
   document.querySelectorAll('#dash-evo-tipo .toggle-btn').forEach(b=>b.classList.toggle('act',b===btn));
+  dashRenderEvo();
+}
+function dashSetEvoScale(btn,sc){
+  dashEvoScale=sc;
+  document.querySelectorAll('#dash-evo-scale .toggle-btn').forEach(b=>b.classList.toggle('act',b===btn));
   dashRenderEvo();
 }
 function dashMonthKey(d){
@@ -3607,7 +3612,7 @@ function dashRenderEvo(){
 
   const ctx=document.getElementById('ch-evo');
   if(!ctx) return;
-  dashCharts.evo=new Chart(ctx,{type:'bar',data:{labels,datasets:[{label:'Volume R$',data:volData,backgroundColor:'#D6AF5C',hoverBackgroundColor:'#b8923a',borderWidth:0,borderRadius:4,categoryPercentage:.7,barPercentage:.85}]},options:{responsive:true,maintainAspectRatio:false,onClick:(e,el)=>{if(el&&el.length){const k=keys[el[0].index];if(k)openEvoVendas(k);}},onHover:(e,el)=>{e.native.target.style.cursor=(el&&el.length)?'pointer':'default';},layout:{padding:{top:6}},plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(44,62,80,.96)',titleFont:{size:12,family:'Mulish',weight:'600'},bodyFont:{size:11,family:'Mulish'},padding:10,cornerRadius:6,displayColors:false,callbacks:{title:(items)=>labelMode+' — '+items[0].label,label:(item)=>'Volume: '+brl(item.parsed.y,0),afterBody:(items)=>{const k=_dashEvoKeys[items[0].dataIndex];if(!k||!_dashEvoBuckets[k]) return '';const b=_dashEvoBuckets[k];const top=Object.entries(b.clientes).sort((a,b)=>b[1].v-a[1].v).slice(0,3);const lines=['','Cotas: '+b.cotas];if(top.length){lines.push('','Top clientes:');top.forEach(([n,d])=>lines.push('  • '+pn(n)+' ('+d.c+', '+brl(d.v,0)+')'));}lines.push('','› clique para abrir vendas do mês');return lines;}}}},scales:{x:{grid:{display:false},ticks:{font:{size:10.5,family:'Mulish'},color:'#515151'}},y:{beginAtZero:true,grace:'12%',grid:{color:'rgba(0,0,0,.04)'},ticks:{font:{size:10,family:'Mulish'},color:'#515151',callback:v=>v>=1e6?(v/1e6).toFixed(1)+'M':(v/1e3).toFixed(0)+'k'}}}}});
+  dashCharts.evo=new Chart(ctx,{type:'bar',data:{labels,datasets:[{label:'Volume R$',data:volData,backgroundColor:'#D6AF5C',hoverBackgroundColor:'#b8923a',borderWidth:0,borderRadius:4,categoryPercentage:.7,barPercentage:.85}]},options:{responsive:true,maintainAspectRatio:false,onClick:(e,el)=>{if(el&&el.length){const k=keys[el[0].index];if(k)openEvoVendas(k);}},onHover:(e,el)=>{e.native.target.style.cursor=(el&&el.length)?'pointer':'default';},layout:{padding:{top:6}},plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(44,62,80,.96)',titleFont:{size:12,family:'Mulish',weight:'600'},bodyFont:{size:11,family:'Mulish'},padding:10,cornerRadius:6,displayColors:false,callbacks:{title:(items)=>labelMode+' — '+items[0].label,label:(item)=>'Volume: '+brl(item.parsed.y,0),afterBody:(items)=>{const k=_dashEvoKeys[items[0].dataIndex];if(!k||!_dashEvoBuckets[k]) return '';const b=_dashEvoBuckets[k];const top=Object.entries(b.clientes).sort((a,b)=>b[1].v-a[1].v).slice(0,3);const lines=['','Cotas: '+b.cotas];if(top.length){lines.push('','Top clientes:');top.forEach(([n,d])=>lines.push('  • '+pn(n)+' ('+d.c+', '+brl(d.v,0)+')'));}lines.push('','› clique para abrir vendas do mês');return lines;}}}},scales:{x:{grid:{display:false},ticks:{font:{size:10.5,family:'Mulish'},color:'#515151'}},y:dashEvoScale==='log'?{type:'logarithmic',grid:{color:'rgba(0,0,0,.04)'},ticks:{font:{size:10,family:'Mulish'},color:'#515151',callback:v=>{if(v===0||!v)return '0';const exp=Math.log10(v);if(Math.abs(exp-Math.round(exp))>.05)return '';return v>=1e6?(v/1e6).toFixed(1)+'M':v>=1e3?(v/1e3).toFixed(0)+'k':v;}}}:{beginAtZero:true,grace:'12%',grid:{color:'rgba(0,0,0,.04)'},ticks:{font:{size:10,family:'Mulish'},color:'#515151',callback:v=>v>=1e6?(v/1e6).toFixed(1)+'M':(v/1e3).toFixed(0)+'k'}}}}});
 }
 
 
