@@ -799,12 +799,16 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:#fefbf3;border-left:3px so
             <button class="toggle-btn" data-val="imovel" onclick="dashSetEvoTipo(this,'imovel')" style="padding:4px 10px;font-size:11px;border-radius:5px;flex:none">Imóvel</button>
             <button class="toggle-btn" data-val="veiculo" onclick="dashSetEvoTipo(this,'veiculo')" style="padding:4px 10px;font-size:11px;border-radius:5px;flex:none">Veículo</button>
           </div>
+          <div id="dash-evo-scale" style="display:flex;background:var(--card2);border:1px solid var(--bdr);border-radius:7px;padding:2px">
+            <button class="toggle-btn act" data-val="linear" onclick="dashSetEvoScale(this,'linear')" style="padding:4px 10px;font-size:11px;border-radius:5px;flex:none" title="Escala linear (proporcional)">Linear</button>
+            <button class="toggle-btn" data-val="log" onclick="dashSetEvoScale(this,'log')" style="padding:4px 10px;font-size:11px;border-radius:5px;flex:none" title="Escala logarítmica — comprime picos e mostra meses pequenos">Log</button>
+          </div>
           <select class="form-i" id="dash-evo-period" style="padding:4px 8px;font-size:11px;width:auto;margin:0" onchange="dashRenderEvo()">
             <option value="3">3 meses</option>
             <option value="6">6 meses</option>
-            <option value="12" selected>12 meses</option>
+            <option value="12">12 meses</option>
             <option value="24">24 meses</option>
-            <option value="all">Tudo</option>
+            <option value="all" selected>Tudo</option>
           </select>
         </div>
       </div>
