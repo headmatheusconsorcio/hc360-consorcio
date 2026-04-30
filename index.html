@@ -1331,7 +1331,7 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:#fefbf3;border-left:3px so
             <div style="margin-left:auto;display:inline-flex;align-items:center;gap:6px">
               <label style="font-size:9.5px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:.6px;font-family:'Raleway',sans-serif">Período</label>
               <select class="ghv-periodo-sel" onchange="guiaSetPeriodo(this.value)" style="padding:4px 8px;font-size:11px;border:1.5px solid var(--bdr);border-radius:6px;background:#fff;outline:none;font-family:'Inter',sans-serif">
-                <option value="all">Tudo</option><option value="3">3m</option><option value="6">6m</option><option value="12">12m</option><option value="24">24m</option>
+                <option value="all">Tudo</option><option value="3">3m</option><option value="6">6m</option><option value="12" selected>12m</option><option value="24">24m</option>
               </select>
             </div>
           </div>
@@ -1343,7 +1343,7 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:#fefbf3;border-left:3px so
             <div style="margin-left:auto;display:inline-flex;align-items:center;gap:6px">
               <label style="font-size:9.5px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:.6px;font-family:'Raleway',sans-serif">Período</label>
               <select class="ghv-periodo-sel" onchange="guiaSetPeriodo(this.value)" style="padding:4px 8px;font-size:11px;border:1.5px solid var(--bdr);border-radius:6px;background:#fff;outline:none;font-family:'Inter',sans-serif">
-                <option value="all">Tudo</option><option value="3">3m</option><option value="6">6m</option><option value="12">12m</option><option value="24">24m</option>
+                <option value="all">Tudo</option><option value="3">3m</option><option value="6">6m</option><option value="12" selected>12m</option><option value="24">24m</option>
               </select>
             </div>
           </div>
@@ -5403,7 +5403,7 @@ async function guiaSel(g){
 // Estado da visualização do detalhe
 let guiaHistData=null;
 let guiaVisao='normal';      // 'normal' (LL+LF) ou 'supl'
-let guiaPeriodo='all';       // 'all' | '3' | '6' | '12' | '24'
+let guiaPeriodo='12';        // 'all' | '3' | '6' | '12' | '24' — padrão: últimos 12 meses
 function guiaSetVisao(v){
   guiaVisao=v;
   document.getElementById('ghv-normal')?.classList.toggle('act',v==='normal');
@@ -5454,9 +5454,9 @@ function renderGuiaCharts(){
   if(window.minChart)window.minChart.destroy();
   if(window.contChart)window.contChart.destroy();
   // Identidade visual brand book: traços finos, suaves, sem sobreposição visual
-  const datasets=[{label:'Mín.',data:mn.map(v=>v>0?v:null),borderColor:'#226866',backgroundColor:'rgba(34,104,102,.04)',tension:.35,fill:false,pointRadius:2.5,pointHoverRadius:5,pointBackgroundColor:'#226866',borderWidth:1.4,spanGaps:true}];
-  if(mx)datasets.push({label:'Máx.',data:mx.map(v=>v>0?v:null),borderColor:'#b8923a',backgroundColor:'rgba(184,146,58,.04)',tension:.35,fill:false,pointRadius:2.5,pointHoverRadius:5,pointBackgroundColor:'#b8923a',borderWidth:1.4,spanGaps:true});
-  datasets.push({label:'Médio (3m)',data:med.map(v=>v>0?v:null),borderColor:'#94a3b8',backgroundColor:'transparent',tension:.45,fill:false,pointRadius:0,pointHoverRadius:0,borderWidth:1.2,borderDash:[3,4],spanGaps:true});
+  const datasets=[{label:'Mín.',data:mn.map(v=>v>0?v:null),borderColor:'#226866',backgroundColor:'rgba(34,104,102,.04)',tension:.4,fill:false,pointRadius:1.8,pointHoverRadius:4,pointBackgroundColor:'#226866',pointBorderWidth:0,borderWidth:1.1,spanGaps:true}];
+  if(mx)datasets.push({label:'Máx.',data:mx.map(v=>v>0?v:null),borderColor:'#b8923a',backgroundColor:'rgba(184,146,58,.04)',tension:.4,fill:false,pointRadius:1.8,pointHoverRadius:4,pointBackgroundColor:'#b8923a',pointBorderWidth:0,borderWidth:1.1,spanGaps:true});
+  datasets.push({label:'Médio (3m)',data:med.map(v=>v>0?v:null),borderColor:'#94a3b8',backgroundColor:'transparent',tension:.5,fill:false,pointRadius:0,pointHoverRadius:0,borderWidth:.9,borderDash:[2,3],spanGaps:true});
   window.minChart=new Chart(document.getElementById('ch-lance'),{
     type:'line',
     data:{labels,datasets},
