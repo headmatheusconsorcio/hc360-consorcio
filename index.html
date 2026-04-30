@@ -81,16 +81,35 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 
 /* ── CARD ─── identidade Layout 1 (Cards) aplicada globalmente ── */
 .card{background:var(--card);border-radius:12px;border:1.5px solid var(--bdr);border-left:4px solid var(--sb);overflow:hidden;margin-bottom:18px;box-shadow:0 1px 6px rgba(0,0,0,.05);transition:all .15s}
-.card-min{background:#fff;border:1px solid var(--bdr);border-radius:14px;overflow:hidden;margin-bottom:16px;box-shadow:0 1px 4px rgba(0,0,0,.035);transition:all .15s}
-.card-min:hover{box-shadow:0 2px 10px rgba(0,0,0,.06);border-color:#d4d8e0}
-.card-min .ch{padding:14px 20px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;background:#fff}
-.card-min .ct{font-size:14px;font-weight:600;color:var(--sb);font-family:'Playfair Display',serif;letter-spacing:-.2px}
-.card-min .cb{padding:18px 20px}
-.evo-totals{display:flex;gap:24px;padding:12px 20px 0;flex-wrap:wrap}
-.evo-tot{display:flex;flex-direction:column;gap:2px}
-.evo-tot-l{font-size:10px;color:var(--txt2);text-transform:uppercase;letter-spacing:.6px;font-weight:700}
-.evo-tot-v{font-size:18px;font-weight:700;color:var(--sb);font-family:'Raleway',sans-serif}
-.priv-tb{display:flex;align-items:center;gap:6px;padding:5px 11px;font-size:12px;font-weight:600;color:var(--txt2);background:transparent;border:1px solid var(--bdr);border-radius:8px;cursor:pointer;transition:all .15s;font-family:'Inter',sans-serif}
+.card-min{background:#fff;border:1px solid var(--bdr);border-radius:12px;overflow:hidden;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,.03);transition:border-color .15s,box-shadow .15s}
+.card-min:hover{box-shadow:0 1px 6px rgba(0,0,0,.05);border-color:#d8dce4}
+.card-min .ch{padding:11px 18px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;background:#fff;min-height:46px}
+.card-min .ct{font-size:13px;font-weight:600;color:var(--sb);font-family:'Playfair Display',serif;letter-spacing:-.1px}
+.card-min .cs{font-size:10px;color:var(--txt2);text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-left:8px}
+.card-min .cb{padding:14px 18px}
+.evo-totals{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:0;padding:10px 18px;border-bottom:1px solid var(--bdr);background:var(--card2)}
+.evo-tot{display:flex;flex-direction:column;gap:2px;padding:2px 12px;border-right:1px solid var(--bdr)}
+.evo-tot:last-child{border-right:none}
+.evo-tot-l{font-size:9px;color:var(--txt2);text-transform:uppercase;letter-spacing:.5px;font-weight:700}
+.evo-tot-v{font-size:16px;font-weight:700;color:var(--sb);font-family:'Raleway',sans-serif;line-height:1.2}
+.evo-tot-v.sm{font-size:12px;font-weight:600}
+.dash-modal-tbl{width:100%;border-collapse:separate;border-spacing:0;font-size:12px}
+.dash-modal-tbl thead th{background:var(--sb);color:#fff;text-transform:uppercase;letter-spacing:.5px;font-size:10px;font-weight:700;padding:9px 12px;text-align:left;white-space:nowrap}
+.dash-modal-tbl tbody td{padding:9px 12px;border-top:1px solid var(--bdr);vertical-align:middle}
+.dash-modal-tbl tbody tr{cursor:pointer;transition:background .12s}
+.dash-modal-tbl tbody tr:hover{background:#fafbfc}
+.dash-modal-tbl tbody tr.tot{background:var(--card2);font-weight:700;cursor:default}
+.dash-modal-tbl tbody tr.tot:hover{background:var(--card2)}
+.dash-cli-name{font-family:'Playfair Display',serif;color:var(--sb);font-weight:700;font-size:13px;letter-spacing:-.1px}
+.dash-legend{display:flex;flex-wrap:wrap;gap:10px 14px;padding:8px 18px 0;font-size:11px}
+.dash-legend-item{display:inline-flex;align-items:center;gap:6px;color:var(--txt2)}
+.dash-legend-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+.kpi-grid{gap:10px;margin-bottom:12px}
+.kpi{padding:14px 16px}
+.kpi-val{font-size:24px}
+.kpi-lbl{font-size:10px}
+.kpi-sub{font-size:10px}
+.priv-tb{display:flex;align-items:center;gap:6px;padding:5px 10px;font-size:11.5px;font-weight:600;color:var(--txt2);background:transparent;border:1px solid var(--bdr);border-radius:7px;cursor:pointer;transition:all .15s;font-family:'Inter',sans-serif;letter-spacing:.1px}
 .priv-tb:hover{border-color:var(--sb);color:var(--sb)}
 .priv-tb.on{background:var(--sb);color:#fff;border-color:var(--sb)}
 .card:hover{border-color:var(--sb2);border-left-color:var(--acc);box-shadow:0 3px 14px rgba(0,0,0,.08)}
@@ -704,50 +723,67 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:#fefbf3;border-left:3px so
     </div>
 
     <div class="card-min">
-      <div class="ch" style="display:flex;align-items:center;flex-wrap:wrap;gap:10px">
+      <div class="ch" style="display:flex;align-items:center;flex-wrap:wrap;gap:8px">
         <span class="ct">Evolução Mensal</span>
-        <div id="dash-evo-mode" style="display:flex;background:var(--card2);border:1px solid var(--bdr);border-radius:8px;padding:2px;margin-left:auto">
-          <button class="toggle-btn act" data-val="adesao" onclick="dashSetEvo(this,'adesao')" style="padding:5px 12px;font-size:11.5px;border-radius:6px;flex:none">Adesões</button>
-          <button class="toggle-btn" data-val="contemp" onclick="dashSetEvo(this,'contemp')" style="padding:5px 12px;font-size:11.5px;border-radius:6px;flex:none">Contemplações</button>
-          <button class="toggle-btn" data-val="faturado" onclick="dashSetEvo(this,'faturado')" style="padding:5px 12px;font-size:11.5px;border-radius:6px;flex:none">Faturamento</button>
+        <span class="cs" id="evo-mode-lbl">Adesões · Total</span>
+        <div style="display:flex;gap:8px;margin-left:auto;flex-wrap:wrap;align-items:center">
+          <div id="dash-evo-mode" style="display:flex;background:var(--card2);border:1px solid var(--bdr);border-radius:7px;padding:2px">
+            <button class="toggle-btn act" data-val="adesao" onclick="dashSetEvo(this,'adesao')" style="padding:4px 10px;font-size:11px;border-radius:5px;flex:none">Adesões</button>
+            <button class="toggle-btn" data-val="contemp" onclick="dashSetEvo(this,'contemp')" style="padding:4px 10px;font-size:11px;border-radius:5px;flex:none">Contemplações</button>
+            <button class="toggle-btn" data-val="faturado" onclick="dashSetEvo(this,'faturado')" style="padding:4px 10px;font-size:11px;border-radius:5px;flex:none">Faturamento</button>
+          </div>
+          <div id="dash-evo-tipo" style="display:flex;background:var(--card2);border:1px solid var(--bdr);border-radius:7px;padding:2px">
+            <button class="toggle-btn act" data-val="todos" onclick="dashSetEvoTipo(this,'todos')" style="padding:4px 10px;font-size:11px;border-radius:5px;flex:none">Total</button>
+            <button class="toggle-btn" data-val="imovel" onclick="dashSetEvoTipo(this,'imovel')" style="padding:4px 10px;font-size:11px;border-radius:5px;flex:none">Imóvel</button>
+            <button class="toggle-btn" data-val="veiculo" onclick="dashSetEvoTipo(this,'veiculo')" style="padding:4px 10px;font-size:11px;border-radius:5px;flex:none">Veículo</button>
+          </div>
+          <select class="form-i" id="dash-evo-period" style="padding:4px 8px;font-size:11px;width:auto;margin:0" onchange="dashRenderEvo()">
+            <option value="3">3 meses</option>
+            <option value="6">6 meses</option>
+            <option value="12" selected>12 meses</option>
+            <option value="24">24 meses</option>
+            <option value="all">Tudo</option>
+          </select>
         </div>
-        <select class="form-i" id="dash-evo-period" style="padding:5px 9px;font-size:11.5px;width:auto;margin:0" onchange="dashRenderEvo()">
-          <option value="3">3 meses</option>
-          <option value="6">6 meses</option>
-          <option value="12" selected>12 meses</option>
-          <option value="24">24 meses</option>
-          <option value="all">Tudo</option>
-        </select>
       </div>
       <div class="evo-totals" id="dash-evo-totals">
         <div class="evo-tot"><span class="evo-tot-l">Cotas no período</span><span class="evo-tot-v" id="evo-tot-cotas">—</span></div>
         <div class="evo-tot"><span class="evo-tot-l">Volume no período</span><span class="evo-tot-v" id="evo-tot-vol">—</span></div>
         <div class="evo-tot"><span class="evo-tot-l">Ticket médio</span><span class="evo-tot-v" id="evo-tot-tk">—</span></div>
-        <div class="evo-tot"><span class="evo-tot-l">Pico do período</span><span class="evo-tot-v" id="evo-tot-pk" style="font-size:13px;font-weight:600">—</span></div>
+        <div class="evo-tot"><span class="evo-tot-l">Pico do período</span><span class="evo-tot-v sm" id="evo-tot-pk">—</span></div>
       </div>
-      <div class="cb"><div class="chart-wrap" style="height:280px"><canvas id="ch-evo"></canvas></div></div>
-    </div>
-
-    <div class="g2">
-      <div class="card-min"><div class="ch"><span class="ct">Status das Cotas</span></div><div class="cb"><div class="chart-wrap"><canvas id="ch-status"></canvas></div></div></div>
-      <div class="card-min"><div class="ch"><span class="ct">Distribuição por Assessor</span></div><div class="cb"><div class="chart-wrap"><canvas id="ch-assess"></canvas></div></div></div>
-    </div>
-
-    <div class="g2">
-      <div class="card-min"><div class="ch"><span class="ct">Por Banco</span></div><div class="cb"><div class="chart-wrap"><canvas id="ch-banco"></canvas></div></div></div>
-      <div class="card-min"><div class="ch"><span class="ct">Por Tipo de Bem</span></div><div class="cb"><div class="chart-wrap"><canvas id="ch-tipo"></canvas></div></div></div>
+      <div class="cb" style="padding-top:8px"><div class="chart-wrap" style="height:240px"><canvas id="ch-evo"></canvas></div></div>
     </div>
 
     <div class="card-min">
-      <div class="ch"><span class="ct">Maiores Clientes</span><span style="font-size:11px;color:var(--txt2);margin-left:8px">Top 10 por crédito</span></div>
-      <div class="cb"><div class="chart-wrap" style="height:340px"><canvas id="ch-clients"></canvas></div></div>
-      <div class="tw"><table><thead><tr><th>Cliente</th><th>Cotas</th><th>Contempl.</th><th>Volume</th><th>Assessor</th><th>% Carteira</th></tr></thead><tbody id="dash-clients"></tbody></table></div>
+      <div class="ch"><span class="ct">Maiores Clientes</span><span class="cs">Top 10 · cor por assessor · click abre cotas</span></div>
+      <div id="dash-clients-legend" class="dash-legend"></div>
+      <div class="cb" style="padding-top:6px"><div class="chart-wrap" style="height:320px"><canvas id="ch-clients"></canvas></div></div>
     </div>
 
-    <div class="card-min">
-      <div class="ch"><span class="ct">Por Assessor — Performance</span><span style="font-size:11px;color:var(--txt2);margin-left:8px">Click na barra para filtrar</span></div>
-      <div class="cb"><div class="chart-wrap" style="height:300px"><canvas id="ch-assess-perf"></canvas></div></div>
-      <div class="tw"><table><thead><tr><th>Assessor</th><th>Cotas</th><th>Contempl.</th><th>Volume</th><th>Ticket Médio</th><th>%</th></tr></thead><tbody id="dash-assess"></tbody></table></div>
+    <div class="g2">
+      <div class="card-min">
+        <div class="ch"><span class="ct">Por Assessor</span><span class="cs">click abre carteira</span></div>
+        <div class="cb"><div class="chart-wrap" style="height:260px"><canvas id="ch-assess-perf"></canvas></div></div>
+      </div>
+      <div class="card-min">
+        <div class="ch"><span class="ct">Por Banco</span></div>
+        <div class="cb"><div class="chart-wrap" style="height:260px"><canvas id="ch-banco"></canvas></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de detalhes (vendas do mês ou cotas do cliente) -->
+  <div class="moverlay" id="modal-dash-det">
+    <div class="modal" style="width:760px;max-width:96vw">
+      <div style="padding:16px 22px 14px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;gap:12px">
+        <div>
+          <div id="mdd-title" style="font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:var(--sb);letter-spacing:-.2px">—</div>
+          <div id="mdd-sub" style="font-size:11px;color:var(--txt2);text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-top:3px">—</div>
+        </div>
+        <button onclick="closeMddet()" style="margin-left:auto;background:transparent;border:none;font-size:22px;cursor:pointer;color:var(--txt2);padding:0 6px">×</button>
+      </div>
+      <div id="mdd-body" style="padding:0;max-height:60vh;overflow-y:auto"></div>
     </div>
   </div>
 
@@ -3222,7 +3258,7 @@ async function deleteLeadDB(id){
 }
 
 // ═══ PRIVACIDADE GLOBAL (nomes/CPF/telefone em toda página) ═══
-let PRIV_HIDE=false;  // default: mostrar (para que o usuário veja tudo ao abrir)
+let PRIV_HIDE=false;
 function privLoad(){ try{ PRIV_HIDE=localStorage.getItem('hc360_priv_global')==='1'; }catch(e){} }
 function privSave(){ try{ localStorage.setItem('hc360_priv_global',PRIV_HIDE?'1':'0'); }catch(e){} }
 function pn(n){
@@ -3256,7 +3292,6 @@ function privUpdateUI(){
   if(btn) btn.classList.toggle('on',PRIV_HIDE);
 }
 function privRerenderAll(){
-  // Re-renderiza qualquer view ativa para aplicar o mascaramento
   try{ if(typeof initDash==='function') initDash(); }catch(e){}
   try{ if(typeof renderCtrl==='function') renderCtrl(); }catch(e){}
   try{ if(typeof renderProj==='function') renderProj(); }catch(e){}
@@ -3265,15 +3300,32 @@ function privRerenderAll(){
   try{ if(typeof renderProjList==='function') renderProjList(); }catch(e){}
 }
 function togglePriv(){ PRIV_HIDE=!PRIV_HIDE; privSave(); privUpdateUI(); privRerenderAll(); }
-// Compatibilidade: chamadas antigas
 function maskName(n){ return pn(n); }
 
 // ═══ DASHBOARD ═══
-let dashEvoMode='adesao';
+let dashEvoMode='adesao', dashEvoTipo='todos';
 let _dashEvoBuckets={}, _dashEvoKeys=[];
+
+// Paleta limitada por assessor (tons da identidade visual)
+const ASSESSOR_PALETTE={
+  'ALAN / ESCRITORIO':'#226866',
+  'ALE / ESCRITORIO':'#1a4f4d',
+  'GLAUCO':'#D6AF5C',
+  'GIL':'#b8923a',
+  'SZPIN':'#2C3E50',
+  'Coyote':'#94a3b8',
+  'Outros':'#cbd5e1'
+};
+function corAssessor(a){ const k=a==='Gil'?'GIL':(a||'Outros'); return ASSESSOR_PALETTE[k]||'#94a3b8'; }
+
 function dashSetEvo(btn,mode){
   dashEvoMode=mode;
   document.querySelectorAll('#dash-evo-mode .toggle-btn').forEach(b=>b.classList.toggle('act',b===btn));
+  dashRenderEvo();
+}
+function dashSetEvoTipo(btn,tipo){
+  dashEvoTipo=tipo;
+  document.querySelectorAll('#dash-evo-tipo .toggle-btn').forEach(b=>b.classList.toggle('act',b===btn));
   dashRenderEvo();
 }
 function dashMonthKey(d){
@@ -3288,11 +3340,63 @@ function dashFmtMonth(key){
   const meses=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
   return meses[parseInt(m,10)-1]+'/'+y.slice(2);
 }
+function dashFmtMonthLong(key){
+  if(!key) return '';
+  const [y,m]=key.split('-');
+  const meses=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  return meses[parseInt(m,10)-1]+' de '+y;
+}
+function dashTipoMatch(r){
+  if(dashEvoTipo==='todos') return true;
+  const t=String(r.tipo_bem||'').toUpperCase();
+  if(dashEvoTipo==='imovel') return t.includes('IM');
+  if(dashEvoTipo==='veiculo') return t.includes('VE')||t.includes('MOTO');
+  return true;
+}
+
+// ═══ MODAL DETALHES (vendas do mês ou cotas do cliente) ═══
+function closeMddet(){ const ov=document.getElementById('modal-dash-det'); if(ov) ov.classList.remove('open'); }
+function openMddet(title, sub, htmlBody){
+  document.getElementById('mdd-title').textContent=title;
+  document.getElementById('mdd-sub').textContent=sub;
+  document.getElementById('mdd-body').innerHTML=htmlBody;
+  document.getElementById('modal-dash-det').classList.add('open');
+}
+function openEvoVendas(monthKey){
+  const dateField=({adesao:'adesao',contemp:'data_contemplada',faturado:'data_faturamento'})[dashEvoMode];
+  const labelMode=({adesao:'Adesões',contemp:'Contemplações',faturado:'Faturamento'})[dashEvoMode];
+  const ativas=COTAS.filter(r=>(r.status||'').toUpperCase()!=='CANCELADO').filter(dashTipoMatch);
+  const list=ativas.filter(r=>dashMonthKey(r[dateField])===monthKey).sort((a,b)=>(b.credito||0)-(a.credito||0));
+  const totVol=list.reduce((s,r)=>s+(r.credito||0),0);
+  const tipoLbl=({todos:'Total',imovel:'Imóveis',veiculo:'Veículos'})[dashEvoTipo];
+  const html=list.length?(`<table class="dash-modal-tbl">
+    <thead><tr><th>Cliente</th><th>Grupo/Cota</th><th>Tipo</th><th style="text-align:right">Crédito</th><th>Banco</th><th>Assessor</th></tr></thead>
+    <tbody>${list.map(r=>{
+      const tp=String(r.tipo_bem||'').toUpperCase();
+      const tipoIcon=tp.includes('IM')?'🏠':(tp.includes('MOTO')?'🛵':(tp.includes('VE')?'🚗':'·'));
+      return `<tr onclick="closeMddet();openModalCota('${r.id}')"><td><span class="dash-cli-name">${pn(r.nome)}</span></td><td>${r.grupo||'—'} / ${r.cota||'—'}</td><td>${tipoIcon} ${(r.tipo_bem||'—').replace(/Residencial|Comercial/i,'').trim()||'—'}</td><td style="text-align:right;font-family:'Raleway';font-weight:700">${brl(r.credito,0)}</td><td>${r.banco||'—'}</td><td>${atag(r.assessor)}</td></tr>`;
+    }).join('')}
+    <tr class="tot"><td colspan="3" style="text-align:right">Total · ${list.length} cota${list.length>1?'s':''}</td><td style="text-align:right;font-family:'Raleway';font-weight:800">${brl(totVol,0)}</td><td colspan="2"></td></tr>
+    </tbody></table>`):('<div style="padding:30px;text-align:center;color:var(--txt2);font-size:13px">Sem registros neste mês.</div>');
+  openMddet(labelMode+' · '+dashFmtMonthLong(monthKey), tipoLbl, html);
+}
+function openClienteDet(nome){
+  const list=COTAS.filter(r=>(r.nome||'')===nome && (r.status||'').toUpperCase()!=='CANCELADO').sort((a,b)=>(b.credito||0)-(a.credito||0));
+  const tot=list.reduce((s,r)=>s+(r.credito||0),0);
+  const isContemp=s=>s==='Contemplado'||s==='CONTEMPLADO'||s==='Faturado';
+  const contemp=list.filter(r=>isContemp(r.status)).length;
+  const html=list.length?(`<table class="dash-modal-tbl">
+    <thead><tr><th>Grupo/Cota</th><th>Status</th><th>Banco</th><th style="text-align:right">Crédito</th><th>Adesão</th><th>Assessor</th></tr></thead>
+    <tbody>${list.map(r=>`<tr onclick="closeMddet();openModalCota('${r.id}')"><td><strong>${r.grupo||'—'}</strong> / ${r.cota||'—'}</td><td>${r.status||'—'}</td><td>${r.banco||'—'}</td><td style="text-align:right;font-family:'Raleway';font-weight:700">${brl(r.credito,0)}</td><td>${fmtDataBr(r.adesao)||'—'}</td><td>${atag(r.assessor)}</td></tr>`).join('')}
+    <tr class="tot"><td colspan="3" style="text-align:right">Total · ${list.length} cota${list.length>1?'s':''} · ${contemp} contempl.</td><td style="text-align:right;font-family:'Raleway';font-weight:800">${brl(tot,0)}</td><td colspan="2"></td></tr>
+    </tbody></table>`):('<div style="padding:30px;text-align:center;color:var(--txt2);font-size:13px">Sem cotas ativas.</div>');
+  openMddet(pn(nome), list.length+' cota'+(list.length>1?'s':'')+' na carteira', html);
+}
 
 function dashRenderEvo(){
   if(!dashCharts) dashCharts={};
   if(dashCharts.evo){dashCharts.evo.destroy(); dashCharts.evo=null;}
-  const ativas=COTAS.filter(r=>(r.status||'').toUpperCase()!=='CANCELADO');
+  const ativas=COTAS.filter(r=>(r.status||'').toUpperCase()!=='CANCELADO').filter(dashTipoMatch);
   const dateField=({adesao:'adesao',contemp:'data_contemplada',faturado:'data_faturamento'})[dashEvoMode];
   const periodEl=document.getElementById('dash-evo-period');
   const period=periodEl?periodEl.value:'12';
@@ -3300,9 +3404,10 @@ function dashRenderEvo(){
   ativas.forEach(r=>{
     const k=dashMonthKey(r[dateField]);
     if(!k) return;
-    if(!buckets[k]) buckets[k]={cotas:0,vol:0,clientes:{},assessores:{}};
+    if(!buckets[k]) buckets[k]={cotas:0,vol:0,clientes:{},assessores:{},rows:[]};
     buckets[k].cotas++;
     buckets[k].vol+=(r.credito||0);
+    buckets[k].rows.push(r);
     const cn=r.nome||'—';
     if(!buckets[k].clientes[cn]) buckets[k].clientes[cn]={c:0,v:0};
     buckets[k].clientes[cn].c++; buckets[k].clientes[cn].v+=(r.credito||0);
@@ -3326,28 +3431,23 @@ function dashRenderEvo(){
   const cotasData=keys.map(k=>buckets[k]?buckets[k].cotas:0);
   const volData=keys.map(k=>buckets[k]?buckets[k].vol:0);
 
-  // Totalizadores do período
   const totCotas=cotasData.reduce((a,b)=>a+b,0);
   const totVol=volData.reduce((a,b)=>a+b,0);
   const ticket=totCotas?totVol/totCotas:0;
   let pkIdx=-1, pkVol=0;
   volData.forEach((v,i)=>{ if(v>pkVol){pkVol=v;pkIdx=i;} });
-  const elTotC=document.getElementById('evo-tot-cotas');
-  const elTotV=document.getElementById('evo-tot-vol');
-  const elTotT=document.getElementById('evo-tot-tk');
-  const elTotP=document.getElementById('evo-tot-pk');
-  if(elTotC) elTotC.textContent=totCotas;
-  if(elTotV) elTotV.textContent=brl(totVol,0);
-  if(elTotT) elTotT.textContent=brl(ticket,0);
-  if(elTotP) elTotP.textContent=pkIdx>=0?(labels[pkIdx]+' · '+brl(pkVol,0)):'—';
+  const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+  set('evo-tot-cotas',totCotas);
+  set('evo-tot-vol',brl(totVol,0));
+  set('evo-tot-tk',brl(ticket,0));
+  set('evo-tot-pk',pkIdx>=0?(labels[pkIdx]+' · '+brl(pkVol,0)):'—');
+  const labelMode=({adesao:'Adesões',contemp:'Contemplações',faturado:'Faturamento'})[dashEvoMode];
+  const labelTipo=({todos:'Total',imovel:'Imóveis',veiculo:'Veículos'})[dashEvoTipo];
+  set('evo-mode-lbl',labelMode+' · '+labelTipo);
 
-  const labelByMode=({adesao:'Adesões',contemp:'Contemplações',faturado:'Faturamento'})[dashEvoMode];
-  // Paleta harmônica: cotas em verde-petróleo (--sb2), volume em dourado (--acc)
-  const corCotas='#226866';
-  const corVol='#D6AF5C';
   const ctx=document.getElementById('ch-evo');
   if(!ctx) return;
-  dashCharts.evo=new Chart(ctx,{type:'bar',data:{labels,datasets:[{label:'Nº cotas',data:cotasData,backgroundColor:corCotas,borderColor:corCotas,borderWidth:0,borderRadius:5,yAxisID:'y',categoryPercentage:.7,barPercentage:.85},{label:'Volume R$',data:volData,backgroundColor:corVol,borderColor:corVol,borderWidth:0,borderRadius:5,yAxisID:'y1',categoryPercentage:.7,barPercentage:.85}]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},layout:{padding:{top:6}},plugins:{legend:{position:'top',align:'end',labels:{font:{size:11,family:'Inter'},padding:14,boxWidth:12,boxHeight:12,usePointStyle:false}},tooltip:{backgroundColor:'rgba(44,62,80,.96)',titleFont:{size:12,family:'Inter',weight:'600'},bodyFont:{size:11.5,family:'Inter'},padding:11,cornerRadius:8,displayColors:true,boxPadding:6,callbacks:{title:(items)=>labelByMode+' — '+items[0].label,label:(item)=>item.dataset.label==='Volume R$'?'Volume: '+brl(item.parsed.y,0):'Cotas: '+item.parsed.y,afterBody:(items)=>{const k=_dashEvoKeys[items[0].dataIndex];if(!k||!_dashEvoBuckets[k]) return '';const top=Object.entries(_dashEvoBuckets[k].clientes).sort((a,b)=>b[1].v-a[1].v).slice(0,3);if(!top.length) return '';return ['','Top clientes:',...top.map(([n,d])=>'  • '+pn(n)+' ('+d.c+' cota'+(d.c>1?'s':'')+', '+brl(d.v,0)+')')];}}}},scales:{x:{grid:{display:false},ticks:{font:{size:11,family:'Inter'},color:'#515151'}},y:{beginAtZero:true,position:'left',grace:'15%',title:{display:true,text:'Nº cotas',font:{size:10,family:'Inter'},color:'#515151'},grid:{color:'rgba(0,0,0,.04)'},ticks:{precision:0,font:{size:10,family:'Inter'},color:'#515151'}},y1:{beginAtZero:true,position:'right',grace:'15%',title:{display:true,text:'Volume R$',font:{size:10,family:'Inter'},color:'#515151'},grid:{drawOnChartArea:false},ticks:{font:{size:10,family:'Inter'},color:'#515151',callback:v=>v>=1e6?(v/1e6).toFixed(1)+'M':(v/1e3).toFixed(0)+'k'}}}}});
+  dashCharts.evo=new Chart(ctx,{type:'bar',data:{labels,datasets:[{label:'Volume R$',data:volData,backgroundColor:'#D6AF5C',hoverBackgroundColor:'#b8923a',borderWidth:0,borderRadius:4,categoryPercentage:.7,barPercentage:.85}]},options:{responsive:true,maintainAspectRatio:false,onClick:(e,el)=>{if(el&&el.length){const k=keys[el[0].index];if(k)openEvoVendas(k);}},onHover:(e,el)=>{e.native.target.style.cursor=(el&&el.length)?'pointer':'default';},layout:{padding:{top:6}},plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(44,62,80,.96)',titleFont:{size:12,family:'Inter',weight:'600'},bodyFont:{size:11,family:'Inter'},padding:10,cornerRadius:6,displayColors:false,callbacks:{title:(items)=>labelMode+' — '+items[0].label,label:(item)=>'Volume: '+brl(item.parsed.y,0),afterBody:(items)=>{const k=_dashEvoKeys[items[0].dataIndex];if(!k||!_dashEvoBuckets[k]) return '';const b=_dashEvoBuckets[k];const top=Object.entries(b.clientes).sort((a,b)=>b[1].v-a[1].v).slice(0,3);const lines=['','Cotas: '+b.cotas];if(top.length){lines.push('','Top clientes:');top.forEach(([n,d])=>lines.push('  • '+pn(n)+' ('+d.c+', '+brl(d.v,0)+')'));}lines.push('','› clique para abrir vendas do mês');return lines;}}}},scales:{x:{grid:{display:false},ticks:{font:{size:10.5,family:'Inter'},color:'#515151'}},y:{beginAtZero:true,grace:'12%',grid:{color:'rgba(0,0,0,.04)'},ticks:{font:{size:10,family:'Inter'},color:'#515151',callback:v=>v>=1e6?(v/1e6).toFixed(1)+'M':(v/1e3).toFixed(0)+'k'}}}}});
 }
 
 function initDash(){
@@ -3374,37 +3474,31 @@ function initDash(){
 
   Object.values(dashCharts).forEach(c=>{if(c&&c.destroy)c.destroy();}); dashCharts={};
 
-  dashCharts.status=new Chart(document.getElementById('ch-status'),{type:'doughnut',data:{labels:['Contempladas','Lance Ativo','Sorteio/Espera','Outros'],datasets:[{data:[contemp,lance,aguard,COTAS.length-contemp-lance-aguard],backgroundColor:['#226866','#D6AF5C','#94a3b8','#cbd5e1'],borderWidth:0,hoverOffset:6}]},options:{responsive:true,maintainAspectRatio:false,cutout:'62%',plugins:{legend:{position:'right',labels:{font:{size:11,family:'Inter'},padding:12,boxWidth:12,boxHeight:12,usePointStyle:false}},tooltip:{backgroundColor:'rgba(44,62,80,.96)',padding:10,cornerRadius:8,callbacks:{label:(it)=>{const total=it.dataset.data.reduce((a,b)=>a+b,0)||1;return it.label+': '+it.parsed+' ('+(it.parsed/total*100).toFixed(1)+'%)';}}}}}});
-
-  const am={};COTAS.forEach(r=>{let a=r.assessor||'Outros';if(a==='Gil')a='GIL';if(!am[a])am[a]=0;am[a]++;});
-  const ta=Object.entries(am).sort((a,b)=>b[1]-a[1]).slice(0,7);
-  dashCharts.assess=new Chart(document.getElementById('ch-assess'),{type:'bar',data:{labels:ta.map(x=>x[0]),datasets:[{label:'Cotas',data:ta.map(x=>x[1]),backgroundColor:'#226866',borderRadius:5}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(44,62,80,.96)',padding:10,cornerRadius:8}},scales:{x:{beginAtZero:true,grid:{color:'rgba(0,0,0,.04)'},ticks:{precision:0,font:{size:10,family:'Inter'},color:'#515151'}},y:{grid:{display:false},ticks:{font:{size:11,family:'Inter'},color:'#515151'}}}}});
-
-  const bm={};ativas.forEach(r=>{const b=r.banco||'Sem banco';if(!bm[b])bm[b]={c:0,v:0};bm[b].c++;bm[b].v+=(r.credito||0);});
-  const bk=Object.entries(bm).sort((a,b)=>b[1].v-a[1].v);
-  const bcCores={'Itaú':'#D6AF5C','Santander':'#ef4444','Safra':'#3b82f6','Bradesco':'#ec4899','Banco do Brasil':'#facc15','Caixa':'#1e3a8a','Sem banco':'#94a3b8'};
-  dashCharts.banco=new Chart(document.getElementById('ch-banco'),{type:'doughnut',data:{labels:bk.map(x=>x[0]),datasets:[{data:bk.map(x=>x[1].c),backgroundColor:bk.map(x=>bcCores[x[0]]||'#94a3b8'),borderWidth:0,hoverOffset:6}]},options:{responsive:true,maintainAspectRatio:false,cutout:'58%',plugins:{legend:{position:'right',labels:{font:{size:11,family:'Inter'},padding:10,boxWidth:12,boxHeight:12}},tooltip:{backgroundColor:'rgba(44,62,80,.96)',padding:10,cornerRadius:8,callbacks:{label:(it)=>{const e=bk[it.dataIndex];return e[0]+': '+e[1].c+' cotas · '+brl(e[1].v,0);}}}}}});
-
-  const normTipo=t=>{const u=(t||'').toUpperCase();if(u.includes('IM'))return 'Imóvel';if(u.includes('MOTO'))return 'Moto';if(u.includes('VE'))return 'Veículo';return 'Outros';};
-  const tm={};ativas.forEach(r=>{const t=normTipo(r.tipo_bem);if(!tm[t])tm[t]={c:0,v:0};tm[t].c++;tm[t].v+=(r.credito||0);});
-  const tk=Object.entries(tm).sort((a,b)=>b[1].v-a[1].v);
-  const tpCores={'Imóvel':'#226866','Veículo':'#D6AF5C','Moto':'#1a4f4d','Outros':'#94a3b8'};
-  dashCharts.tipo=new Chart(document.getElementById('ch-tipo'),{type:'doughnut',data:{labels:tk.map(x=>x[0]),datasets:[{data:tk.map(x=>x[1].c),backgroundColor:tk.map(x=>tpCores[x[0]]||'#94a3b8'),borderWidth:0,hoverOffset:6}]},options:{responsive:true,maintainAspectRatio:false,cutout:'58%',plugins:{legend:{position:'right',labels:{font:{size:11,family:'Inter'},padding:10,boxWidth:12,boxHeight:12}},tooltip:{backgroundColor:'rgba(44,62,80,.96)',padding:10,cornerRadius:8,callbacks:{label:(it)=>{const e=tk[it.dataIndex];return e[0]+': '+e[1].c+' cotas · '+brl(e[1].v,0);}}}}}});
-
+  // ═ Maiores Clientes (cor por assessor + click abre detalhes do cliente) ═
   const cm={};ativas.forEach(r=>{const n=r.nome||'—';if(!cm[n])cm[n]={cotas:0,contemp:0,credito:0,assessor:r.assessor};cm[n].cotas++;if(isContemp(r.status))cm[n].contemp++;if(r.credito)cm[n].credito+=r.credito;});
   const tc=Object.entries(cm).sort((a,b)=>b[1].credito-a[1].credito).slice(0,10);
   const totalCarteira=cred||1;
 
-  dashCharts.clients=new Chart(document.getElementById('ch-clients'),{type:'bar',data:{labels:tc.map(([n])=>pn(n)),datasets:[{label:'Crédito',data:tc.map(([,d])=>d.credito),backgroundColor:tc.map(([,d])=>{const pct=d.cotas?d.contemp/d.cotas:0;return pct>=1?'#226866':(pct>=.5?'#D6AF5C':'#94a3b8');}),borderRadius:5}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(44,62,80,.96)',padding:11,cornerRadius:8,callbacks:{title:(items)=>pn(tc[items[0].dataIndex][0]),label:(it)=>{const d=tc[it.dataIndex][1];return ['Volume: '+brl(d.credito,0),'Cotas: '+d.cotas+' · Contempladas: '+d.contemp,'% carteira: '+(d.credito/totalCarteira*100).toFixed(1)+'%','Assessor: '+(d.assessor||'—')];}}}},scales:{x:{beginAtZero:true,grid:{color:'rgba(0,0,0,.04)'},ticks:{font:{size:10,family:'Inter'},color:'#515151',callback:v=>v>=1e6?(v/1e6).toFixed(1)+'M':(v/1e3).toFixed(0)+'k'}},y:{grid:{display:false},ticks:{font:{size:11,family:'Inter'},color:'#515151'}}}}});
+  // Legenda dinâmica de assessores presentes no top
+  const assEspresentes=[...new Set(tc.map(([,d])=>d.assessor==='Gil'?'GIL':(d.assessor||'Outros')))];
+  const legendEl=document.getElementById('dash-clients-legend');
+  if(legendEl){
+    legendEl.innerHTML=assEspresentes.map(a=>`<span class="dash-legend-item"><span class="dash-legend-dot" style="background:${corAssessor(a)}"></span>${a}</span>`).join('');
+  }
 
-  document.getElementById('dash-clients').innerHTML=tc.slice(0,8).map(([n,d])=>`<tr><td><strong>${pn(n)}</strong></td><td>${d.cotas}</td><td><span class="badge b-ok">${d.contemp}</span></td><td>${brl(d.credito,0)}</td><td>${atag(d.assessor)}</td><td><strong>${(d.credito/totalCarteira*100).toFixed(1)}%</strong></td></tr>`).join('');
+  dashCharts.clients=new Chart(document.getElementById('ch-clients'),{type:'bar',data:{labels:tc.map(([n])=>pn(n)),datasets:[{label:'Crédito',data:tc.map(([,d])=>d.credito),backgroundColor:tc.map(([,d])=>corAssessor(d.assessor)),hoverBackgroundColor:tc.map(([,d])=>corAssessor(d.assessor)),borderWidth:0,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',onClick:(e,el)=>{if(el&&el.length){const n=tc[el[0].index][0];openClienteDet(n);}},onHover:(e,el)=>{e.native.target.style.cursor=(el&&el.length)?'pointer':'default';},plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(44,62,80,.96)',padding:11,cornerRadius:6,titleFont:{size:12,family:'Inter',weight:'600'},bodyFont:{size:11,family:'Inter'},displayColors:false,callbacks:{title:(items)=>pn(tc[items[0].dataIndex][0]),label:(it)=>{const d=tc[it.dataIndex][1];return ['Volume: '+brl(d.credito,0),'Cotas: '+d.cotas+'  ·  Contempladas: '+d.contemp,'% carteira: '+(d.credito/totalCarteira*100).toFixed(1)+'%','Assessor: '+(d.assessor||'—'),'','› clique para abrir cotas'];}}}},scales:{x:{beginAtZero:true,grid:{color:'rgba(0,0,0,.04)'},ticks:{font:{size:10,family:'Inter'},color:'#515151',callback:v=>v>=1e6?(v/1e6).toFixed(1)+'M':(v/1e3).toFixed(0)+'k'}},y:{grid:{display:false},ticks:{font:{size:11,family:'Playfair Display'},color:'#2C3E50'}}}}});
 
+  // ═ Por Assessor — Performance (sem tabela, click filtra Projetos) ═
   const amd={};ativas.forEach(r=>{let a=r.assessor||'Outros';if(a==='Gil')a='GIL';if(!amd[a])amd[a]={cotas:0,contemp:0,credito:0};amd[a].cotas++;if(isContemp(r.status))amd[a].contemp++;if(r.credito)amd[a].credito+=r.credito;});
   const tamd=Object.entries(amd).sort((a,b)=>b[1].credito-a[1].credito).slice(0,8);
 
-  dashCharts.assessPerf=new Chart(document.getElementById('ch-assess-perf'),{type:'bar',data:{labels:tamd.map(x=>x[0]),datasets:[{label:'Em andamento',data:tamd.map(x=>x[1].cotas-x[1].contemp),backgroundColor:'#D6AF5C',borderRadius:4,stack:'cotas'},{label:'Contempladas',data:tamd.map(x=>x[1].contemp),backgroundColor:'#226866',borderRadius:4,stack:'cotas'}]},options:{responsive:true,maintainAspectRatio:false,onClick:(e,el)=>{if(el&&el.length){const a=tamd[el[0].index][0];navToAssessor(a);}},plugins:{legend:{position:'top',labels:{font:{size:11,family:'Inter'},boxWidth:12,boxHeight:12,padding:12}},tooltip:{backgroundColor:'rgba(44,62,80,.96)',padding:11,cornerRadius:8,callbacks:{afterBody:(items)=>{const i=items[0].dataIndex;const d=tamd[i][1];const tk=d.cotas?d.credito/d.cotas:0;return ['Volume: '+brl(d.credito,0),'Ticket médio: '+brl(tk,0),'Click p/ filtrar →'];}}}},scales:{x:{stacked:true,grid:{display:false},ticks:{font:{size:11,family:'Inter'},color:'#515151'}},y:{stacked:true,beginAtZero:true,grid:{color:'rgba(0,0,0,.04)'},ticks:{precision:0,font:{size:10,family:'Inter'},color:'#515151'}}}}});
+  dashCharts.assessPerf=new Chart(document.getElementById('ch-assess-perf'),{type:'bar',data:{labels:tamd.map(x=>x[0]),datasets:[{label:'Em andamento',data:tamd.map(x=>x[1].cotas-x[1].contemp),backgroundColor:'#D6AF5C',borderRadius:3,stack:'cotas'},{label:'Contempladas',data:tamd.map(x=>x[1].contemp),backgroundColor:'#226866',borderRadius:3,stack:'cotas'}]},options:{responsive:true,maintainAspectRatio:false,onClick:(e,el)=>{if(el&&el.length){const a=tamd[el[0].index][0];navToAssessor(a);}},onHover:(e,el)=>{e.native.target.style.cursor=(el&&el.length)?'pointer':'default';},plugins:{legend:{position:'top',align:'end',labels:{font:{size:10.5,family:'Inter'},boxWidth:10,boxHeight:10,padding:10}},tooltip:{backgroundColor:'rgba(44,62,80,.96)',padding:11,cornerRadius:6,titleFont:{size:12,family:'Inter',weight:'600'},bodyFont:{size:11,family:'Inter'},callbacks:{afterBody:(items)=>{const i=items[0].dataIndex;const d=tamd[i][1];const tk=d.cotas?d.credito/d.cotas:0;const pct=cred?(d.credito/cred*100):0;return ['Volume: '+brl(d.credito,0),'Ticket médio: '+brl(tk,0),'% carteira: '+pct.toFixed(1)+'%','','› clique para filtrar'];}}}},scales:{x:{stacked:true,grid:{display:false},ticks:{font:{size:10.5,family:'Inter'},color:'#515151'}},y:{stacked:true,beginAtZero:true,grid:{color:'rgba(0,0,0,.04)'},ticks:{precision:0,font:{size:10,family:'Inter'},color:'#515151'}}}}});
 
-  document.getElementById('dash-assess').innerHTML=tamd.map(([a,d])=>{const tk=d.cotas?d.credito/d.cotas:0;return `<tr style="cursor:pointer" onclick="navToAssessor('${a}')" title="Ver clientes de ${a}"><td>${atag(a)}</td><td>${d.cotas}</td><td>${d.contemp}</td><td>${brl(d.credito,0)}</td><td>${brl(tk,0)}</td><td style="font-weight:700">${(d.credito/totalCarteira*100).toFixed(1)}%</td></tr>`;}).join('');
+  // ═ Por Banco (donut) ═
+  const bm={};ativas.forEach(r=>{const b=r.banco||'Sem banco';if(!bm[b])bm[b]={c:0,v:0};bm[b].c++;bm[b].v+=(r.credito||0);});
+  const bk=Object.entries(bm).sort((a,b)=>b[1].v-a[1].v);
+  const bcCores={'Itaú':'#D6AF5C','Santander':'#226866','Safra':'#1a4f4d','Bradesco':'#2C3E50','Banco do Brasil':'#b8923a','Caixa':'#94a3b8','Sem banco':'#cbd5e1'};
+  dashCharts.banco=new Chart(document.getElementById('ch-banco'),{type:'doughnut',data:{labels:bk.map(x=>x[0]),datasets:[{data:bk.map(x=>x[1].c),backgroundColor:bk.map(x=>bcCores[x[0]]||'#94a3b8'),borderWidth:0,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,cutout:'62%',plugins:{legend:{position:'right',labels:{font:{size:10.5,family:'Inter'},padding:10,boxWidth:10,boxHeight:10}},tooltip:{backgroundColor:'rgba(44,62,80,.96)',padding:10,cornerRadius:6,callbacks:{label:(it)=>{const e=bk[it.dataIndex];return e[0]+': '+e[1].c+' cotas · '+brl(e[1].v,0);}}}}}});
 
   dashRenderEvo();
 }
