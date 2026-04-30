@@ -2869,20 +2869,31 @@ function getLanceMedMeses(grupo){
 }
 
 function setLanceMedPeriodo(p){
+  if(LANCE_MEDIO_PERIODO===p)return; // sem efeito se já está nesse período
   LANCE_MEDIO_PERIODO=p;
   try{localStorage.setItem('hc360_lance_periodo',p);}catch(_){}
-  // Atualiza botões ativos
+  // Sincroniza TODOS os controles de período do Lance Médio (botões, selects inline)
   ['3m','6m','12m','total'].forEach(k=>{
     document.querySelectorAll('.lmp-btn[data-p="'+k+'"]').forEach(b=>b.classList.toggle('active',k===p));
   });
-  // Re-renderiza as páginas que mostram lance médio
+  document.querySelectorAll('.lm-chip-sel').forEach(el=>{if(el.value!==p)el.value=p;});
+  // Re-renderiza TODAS as páginas/views que mostram Lance Médio (efeito global)
   if(typeof browseData!=='undefined'&&typeof renderBrowse==='function')try{renderBrowse(browseData,browsePage||1);}catch(_){}
   if(typeof renderOportSugestoes==='function')try{renderOportSugestoes();}catch(_){}
-  // Re-renderiza detalhe do grupo (chip "Lance Médio" + linha do gráfico)
+  if(typeof renderOportunidades==='function')try{renderOportunidades();}catch(_){}
+  // Detalhe do grupo (se aberto)
   if(typeof selGrupo!=='undefined'&&selGrupo){
     try{renderGuiaChips(selGrupo);}catch(_){}
     try{renderGuiaCharts();}catch(_){}
   }
+  // Modal de comparação (se aberto)
+  const cmpOv=document.getElementById('guia-compare-overlay');
+  if(cmpOv&&cmpOv.style.display==='flex'&&typeof guiaRenderCompare==='function'){
+    try{guiaRenderCompare();}catch(_){}
+  }
+  // Feedback visual: toast curto
+  const lbl=p==='total'?'Tudo':p;
+  if(typeof toast==='function')toast('Lance Médio: '+lbl+' (aplicado em todo o sistema)');
 }
 
 function lanceTogglehtml(){
