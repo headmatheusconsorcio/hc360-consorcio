@@ -3417,11 +3417,18 @@ function dashFmtMonthLong(key){
   const meses=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
   return meses[parseInt(m,10)-1]+' de '+y;
 }
+function dashNormTipo(t){
+  const u=(t||'').toUpperCase();
+  if(u.includes('IM')) return 'Imóvel';
+  if(u.includes('MOTO')) return 'Moto';
+  if(u.includes('VE')) return 'Veículo';
+  return 'Outros';
+}
 function dashTipoMatch(r){
   if(dashEvoTipo==='todos') return true;
-  const t=String(r.tipo_bem||'').toUpperCase();
-  if(dashEvoTipo==='imovel') return t.includes('IM');
-  if(dashEvoTipo==='veiculo') return t.includes('VE')||t.includes('MOTO');
+  const c=dashNormTipo(r.tipo_bem);
+  if(dashEvoTipo==='imovel') return c==='Imóvel';
+  if(dashEvoTipo==='veiculo') return c==='Veículo'||c==='Moto';
   return true;
 }
 
