@@ -101,6 +101,7 @@ button,input,select,textarea{font-family:inherit}
 
 /* ── BUTTONS ────────────────────────────────── */
 .btn{padding:var(--sp-2) var(--sp-4);border-radius:var(--r-md);font-size:var(--fs-sm);font-weight:600;cursor:pointer;border:none;transition:background var(--t-base),border-color var(--t-base),color var(--t-base),box-shadow var(--t-base),transform var(--t-base);display:inline-flex;align-items:center;gap:var(--sp-1);font-family:'Mulish',sans-serif;letter-spacing:.1px;line-height:1}
+.emoji-btn{font-family:'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji','Twemoji Mozilla','Mulish',sans-serif}
 .btn:active{transform:translateY(1px)}
 .btn-pri{background:var(--acc);color:#fff}.btn-pri:hover{background:var(--acc2);box-shadow:0 4px 12px rgba(214,175,92,.32)}
 .btn-teal{background:var(--sb2);color:#fff}.btn-teal:hover{background:var(--sb3);box-shadow:0 4px 12px rgba(34,104,102,.28)}
@@ -790,6 +791,67 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
 .pd-prog{width:90px;height:6px;background:#e5e7eb;border-radius:4px;overflow:hidden;margin-top:4px}
 .pd-prog-fill{height:100%;border-radius:4px;transition:width .3s}
 @media(max-width:700px){.pd-kpi-grid{grid-template-columns:1fr 1fr}.pd-chart-row{grid-template-columns:1fr}.pd-st-grid{grid-template-columns:1fr}}
+
+/* ── PRINT — relatório do cliente em PDF/papel ────────── */
+@page{size:A4 portrait;margin:14mm 10mm 16mm 10mm}
+@media print{
+  /* Reset cores: backgrounds brancos, textos escuros pra economizar tinta */
+  *,*::before,*::after{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color-adjust:exact!important}
+  body{background:#fff!important;color:#222!important;font-size:10.5px;display:block!important}
+  /* Esconde tudo que não é o relatório */
+  .sb,#header-bar,.pd-tabs,.pd-print-btn,.fab-compare,#login-screen,
+  .moverlay,.lpop,.lpop-bd,#toast,.tab-bar,
+  .ni,.pg-actions,.priv-tb,.tabs-row,#load-overlay{display:none!important}
+  main,.app,#main,#app{margin:0!important;padding:0!important;width:100%!important}
+  /* O dashboard ocupa toda a folha */
+  #proj-detail{margin:0!important}
+  #proj-detail > div{margin-top:0!important}
+  #proj-detail > div > div:nth-child(2){
+    border:none!important;border-radius:0!important;padding:0!important;background:#fff!important;box-shadow:none!important
+  }
+  /* Header HC360 imprimível */
+  .pd-print-header{display:block!important;border-bottom:2px solid #2C3E50;padding-bottom:8mm;margin-bottom:6mm}
+  .pd-print-header .ph-brand{font-family:'Quicksand',sans-serif;font-size:22pt;font-weight:700;color:#2C3E50;letter-spacing:2px}
+  .pd-print-header .ph-brand b{color:#D6AF5C;font-weight:700}
+  .pd-print-header .ph-tag{font-family:'Mulish',sans-serif;font-size:8.5pt;color:#515151;text-transform:uppercase;letter-spacing:1.5px;margin-top:2mm}
+  /* Esconde header bordoso que tinha no padrão tela */
+  #proj-detail .pd-tab,#proj-detail [onclick*="renderProjDetail"]{display:none!important}
+  /* KPIs em 4 colunas só pra caber bem */
+  .pd-kpi-grid{grid-template-columns:repeat(4,1fr)!important;gap:6px!important;margin-bottom:6mm!important}
+  .pd-kpi{padding:8px 10px!important;border:1px solid #cbd5e1!important;break-inside:avoid;page-break-inside:avoid}
+  .pd-kpi-val{font-size:14pt!important}
+  .pd-kpi-lbl{font-size:7pt!important;letter-spacing:.5px}
+  .pd-kpi-sub{font-size:7.5pt!important}
+  .pd-kpi-ico{display:none!important}
+  .pd-st-grid{grid-template-columns:repeat(3,1fr)!important;gap:6px!important;margin-bottom:6mm!important}
+  .pd-st-card{padding:8px 10px!important;border:1px solid #cbd5e1!important;break-inside:avoid}
+  .pd-st-count{font-size:18pt!important}
+  .pd-chart-row{grid-template-columns:1fr 1fr!important;gap:6mm!important;margin-bottom:6mm!important;break-inside:avoid;page-break-inside:avoid}
+  .pd-chart-card{break-inside:avoid;page-break-inside:avoid;border:1px solid #cbd5e1!important;padding:6px 8px!important}
+  /* Quebra antes do portfólio detalhado */
+  .pd-port-tbl{page-break-before:auto;break-before:auto;font-size:9pt!important}
+  .pd-port-tbl thead{background:#2C3E50!important;color:#fff!important}
+  .pd-port-tbl thead th{padding:5px 7px!important;font-size:7.5pt!important;letter-spacing:.4px;background:#2C3E50!important;color:#fff!important}
+  .pd-port-tbl tbody td{padding:5px 7px!important;font-size:9pt!important;border-bottom:1px solid #e5e7eb!important}
+  .pd-port-tbl tbody tr{break-inside:avoid;page-break-inside:avoid}
+  .pd-port-tbl tfoot{background:#f8fafc!important}
+  .pd-port-tbl tfoot td{padding:6px 7px!important;font-size:8.5pt!important;border-top:1.5px solid #2C3E50!important}
+  /* Sort icons fora do print */
+  .sort-ico{display:none!important}
+  /* Esconder os botões inline editáveis se houver */
+  #proj-detail button:not(.pd-print-keep){display:none!important}
+  #proj-detail select,#proj-detail input{border:none!important;background:transparent!important;padding:0!important}
+  /* Footer do print */
+  .pd-print-footer{display:block!important;margin-top:6mm;padding-top:4mm;border-top:1px solid #cbd5e1;font-family:'Mulish',sans-serif;font-size:7.5pt;color:#515151;display:flex!important;justify-content:space-between}
+  .pd-print-footer b{color:#2C3E50}
+  /* Garantir que canvas dos gráficos imprimam */
+  canvas{max-width:100%!important;height:auto!important}
+  /* Cabeçalho do cliente em destaque */
+  #proj-detail .pd-cli-head{padding:0 0 4mm 0!important;border-bottom:1px solid #cbd5e1!important;margin-bottom:6mm!important}
+  /* Boxes informativos */
+  .pd-print-info-box{font-size:7pt!important}
+}
+.pd-print-header,.pd-print-footer{display:none}
 
 /* ── RESPONSIVE (escala progressiva) ────────── */
 
@@ -4046,7 +4108,7 @@ function renderCtrl(){
       <td style="white-space:nowrap;text-align:center">
         <button id="psave-${r.id}" class="btn btn-ok btn-sm" style="display:none" onclick="projSaveRow('${r.id}')" title="Salvar">??</button>
         ${!isCan&&!isCp?`<button class="btn btn-ok btn-sm" onclick="openModalContemp('${r.id}')" title="Contemplar">✓</button> `:''}
-        <button class="btn btn-out btn-sm" onclick="openLanceInteligente('${r.id}',this)" title="Inteligência de lance: histórico desta cota + histórico do grupo + sugestão">??</button>
+        <button class="btn btn-out btn-sm emoji-btn" onclick="openLanceInteligente('${r.id}',this)" title="Inteligência de lance: histórico desta cota + histórico do grupo + sugestão">??</button>
         <button class="btn btn-out btn-sm" onclick="openModalCota('${r.id}')" title="Editar completo">✏️</button>
       </td>
     </tr>`;}).join('');
@@ -7758,7 +7820,7 @@ function renderProjDetail(name){
       <td style="white-space:nowrap;text-align:center">
         <button id="psave-${r.id}" class="btn btn-ok btn-sm" style="display:none" onclick="projSaveRow('${r.id}')" title="Salvar">💾</button>
         ${!isCan?`<button class="btn btn-out btn-sm" onclick="openModalContemp('${r.id}')" title="Registrar contemplação">✓</button> `:''}
-        <button class="btn btn-out btn-sm" onclick="openLanceInteligente('${r.id}',this)" title="Inteligência de lance: histórico desta cota + histórico do grupo + sugestão">??</button>
+        <button class="btn btn-out btn-sm emoji-btn" onclick="openLanceInteligente('${r.id}',this)" title="Inteligência de lance: histórico desta cota + histórico do grupo + sugestão">??</button>
         <button class="btn btn-out btn-sm" onclick="openModalCota('${r.id}')" title="Ver / editar completo">✏️</button>
       </td>
     </tr>`;
@@ -7833,21 +7895,21 @@ function renderProjDash(name){
   const isAtivo=s=>s==='Em Andamento'||s==='Lance Livre'||s==='Lance Fixo'||s==='LANCE'||s==='SORTEIO / LANCE'||s==='Sorteio';
   // Parcela efetiva: pós para contempladas/faturadas (se existir), pré caso contrário
   const parcEfetiva=r=>isC(r.status)?(r.parcela_pos||r.parcela||0):(r.parcela||0);
-  // Enrich cotas: progresso baseado na data de adesão da cota, não do grupo.
-  // prazoCota = prazo_total da cota (se existir) ou prazo_restante + meses_desde_adesão (calculado).
+  // Enrich cotas: progresso medido a partir da DATA DE ADESÃO da cota.
+  // Marco zero = adesão · 100% = prazo que restava no grupo na data de adesão.
+  // Fórmula: prazoCota = prazo_restante (hoje) + meses_desde_adesão = prazo restante na adesão.
   const en=ativas.map(r=>{
     const g=GUIA[r.grupo]||GUIA[String(r.grupo)]||{};
     const adesao=r.adesao?new Date(r.adesao):null;
     const mesesDesdeAdesao=adesao?Math.max(0,Math.floor((today-adesao)/(1000*60*60*24*30.44))):0;
-    // Prazo TOTAL da cota = prazo_total cadastrado, OU se não existir, calcular pelo (prazo_restante + meses_desde_adesão).
-    // Só usa g.pr (prazo do grupo) como último fallback.
-    const prazoTotal=r.prazo_total
-      || (r.prazo_restante!=null?r.prazo_restante+mesesDesdeAdesao:null)
-      || g.pr || 120;
-    const pr=r.prazo_restante!=null?r.prazo_restante:Math.max(0,prazoTotal-mesesDesdeAdesao);
-    // Progresso pelo TEMPO desde adesão (estaca zero = adesão), independente de status.
-    const meses=Math.max(0,prazoTotal-pr);
-    return{...r,prazoTotal,meses,pr,estimPago:meses*(r.parcela||0),estimSaldo:pr*(r.parcela||0),tp:g.tp||'Im'};
+    const pr=r.prazo_restante!=null?r.prazo_restante:Math.max(0,(r.prazo_total||g.pr||120)-mesesDesdeAdesao);
+    // Prazo da cota na visão do CLIENTE = quanto restava na adesão dele (não o prazo original do grupo).
+    // Se faltar adesão, fallback usa prazo_total ou prazo_restante atual.
+    const prazoCota=adesao
+      ? (pr+mesesDesdeAdesao)
+      : (r.prazo_total||pr||g.pr||120);
+    const meses=adesao?mesesDesdeAdesao:Math.max(0,(r.prazo_total||g.pr||120)-pr);
+    return{...r,prazoTotal:prazoCota,meses,pr,estimPago:meses*(r.parcela||0),estimSaldo:pr*(r.parcela||0),tp:g.tp||'Im'};
   });
   const totCr=en.reduce((s,r)=>s+(r.credito||0),0);
   // Parcela mensal correta: pré para ativas, pós para contempladas/faturadas
@@ -7903,56 +7965,63 @@ function renderProjDash(name){
       if(r.lance_embutido!=null&&r.lance_embutido>0)return Math.max(0,(r.carta_atualizada||r.credito||0)-r.lance_embutido);
       return isC(r.status)?(r.carta_atualizada||r.credito||0):0;
     };
+    const proxAOf=r=>{const d=calcProxAgo(r.grupo);return d?new Date(d+'T00:00:00').getTime():0;};
+    const boletoOrd=r=>{
+      if(!r.ultima_parcela_paga)return 1;
+      const ult=new Date(r.ultima_parcela_paga+'T00:00:00');
+      const inicioMes=new Date(today.getFullYear(),today.getMonth(),1);
+      return ult>=inicioMes?0:2;
+    };
     const getter={
       grupo:r=>(r.grupo||'')+'/'+(r.cota||''),
       status:r=>r.status||'',
       credito:r=>r.credito||0,
       credlib:credlibOf,
+      proxa:proxAOf,
+      boleto:boletoOrd,
       meses:r=>r.meses||0,
-      estimPago:r=>r.estimPago||0,
-      estimSaldo:r=>r.estimSaldo||0,
+      parcela:r=>parcEfetiva(r),
       pr:r=>r.pr||0,
-      vencimento:r=>r.vencimento||0,
-      lance1:r=>(r.lance1||0)*1
+      vencimento:r=>r.vencimento||0
     }[col]||(r=>0);
     enSorted=en.slice().sort((a,b)=>{const av=getter(a),bv=getter(b);if(typeof av==='string')return dir*av.localeCompare(bv);return dir*((av||0)-(bv||0));});
   } else {
     enSorted=en.slice().sort((a,b)=>(stOrd[a.status]??9)-(stOrd[b.status]??9));
   }
+  // Status do boleto do mês a partir de ultima_parcela_paga (mesma data => pago neste mês)
+  const statusBoleto=r=>{
+    if(!r.ultima_parcela_paga)return{cor:'#fef3c7',txt:'#92400e',label:'⚠ Pendente',sub:'sem registro'};
+    const ult=new Date(r.ultima_parcela_paga+'T00:00:00');
+    const inicioMes=new Date(today.getFullYear(),today.getMonth(),1);
+    if(ult>=inicioMes)return{cor:'#d1fae5',txt:'#065f46',label:'✓ Pago',sub:fmtDataBr(r.ultima_parcela_paga)};
+    return{cor:'#fee2e2',txt:'#991b1b',label:'⚠ Em atraso',sub:'últ. '+fmtDataBr(r.ultima_parcela_paga)};
+  };
   const rows=enSorted.map(r=>{
     const pct=r.prazoTotal>0?Math.min(100,Math.round(r.meses/r.prazoTotal*100)):0;
     const bg=stBg[r.status]||'#f3f4f6'; const tx=stTx[r.status]||'#374151'; const pc=stPc[r.status]||'var(--bdr)';
-    // Lance: % (lance1) + valor R$ (recurso_proprio > lance_total). Mostra o que existir.
-    const lancePct=r.lance1?(+(r.lance1*100).toFixed(1)):null;
-    const lanceVal$=r.recurso_proprio!=null&&r.recurso_proprio>0?r.recurso_proprio:(r.lance_total||0);
-    let lanceCell='<span style="color:var(--txt2)">—</span>';
-    if(lancePct||lanceVal$>0){
-      const partes=[];
-      if(lancePct)partes.push(`<span style="background:#fef3c7;color:#92400e;border-radius:6px;padding:2px 7px;font-size:11px;font-weight:600">${lancePct}%</span>`);
-      if(lanceVal$>0)partes.push(`<small style="display:block;font-size:10px;color:var(--txt2);margin-top:2px">${ff(lanceVal$)}</small>`);
-      lanceCell=partes.join('');
-    }
     // Crédito Liberado por cota
     let cl=0;
     if(r.credito_liberado!=null&&r.credito_liberado>0)cl=r.credito_liberado;
     else if(r.lance_embutido!=null&&r.lance_embutido>0)cl=Math.max(0,(r.carta_atualizada||r.credito||0)-r.lance_embutido);
     else if(isC(r.status))cl=r.carta_atualizada||r.credito||0;
-    // Rendimento estimado por cota
-    const rend=rendimentoCota(r);
-    const rendCell=rend>0?`<small style="display:block;font-size:10px;color:#059669;margin-top:1px">+${ff(rend)} rend.</small>`:'';
+    // Próxima assembleia do grupo
+    const proxA=calcProxAgo(r.grupo);
+    // Status do boleto deste mês
+    const sb=statusBoleto(r);
+    // Parcela efetiva (pré ou pós)
+    const parcAt=parcEfetiva(r);
     return`<tr data-rid="${r.id}">
       <td><strong>${r.grupo||'—'}</strong><small style="display:block;color:var(--txt2);font-size:10.5px">Cota ${r.cota||'—'}</small></td>
       <td><span style="padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;background:${bg};color:${tx}">${r.status}</span></td>
       <td style="text-align:right;font-weight:700">${ff(r.credito||0)}</td>
-      <td style="text-align:right;font-weight:600;color:var(--sb2)">${cl>0?ff(cl):'<span style="color:var(--txt2)">—</span>'}${rendCell}</td>
-      <td><div style="font-size:10px;color:var(--txt2);margin-bottom:2px">${pct}% decorrido · ${r.meses}m de ${r.prazoTotal}m</div><div class="pd-prog"><div class="pd-prog-fill" style="width:${pct}%;background:${pc}"></div></div></td>
-      <td style="text-align:right;color:var(--ok);font-weight:600">${ff(r.estimPago)}</td>
-      <td style="text-align:right;font-weight:600;color:var(--err)">${ff(r.estimSaldo)}</td>
-      <td style="text-align:right;color:var(--txt2)">${r.pr}m<small style="display:block;font-size:10px">${(r.pr/12).toFixed(1)} anos</small></td>
-      <td style="text-align:right;font-size:11.5px">${r.vencimento?'Dia '+r.vencimento:'—'}</td>
-      <td style="text-align:right">${lanceCell}</td>
+      <td style="text-align:right;font-weight:600;color:var(--sb2)">${cl>0?ff(cl):'<span style="color:var(--txt2)">—</span>'}</td>
+      <td style="text-align:center;font-size:11.5px;font-weight:600;color:var(--sb)">${proxA?fmtDataBr(proxA):'—'}</td>
+      <td style="text-align:center"><span style="background:${sb.cor};color:${sb.txt};padding:2px 9px;border-radius:14px;font-size:11px;font-weight:700;white-space:nowrap">${sb.label}</span><small style="display:block;font-size:10px;color:var(--txt2);margin-top:2px">${sb.sub}</small></td>
+      <td style="min-width:140px"><div style="font-size:10px;color:var(--txt2);margin-bottom:2px">${pct}% &middot; ${r.meses}m de ${r.prazoTotal}m</div><div class="pd-prog"><div class="pd-prog-fill" style="width:${pct}%;background:${pc}"></div></div></td>
+      <td style="text-align:right;font-weight:600">${ff(parcAt)}${isC(r.status)&&r.parcela_pos?'<small style="display:block;font-size:9.5px;color:var(--ok);font-weight:500">pós contemp.</small>':''}</td>
     </tr>`;
   }).join('');
+  const _hojeFmt=new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'});
   document.getElementById('proj-detail').innerHTML=`
   <div style="margin-top:20px">
   <div class="pd-tabs">
@@ -7961,7 +8030,11 @@ function renderProjDash(name){
     <button class="pd-print-btn" onclick="window.print()">🖨 Imprimir</button>
   </div>
   <div style="background:var(--card);border-radius:0 14px 14px 14px;border:1px solid var(--bdr);padding:20px">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px;padding-bottom:18px;border-bottom:1px solid var(--bdr)">
+    <div class="pd-print-header">
+      <div class="ph-brand">HC<b>360</b></div>
+      <div class="ph-tag">Posição Patrimonial · Consórcio</div>
+    </div>
+    <div class="pd-cli-head" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px;padding-bottom:18px;border-bottom:1px solid var(--bdr)">
       <div style="display:flex;align-items:center;gap:14px">
         <div style="width:46px;height:46px;border-radius:50%;background:var(--sb);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#fff;font-family:'Quicksand',sans-serif;flex-shrink:0">${name.charAt(0).toUpperCase()}</div>
         <div>
@@ -8018,18 +8091,16 @@ function renderProjDash(name){
       </div>
     </div>
     <div style="font-size:13.5px;font-weight:700;margin-bottom:10px;color:var(--sb)">📋 Portfólio Detalhado</div>
-    <div class="tw"><table style="font-size:12px">
+    <div class="tw"><table style="font-size:12px" class="pd-port-tbl">
       <thead style="background:var(--sb);color:#fff"><tr>
         <th onclick="sortPortDet('grupo')" style="cursor:pointer">Grupo / Cota <span id="ppd-grupo" class="sort-ico">${sortIcon(portDetSort,'grupo')}</span></th>
         <th onclick="sortPortDet('status')" style="cursor:pointer">Status <span id="ppd-status" class="sort-ico">${sortIcon(portDetSort,'status')}</span></th>
         <th onclick="sortPortDet('credito')" style="cursor:pointer;text-align:right">Crédito <span id="ppd-credito" class="sort-ico">${sortIcon(portDetSort,'credito')}</span></th>
         <th onclick="sortPortDet('credlib')" style="cursor:pointer;text-align:right">Crédito Liberado <span id="ppd-credlib" class="sort-ico">${sortIcon(portDetSort,'credlib')}</span></th>
-        <th onclick="sortPortDet('meses')" style="cursor:pointer">Progresso (prazo) <span id="ppd-meses" class="sort-ico">${sortIcon(portDetSort,'meses')}</span></th>
-        <th onclick="sortPortDet('estimPago')" style="cursor:pointer;text-align:right">Pago Est. <span id="ppd-estimPago" class="sort-ico">${sortIcon(portDetSort,'estimPago')}</span></th>
-        <th onclick="sortPortDet('estimSaldo')" style="cursor:pointer;text-align:right">Saldo Est. <span id="ppd-estimSaldo" class="sort-ico">${sortIcon(portDetSort,'estimSaldo')}</span></th>
-        <th onclick="sortPortDet('pr')" style="cursor:pointer;text-align:right">Prazo Rest. <span id="ppd-pr" class="sort-ico">${sortIcon(portDetSort,'pr')}</span></th>
-        <th onclick="sortPortDet('vencimento')" style="cursor:pointer;text-align:right">Venc. <span id="ppd-vencimento" class="sort-ico">${sortIcon(portDetSort,'vencimento')}</span></th>
-        <th onclick="sortPortDet('lance1')" style="cursor:pointer;text-align:right">Lance <span id="ppd-lance1" class="sort-ico">${sortIcon(portDetSort,'lance1')}</span></th>
+        <th onclick="sortPortDet('proxa')" style="cursor:pointer;text-align:center">Próx. Assembleia <span id="ppd-proxa" class="sort-ico">${sortIcon(portDetSort,'proxa')}</span></th>
+        <th onclick="sortPortDet('boleto')" style="cursor:pointer;text-align:center">Boleto do Mês <span id="ppd-boleto" class="sort-ico">${sortIcon(portDetSort,'boleto')}</span></th>
+        <th onclick="sortPortDet('meses')" style="cursor:pointer">Progresso desde adesão <span id="ppd-meses" class="sort-ico">${sortIcon(portDetSort,'meses')}</span></th>
+        <th onclick="sortPortDet('parcela')" style="cursor:pointer;text-align:right">Parcela <span id="ppd-parcela" class="sort-ico">${sortIcon(portDetSort,'parcela')}</span></th>
       </tr></thead>
       <tbody>${rows}</tbody>
       <tfoot style="background:#f8fafc;font-weight:700">
@@ -8038,17 +8109,19 @@ function renderProjDash(name){
           <td style="text-align:right;color:var(--info)">${ff(totCr)}</td>
           <td style="text-align:right;color:var(--sb2)">${ff(credLib)}</td>
           <td></td>
-          <td style="text-align:right;color:var(--ok)">${ff(en.reduce((s,r)=>s+(r.estimPago||0),0))}</td>
-          <td style="text-align:right;color:var(--err)">${ff(en.reduce((s,r)=>s+(r.estimSaldo||0),0))}</td>
-          <td style="text-align:right;color:var(--txt2)">${prazoMax}m máx</td>
           <td></td>
-          <td style="text-align:right">${ff(en.reduce((s,r)=>s+(r.recurso_proprio!=null&&r.recurso_proprio>0?r.recurso_proprio:(r.lance_total||0)),0))}</td>
+          <td style="text-align:right;color:var(--txt2);font-size:10.5px">prazo ponderado: <b style="color:var(--sb)">${prazoPonderado}m</b></td>
+          <td style="text-align:right;color:var(--sb)">${ff(totParc)}/mês</td>
         </tr>
       </tfoot>
     </table></div>
-    <div style="font-size:10.5px;color:var(--txt2);margin-top:12px;padding:10px 14px;background:var(--card2);border-radius:8px;border:1px solid var(--bdr);line-height:1.6">
-      ℹ️ <b>Saldo Devedor</b> e <b>Crédito Liberado</b> refletem os valores registrados no sistema. <b>Prazo Restante</b>: média ponderada pela parcela.<br>
-      📈 <b>Rendimento Estimado</b>: aplicado à carta atualizada de cotas Contempladas/Faturadas pelo histórico de CDI registrado em <a href="#" onclick="openModalTaxasCdi();return false" style="color:var(--sb2);text-decoration:underline">⚙ taxas</a>. Cotas Faturadas só rendem até a <i>data de faturamento</i>; cotas sem essa data não computam rendimento. Cálculo virtual — nenhum dado contratual é alterado.
+    <div class="pd-print-info-box" style="font-size:10.5px;color:var(--txt2);margin-top:12px;padding:10px 14px;background:var(--card2);border-radius:8px;border:1px solid var(--bdr);line-height:1.6">
+      ℹ️ <b>Crédito Liberado</b>: crédito líquido recebido pela contemplada (carta − embutido). <b>Progresso</b>: medido a partir da <i>data de adesão</i> da cota — 100% representa o prazo restante na adesão. <b>Boleto do Mês</b>: pago se houver registro de pagamento no mês corrente.<br>
+      📈 <b>Rendimento Estimado</b> (KPI acima): aplicado à carta atualizada de cotas Contempladas/Faturadas pelo histórico de CDI registrado em <a href="#" onclick="openModalTaxasCdi();return false" style="color:var(--sb2);text-decoration:underline">⚙ taxas</a>. Cálculo virtual — nenhum dado contratual é alterado.
+    </div>
+    <div class="pd-print-footer">
+      <div><b>HC360 Consórcio</b> · Posição em ${_hojeFmt}</div>
+      <div>Documento gerado pelo sistema HC360 · uso exclusivo do cliente</div>
     </div>
   </div>
   </div>`;
@@ -8275,7 +8348,7 @@ function renderProjList(){
       <td style="white-space:nowrap;text-align:center">
         <button id="psave-${r.id}" class="btn btn-ok btn-sm" style="display:none" onclick="projSaveRow('${r.id}')" title="Salvar">??</button>
         ${!isCan&&!isCp?`<button class="btn btn-ok btn-sm" onclick="openModalContemp('${r.id}')" title="Contemplar">✓</button> `:''}
-        <button class="btn btn-out btn-sm" onclick="openLanceInteligente('${r.id}',this)" title="Inteligência de lance: histórico desta cota + histórico do grupo + sugestão">??</button>
+        <button class="btn btn-out btn-sm emoji-btn" onclick="openLanceInteligente('${r.id}',this)" title="Inteligência de lance: histórico desta cota + histórico do grupo + sugestão">??</button>
         <button class="btn btn-out btn-sm" onclick="openModalCota('${r.id}')" title="Editar completo">✏️</button>
       </td>
     </tr>`;
