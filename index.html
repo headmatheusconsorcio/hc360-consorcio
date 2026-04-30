@@ -4933,23 +4933,157 @@ function renderCRM(){
       <div class="pipe-fase-cols">${fase.stages.map(s=>pipeColHtml(s,leadsFiltered)).join('')}</div>
     </div>`;
   }).join('');
-  // Table
-  document.getElementById('crm-tbody').innerHTML=leadsFiltered.map(l=>`<tr>
-    <td><strong>${pn(l.nome)}</strong></td>
-    <td style="font-size:12px">${l.telefone||'—'}</td>
-    <td style="font-size:12px">${l.indicado_por||'—'}</td>
-    <td>${atag(l.assessor)}</td>
-    <td><span class="badge b-info">${l.interesse||'—'}</span></td>
-    <td>${l.valor_potencial?brl(l.valor_potencial,0):'—'}</td>
-    <td><span class="badge" style="background:${PIPE_COLORS[l.status]||'#94a3b8'}22;color:${PIPE_COLORS[l.status]||'#475569'}">${l.status||'—'}</span></td>
-    <td style="font-size:11px;color:var(--txt2)">${l.created_at?l.created_at.slice(0,10):'—'}</td>
-    <td style="display:flex;gap:4px">
+  // Tabela rica + abas counts + Aba Clientes
+  const elTbLista=document.getElementById('crm-tab-lista-c');if(elTbLista)elTbLista.textContent=leadsFiltered.length;
+  const ganhosCnt=LEADS.filter(l=>l.status==='Ganho').length;
+  const elTbCli=document.getElementById('crm-tab-clientes-c');if(elTbCli)elTbCli.textContent=ganhosCnt;
+  document.getElementById('crm-tbody').innerHTML=leadsFiltered.map(l=>crmRowHtml(l)).join('')||`<tr><td colspan="9" style="text-align:center;color:var(--txt2);padding:24px;font-style:italic">Nenhum lead encontrado</td></tr>`;
+  renderClientes();
+}
+function _crmLegacyRowDeprecated(){
+  // Bloco legacy preservado pra evitar quebra de parser em strings com escapes - não chamado
+  return `<tr>
       <button class="btn btn-out btn-sm" onclick="openModalLead('${l.id}')">✏️</button>
       <button class="btn btn-sm btn-pri" style="font-size:11px" onclick="openModalSim('${l.id}')">📊</button>
     </td>
-  </tr>`).join('');
+  </tr>`;
 }
 
+function crmDaysSince(iso){
+  if(!iso)return null;
+  const d=new Date(iso);
+  if(isNaN(d.getTime()))return null;
+  return Math.floor((Date.now()-d.getTime())/86400000);
+}
+function crmIdadeBadge(l){
+  const days=crmDaysSince(l.created_at);
+  if(days==null)return '<span class="crm-row-idade">—</span>';
+  const cls=days<=7?'fresh':days<=30?'warm':'cold';
+  const lbl=days===0?'hoje':days===1?'1d':days+'d';
+  return `<span class="crm-row-idade ${cls}" title="Criado em ${(l.created_at||'').slice(0,10)}">⏱ ${lbl}</span>`;
+}
+function crmRowStatusEdit(l){
+  const isAdmin=CURRENT_USER&&CURRENT_USER.isAdmin;
+  const color=PIPE_COLORS[l.status]||'#475569';
+  if(!isAdmin)return `<span class="crm-row-status" style="color:${color};border-color:${color}">${l.status||'—'}</span>`;
+  const opts=PIPE_STAGES.map(s=>`<option ${s===l.status?'selected':''}>${s}</option>`).join('');
+  return `<span class="crm-row-status-edit"><select class="crm-row-status-sel" style="color:${color};border-color:${color}" onchange="crmQuickStatus('${l.id}',this.value)" onclick="event.stopPropagation()">${opts}</select></span>`;
+}
+async function crmQuickStatus(id,newStatus){
+  const l=LEADS.find(x=>x.id===id);if(!l||l.status===newStatus)return;
+  showLoad();const res=await upsertLead({id,status:newStatus,updated_at:new Date().toISOString()});hideLoad();
+  if(res){Object.assign(l,res);toast(`${l.nome} → ${newStatus}`);filterCRM();}
+}
+function crmRowHtml(l){
+  const initial=crmInitial(l.nome);
+  const tel=l.telefone||'';
+  const telDigits=tel.replace(/\D/g,'');
+  const sim=leadCreditoNegociado(l);
+  const credLabel=sim?`<strong>${brl(sim.credTot,0)}</strong> <span style="font-size:9.5px;color:#065f46;background:#bbf7d0;padding:1px 5px;border-radius:5px;font-weight:800;margin-left:3px">${sim.cotas}c</span>`:l.valor_potencial?brl(l.valor_potencial,0):'—';
+  return `<tr onclick="openModalLead('${l.id}')">
+    <td>
+      <div class="crm-row-name">
+        <div class="crm-row-avatar">${initial}</div>
+        <div>
+          <div class="crm-row-name-text">${pn(l.nome)}</div>
+          ${l.cidade||l.estado?`<div class="crm-row-name-sub">${[l.cidade,l.estado].filter(Boolean).join(' / ')}</div>`:''}
+        </div>
+      </div>
+    </td>
+    <td>
+      <div class="crm-row-contact">
+        ${tel?`<a href="tel:${telDigits}" onclick="event.stopPropagation()">📞 ${tel}</a>`:'<span style="color:var(--txt2)">—</span>'}
+        ${l.email?`<span class="ct-email">${l.email}</span>`:''}
+      </div>
+    </td>
+    <td style="font-size:11px">${l.indicado_por?`<span class="badge b-ora" style="font-size:10px">${l.indicado_por}</span>`:'<span style="color:var(--txt2)">—</span>'}</td>
+    <td style="font-size:11.5px">${atag(l.assessor)}</td>
+    <td><span class="pc-tag pc-tag-int">${l.interesse||'—'}</span></td>
+    <td style="font-weight:700;color:var(--sb);white-space:nowrap">${credLabel}</td>
+    <td onclick="event.stopPropagation()">${crmRowStatusEdit(l)}</td>
+    <td>${crmIdadeBadge(l)}</td>
+    <td onclick="event.stopPropagation()">
+      <div class="crm-row-acoes">
+        ${telDigits?`<a class="crm-act-btn crm-act-tel" href="tel:${telDigits}" title="Ligar">📞</a>`:''}
+        <button class="crm-act-btn crm-act-edit" onclick="openModalLead('${l.id}')" title="Editar">✏️</button>
+        <button class="crm-act-btn crm-act-sim" onclick="openModalSim('${l.id}')" title="${(l.observacao||'').startsWith('SIM:')?'Ver proposta':'Nova simulação'}">${(l.observacao||'').startsWith('SIM:')?'📋':'📊'}</button>
+      </div>
+    </td>
+  </tr>`;
+}
+function renderClientes(){
+  const tbody=document.getElementById('cli-tbody');if(!tbody)return;
+  const ganhos=LEADS.filter(l=>l.status==='Ganho').sort((a,b)=>new Date(b.updated_at||0)-new Date(a.updated_at||0));
+  const elCnt=document.getElementById('cli-count');if(elCnt)elCnt.textContent=ganhos.length;
+  if(!ganhos.length){tbody.innerHTML=`<tr><td colspan="9" style="text-align:center;color:var(--txt2);padding:24px;font-style:italic">Nenhum cliente fechado ainda. Mova um lead para "Ganho" no pipeline.</td></tr>`;return;}
+  tbody.innerHTML=ganhos.map(l=>{
+    const initial=crmInitial(l.nome);
+    const tel=l.telefone||'';const telDigits=tel.replace(/\D/g,'');
+    const sim=leadCreditoNegociado(l);
+    const credTot=sim?sim.credTot:(l.valor_potencial||0);
+    const cotas=sim?sim.cotas:0;
+    const dtFech=l.updated_at?new Date(l.updated_at).toLocaleDateString('pt-BR'):'—';
+    const cidUf=[l.cidade,l.estado].filter(Boolean).join(' / ')||'—';
+    return`<tr onclick="openModalLead('${l.id}')" style="cursor:pointer">
+      <td>
+        <div class="crm-row-name">
+          <div class="crm-row-avatar" style="background:linear-gradient(135deg,#10b981 0%,#059669 100%)">${initial}</div>
+          <div><div class="crm-row-name-text">${pn(l.nome)}</div><div class="crm-row-name-sub">⭐ Cliente</div></div>
+        </div>
+      </td>
+      <td>
+        <div class="crm-row-contact">
+          ${tel?`<a href="tel:${telDigits}" onclick="event.stopPropagation()">📞 ${tel}</a>`:'—'}
+          ${l.email?`<span class="ct-email">${l.email}</span>`:''}
+        </div>
+      </td>
+      <td style="font-size:11px;font-family:monospace">${l.cpf||'—'}</td>
+      <td style="font-size:11.5px">${cidUf}</td>
+      <td style="font-size:11.5px">${atag(l.assessor)}</td>
+      <td style="font-weight:800;color:#065f46">${credTot>0?brl(credTot,0):'—'}</td>
+      <td><span class="badge b-ok">${cotas||'—'}</span></td>
+      <td style="font-size:11px;color:var(--txt2)">${dtFech}</td>
+      <td onclick="event.stopPropagation()">
+        <div class="crm-row-acoes">
+          ${telDigits?`<a class="crm-act-btn crm-act-tel" href="tel:${telDigits}" title="Ligar">📞</a>`:''}
+          <button class="crm-act-btn crm-act-edit" onclick="openModalLead('${l.id}')" title="Editar">✏️</button>
+          ${sim?`<button class="crm-act-btn crm-act-sim" onclick="openModalSim('${l.id}')" title="Ver proposta">📋</button>`:''}
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+function crmSwitchTab(tab){
+  document.querySelectorAll('.crm-tab').forEach(b=>b.classList.toggle('act',b.dataset.tab===tab));
+  ['pipeline','lista','clientes'].forEach(t=>{
+    const el=document.getElementById('crm-pane-'+t);
+    if(!el)return;
+    el.style.display=t===tab?'':'none';
+    if(t===tab)el.classList.add('act');else el.classList.remove('act');
+  });
+}
+function crmExportCSV(onlyClientes){
+  const rows=onlyClientes?LEADS.filter(l=>l.status==='Ganho'):leadsFiltered;
+  if(!rows.length){toast('Sem dados para exportar','err');return;}
+  const headers=['Nome','Telefone','Email','CPF','Data Nasc','Profissão','Cidade','UF','Indicado por','Assessor','Interesse','Valor Crédito','Crédito Negociado','Cotas','Status','Data Reunião','Criado em','Atualizado em'];
+  const esc=v=>{const s=(v==null?'':String(v));return /[;"\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s;};
+  const lines=[headers.join(';')];
+  rows.forEach(l=>{
+    const sim=leadCreditoNegociado(l);
+    lines.push([
+      l.nome,l.telefone,l.email,l.cpf,l.data_nascimento,l.profissao,l.cidade,l.estado,
+      l.indicado_por,l.assessor,l.interesse,l.valor_potencial,
+      sim?sim.credTot:'',sim?sim.cotas:'',
+      l.status,l.data_reuniao?l.data_reuniao.slice(0,16).replace('T',' '):'',
+      l.created_at?l.created_at.slice(0,10):'',l.updated_at?l.updated_at.slice(0,10):''
+    ].map(esc).join(';'));
+  });
+  const blob=new Blob(['\ufeff'+lines.join('\n')],{type:'text/csv;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download=(onlyClientes?'clientes':'leads')+'_'+new Date().toISOString().slice(0,10)+'.csv';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
+  toast(`${rows.length} ${onlyClientes?'clientes':'leads'} exportados`);
+}
 function mlToggleReuniao(){
   const st=document.getElementById('ml-status').value;
   document.getElementById('ml-reuniao-row').style.display=(st==='Reunião Agendada')?'block':'none';
