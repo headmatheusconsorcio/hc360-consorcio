@@ -4614,8 +4614,9 @@ function _renderGrupoVenc(g,corDot,quadro){
   const right=`<div class="agenda-date" style="text-align:right">${_diasLabel(g.maisUrg)}<br><span style="color:var(--txt2);font-weight:500;font-size:10.5px">${brl(g.totalParc,0)}</span></div>`;
   // Batch: só em "vencidas" e quando o cliente tem >1 cota pagável (não paga ainda no mês)
   const pagaveis=g.items.filter(r=>!jaPagoNoMes(r));
-  const showBatch=quadro==='vencidas'&&cnt>1&&pagaveis.length>=2;
+  const showBatch=(quadro==='vencidas'||quadro==='semana'||quadro==='30d')&&cnt>1&&pagaveis.length>=2;
   const safeId=(g.nome||'').replace(/[^a-zA-Z0-9]/g,'_');
+  if(showBatch){window._BATCH_NAMES=window._BATCH_NAMES||{};window._BATCH_NAMES[safeId]=g.nome;}
   const cotas=g.items.map(r=>{
     const podePagar=!jaPagoNoMes(r);
     const checkbox=showBatch?(podePagar
@@ -4635,7 +4636,7 @@ function _renderGrupoVenc(g,corDot,quadro){
         <input type="checkbox" id="ag-batch-all-${safeId}" onclick="event.stopPropagation();_toggleAllBatchAgenda(this,'${safeId}')" style="cursor:pointer;width:16px;height:16px">
         Selecionar todas (${pagaveis.length})
       </label>
-      <button class="btn btn-sm" disabled onclick="event.stopPropagation();pagarSelecionadasAgenda('${safeId}',${JSON.stringify(g.nome)})" id="ag-batch-btn-${safeId}" style="background:var(--ok);color:#fff;font-size:11px;padding:5px 12px;font-weight:500;margin-left:auto;opacity:.5;cursor:not-allowed">✓ Pagar selecionadas (0)</button>
+      <button class="btn btn-sm" disabled onclick="event.stopPropagation();pagarSelecionadasAgenda('${safeId}')" id="ag-batch-btn-${safeId}" style="background:var(--ok);color:#fff;font-size:11px;padding:5px 12px;font-weight:500;margin-left:auto;opacity:.5;cursor:not-allowed">✓ Pagar selecionadas (0)</button>
     </div>`:'';
   return `<details class="ag-group">
     <summary>
@@ -4671,7 +4672,8 @@ function _toggleAllBatchAgenda(checkbox,safeId){
   _atualizarBatchAgenda(safeId);
 }
 
-async function pagarSelecionadasAgenda(safeId,nomeCliente){
+async function pagarSelecionadasAgenda(safeId){
+  const nomeCliente=(window._BATCH_NAMES&&window._BATCH_NAMES[safeId])||'cliente';
   const checks=document.querySelectorAll(`.agbatch[data-cliente="${safeId}"]:checked`);
   const ids=[...checks].map(c=>c.dataset.id);
   if(ids.length===0)return;
@@ -4738,6 +4740,7 @@ function renderQVencidas(){
 }
 function renderQSemana(){
   _renderQuadroVenc({
+    quadro:'semana',
     filtroId:'semana-filter',sortId:'semana-sort',bodyId:'agenda-semana',countId:'agenda-semana-count',
     filterFn:r=>r.diffDias>=1&&r.diffDias<=7,corDot:'warn',vazioMsg:'Nada nesta semana ✓',
     sortFns:{
@@ -4749,6 +4752,7 @@ function renderQSemana(){
 }
 function renderQ30d(){
   _renderQuadroVenc({
+    quadro:'30d',
     filtroId:'d30-filter',sortId:'d30-sort',bodyId:'agenda-30d',countId:'agenda-30d-count',
     filterFn:r=>r.diffDias>=8&&r.diffDias<=30,corDot:'info',vazioMsg:'Nenhuma nos próximos 30 dias',
     sortFns:{
