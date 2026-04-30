@@ -5650,7 +5650,11 @@ function browseSortKey(c,g,d){
   if(c==='idx')return d.idx||'';
   return d[c]??'';
 }
-)();
+
+function renderBrowseCard(g,d){
+  const inCmp=guiaIsInCompare(g);
+  const lf=temLanceFixo(g),pr=temCotaReduzida(g);
+  const tipoLbl=(()=>{const t=(d.tp||'').toUpperCase();if(t.includes('IM'))return'Imóvel';if(t.includes('MOTO'))return'Moto';if(t.includes('PESADO'))return'Veículo Pesado';return'Veículo';})();
   const isImov=tipoLbl==='Imóvel';
   const lanMin=getLanceAtualMinPct(g),lanMax=getLanceAtualMaxPct(g),lanMed=getLanceMed(g);
   const credLbl=d.vmax?(d.vmax>=1e6?(d.vmax/1e6).toFixed(2)+'M':brl(d.vmax,0)):'—';
