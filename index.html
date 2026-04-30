@@ -3311,7 +3311,8 @@ function calcRendimento(base,dataInicio,dataFim,taxas){
   }
   return valor-base;
 }
-// Base do rendimento = carta_atualizada na contemplação (ou crédito se não tiver)
+// Base do rendimento = credito_liberado (parte líquida que fica rendendo até pagamento ao vendedor).
+// Lance embutido sai da própria carta e NÃO rende. Fallback: carta_atualizada → credito.
 function rendimentoCota(r){
   const isCp=r.status==='Contemplado'||r.status==='CONTEMPLADO'||r.status==='Faturado';
   if(!isCp||!r.data_contemplada)return 0;
@@ -3319,7 +3320,7 @@ function rendimentoCota(r){
   const dataFim=r.status==='Faturado'?(r.data_faturamento||null):null;
   // Faturado SEM data_faturamento = não calcula (evita rendimento até hoje em carta já entregue)
   if(r.status==='Faturado'&&!r.data_faturamento)return 0;
-  const base=r.carta_atualizada||r.credito||0;
+  const base=r.credito_liberado||r.carta_atualizada||r.credito||0;
   return calcRendimento(base,r.data_contemplada,dataFim,TAXAS_CDI);
 }
 function taxaCdiAtual(){
