@@ -876,7 +876,7 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
           </div>
           <div id="dash-evo-scale" style="display:flex;background:var(--card2);border:1px solid var(--bdr);border-radius:7px;padding:2px">
             <button class="toggle-btn act" data-val="linear" onclick="dashSetEvoScale(this,'linear')" style="padding:4px 10px;font-size:11px;border-radius:5px;flex:none" title="Escala linear (proporcional)">Linear</button>
-            <button class="toggle-btn" data-val="log" onclick="dashSetEvoScale(this,'log')" style="padding:4px 10px;font-size:11px;border-radius:5px;flex:none" title="Escala logarítmica — comprime picos e mostra meses pequenos">Log</button>
+            <button class="toggle-btn" data-val="suave" onclick="dashSetEvoScale(this,'suave')" style="padding:4px 10px;font-size:11px;border-radius:5px;flex:none" title="Escala suave — linear até 10M, comprime acima para evitar picos achatarem outros meses">Suave</button>
           </div>
           <select class="form-i" id="dash-evo-period" style="padding:4px 8px;font-size:11px;width:auto;margin:0" onchange="dashRenderEvo()">
             <option value="3">3 meses</option>
@@ -904,7 +904,7 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
 
     <div class="g2">
       <div class="card-min">
-        <div class="ch"><span class="ct">Por Assessor</span><span class="cs">click abre carteira</span></div>
+        <div class="ch"><span class="ct">Por Assessor</span><span class="cs">click abre carteira do assessor</span></div>
         <div class="cb"><div class="chart-wrap" style="height:260px"><canvas id="ch-assess-perf"></canvas></div></div>
       </div>
       <div class="card-min">
@@ -1549,13 +1549,20 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
           </div>
           <div class="dvr"></div>
           <div class="form-g">
-            <label class="form-l">Lance Total (% da carta)</label>
-            <input type="range" id="p-lance" min="5" max="95" value="40" oninput="calcProp();updLance()" style="width:100%;accent-color:var(--acc)">
-            <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--txt2)"><span>5%</span><strong id="p-lance-lbl" style="color:var(--acc);font-size:15px">40%</strong><span>95%</span></div>
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px;flex-wrap:wrap">
+              <label class="form-l" style="margin:0">Lance Total (% da carta)</label>
+              <label class="emb-toggle" title="Quando ativo, 30% da carta é usado como lance embutido (regra Itaú). O slider passa a controlar apenas os recursos próprios.">
+                <input type="checkbox" id="p-emb-on" checked onchange="updLance();calcProp()">
+                <span class="emb-toggle-track"><span class="emb-toggle-knob"></span></span>
+                <span class="emb-toggle-lbl">Embutido fixo 30%</span>
+              </label>
+            </div>
+            <input type="range" id="p-lance" min="30" max="95" value="40" oninput="calcProp();updLance()" style="width:100%;accent-color:var(--acc)">
+            <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--txt2)"><span id="p-lance-min">30%</span><strong id="p-lance-lbl" style="color:var(--acc);font-size:15px">40%</strong><span>95%</span></div>
           </div>
           <div class="g2" style="margin-bottom:0">
-            <div class="form-g"><label class="form-l">Rec. Próprios (%)</label><input type="number" class="form-i" id="p-rp" value="10" step="1" oninput="calcProp()"></div>
-            <div class="form-g"><label class="form-l">Parte da Carta (%)</label><input type="number" class="form-i" id="p-lc" value="30" readonly style="background:var(--card2);color:var(--txt2)"></div>
+            <div class="form-g"><label class="form-l">Rec. Próprios (%)</label><input type="number" class="form-i" id="p-rp" value="10" readonly style="background:var(--card2);color:var(--txt2);font-weight:700"></div>
+            <div class="form-g"><label class="form-l">Parte da Carta (%)</label><input type="number" class="form-i" id="p-lc" value="30" readonly style="background:var(--card2);color:var(--txt2);font-weight:700"></div>
           </div>
           <div class="g2" style="margin-bottom:0">
             <div class="form-g"><label class="form-l">Seguro (%/mês)</label><input type="number" class="form-i" id="p-seg" value="0.04719" step="0.001" oninput="calcProp()"></div>
@@ -3625,6 +3632,35 @@ function openMddet(title, sub, htmlBody){
   document.getElementById('mdd-body').innerHTML=htmlBody;
   document.getElementById('modal-dash-det').classList.add('open');
 }
+function openAssessorDet(assessorName){
+  const isContemp=s=>s==='Contemplado'||s==='CONTEMPLADO'||s==='Faturado';
+  const list=COTAS.filter(r=>{
+    let a=r.assessor||'Outros'; if(a==='Gil')a='GIL';
+    return a===assessorName && (r.status||'').toUpperCase()!=='CANCELADO';
+  });
+  // Consolida por cliente
+  const byClient={};
+  list.forEach(r=>{
+    const n=r.nome||'—';
+    if(!byClient[n]) byClient[n]={cotas:0,contemp:0,credito:0,bancos:new Set()};
+    byClient[n].cotas++;
+    if(isContemp(r.status)) byClient[n].contemp++;
+    byClient[n].credito+=(r.credito||0);
+    if(r.banco) byClient[n].bancos.add(r.banco);
+  });
+  const clients=Object.entries(byClient).sort((a,b)=>b[1].credito-a[1].credito);
+  const totVol=clients.reduce((s,[,d])=>s+d.credito,0);
+  const totCotas=clients.reduce((s,[,d])=>s+d.cotas,0);
+  const totContemp=clients.reduce((s,[,d])=>s+d.contemp,0);
+  const tk=totCotas?totVol/totCotas:0;
+  const html=clients.length?(`<table class="dash-modal-tbl">
+    <thead><tr><th>Cliente</th><th style="text-align:right">Cotas</th><th style="text-align:right">Contempl.</th><th style="text-align:right">Volume</th><th>Banco</th></tr></thead>
+    <tbody>${clients.map(([n,d])=>`<tr onclick="closeMddet();openClienteDet('${n.replace(/'/g,"\'")}')"><td><span class="dash-cli-name">${pn(n)}</span></td><td style="text-align:right">${d.cotas}</td><td style="text-align:right"><span class="badge b-ok">${d.contemp}</span></td><td style="text-align:right;font-family:'Quicksand','Raleway';font-weight:700">${brl(d.credito,0)}</td><td style="font-size:11px;color:var(--txt2)">${Array.from(d.bancos).join(', ')||'—'}</td></tr>`).join('')}
+    <tr class="tot"><td>Total · ${clients.length} cliente${clients.length>1?'s':''}</td><td style="text-align:right">${totCotas}</td><td style="text-align:right">${totContemp}</td><td style="text-align:right;font-family:'Quicksand','Raleway';font-weight:800">${brl(totVol,0)}</td><td style="font-size:11px;color:var(--txt2)">Ticket médio: ${brl(tk,0)}</td></tr>
+    </tbody></table>`):('<div style="padding:30px;text-align:center;color:var(--txt2);font-size:13px">Sem clientes ativos.</div>');
+  openMddet('Carteira de '+assessorName, clients.length+' cliente'+(clients.length>1?'s':'')+' · '+totCotas+' cota'+(totCotas>1?'s':'')+' · '+brl(totVol,0), html);
+}
+
 function openEvoVendas(monthKey){
   const labelMode=({adesao:'Adesões',contemp:'Contemplações',faturado:'Faturamento'})[dashEvoMode];
   const ativas=COTAS.filter(r=>(r.status||'').toUpperCase()!=='CANCELADO').filter(dashTipoMatch);
@@ -3660,6 +3696,11 @@ function openClienteDet(nome){
     </tbody></table>`):('<div style="padding:30px;text-align:center;color:var(--txt2);font-size:13px">Sem cotas ativas.</div>');
   openMddet(pn(nome), list.length+' cota'+(list.length>1?'s':'')+' na carteira', html);
 }
+
+// Escala suave: linear até T=10M, comprimida (1/K) acima — evita pico do mês outlier achatar os outros
+const DASH_EVO_T=10e6, DASH_EVO_K=5;
+function dashEvoCompress(v){ return v<=DASH_EVO_T?v:DASH_EVO_T+(v-DASH_EVO_T)/DASH_EVO_K; }
+function dashEvoExpand(d){ return d<=DASH_EVO_T?d:DASH_EVO_T+(d-DASH_EVO_T)*DASH_EVO_K; }
 
 function dashRenderEvo(){
   if(!dashCharts) dashCharts={};
@@ -3737,7 +3778,7 @@ function dashRenderEvo(){
 
   const ctx=document.getElementById('ch-evo');
   if(!ctx) return;
-  dashCharts.evo=new Chart(ctx,{type:'bar',data:{labels,datasets:[{label:'Volume R$',data:volData,backgroundColor:'#D6AF5C',hoverBackgroundColor:'#b8923a',borderWidth:0,borderRadius:4,categoryPercentage:.7,barPercentage:.85}]},options:{responsive:true,maintainAspectRatio:false,onClick:(e,el)=>{if(el&&el.length){const k=keys[el[0].index];if(k)openEvoVendas(k);}},onHover:(e,el)=>{e.native.target.style.cursor=(el&&el.length)?'pointer':'default';},layout:{padding:{top:6}},plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(44,62,80,.96)',titleFont:{size:12,family:'Mulish',weight:'600'},bodyFont:{size:11,family:'Mulish'},padding:10,cornerRadius:6,displayColors:false,callbacks:{title:(items)=>labelMode+' — '+items[0].label,label:(item)=>'Volume: '+brl(item.parsed.y,0),afterBody:(items)=>{const k=_dashEvoKeys[items[0].dataIndex];if(!k||!_dashEvoBuckets[k]) return '';const b=_dashEvoBuckets[k];const top=Object.entries(b.clientes).sort((a,b)=>b[1].v-a[1].v).slice(0,3);const lines=['','Cotas: '+b.cotas];if(top.length){lines.push('','Top clientes:');top.forEach(([n,d])=>lines.push('  • '+pn(n)+' ('+d.c+', '+brl(d.v,0)+')'));}lines.push('','› clique para abrir vendas do mês');return lines;}}}},scales:{x:{grid:{display:false},ticks:{font:{size:10.5,family:'Mulish'},color:'#515151'}},y:dashEvoScale==='log'?{type:'logarithmic',grid:{color:'rgba(0,0,0,.04)'},ticks:{font:{size:10,family:'Mulish'},color:'#515151',callback:v=>{if(v===0||!v)return '0';const exp=Math.log10(v);if(Math.abs(exp-Math.round(exp))>.05)return '';return v>=1e6?(v/1e6).toFixed(1)+'M':v>=1e3?(v/1e3).toFixed(0)+'k':v;}}}:{beginAtZero:true,grace:'12%',grid:{color:'rgba(0,0,0,.04)'},ticks:{font:{size:10,family:'Mulish'},color:'#515151',callback:v=>v>=1e6?(v/1e6).toFixed(1)+'M':(v/1e3).toFixed(0)+'k'}}}}});
+  dashCharts.evo=new Chart(ctx,{type:'bar',data:{labels,datasets:[{label:'Volume R$',data:dashEvoScale==='suave'?volData.map(dashEvoCompress):volData,backgroundColor:'#D6AF5C',hoverBackgroundColor:'#b8923a',borderWidth:0,borderRadius:4,categoryPercentage:.7,barPercentage:.85}]},options:{responsive:true,maintainAspectRatio:false,onClick:(e,el)=>{if(el&&el.length){const k=keys[el[0].index];if(k)openEvoVendas(k);}},onHover:(e,el)=>{e.native.target.style.cursor=(el&&el.length)?'pointer':'default';},layout:{padding:{top:6}},plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(44,62,80,.96)',titleFont:{size:12,family:'Mulish',weight:'600'},bodyFont:{size:11,family:'Mulish'},padding:10,cornerRadius:6,displayColors:false,callbacks:{title:(items)=>labelMode+' — '+items[0].label,label:(item)=>{const real=dashEvoScale==='suave'?dashEvoExpand(item.parsed.y):item.parsed.y;return 'Volume: '+brl(real,0);},afterBody:(items)=>{const k=_dashEvoKeys[items[0].dataIndex];if(!k||!_dashEvoBuckets[k]) return '';const b=_dashEvoBuckets[k];const top=Object.entries(b.clientes).sort((a,b)=>b[1].v-a[1].v).slice(0,3);const lines=['','Cotas: '+b.cotas];if(top.length){lines.push('','Top clientes:');top.forEach(([n,d])=>lines.push('  • '+pn(n)+' ('+d.c+', '+brl(d.v,0)+')'));}lines.push('','› clique para abrir vendas do mês');return lines;}}}},scales:{x:{grid:{display:false},ticks:{font:{size:10.5,family:'Mulish'},color:'#515151'}},y:{beginAtZero:true,grace:'12%',grid:{color:'rgba(0,0,0,.04)'},ticks:{font:{size:10,family:'Mulish'},color:'#515151',callback:v=>{const real=dashEvoScale==='suave'?dashEvoExpand(v):v;return real>=1e6?(real/1e6).toFixed(1)+'M':(real/1e3).toFixed(0)+'k';}}}}}});
 }
 
 
@@ -3783,7 +3824,7 @@ function initDash(){
   const amd={};ativas.forEach(r=>{let a=r.assessor||'Outros';if(a==='Gil')a='GIL';if(!amd[a])amd[a]={cotas:0,contemp:0,credito:0};amd[a].cotas++;if(isContemp(r.status))amd[a].contemp++;if(r.credito)amd[a].credito+=r.credito;});
   const tamd=Object.entries(amd).sort((a,b)=>b[1].credito-a[1].credito).slice(0,8);
 
-  dashCharts.assessPerf=new Chart(document.getElementById('ch-assess-perf'),{type:'bar',data:{labels:tamd.map(x=>x[0]),datasets:[{label:'Em andamento',data:tamd.map(x=>x[1].cotas-x[1].contemp),backgroundColor:'#D6AF5C',borderRadius:3,stack:'cotas'},{label:'Contempladas',data:tamd.map(x=>x[1].contemp),backgroundColor:'#226866',borderRadius:3,stack:'cotas'}]},options:{responsive:true,maintainAspectRatio:false,onClick:(e,el)=>{if(el&&el.length){const a=tamd[el[0].index][0];navToAssessor(a);}},onHover:(e,el)=>{e.native.target.style.cursor=(el&&el.length)?'pointer':'default';},plugins:{legend:{position:'top',align:'end',labels:{font:{size:10.5,family:'Mulish'},boxWidth:10,boxHeight:10,padding:10}},tooltip:{backgroundColor:'rgba(44,62,80,.96)',padding:11,cornerRadius:6,titleFont:{size:12,family:'Mulish',weight:'600'},bodyFont:{size:11,family:'Mulish'},callbacks:{afterBody:(items)=>{const i=items[0].dataIndex;const d=tamd[i][1];const tk=d.cotas?d.credito/d.cotas:0;const pct=cred?(d.credito/cred*100):0;return ['Volume: '+brl(d.credito,0),'Ticket médio: '+brl(tk,0),'% carteira: '+pct.toFixed(1)+'%','','› clique para filtrar'];}}}},scales:{x:{stacked:true,grid:{display:false},ticks:{font:{size:10.5,family:'Mulish'},color:'#515151'}},y:{stacked:true,beginAtZero:true,grid:{color:'rgba(0,0,0,.04)'},ticks:{precision:0,font:{size:10,family:'Mulish'},color:'#515151'}}}}});
+  dashCharts.assessPerf=new Chart(document.getElementById('ch-assess-perf'),{type:'bar',data:{labels:tamd.map(x=>x[0]),datasets:[{label:'Em andamento',data:tamd.map(x=>x[1].cotas-x[1].contemp),backgroundColor:'#D6AF5C',borderRadius:3,stack:'cotas'},{label:'Contempladas',data:tamd.map(x=>x[1].contemp),backgroundColor:'#226866',borderRadius:3,stack:'cotas'}]},options:{responsive:true,maintainAspectRatio:false,onClick:(e,el)=>{if(el&&el.length){const a=tamd[el[0].index][0];openAssessorDet(a);}},onHover:(e,el)=>{e.native.target.style.cursor=(el&&el.length)?'pointer':'default';},plugins:{legend:{position:'top',align:'end',labels:{font:{size:10.5,family:'Mulish'},boxWidth:10,boxHeight:10,padding:10}},tooltip:{backgroundColor:'rgba(44,62,80,.96)',padding:11,cornerRadius:6,titleFont:{size:12,family:'Mulish',weight:'600'},bodyFont:{size:11,family:'Mulish'},callbacks:{afterBody:(items)=>{const i=items[0].dataIndex;const d=tamd[i][1];const tk=d.cotas?d.credito/d.cotas:0;const pct=cred?(d.credito/cred*100):0;return ['Volume: '+brl(d.credito,0),'Ticket médio: '+brl(tk,0),'% carteira: '+pct.toFixed(1)+'%','','› clique para filtrar'];}}}},scales:{x:{stacked:true,grid:{display:false},ticks:{font:{size:10.5,family:'Mulish'},color:'#515151'}},y:{stacked:true,beginAtZero:true,grid:{color:'rgba(0,0,0,.04)'},ticks:{precision:0,font:{size:10,family:'Mulish'},color:'#515151'}}}}});
 
   // ═ Por Banco (donut) ═
   const bm={};ativas.forEach(r=>{const b=r.banco||'Sem banco';if(!bm[b])bm[b]={c:0,v:0};bm[b].c++;bm[b].v+=(r.credito||0);});
@@ -4590,30 +4631,29 @@ function crmInitial(nome){
 function crmRenderKpis(){
   const el=document.getElementById('crm-kpis');if(!el)return;
   const tot=LEADS.length;
-  const reuStages=['Reunião Marcada','Reunião Realizada'];
-  const negStages=['Simulação','Proposta Enviada','Em Negociação','Aguard. Docs'];
-  const reu=LEADS.filter(l=>reuStages.includes(l.status)).length;
+  const reu=LEADS.filter(l=>l.status==='Reunião Agendada').length;
+  const negStages=['Proposta Enviada','Em Negociação'];
   const neg=LEADS.filter(l=>negStages.includes(l.status)).length;
-  const fechados=LEADS.filter(l=>l.status==='Cota Aberta').length;
+  const ganhos=LEADS.filter(l=>l.status==='Ganho').length;
   const perdidos=LEADS.filter(l=>l.status==='Perdido').length;
-  const decididos=fechados+perdidos;
-  const conv=decididos>0?Math.round(fechados/decididos*100):0;
+  const decididos=ganhos+perdidos;
+  const conv=decididos>0?Math.round(ganhos/decididos*100):0;
   const credNeg=LEADS.reduce((s,l)=>{const sim=leadCreditoNegociado(l);return s+(sim?sim.credTot:0);},0);
   el.innerHTML=`
     <div class="crm-kpi k-tot"><div class="crm-kpi-lbl">Leads Ativos</div><div class="crm-kpi-val">${tot}</div><div class="crm-kpi-sub">no pipeline</div></div>
-    <div class="crm-kpi k-reu"><div class="crm-kpi-lbl">Em Reunião</div><div class="crm-kpi-val">${reu}</div><div class="crm-kpi-sub">marcadas / realizadas</div></div>
+    <div class="crm-kpi k-reu"><div class="crm-kpi-lbl">Reuniões</div><div class="crm-kpi-val">${reu}</div><div class="crm-kpi-sub">agendadas</div></div>
     <div class="crm-kpi k-neg"><div class="crm-kpi-lbl">Em Negociação</div><div class="crm-kpi-val">${neg}</div><div class="crm-kpi-sub">${credNeg>0?brl(credNeg,0)+' negociado':'sem propostas'}</div></div>
-    <div class="crm-kpi k-fch"><div class="crm-kpi-lbl">Fechados</div><div class="crm-kpi-val">${fechados}</div><div class="crm-kpi-sub">${perdidos} perdidos</div></div>
-    <div class="crm-kpi k-conv"><div class="crm-kpi-lbl">Conversão</div><div class="crm-kpi-val">${conv}%</div><div class="crm-kpi-sub">fechados ÷ decididos</div></div>
+    <div class="crm-kpi k-fch"><div class="crm-kpi-lbl">Ganhos</div><div class="crm-kpi-val">${ganhos}</div><div class="crm-kpi-sub">${perdidos} perdidos</div></div>
+    <div class="crm-kpi k-conv"><div class="crm-kpi-lbl">Conversão</div><div class="crm-kpi-val">${conv}%</div><div class="crm-kpi-sub">ganhos ÷ decididos</div></div>
   `;
 }
-const PIPE_STAGES=['Novo Lead','Qualificando','Reunião Marcada','Reunião Realizada','Simulação','Proposta Enviada','Em Negociação','Aguard. Docs','Cota Aberta','Perdido'];
-const PIPE_COLORS={'Novo Lead':'#3b82f6','Qualificando':'#f59e0b','Reunião Marcada':'#06b6d4','Reunião Realizada':'#14b8a6','Simulação':'#D6AF5C','Proposta Enviada':'#8b5cf6','Em Negociação':'#6366f1','Aguard. Docs':'#226866','Cota Aberta':'#10b981','Perdido':'#ef4444'};
+const PIPE_STAGES=['Novo Lead','Qualificando','Reunião Agendada','Proposta Enviada','Em Negociação','Ganho','Perdido'];
+const PIPE_COLORS={'Novo Lead':'#3b82f6','Qualificando':'#f59e0b','Reunião Agendada':'#06b6d4','Proposta Enviada':'#8b5cf6','Em Negociação':'#6366f1','Ganho':'#10b981','Perdido':'#ef4444'};
 const PIPE_FASES=[
   {label:'📥 Captação',stages:['Novo Lead','Qualificando']},
-  {label:'🤝 Reunião',stages:['Reunião Marcada','Reunião Realizada']},
-  {label:'💼 Negociação',stages:['Simulação','Proposta Enviada','Em Negociação','Aguard. Docs']},
-  {label:'🏁 Resultado',stages:['Cota Aberta','Perdido']}
+  {label:'🤝 Reunião',stages:['Reunião Agendada']},
+  {label:'💼 Negociação',stages:['Proposta Enviada','Em Negociação']},
+  {label:'🏁 Resultado',stages:['Ganho','Perdido']}
 ];
 let leadsFiltered=[], crmSort={col:null,dir:1};
 function sortCRM(col){crmSort.dir=crmSort.col===col?-crmSort.dir:1;crmSort.col=col;renderCRM();}
@@ -4644,8 +4684,8 @@ function renderAssessorLeads(){
   card.style.display=assLeads.length?'':'none';
   tbody.innerHTML=assLeads.map(l=>{
     const dt=l.created_at?new Date(l.created_at).toLocaleDateString('pt-BR'):'—';
-    const sta=l.status||'Novo';
-    const staCls=sta==='Cota Aberta'?'b-ok':sta==='Perdido'?'b-err':sta==='Novo Lead'?'b-ora':'b-warn';
+    const sta=l.status||'Novo Lead';
+    const staCls=sta==='Ganho'?'b-ok':sta==='Perdido'?'b-err':sta==='Novo Lead'?'b-ora':'b-warn';
     return `<tr>
       <td><strong>${pn(l.nome)}</strong></td>
       <td style="font-size:11px">${l.telefone||'—'}</td>
@@ -4676,7 +4716,7 @@ function pipeCardHtml(l,stage,idx){
   const sim=leadCreditoNegociado(l);
   const tel=l.telefone||'';
   const telDigits=tel.replace(/\D/g,'');
-  const isReuniao=stage==='Reunião Marcada'||stage==='Reunião Realizada';
+  const isReuniao=stage==='Reunião Agendada';
   const dtR=l.data_reuniao?new Date(l.data_reuniao):null;
   const dtRStr=dtR?dtR.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})+' '+dtR.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}):'';
   const initial=crmInitial(l.nome);
@@ -6406,7 +6446,28 @@ function propGoStep(n){
   }
 }
 let propGrupos=[{grupo:'',prazo:192,fr:3,taxaadm:23,credMin:0,credMax:0,credito:340000,qtd:1,mesAtual:0}];
-function updLance(){const t=parseFloat(document.getElementById('p-lance').value)||0;const rp=parseFloat(document.getElementById('p-rp').value)||0;document.getElementById('p-lc').value=Math.max(0,t-rp).toFixed(1);document.getElementById('p-lance-lbl').textContent=t.toFixed(0)+'%';}
+function updLance(){
+  const slider=document.getElementById('p-lance');
+  const embEl=document.getElementById('p-emb-on');
+  const embOn=embEl?embEl.checked:true;
+  const minSpan=document.getElementById('p-lance-min');
+  if(embOn){
+    slider.min=30;
+    if(parseFloat(slider.value)<30) slider.value=30;
+    if(minSpan) minSpan.textContent='30%';
+    const t=parseFloat(slider.value)||0;
+    document.getElementById('p-lc').value='30';
+    document.getElementById('p-rp').value=Math.max(0,t-30).toFixed(1);
+  }else{
+    slider.min=5;
+    if(minSpan) minSpan.textContent='5%';
+    const t=parseFloat(slider.value)||0;
+    document.getElementById('p-lc').value='0';
+    document.getElementById('p-rp').value=t.toFixed(1);
+  }
+  const t=parseFloat(slider.value)||0;
+  document.getElementById('p-lance-lbl').textContent=t.toFixed(0)+'%';
+}
 function syncCredAlvo(val){const v=parseFloat(val)||0;propGrupos.forEach(g=>{if(v>0)g.credito=v;});renderPropGrupos();calcProp();}
 function addPropGrupo(){propGrupos.push({grupo:'',prazo:192,fr:3,taxaadm:23,credMin:0,credMax:0,credito:340000,qtd:1,mesAtual:0});renderPropGrupos();}
 function removePropGrupo(i){if(propGrupos.length===1)return;propGrupos.splice(i,1);renderPropGrupos();calcProp();}
