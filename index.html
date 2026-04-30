@@ -15,12 +15,34 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
-  --sb:#2C3E50;--sb2:#226866;--sb3:#1a4f4d;
-  --acc:#D6AF5C;--acc2:#b8923a;
-  --ok:#10b981;--warn:#f59e0b;--err:#ef4444;--info:#3b82f6;
-  --txt:#2C3E50;--txt2:#515151;--bdr:#e2e6ed;
-  --bg:#F0EDE6;--card:#ffffff;--card2:#f8f6f2;--cream:#FFF3DD;
-  --cream:#FFF3DD
+  /* === Brand primárias === */
+  --sb:#2C3E50;--sb-soft:#3A4F64;--sb2:#226866;--sb2-soft:#2C8281;--sb3:#1A4F4D;
+  /* === Acento champagne === */
+  --acc:#D6AF5C;--acc-soft:#E6C780;--acc2:#B8923A;--acc-tint:#FDF6E3;
+  /* === Neutros === */
+  --bg:#F0EDE6;--card:#FFFFFF;--card2:#F8F6F2;--cream:#FFF3DD;
+  --bdr:#E2E6ED;--bdr-soft:#EEF1F5;
+  --txt:#2C3E50;--txt2:#515151;--txt3:#8A8A8A;
+  /* === Funcionais (paleta única) === */
+  --ok:#10B981;--ok-tint:#ECFDF5;--ok-deep:#065F46;
+  --warn:#F59E0B;--warn-tint:#FEF3C7;--warn-deep:#92400E;
+  --err:#EF4444;--err-tint:#FEE2E2;--err-deep:#991B1B;
+  --info:#3B82F6;--info-tint:#DBEAFE;--info-deep:#1E40AF;
+  /* === Tipografia (escala modular) === */
+  --fs-2xs:10px;--fs-xs:11px;--fs-sm:12px;--fs-md:13px;--fs-base:14px;
+  --fs-lg:16px;--fs-xl:18px;--fs-2xl:22px;--fs-3xl:28px;--fs-4xl:36px;
+  /* === Espaçamento (múltiplos de 4) === */
+  --sp-1:4px;--sp-2:8px;--sp-3:12px;--sp-4:16px;--sp-5:20px;
+  --sp-6:24px;--sp-8:32px;--sp-10:40px;
+  /* === Border radius === */
+  --r-sm:6px;--r-md:10px;--r-lg:14px;--r-xl:20px;--r-pill:999px;
+  /* === Sombras (níveis) === */
+  --sh-1:0 1px 4px rgba(15,25,40,.06);
+  --sh-2:0 4px 14px rgba(15,25,40,.08);
+  --sh-3:0 14px 40px rgba(15,25,40,.18);
+  --sh-hero:0 32px 100px rgba(15,25,40,.40);
+  /* === Transições === */
+  --t-fast:.12s ease;--t-base:.18s ease;--t-slow:.28s ease
 }
 body{font-family:'Mulish',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--txt);display:flex;min-height:100vh;font-size:14px;line-height:1.55}
 
@@ -1280,23 +1302,35 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:#fefbf3;border-left:3px so
           <button id="ghv-normal" class="toggle-btn act" onclick="guiaSetVisao('normal')" style="padding:7px 16px;font-size:12.5px">📋 Lance Livre + Fixo</button>
           <button id="ghv-supl" class="toggle-btn" onclick="guiaSetVisao('supl')" style="padding:7px 16px;font-size:12.5px">🔁 Suplência</button>
         </div>
-        <div style="display:inline-flex;align-items:center;gap:8px">
-          <label style="font-size:10.5px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:.5px">Período</label>
-          <select id="ghv-periodo" onchange="guiaSetPeriodo(this.value)" style="padding:6px 10px;font-size:12px;border:1.5px solid var(--bdr);border-radius:7px;background:#fff;outline:none;font-family:'Mulish',sans-serif">
-            <option value="all">Tudo</option>
-            <option value="3">Últimos 3 meses</option>
-            <option value="6">Últimos 6 meses</option>
-            <option value="12">Últimos 12 meses</option>
-            <option value="24">Últimos 24 meses</option>
-          </select>
-        </div>
         <div id="ghv-supl-warn" style="display:none;font-size:11.5px;color:var(--warn);font-weight:600">⚠ Suplência: dados limitados (assembleia suplementar)</div>
       </div>
       <div class="group-info" id="guia-chips"></div>
-      <!-- Gráfico unificado: Mín, Máx, Médio + Contemplados -->
+      <!-- Gráficos: cada card tem seu próprio seletor de período (sincronizados) -->
       <div class="g2">
-        <div class="card"><div class="ch"><span class="ct" id="guia-chart-title">Lance Mín. / Máx. / Médio (%)</span></div><div class="cb"><div class="chart-wrap"><canvas id="ch-lance"></canvas></div></div></div>
-        <div class="card"><div class="ch"><span class="ct" id="guia-cont-title">Contemplados por Mês</span></div><div class="cb"><div class="chart-wrap"><canvas id="ch-cont"></canvas></div></div></div>
+        <div class="card">
+          <div class="ch" style="flex-wrap:wrap;gap:8px">
+            <span class="ct" id="guia-chart-title">Lance Mín. / Máx. / Médio (%)</span>
+            <div style="margin-left:auto;display:inline-flex;align-items:center;gap:6px">
+              <label style="font-size:9.5px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:.6px;font-family:'Raleway',sans-serif">Período</label>
+              <select class="ghv-periodo-sel" onchange="guiaSetPeriodo(this.value)" style="padding:4px 8px;font-size:11px;border:1.5px solid var(--bdr);border-radius:6px;background:#fff;outline:none;font-family:'Inter',sans-serif">
+                <option value="all">Tudo</option><option value="3">3m</option><option value="6">6m</option><option value="12">12m</option><option value="24">24m</option>
+              </select>
+            </div>
+          </div>
+          <div class="cb"><div class="chart-wrap"><canvas id="ch-lance"></canvas></div></div>
+        </div>
+        <div class="card">
+          <div class="ch" style="flex-wrap:wrap;gap:8px">
+            <span class="ct" id="guia-cont-title">Contemplados por Mês</span>
+            <div style="margin-left:auto;display:inline-flex;align-items:center;gap:6px">
+              <label style="font-size:9.5px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:.6px;font-family:'Raleway',sans-serif">Período</label>
+              <select class="ghv-periodo-sel" onchange="guiaSetPeriodo(this.value)" style="padding:4px 8px;font-size:11px;border:1.5px solid var(--bdr);border-radius:6px;background:#fff;outline:none;font-family:'Inter',sans-serif">
+                <option value="all">Tudo</option><option value="3">3m</option><option value="6">6m</option><option value="12">12m</option><option value="24">24m</option>
+              </select>
+            </div>
+          </div>
+          <div class="cb"><div class="chart-wrap"><canvas id="ch-cont"></canvas></div></div>
+        </div>
       </div>
       <!-- Tabela histórica com scroll vertical (estilo agenda) -->
       <div class="card" style="margin-top:14px">
@@ -5362,7 +5396,11 @@ function guiaSetVisao(v){
   renderGuiaCharts();renderGuiaHist();
 }
 function guiaSetPeriodo(p){
-  guiaPeriodo=p;renderGuiaCharts();renderGuiaHist();
+  guiaPeriodo=p;
+  // Sincroniza todos os selects de período (gráfico de lances + contemplados)
+  document.querySelectorAll('.ghv-periodo-sel').forEach(el=>{if(el.value!==p)el.value=p;});
+  renderGuiaCharts();
+  // Tabela histórica NÃO aplica filtro de período (mantém scroll com tudo)
 }
 function guiaPeriodoSlice(arr){
   if(guiaPeriodo==='all'||!arr)return arr;
@@ -5397,25 +5435,56 @@ function renderGuiaCharts(){
   });
   if(window.minChart)window.minChart.destroy();
   if(window.contChart)window.contChart.destroy();
-  const datasets=[{label:'Lance Mín.',data:mn.map(v=>v>0?v:null),borderColor:'#10b981',backgroundColor:'rgba(16,185,129,.08)',tension:.3,fill:false,pointRadius:3,borderWidth:2.2,spanGaps:true}];
-  if(mx)datasets.push({label:'Lance Máx.',data:mx.map(v=>v>0?v:null),borderColor:'#ef4444',backgroundColor:'rgba(239,68,68,.06)',tension:.3,fill:false,pointRadius:3,borderWidth:2.2,spanGaps:true});
-  datasets.push({label:'Médio Móvel 3m',data:med.map(v=>v>0?v:null),borderColor:'#D6AF5C',backgroundColor:'rgba(214,175,92,.06)',tension:.4,fill:false,pointRadius:0,borderWidth:2,borderDash:[4,4],spanGaps:true});
-  window.minChart=new Chart(document.getElementById('ch-lance'),{type:'line',data:{labels,datasets},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,position:'bottom',labels:{font:{size:11,family:'Inter'},usePointStyle:true,padding:14}}},scales:{y:{beginAtZero:true,ticks:{callback:v=>v+'%'}}}}});
-  window.contChart=new Chart(document.getElementById('ch-cont'),{type:'bar',data:{labels,datasets:[{label:'Contemplados',data:ct,backgroundColor:guiaVisao==='supl'?'rgba(245,158,11,.7)':'rgba(59,130,246,.7)',borderRadius:5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{stepSize:1}}}}});
+  // Identidade visual brand book: traços finos, suaves, sem sobreposição visual
+  const datasets=[{label:'Mín.',data:mn.map(v=>v>0?v:null),borderColor:'#226866',backgroundColor:'rgba(34,104,102,.04)',tension:.35,fill:false,pointRadius:2.5,pointHoverRadius:5,pointBackgroundColor:'#226866',borderWidth:1.4,spanGaps:true}];
+  if(mx)datasets.push({label:'Máx.',data:mx.map(v=>v>0?v:null),borderColor:'#b8923a',backgroundColor:'rgba(184,146,58,.04)',tension:.35,fill:false,pointRadius:2.5,pointHoverRadius:5,pointBackgroundColor:'#b8923a',borderWidth:1.4,spanGaps:true});
+  datasets.push({label:'Médio (3m)',data:med.map(v=>v>0?v:null),borderColor:'#94a3b8',backgroundColor:'transparent',tension:.45,fill:false,pointRadius:0,pointHoverRadius:0,borderWidth:1.2,borderDash:[3,4],spanGaps:true});
+  window.minChart=new Chart(document.getElementById('ch-lance'),{
+    type:'line',
+    data:{labels,datasets},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      layout:{padding:{top:8,right:6,bottom:0,left:0}},
+      interaction:{mode:'index',intersect:false},
+      plugins:{
+        legend:{display:true,position:'bottom',align:'end',labels:{font:{size:10.5,family:'Inter',weight:'600'},usePointStyle:true,pointStyle:'line',boxWidth:18,padding:14,color:'#515151'}},
+        tooltip:{backgroundColor:'rgba(44,62,80,.95)',titleFont:{size:11,family:'Raleway',weight:'700'},bodyFont:{size:11,family:'Inter'},padding:10,cornerRadius:8,displayColors:true,boxPadding:4,callbacks:{label:c=>` ${c.dataset.label}: ${c.parsed.y.toFixed(2)}%`}}
+      },
+      scales:{
+        y:{beginAtZero:true,grid:{color:'rgba(226,230,237,.6)',drawTicks:false,lineWidth:.6},ticks:{callback:v=>v+'%',font:{size:10.5,family:'Inter'},color:'#515151',padding:6},border:{display:false}},
+        x:{grid:{display:false},ticks:{font:{size:10.5,family:'Inter'},color:'#515151',maxRotation:0,autoSkipPadding:8},border:{color:'rgba(226,230,237,.8)'}}
+      }
+    }
+  });
+  window.contChart=new Chart(document.getElementById('ch-cont'),{
+    type:'bar',
+    data:{labels,datasets:[{label:'Contemplados',data:ct,backgroundColor:guiaVisao==='supl'?'rgba(214,175,92,.7)':'rgba(34,104,102,.65)',borderRadius:3,barThickness:'flex',maxBarThickness:24}]},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      layout:{padding:{top:8,right:6,bottom:0,left:0}},
+      plugins:{
+        legend:{display:false},
+        tooltip:{backgroundColor:'rgba(44,62,80,.95)',titleFont:{size:11,family:'Raleway',weight:'700'},bodyFont:{size:11,family:'Inter'},padding:10,cornerRadius:8}
+      },
+      scales:{
+        y:{beginAtZero:true,grid:{color:'rgba(226,230,237,.6)',drawTicks:false,lineWidth:.6},ticks:{stepSize:1,font:{size:10.5,family:'Inter'},color:'#515151',padding:6},border:{display:false}},
+        x:{grid:{display:false},ticks:{font:{size:10.5,family:'Inter'},color:'#515151',maxRotation:0,autoSkipPadding:8},border:{color:'rgba(226,230,237,.8)'}}
+      }
+    }
+  });
 }
 function renderGuiaHist(){
   if(!guiaHistData)return;
   const tbody=document.getElementById('guia-hist-body');if(!tbody)return;
-  const months=guiaPeriodoSlice(guiaHistData.months);
-  const dtAgo=guiaPeriodoSlice(guiaHistData.data_ago);
-  let mn,mx,cll,clf,csup,msup;
-  // Sempre puxa todos pra mostrar tudo (na coluna de cada um)
-  mn  =guiaPeriodoSlice(guiaHistData.min).map(v=>v||0);
-  mx  =guiaPeriodoSlice(guiaHistData.max).map(v=>v||0);
-  cll =guiaPeriodoSlice(guiaHistData.cont_ll);
-  clf =guiaPeriodoSlice(guiaHistData.cont_lf);
-  csup=guiaPeriodoSlice(guiaHistData.cont_sup);
-  msup=guiaPeriodoSlice(guiaHistData.min_sup);
+  // Tabela histórica IGNORA o filtro de período — sempre mostra tudo (com scroll)
+  const months=guiaHistData.months||[];
+  const dtAgo =guiaHistData.data_ago||[];
+  const mn=(guiaHistData.min||[]).slice().map(v=>v||0);
+  const mx=(guiaHistData.max||[]).slice().map(v=>v||0);
+  const cll =guiaHistData.cont_ll||[];
+  const clf =guiaHistData.cont_lf||[];
+  const csup=guiaHistData.cont_sup||[];
+  const msup=guiaHistData.min_sup||[];
   // Swap defensivo (min nunca > max)
   for(let i=0;i<mn.length;i++){if(mn[i]>0&&mx[i]>0&&mn[i]>mx[i]){const t=mn[i];mn[i]=mx[i];mx[i]=t;}}
   const hideEmpty=document.getElementById('ghv-hide-empty')?.checked;
