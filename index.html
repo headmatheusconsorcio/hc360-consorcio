@@ -259,6 +259,20 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
 .form-i{padding:var(--sp-3) 13px;border-radius:var(--r-md);border:1.5px solid var(--bdr);font-size:var(--fs-md);color:var(--txt);background:var(--card);outline:none;transition:border-color var(--t-base),box-shadow var(--t-base);width:100%;font-family:'Mulish',sans-serif}
 .form-i:hover{border-color:var(--sb2-soft)}
 .form-i:focus{border-color:var(--sb2);box-shadow:0 0 0 3px rgba(34,104,102,.10)}
+.form-i:disabled{background:#f3f4f6;color:#6b7280;cursor:not-allowed;opacity:.85}
+.form-i-err{border-color:var(--err)!important;box-shadow:0 0 0 3px rgba(239,68,68,.13)!important;animation:fiShake .35s}
+@keyframes fiShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
+.form-req{color:var(--err);font-weight:800;margin-left:2px}
+.form-l-hint{font-size:9.5px;color:var(--txt2);font-weight:500;text-transform:none;letter-spacing:0;margin-left:4px;font-style:italic}
+.ml-section-hdr{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--sb);margin:14px 0 8px;padding-bottom:5px;border-bottom:2px solid var(--acc);display:flex;align-items:center;gap:6px}
+.ml-section-hdr:first-child{margin-top:0}
+.ml-extra-section{margin:10px 0 4px;background:var(--card2);border:1px solid var(--bdr);border-radius:9px;padding:10px 12px;transition:background .15s}
+.ml-extra-section[open]{background:#fdf6e3}
+.ml-extra-section>summary{cursor:pointer;font-size:12px;font-weight:700;color:var(--sb);user-select:none;display:flex;align-items:center;gap:8px;list-style:none}
+.ml-extra-section>summary::-webkit-details-marker{display:none}
+.ml-extra-section>summary::before{content:'▸';font-size:11px;color:var(--acc);transition:transform .2s}
+.ml-extra-section[open]>summary::before{transform:rotate(90deg)}
+.ml-extra-hint{font-weight:400;font-size:10.5px;color:var(--txt2);font-style:italic;margin-left:auto}
 .res-box{background:var(--card2);border-radius:12px;border:1.5px solid var(--bdr);padding:18px}
 .res-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--bdr)}
 .res-row:last-child{border-bottom:none}
@@ -469,6 +483,46 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
 @media (min-width:1700px){.pipe-col{width:208px}}
 @media (max-width:900px){.pipe-col{width:168px}.pipe-card-avatar{width:24px;height:24px;font-size:10px}.pipe-card-name{font-size:11.5px}.crm-kpis{grid-template-columns:repeat(auto-fit,minmax(120px,1fr))}}
 
+/* ── CRM TABS ───────────────────────────────── */
+.crm-tabs{display:flex;gap:4px;background:var(--card2);border:1px solid var(--bdr);border-radius:10px;padding:4px;margin-bottom:14px;align-items:center;width:fit-content}
+.crm-tab{padding:8px 16px;border-radius:7px;font-size:12.5px;font-weight:700;cursor:pointer;border:none;background:transparent;color:var(--txt2);transition:all .18s;font-family:'Inter',sans-serif;display:inline-flex;align-items:center;gap:7px}
+.crm-tab:hover:not(.act){color:var(--txt);background:rgba(34,71,80,.05)}
+.crm-tab.act{background:#fff;color:var(--sb);box-shadow:0 1px 5px rgba(0,0,0,.08)}
+.crm-tab-count{background:var(--bdr);color:var(--txt2);font-size:10px;font-weight:800;padding:1px 7px;border-radius:9px;font-family:'Raleway',sans-serif;min-width:20px;text-align:center}
+.crm-tab.act .crm-tab-count{background:var(--sb);color:#fff}
+.crm-tab-pane{animation:tabFade .25s ease}
+@keyframes tabFade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── CRM TABLE ──────────────────────────────── */
+.crm-table{font-size:12.5px}
+.crm-table thead th{position:sticky;top:0;background:var(--card2);font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--txt2);padding:10px 8px;border-bottom:2px solid var(--bdr);white-space:nowrap}
+.crm-table tbody tr{transition:background .12s;cursor:default}
+.crm-table tbody tr:hover{background:#fdf6e3}
+.crm-table tbody td{padding:8px;vertical-align:middle;border-bottom:1px solid var(--bdr)}
+.crm-row-name{display:flex;align-items:center;gap:9px}
+.crm-row-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--sb) 0%,var(--sb2) 100%);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;flex-shrink:0;font-family:'Raleway',sans-serif}
+.crm-row-name-text{font-weight:700;color:var(--sb);line-height:1.2;font-family:'Playfair Display',serif;letter-spacing:-.1px}
+.crm-row-name-sub{font-size:10.5px;color:var(--txt2);font-weight:500;font-family:'Inter',sans-serif;font-style:italic}
+.crm-row-contact{display:flex;flex-direction:column;gap:2px;font-size:11px}
+.crm-row-contact a{color:var(--sb2);text-decoration:none;font-weight:600}
+.crm-row-contact a:hover{text-decoration:underline}
+.crm-row-contact .ct-email{font-size:10px;color:var(--txt2)}
+.crm-row-status{padding:3px 10px;border-radius:10px;font-size:10.5px;font-weight:700;letter-spacing:.2px;border:1px solid currentColor;background:transparent;cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s}
+.crm-row-status:hover{transform:scale(1.05);box-shadow:0 2px 6px rgba(0,0,0,.1)}
+.crm-row-idade{font-size:11px;font-weight:700;display:inline-flex;align-items:center;gap:4px}
+.crm-row-idade.fresh{color:#10b981}
+.crm-row-idade.warm{color:#f59e0b}
+.crm-row-idade.cold{color:#ef4444}
+.crm-row-acoes{display:flex;gap:4px}
+.crm-act-btn{padding:5px 8px;font-size:12px;border-radius:6px;border:1px solid var(--bdr);background:#fff;cursor:pointer;color:var(--txt2);transition:all .15s;line-height:1}
+.crm-act-btn:hover{border-color:var(--sb2);color:var(--sb);transform:translateY(-1px);box-shadow:0 2px 6px rgba(0,0,0,.08)}
+.crm-act-btn.crm-act-tel:hover{border-color:var(--sb2);color:var(--sb2)}
+.crm-act-btn.crm-act-edit:hover{border-color:var(--sb);color:var(--sb)}
+.crm-act-btn.crm-act-sim:hover{border-color:var(--acc);color:var(--acc)}
+.crm-row-status-edit{position:relative}
+.crm-row-status-sel{padding:3px 22px 3px 10px;border-radius:10px;font-size:10.5px;font-weight:700;border:1px solid currentColor;background:transparent;cursor:pointer;appearance:none;-webkit-appearance:none;font-family:'Inter',sans-serif}
+.crm-row-status-edit::after{content:'▾';position:absolute;right:6px;top:50%;transform:translateY(-50%);pointer-events:none;font-size:9px;color:currentColor}
+
 /* ── AGENDA ─────────────────────────────────── */
 .agenda-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:22px}
 .agenda-item{display:flex;align-items:flex-start;gap:13px;padding:13px 0;border-bottom:1px solid var(--bdr)}
@@ -561,6 +615,49 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
 .prop-cet-val.big2{font-size:22px;color:var(--acc);font-family:'Quicksand',sans-serif;letter-spacing:-.3px}
 .prop-cet-hint{font-size:9.5px;opacity:.55;margin-top:3px}
 .prop-cet-foot{font-size:10px;opacity:.55;margin-top:12px;line-height:1.5}
+
+/* ── TOGGLE LANCE EMBUTIDO ────────────────── */
+.emb-toggle{display:inline-flex;align-items:center;gap:8px;cursor:pointer;font-size:11px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:.4px;user-select:none}
+.emb-toggle input{position:absolute;opacity:0;width:0;height:0}
+.emb-toggle-track{position:relative;display:inline-block;width:34px;height:18px;background:var(--bdr);border-radius:99px;transition:background .18s}
+.emb-toggle-knob{position:absolute;top:2px;left:2px;width:14px;height:14px;background:#fff;border-radius:50%;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:left .18s}
+.emb-toggle input:checked + .emb-toggle-track{background:var(--acc)}
+.emb-toggle input:checked + .emb-toggle-track .emb-toggle-knob{left:18px}
+.emb-toggle:hover .emb-toggle-track{box-shadow:0 0 0 3px rgba(214,175,92,.15)}
+.emb-toggle-lbl{font-family:'Raleway',sans-serif}
+
+/* ── CARDS DE GRUPO (Composição) ──────────── */
+.pgrp{background:var(--card);border:1.5px solid var(--bdr);border-left:4px solid var(--bdr);border-radius:10px;padding:14px;margin-bottom:10px;transition:all .2s ease;animation:pgrp-in .25s ease-out}
+.pgrp:hover{box-shadow:0 3px 12px rgba(0,0,0,.06)}
+.pgrp.loaded{border-left-color:var(--ok);background:linear-gradient(0deg,#f0fdf4 0%,#fff 35%)}
+.pgrp.loaded:hover{border-color:var(--ok);box-shadow:0 3px 14px rgba(16,185,129,.12)}
+.pgrp-hdr{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:11px}
+.pgrp-hdr-l{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.pgrp-num{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:var(--sb);color:#fff;font-size:11px;font-weight:800;font-family:'Raleway',sans-serif}
+.pgrp.loaded .pgrp-num{background:var(--ok)}
+.pgrp-tp{display:inline-flex;align-items:center;padding:3px 10px;border-radius:99px;font-size:11px;font-weight:700;letter-spacing:.2px}
+.pgrp-tp.im{background:#dbeafe;color:#1e40af}
+.pgrp-tp.au{background:#fef3c7;color:#92400e}
+.pgrp-tp.empty{background:#f1f5f9;color:var(--txt2);font-weight:600}
+.pgrp-status{font-size:10.5px;color:var(--ok);font-weight:700;letter-spacing:.3px;display:inline-flex;align-items:center;gap:3px}
+.pgrp-rm{background:none;border:1.5px solid transparent;cursor:pointer;color:var(--txt2);font-size:18px;line-height:1;width:28px;height:28px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;transition:all .15s}
+.pgrp-rm:hover{background:#fee2e2;color:var(--err);border-color:#fecaca}
+.pgrp-grid{display:grid;grid-template-columns:90px 70px 1fr 70px;gap:9px;align-items:end}
+.pgrp-fld{display:flex;flex-direction:column;gap:4px}
+.pgrp-fld label{font-size:9.5px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:.4px;font-family:'Raleway',sans-serif}
+.pgrp-fld input{padding:7px 9px;border-radius:7px;border:1.5px solid var(--bdr);font-size:13px;color:var(--txt);outline:none;transition:all .15s;width:100%;font-family:'Inter',sans-serif;background:var(--card)}
+.pgrp-fld input:focus{border-color:var(--sb2);box-shadow:0 0 0 3px rgba(34,104,102,.08)}
+.pgrp-fld input:read-only{background:var(--card2);color:var(--txt2);font-weight:600;cursor:not-allowed}
+.pgrp-fld input.grp-num{font-weight:800;letter-spacing:.4px;color:var(--sb)}
+.pgrp.loaded .pgrp-fld input.grp-num{color:var(--ok)}
+.pgrp-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:11px}
+.pgrp-chip{font-size:10.5px;background:#fff;border:1px solid var(--bdr);padding:3px 9px;border-radius:99px;color:var(--txt2);font-weight:600;display:inline-flex;align-items:center;gap:4px}
+.pgrp.loaded .pgrp-chip{background:#fff;border-color:#bbf7d0}
+.pgrp-chip strong{color:var(--txt);font-weight:700}
+.pgrp-empty-hint{font-size:11.5px;color:var(--txt2);margin-top:9px;font-style:italic;display:flex;align-items:center;gap:6px}
+@keyframes pgrp-in{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+.pgrp-add-btn{width:100%;padding:11px;background:transparent;border:1.5px dashed var(--bdr);border-radius:9px;color:var(--txt2);font-size:12.5px;font-weight:700;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:6px;text-transform:uppercase;letter-spacing:.4px;font-family:'Raleway',sans-serif}
+.pgrp-add-btn:hover{border-color:var(--acc);color:var(--acc2);background:#fdf6e3}
 
 /* ── TOAST ──────────────────────────────────── */
 .toast{position:fixed;bottom:var(--sp-6);right:var(--sp-6);z-index:400;display:flex;flex-direction:column;gap:var(--sp-2);max-width:320px}
@@ -1129,7 +1226,7 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
       <input class="fi fi-lg" type="text" id="crm-search" placeholder="🔍  Buscar lead, telefone, indicação..." oninput="filterCRM()">
       <select class="fi fi-md" id="crm-status-f" onchange="filterCRM()">
         <option value="">Todos os Status</option>
-        <option>Novo Lead</option><option>Qualificando</option><option>Reunião Marcada</option><option>Reunião Realizada</option><option>Simulação</option><option>Proposta Enviada</option><option>Em Negociação</option><option>Aguard. Docs</option><option>Cota Aberta</option><option>Perdido</option>
+        <option>Novo Lead</option><option>Qualificando</option><option>Reunião Agendada</option><option>Proposta Enviada</option><option>Em Negociação</option><option>Ganho</option><option>Perdido</option>
       </select>
       <span id="crm-assessor-f-wrap">
       <select class="fi fi-md" id="crm-assessor-f" onchange="filterCRM()">
@@ -1140,9 +1237,17 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
       <button class="btn btn-out btn-sm" onclick="crmClearFilters()">Limpar</button>
     </div>
 
-    <div class="pipeline" id="crm-pipeline"></div>
+    <!-- Tabs CRM -->
+    <div class="crm-tabs">
+      <button class="crm-tab act" data-tab="pipeline" onclick="crmSwitchTab('pipeline')">📊 Pipeline</button>
+      <button class="crm-tab" data-tab="lista" onclick="crmSwitchTab('lista')">📋 Lista de Leads <span class="crm-tab-count" id="crm-tab-lista-c">0</span></button>
+      <button class="crm-tab" data-tab="clientes" onclick="crmSwitchTab('clientes')">⭐ Clientes <span class="crm-tab-count" id="crm-tab-clientes-c">0</span></button>
+    </div>
 
-    <div class="card" id="assessor-leads-admin-card" style="display:none;border:2px solid var(--acc);margin-bottom:14px">
+    <div class="crm-tab-pane act" id="crm-pane-pipeline">
+      <div class="pipeline" id="crm-pipeline"></div>
+
+      <div class="card" id="assessor-leads-admin-card" style="display:none;border:2px solid var(--acc);margin-bottom:14px">
       <div class="ch" style="background:#fdf6e3">
         <span class="ct" style="color:var(--acc)">📤 Leads Enviados pelos Assessores</span>
         <span id="assessor-leads-count" class="badge b-ora">0</span>
@@ -1151,24 +1256,55 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
         <thead><tr><th>Nome</th><th>Telefone</th><th>Assessor</th><th>Interesse</th><th>Valor</th><th>Status</th><th>Data</th><th>Ações</th></tr></thead>
         <tbody id="assessor-leads-tbody"></tbody>
       </table></div>
+      </div>
     </div>
 
+    <div class="crm-tab-pane" id="crm-pane-lista" style="display:none">
     <div class="card">
-      <div class="ch"><span class="ct">Todos os Leads</span><span id="crm-count" class="badge b-info">0</span></div>
-      <div class="tw"><table>
+      <div class="ch">
+        <span class="ct">Todos os Leads</span>
+        <span id="crm-count" class="badge b-info">0</span>
+        <button class="btn btn-out btn-sm" style="margin-left:auto" onclick="crmExportCSV(false)">?? Exportar CSV</button>
+      </div>
+      <div class="tw"><table class="crm-table">
         <thead><tr>
           <th onclick="sortCRM('nome')" style="cursor:pointer">Nome <span id="lsort-nome" class="sort-ico">⇅</span></th>
-          <th>Telefone</th>
-          <th onclick="sortCRM('indicado_por')" style="cursor:pointer">Indicado por <span id="lsort-indicado_por" class="sort-ico">⇅</span></th>
+          <th>Contato</th>
+          <th onclick="sortCRM('indicado_por')" style="cursor:pointer">Indicado <span id="lsort-indicado_por" class="sort-ico">⇅</span></th>
           <th onclick="sortCRM('assessor')" style="cursor:pointer">Assessor <span id="lsort-assessor" class="sort-ico">⇅</span></th>
           <th onclick="sortCRM('interesse')" style="cursor:pointer">Interesse <span id="lsort-interesse" class="sort-ico">⇅</span></th>
-          <th onclick="sortCRM('valor_potencial')" style="cursor:pointer">Valor Potencial <span id="lsort-valor_potencial" class="sort-ico">⇅</span></th>
+          <th onclick="sortCRM('valor_potencial')" style="cursor:pointer">Crédito <span id="lsort-valor_potencial" class="sort-ico">⇅</span></th>
           <th onclick="sortCRM('status')" style="cursor:pointer">Status <span id="lsort-status" class="sort-ico">⇅</span></th>
-          <th onclick="sortCRM('created_at')" style="cursor:pointer">Data <span id="lsort-created_at" class="sort-ico">⇅</span></th>
+          <th onclick="sortCRM('created_at')" style="cursor:pointer">Idade <span id="lsort-created_at" class="sort-ico">⇅</span></th>
           <th>Ações</th>
         </tr></thead>
         <tbody id="crm-tbody"></tbody>
       </table></div>
+    </div>
+    </div>
+
+    <div class="crm-tab-pane" id="crm-pane-clientes" style="display:none">
+    <div class="card">
+      <div class="ch">
+        <span class="ct">⭐ Clientes Fechados (Ganhos)</span>
+        <span id="cli-count" class="badge b-ok">0</span>
+        <button class="btn btn-out btn-sm" style="margin-left:auto" onclick="crmExportCSV(true)">?? Exportar CSV</button>
+      </div>
+      <div class="tw"><table class="crm-table">
+        <thead><tr>
+          <th>Nome</th>
+          <th>Contato</th>
+          <th>CPF</th>
+          <th>Cidade/UF</th>
+          <th>Assessor</th>
+          <th>Crédito Negociado</th>
+          <th>Cotas</th>
+          <th>Fechado em</th>
+          <th>Ações</th>
+        </tr></thead>
+        <tbody id="cli-tbody"></tbody>
+      </table></div>
+    </div>
     </div>
     </div>
   </div>
@@ -1578,10 +1714,10 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
           </div>
           <div class="dvr"></div>
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-            <label class="form-l" style="margin:0">Composição de Grupos</label>
-            <button class="btn btn-out btn-sm" onclick="addPropGrupo()">+ Grupo</button>
+            <label class="form-l" style="margin:0">Composição de Grupos <span id="prop-grupos-count" style="color:var(--txt2);font-weight:600;text-transform:none;letter-spacing:0">— 1 grupo</span></label>
           </div>
           <div id="prop-grupos-list"></div>
+          <button class="pgrp-add-btn" onclick="addPropGrupo()" style="margin-top:4px">＋ Adicionar grupo</button>
         </div></div>
       </div>
       <!-- filler right col step 1: mini preview -->
@@ -2788,23 +2924,34 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
   <div class="modal">
     <div class="mh"><span class="mt" id="ml-title">Novo Lead</span><button class="mc" onclick="closeModal('modal-lead')">✕</button></div>
     <div class="mb">
+      <div class="ml-section-hdr">📇 Contato</div>
       <div class="g2" style="margin-bottom:0">
-        <div class="form-g"><label class="form-l">Nome</label><input class="form-i" id="ml-nome"></div>
-        <div class="form-g"><label class="form-l">Telefone</label><input class="form-i" id="ml-tel" placeholder="(11) 99999-0000"></div>
+        <div class="form-g"><label class="form-l">Nome <span class="form-req">*</span></label><input class="form-i" id="ml-nome" placeholder="Nome completo"></div>
+        <div class="form-g"><label class="form-l">Telefone <span class="form-req">*</span></label><input class="form-i" id="ml-tel" placeholder="(11) 99999-0000"></div>
       </div>
       <div class="g2" style="margin-bottom:0">
-        <div class="form-g"><label class="form-l">Email</label><input class="form-i" id="ml-email"></div>
+        <div class="form-g"><label class="form-l">Email</label><input class="form-i" id="ml-email" placeholder="email@dominio.com"></div>
         <div class="form-g"><label class="form-l">Indicado por</label><input class="form-i" id="ml-ind" placeholder="Nome de quem indicou"></div>
       </div>
+
+      <div class="ml-section-hdr">🎯 Negócio</div>
       <div class="g2" style="margin-bottom:0">
-        <div class="form-g"><label class="form-l">Assessor</label>
+        <div class="form-g"><label class="form-l">Interesse</label>
+          <select class="form-i" id="ml-int">
+            <option>Imóvel</option><option>Veículo</option><option>Moto</option><option>Não definido</option>
+          </select>
+        </div>
+        <div class="form-g"><label class="form-l">Valor do Crédito (R$) <span class="form-req">*</span></label><input type="number" class="form-i" id="ml-val" placeholder="Ex.: 300000"></div>
+      </div>
+      <div class="g2" style="margin-bottom:0">
+        <div class="form-g"><label class="form-l">Assessor <span class="form-l-hint" id="ml-ass-hint"></span></label>
           <select class="form-i" id="ml-assessor">
             <option>ALAN / ESCRITORIO</option><option>ALE / ESCRITORIO</option><option>GLAUCO</option><option>GIL</option><option>SZPIN</option><option>Coyote</option>
           </select>
         </div>
-        <div class="form-g"><label class="form-l">Status</label>
+        <div class="form-g"><label class="form-l">Status <span class="form-l-hint" id="ml-st-hint"></span></label>
           <select class="form-i" id="ml-status" onchange="mlToggleReuniao()">
-            <option>Novo Lead</option><option>Qualificando</option><option>Reunião Marcada</option><option>Reunião Realizada</option><option>Simulação</option><option>Proposta Enviada</option><option>Em Negociação</option><option>Aguard. Docs</option><option>Cota Aberta</option><option>Perdido</option>
+            <option>Novo Lead</option><option>Qualificando</option><option>Reunião Agendada</option><option>Proposta Enviada</option><option>Em Negociação</option><option>Ganho</option><option>Perdido</option>
           </select>
         </div>
       </div>
@@ -2812,15 +2959,22 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
         <label class="form-l">📅 Data e hora da reunião</label>
         <input type="datetime-local" class="form-i" id="ml-reuniao">
       </div>
-      <div class="g2" style="margin-bottom:0">
-        <div class="form-g"><label class="form-l">Interesse</label>
-          <select class="form-i" id="ml-int">
-            <option>Imóvel</option><option>Veículo</option><option>Moto</option><option>Não definido</option>
-          </select>
+
+      <details class="ml-extra-section">
+        <summary>🗂 Ficha completa <span class="ml-extra-hint">(opcional — pode preencher depois)</span></summary>
+        <div class="g2" style="margin-bottom:0;margin-top:10px">
+          <div class="form-g"><label class="form-l">CPF</label><input class="form-i" id="ml-cpf" placeholder="000.000.000-00"></div>
+          <div class="form-g"><label class="form-l">Data de nascimento</label><input type="date" class="form-i" id="ml-nasc"></div>
         </div>
-        <div class="form-g"><label class="form-l">Valor Potencial (R$)</label><input type="number" class="form-i" id="ml-val"></div>
-      </div>
-      <div class="form-g"><label class="form-l">Observação</label><textarea class="form-i" id="ml-obs" rows="2" style="resize:none"></textarea></div>
+        <div class="g2" style="margin-bottom:0">
+          <div class="form-g"><label class="form-l">Profissão</label><input class="form-i" id="ml-prof"></div>
+          <div class="form-g"><label class="form-l">Cidade / UF</label>
+            <div style="display:flex;gap:6px"><input class="form-i" id="ml-cidade" placeholder="Cidade" style="flex:1"><input class="form-i" id="ml-estado" placeholder="UF" maxlength="2" style="width:60px;text-transform:uppercase"></div>
+          </div>
+        </div>
+      </details>
+
+      <div class="form-g"><label class="form-l">Observação</label><textarea class="form-i" id="ml-obs" rows="2" style="resize:none" placeholder="Anotações livres sobre o lead"></textarea></div>
     </div>
     <div class="mf">
       <button class="btn btn-err btn-sm" id="ml-del-btn" onclick="deleteLead()" style="display:none;margin-right:auto">🗑 Excluir</button>
@@ -4798,31 +4952,82 @@ function renderCRM(){
 
 function mlToggleReuniao(){
   const st=document.getElementById('ml-status').value;
-  const show=st==='Reunião Marcada'||st==='Reunião Realizada';
-  document.getElementById('ml-reuniao-row').style.display=show?'block':'none';
+  document.getElementById('ml-reuniao-row').style.display=(st==='Reunião Agendada')?'block':'none';
 }
+function mlClearError(id){const el=document.getElementById(id);if(el)el.classList.remove('form-i-err');}
+function mlMarkError(id){const el=document.getElementById(id);if(el)el.classList.add('form-i-err');}
 function openModalLead(id){
   currentLead=id;
   const isNew=!id;
   const l=isNew?{}:LEADS.find(x=>x.id===id)||{};
   document.getElementById('ml-title').textContent=isNew?'Novo Lead':`Editar — ${pn(l.nome)}`;
   document.getElementById('ml-del-btn').style.display=isNew?'none':'inline-flex';
+  ['ml-nome','ml-tel','ml-val'].forEach(mlClearError);
   document.getElementById('ml-nome').value=l.nome||'';
   document.getElementById('ml-tel').value=l.telefone||'';
   document.getElementById('ml-email').value=l.email||'';
   document.getElementById('ml-ind').value=l.indicado_por||'';
-  document.getElementById('ml-assessor').value=l.assessor||'ALAN / ESCRITORIO';
-  document.getElementById('ml-status').value=l.status||'Novo Lead';
+  // Assessor: admin escolhe livre. Não-admin: auto-preenchido com seu nome e travado.
+  const isAdmin=CURRENT_USER&&CURRENT_USER.isAdmin;
+  const myAss=CURRENT_USER?(CURRENT_USER.assessorName||CURRENT_USER.displayName||''):'';
+  const assEl=document.getElementById('ml-assessor');
+  const assHint=document.getElementById('ml-ass-hint');
+  if(isAdmin){assEl.disabled=false;assEl.value=l.assessor||'ALAN / ESCRITORIO';if(assHint)assHint.textContent='';}
+  else{assEl.value=isNew?myAss:(l.assessor||myAss);assEl.disabled=true;if(assHint)assHint.textContent='(automático)';}
+  // Status: novo → travado em 'Novo Lead'. Edição: admin pode alterar; não-admin não.
+  const stEl=document.getElementById('ml-status');
+  const stHint=document.getElementById('ml-st-hint');
+  if(isNew){stEl.value='Novo Lead';stEl.disabled=true;if(stHint)stHint.textContent='(novo lead)';}
+  else{stEl.value=l.status||'Novo Lead';stEl.disabled=!isAdmin;if(stHint)stHint.textContent=isAdmin?'':'(somente admin altera)';}
   document.getElementById('ml-int').value=l.interesse||'Imóvel';
   document.getElementById('ml-val').value=l.valor_potencial||'';
-  document.getElementById('ml-obs').value=l.observacao||'';
+  const cpfEl=document.getElementById('ml-cpf');if(cpfEl)cpfEl.value=l.cpf||'';
+  const nascEl=document.getElementById('ml-nasc');if(nascEl)nascEl.value=l.data_nascimento||'';
+  const profEl=document.getElementById('ml-prof');if(profEl)profEl.value=l.profissao||'';
+  const cidEl=document.getElementById('ml-cidade');if(cidEl)cidEl.value=l.cidade||'';
+  const estEl=document.getElementById('ml-estado');if(estEl)estEl.value=l.estado||'';
+  document.getElementById('ml-obs').value=(l.observacao||'').startsWith('SIM:')?'':(l.observacao||'');
   document.getElementById('ml-reuniao').value=l.data_reuniao?l.data_reuniao.slice(0,16):'';
   mlToggleReuniao();
   document.getElementById('modal-lead').classList.add('open');
 }
 async function saveLead(){
+  const nome=document.getElementById('ml-nome').value.trim();
+  const tel=document.getElementById('ml-tel').value.trim();
+  const valStr=document.getElementById('ml-val').value;
+  const val=parseFloat(valStr);
+  ['ml-nome','ml-tel','ml-val'].forEach(mlClearError);
+  let erro=[];
+  if(!nome){mlMarkError('ml-nome');erro.push('Nome');}
+  if(!tel){mlMarkError('ml-tel');erro.push('Telefone');}
+  if(!valStr||!(val>0)){mlMarkError('ml-val');erro.push('Valor do Crédito');}
+  if(erro.length){toast('Preencha: '+erro.join(', '),'err');return;}
+  const isAdmin=CURRENT_USER&&CURRENT_USER.isAdmin;
+  const myAss=CURRENT_USER?(CURRENT_USER.assessorName||CURRENT_USER.displayName||''):'';
   const reuniaoVal=document.getElementById('ml-reuniao').value;
-  const data={nome:document.getElementById('ml-nome').value,telefone:document.getElementById('ml-tel').value,email:document.getElementById('ml-email').value,indicado_por:document.getElementById('ml-ind').value,assessor:document.getElementById('ml-assessor').value,status:document.getElementById('ml-status').value,interesse:document.getElementById('ml-int').value,valor_potencial:parseFloat(document.getElementById('ml-val').value)||null,observacao:document.getElementById('ml-obs').value,data_reuniao:reuniaoVal?new Date(reuniaoVal).toISOString():null,updated_at:new Date().toISOString()};
+  let obs=document.getElementById('ml-obs').value;
+  if(currentLead){
+    const cur=LEADS.find(x=>x.id===currentLead);
+    if(cur&&cur.observacao&&cur.observacao.startsWith('SIM:'))obs=cur.observacao;
+  }
+  const status=currentLead?(isAdmin?document.getElementById('ml-status').value:((LEADS.find(x=>x.id===currentLead)||{}).status||'Novo Lead')):'Novo Lead';
+  const assessor=isAdmin?document.getElementById('ml-assessor').value:myAss;
+  const cpfEl=document.getElementById('ml-cpf'),nascEl=document.getElementById('ml-nasc'),profEl=document.getElementById('ml-prof'),cidEl=document.getElementById('ml-cidade'),estEl=document.getElementById('ml-estado');
+  const data={
+    nome,telefone:tel,email:document.getElementById('ml-email').value,
+    indicado_por:document.getElementById('ml-ind').value,
+    assessor,status,
+    interesse:document.getElementById('ml-int').value,
+    valor_potencial:val,
+    cpf:cpfEl?(cpfEl.value||null):null,
+    data_nascimento:nascEl?(nascEl.value||null):null,
+    profissao:profEl?(profEl.value||null):null,
+    cidade:cidEl?(cidEl.value||null):null,
+    estado:estEl?(estEl.value||null):null,
+    observacao:obs,
+    data_reuniao:reuniaoVal?new Date(reuniaoVal).toISOString():null,
+    updated_at:new Date().toISOString()
+  };
   if(currentLead)data.id=currentLead;
   showLoad();const res=await upsertLead(data);hideLoad();
   if(res){toast('Lead salvo!');closeModal('modal-lead');filterCRM();document.getElementById('kpi-leads').textContent=LEADS.length;}
@@ -6480,48 +6685,58 @@ function lookupGrupo(i,val){
     if(d.ta!=null)propGrupos[i].taxaadm=parseFloat((d.ta*100).toFixed(2));
     if(d.vmax){propGrupos[i].credito=d.vmax;propGrupos[i].credMax=d.vmax;}
     if(d.vmin!=null)propGrupos[i].credMin=d.vmin;
-    const isIm2=d.tp&&(d.tp.toUpperCase().includes('IM')||d.tp.toUpperCase().includes('RES'));
-    const tpLbl=d.tp?(isIm2?'🏠 Imóvel':'🚗 Veículo'):'';
-    const tpBg=isIm2?'#dbeafe':'#fef3c7';const tpCl=isIm2?'#1e40af':'#92400e';
-    const infoEl=document.getElementById('pg-info-'+i);
-    const boxEl=document.getElementById('pg-box-'+i);
-    const credEl=document.getElementById('pg-cred-'+i);
-    const tpEl=document.getElementById('pg-tp-'+i);
-    if(tpEl)tpEl.innerHTML='<span style="display:inline-block;padding:2px 9px;border-radius:12px;font-size:11.5px;font-weight:700;background:'+tpBg+';color:'+tpCl+'">'+tpLbl+'</span>';
-    if(infoEl){const pr=propGrupos[i];const rest=pr.prazo-(pr.mesAtual||0);infoEl.innerHTML='<span style="color:var(--ok)">Prazo '+pr.prazo+'m · Restante <strong style="color:#3b82f6">'+rest+'m</strong> · FR '+pr.fr+'% · Adm '+pr.taxaadm+'% · '+brl(pr.credMin,0)+' – '+brl(pr.credMax,0)+'</span>';}
-    if(boxEl){boxEl.style.background='#f0fdf4';boxEl.style.borderColor='var(--ok)';}
-    if(credEl)credEl.value=propGrupos[i].credito;
-    const przEl=document.getElementById('pg-prz-'+i);if(przEl)przEl.value=propGrupos[i].prazo+'m';
-    calcProp();
   }else{
     propGrupos[i].credMax=0;propGrupos[i].credMin=0;
-    const infoEl=document.getElementById('pg-info-'+i);
-    const boxEl=document.getElementById('pg-box-'+i);
-    if(infoEl)infoEl.textContent='Digite o nº do grupo para carregar dados';
-    if(boxEl){boxEl.style.background='var(--card2)';boxEl.style.borderColor='var(--bdr)';}
   }
+  renderPropGrupos();
+  // foca no input de grupo recém-editado pra manter UX (re-render perde foco)
+  setTimeout(()=>{
+    const box=document.getElementById('pg-box-'+i);
+    if(box){const inp=box.querySelector('input.grp-num');if(inp){inp.focus();inp.setSelectionRange(inp.value.length,inp.value.length);}}
+  },0);
+  calcProp();
 }
 function renderPropGrupos(){
   const el=document.getElementById('prop-grupos-list');if(!el)return;
+  const cntEl=document.getElementById('prop-grupos-count');
+  if(cntEl){
+    const filled=propGrupos.filter(g=>g.grupo).length;
+    cntEl.textContent='— '+propGrupos.length+' grupo'+(propGrupos.length>1?'s':'')+(filled>0?' · '+filled+' carregado'+(filled>1?'s':''):'');
+  }
   el.innerHTML=propGrupos.map((g,i)=>{
     const d=GUIA[g.grupo]||{};
     const hasD=!!(d.pr);
     const isIm=d.tp&&(d.tp.toUpperCase().includes('IM')||d.tp.toUpperCase().includes('RES'));
-    const tpLbl=d.tp?(isIm?'🏠 Imóvel':'🚗 Veículo'):'';
-    const tpBadgeHtml=hasD?'<span style="display:inline-block;padding:2px 9px;border-radius:12px;font-size:11.5px;font-weight:700;background:'+(isIm?'#dbeafe':'#fef3c7')+';color:'+(isIm?'#1e40af':'#92400e')+'">'+tpLbl+'</span>':'<span style="display:inline-block;padding:2px 9px;border-radius:12px;font-size:11px;font-weight:600;background:#f1f5f9;color:var(--txt2)">Grupo '+(i+1)+'</span>';
+    const tpClass=hasD?(isIm?'im':'au'):'empty';
+    const tpLbl=hasD?(isIm?'🏠 Imóvel':'🚗 Veículo'):'Grupo '+(i+1);
     const prazoRest=hasD?(g.prazo-(g.mesAtual||0)):null;
-    const info=hasD?'Prazo '+g.prazo+'m · Restante <strong style="color:var(--info)">'+(prazoRest!=null?prazoRest+'m':'—')+'</strong> · FR '+g.fr+'% · Adm '+g.taxaadm+'% · '+brl(g.credMin,0)+' – '+brl(g.credMax,0):'Digite o nº do grupo para carregar dados';
-    const bg=hasD?'#f0fdf4':'var(--card2)';const bc=hasD?'var(--ok)':'var(--bdr)';const tc=hasD?'var(--txt)':'var(--txt2)';
-    return '<div id="pg-box-'+i+'" style="background:'+bg+';border-radius:8px;padding:10px;margin-bottom:8px;border:1.5px solid '+bc+'">'
-      +'<div style="display:flex;align-items:center;gap:6px;margin-bottom:7px"><span id="pg-tp-'+i+'">'+tpBadgeHtml+'</span></div>'
-      +'<div style="display:grid;grid-template-columns:80px 65px 65px 1fr 50px 22px;gap:5px;align-items:end">'
-      +'<div><div style="font-size:9px;font-weight:700;color:var(--txt2);text-transform:uppercase;margin-bottom:3px">Grupo</div><input class="form-i" style="font-size:13px;padding:5px 8px;font-weight:700;letter-spacing:.5px" placeholder="Nº" value="'+g.grupo+'" oninput="lookupGrupo('+i+',this.value)"></div>'
-      +'<div><div style="font-size:9px;font-weight:700;color:var(--txt2);text-transform:uppercase;margin-bottom:3px">Prazo</div><input id="pg-prz-'+i+'" class="form-i" style="font-size:11px;padding:5px 4px;text-align:center;background:var(--card2);color:var(--txt2)" readonly value="'+(hasD?g.prazo+'m':'—')+'"></div>'
-      +'<div><div style="font-size:9px;font-weight:700;color:var(--txt2);text-transform:uppercase;margin-bottom:3px">Mês Atual</div><input id="pg-mes-'+i+'" class="form-i" style="font-size:11px;padding:5px 4px;text-align:center" type="number" min="0" placeholder="0" value="'+(g.mesAtual||'')+'" oninput="propGrupos['+i+'].mesAtual=parseInt(this.value)||0;renderPropGrupos();calcProp()"></div>'
-      +'<div><div style="font-size:9px;font-weight:700;color:var(--txt2);text-transform:uppercase;margin-bottom:3px">Crédito por Cota (R$)</div><input id="pg-cred-'+i+'" class="form-i" style="font-size:12px;padding:5px 8px" type="number" placeholder="Valor" value="'+g.credito+'" oninput="propGrupos['+i+'].credito=parseFloat(this.value)||0;calcProp()"></div>'
-      +'<div><div style="font-size:9px;font-weight:700;color:var(--txt2);text-transform:uppercase;margin-bottom:3px">Qtd</div><input class="form-i" style="font-size:12px;padding:5px 6px;text-align:center" type="number" placeholder="1" min="1" value="'+g.qtd+'" oninput="propGrupos['+i+'].qtd=parseInt(this.value)||1;calcProp()"></div>'
-      +'<div style="padding-bottom:2px"><button onclick="removePropGrupo('+i+')" style="background:none;border:none;cursor:pointer;color:var(--err);font-size:20px;padding:0;line-height:1" title="Remover">×</button></div>'
-      +'</div><div id="pg-info-'+i+'" style="font-size:11px;color:'+tc+';margin-top:5px">'+info+'</div></div>';
+    const canRemove=propGrupos.length>1;
+    const chips=hasD?(
+      '<span class="pgrp-chip">Prazo <strong>'+g.prazo+'m</strong></span>'
+      +'<span class="pgrp-chip">Restante <strong style="color:var(--info)">'+(prazoRest!=null?prazoRest+'m':'—')+'</strong></span>'
+      +'<span class="pgrp-chip">FR <strong>'+g.fr+'%</strong></span>'
+      +'<span class="pgrp-chip">Adm <strong>'+g.taxaadm+'%</strong></span>'
+      +'<span class="pgrp-chip">Faixa <strong>'+brl(g.credMin,0)+'–'+brl(g.credMax,0)+'</strong></span>'
+    ):'';
+    const status=hasD?'<span class="pgrp-status">✓ Carregado</span>':'';
+    const hint=!hasD?'<div class="pgrp-empty-hint">→ Digite o nº do grupo (ex: 040010) para puxar prazo, taxa e faixa de crédito</div>':'';
+    return '<div id="pg-box-'+i+'" class="pgrp'+(hasD?' loaded':'')+'">'
+      +'<div class="pgrp-hdr">'
+      +'<div class="pgrp-hdr-l">'
+      +'<span class="pgrp-num">'+(i+1)+'</span>'
+      +'<span id="pg-tp-'+i+'" class="pgrp-tp '+tpClass+'">'+tpLbl+'</span>'
+      +status
+      +'</div>'
+      +'<button class="pgrp-rm" onclick="removePropGrupo('+i+')" title="Remover grupo"'+(canRemove?'':' disabled')+'>×</button>'
+      +'</div>'
+      +'<div class="pgrp-grid">'
+      +'<div class="pgrp-fld"><label>Grupo</label><input class="grp-num" placeholder="Nº" value="'+g.grupo+'" oninput="lookupGrupo('+i+',this.value)"></div>'
+      +'<div class="pgrp-fld"><label>Mês Atual</label><input id="pg-mes-'+i+'" type="number" min="0" placeholder="0" value="'+(g.mesAtual||'')+'" oninput="propGrupos['+i+'].mesAtual=parseInt(this.value)||0;renderPropGrupos();calcProp()"></div>'
+      +'<div class="pgrp-fld"><label>Crédito por Cota (R$)</label><input id="pg-cred-'+i+'" type="number" placeholder="Valor" value="'+g.credito+'" oninput="propGrupos['+i+'].credito=parseFloat(this.value)||0;calcProp()"></div>'
+      +'<div class="pgrp-fld"><label>Qtd Cotas</label><input type="number" placeholder="1" min="1" value="'+g.qtd+'" oninput="propGrupos['+i+'].qtd=parseInt(this.value)||1;calcProp()"></div>'
+      +'</div>'
+      +(hasD?'<div class="pgrp-chips">'+chips+'</div>':hint)
+      +'</div>';
   }).join('');
 }
 function renderPropSugestoes(){
