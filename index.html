@@ -854,94 +854,94 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
 .pd-print-header,.pd-print-footer{display:none}
 
 /* ── RELATÓRIO PATRIMONIAL — view dedicada A4 ────────── */
-.rel-modal{display:none;position:fixed;inset:0;background:#e8e6e2;z-index:9000;overflow-y:auto;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.rel-modal{display:none;position:fixed;inset:0;background:#f5f3ee;z-index:9000;overflow-y:auto;-webkit-print-color-adjust:exact;print-color-adjust:exact}
 .rel-modal.open{display:block}
-.rel-toolbar{position:sticky;top:0;background:linear-gradient(135deg,#2C3E50 0%,#226866 100%);color:#fff;padding:14px 28px;display:flex;gap:14px;align-items:center;z-index:20;box-shadow:0 2px 12px rgba(0,0,0,.18)}
-.rel-toolbar-title{flex:1;font-family:'Quicksand',sans-serif;font-size:15px;font-weight:700;letter-spacing:.3px}
-.rel-toolbar-title small{font-weight:400;opacity:.78;font-family:'Mulish',sans-serif;font-size:11.5px;display:block;margin-top:1px;letter-spacing:.2px}
-.rel-toolbar button{background:rgba(255,255,255,.14);border:1.5px solid rgba(255,255,255,.32);color:#fff;font-size:12.5px;font-weight:600;padding:8px 16px;border-radius:8px;cursor:pointer;font-family:'Mulish',sans-serif;display:inline-flex;align-items:center;gap:6px;transition:background .18s}
-.rel-toolbar button:hover{background:rgba(255,255,255,.26)}
-.rel-toolbar button.primary{background:#D6AF5C;border-color:#D6AF5C;color:#2C3E50;font-weight:700}
-.rel-toolbar button.primary:hover{background:#e6c071}
-.rel-pages{padding:30px 0;display:flex;flex-direction:column;align-items:center;gap:18px}
-.rel-page{width:210mm;min-height:297mm;background:#fff;box-shadow:0 4px 24px rgba(0,0,0,.14);padding:18mm 16mm;font-family:'Mulish',sans-serif;color:#2C3E50;position:relative;display:flex;flex-direction:column}
-/* CAPA */
-.rel-cover{padding:0;background:linear-gradient(180deg,#fff 0%,#fff 60%,#FFF3DD 100%);justify-content:space-between}
-.rel-cover-band{height:8px;background:linear-gradient(90deg,#2C3E50 0%,#226866 50%,#D6AF5C 100%)}
+.rel-toolbar{position:sticky;top:0;background:#2C3E50;color:#fff;padding:12px 24px;display:flex;gap:10px;align-items:center;z-index:20;border-bottom:1px solid #1a2533}
+.rel-toolbar-title{flex:1;font-family:'Quicksand',sans-serif;font-size:13px;font-weight:600;letter-spacing:.3px}
+.rel-toolbar-title small{font-weight:400;opacity:.65;font-family:'Mulish',sans-serif;font-size:10.5px;display:block;margin-top:1px;letter-spacing:.2px}
+.rel-toolbar button{background:transparent;border:1px solid rgba(255,255,255,.22);color:#fff;font-size:11.5px;font-weight:500;padding:7px 14px;border-radius:4px;cursor:pointer;font-family:'Mulish',sans-serif;display:inline-flex;align-items:center;gap:5px;transition:background .18s,border-color .18s;letter-spacing:.2px}
+.rel-toolbar button:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.4)}
+.rel-toolbar button.primary{background:#D6AF5C;border-color:#D6AF5C;color:#2C3E50;font-weight:600}
+.rel-toolbar button.primary:hover{background:#c69e4f;border-color:#c69e4f}
+.rel-pages{padding:24px 0;display:flex;flex-direction:column;align-items:center;gap:14px}
+.rel-page{width:210mm;min-height:297mm;background:#fff;box-shadow:0 4px 24px rgba(0,0,0,.14);padding:18mm 14mm;font-family:'Mulish',sans-serif;color:#2C3E50;position:relative;display:flex;flex-direction:column;box-sizing:border-box;overflow:hidden}
+.rel-page *{box-sizing:border-box}
+/* CAPA — minimalista */
+.rel-cover{padding:0;background:#fff;justify-content:space-between}
+.rel-cover-band{height:3px;background:#D6AF5C}
 .rel-cover-body{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:0 18mm}
-.rel-cover-logo{margin-bottom:24mm}
-.rel-cover-logo img{height:54px;width:auto}
-.rel-cover-tag{font-family:'Mulish',sans-serif;font-size:11pt;font-weight:700;letter-spacing:5px;color:#515151;text-transform:uppercase;margin-bottom:14mm}
-.rel-cover-tag::before,.rel-cover-tag::after{content:'';display:inline-block;width:32px;height:1.5px;background:#D6AF5C;vertical-align:middle;margin:0 14px}
-.rel-cover-cli{font-family:'Quicksand',sans-serif;font-size:32pt;font-weight:700;color:#2C3E50;letter-spacing:-.5px;line-height:1.1;margin-bottom:8mm;max-width:160mm}
-.rel-cover-data{font-family:'Mulish',sans-serif;font-size:13pt;color:#515151;margin-bottom:18mm;text-transform:capitalize}
-.rel-cover-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8mm;margin-top:6mm;width:100%;max-width:160mm}
-.rel-cover-stat{padding:6mm 4mm;background:rgba(255,255,255,.7);border-top:3px solid #D6AF5C;border-radius:2px}
-.rel-cover-stat-l{font-family:'Mulish',sans-serif;font-size:8pt;font-weight:700;letter-spacing:1.4px;color:#515151;text-transform:uppercase;margin-bottom:3mm}
-.rel-cover-stat-v{font-family:'Quicksand',sans-serif;font-size:18pt;font-weight:700;color:#2C3E50;line-height:1}
-.rel-cover-foot{padding:14mm 18mm 18mm;background:#2C3E50;color:#FFF3DD;display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:8mm}
-.rel-cover-foot-l{font-family:'Mulish',sans-serif;font-size:9.5pt;line-height:1.6}
-.rel-cover-foot-l b{color:#D6AF5C;font-family:'Quicksand',sans-serif;font-size:11pt;display:block;margin-bottom:1mm;letter-spacing:.3px}
-.rel-cover-foot-r{font-family:'Quicksand',sans-serif;font-size:11pt;font-weight:600;letter-spacing:3px;color:#D6AF5C}
-/* HEADER recorrente */
-.rel-page-header{display:flex;justify-content:space-between;align-items:center;padding-bottom:6mm;border-bottom:2px solid #2C3E50;margin-bottom:8mm}
-.rel-page-header-l{font-family:'Quicksand',sans-serif;font-size:13pt;font-weight:700;color:#2C3E50;letter-spacing:1px}
-.rel-page-header-l b{color:#D6AF5C}
-.rel-page-header-r{font-family:'Mulish',sans-serif;font-size:8.5pt;color:#515151;text-align:right;line-height:1.4}
-.rel-page-header-r b{color:#2C3E50;font-family:'Quicksand',sans-serif;font-size:10pt;font-weight:600}
-.rel-page-title{font-family:'Quicksand',sans-serif;font-size:18pt;font-weight:700;color:#2C3E50;letter-spacing:-.3px;margin-bottom:2mm}
-.rel-page-subtitle{font-family:'Mulish',sans-serif;font-size:9.5pt;color:#515151;margin-bottom:8mm;line-height:1.5}
-/* KPIs do relatório */
-.rel-kpi-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:6mm;margin-bottom:8mm}
-.rel-kpi-card{background:#fff;border:1.5px solid #e2e6ed;border-left:4px solid #226866;border-radius:6px;padding:6mm 7mm;break-inside:avoid;page-break-inside:avoid}
-.rel-kpi-card.gold{border-left-color:#D6AF5C}
-.rel-kpi-card.navy{border-left-color:#2C3E50}
-.rel-kpi-card.green{border-left-color:#059669}
-.rel-kpi-l{font-family:'Mulish',sans-serif;font-size:8.5pt;font-weight:700;letter-spacing:1.2px;color:#515151;text-transform:uppercase;margin-bottom:3mm}
-.rel-kpi-v{font-family:'Quicksand',sans-serif;font-size:22pt;font-weight:700;color:#2C3E50;line-height:1;margin-bottom:2mm;letter-spacing:-.5px}
-.rel-kpi-s{font-family:'Mulish',sans-serif;font-size:8.5pt;color:#515151;line-height:1.4}
-.rel-kpi-s b{color:#2C3E50;font-weight:700}
-/* Stats — contemp / em andamento / faturado */
-.rel-stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:5mm;margin-bottom:8mm}
-.rel-stat-card{background:#FFF3DD;border-radius:6px;padding:5mm;text-align:center;break-inside:avoid}
-.rel-stat-card.green{background:#d1fae5}
-.rel-stat-card.gold{background:#fef3c7}
-.rel-stat-card.teal{background:#d1f0ee}
-.rel-stat-n{font-family:'Quicksand',sans-serif;font-size:26pt;font-weight:700;line-height:1;color:#2C3E50}
-.rel-stat-l{font-family:'Mulish',sans-serif;font-size:9pt;font-weight:700;color:#515151;margin:2mm 0 1mm;text-transform:uppercase;letter-spacing:.6px}
-.rel-stat-v{font-family:'Mulish',sans-serif;font-size:9pt;font-weight:700;color:#226866}
-/* Charts */
-.rel-chart-wrap{margin:6mm 0;padding:6mm;background:#fff;border:1px solid #e2e6ed;border-radius:6px;break-inside:avoid;page-break-inside:avoid}
-.rel-chart-title{font-family:'Quicksand',sans-serif;font-size:11pt;font-weight:700;color:#2C3E50;margin-bottom:1mm}
-.rel-chart-sub{font-family:'Mulish',sans-serif;font-size:8.5pt;color:#515151;margin-bottom:5mm}
-.rel-chart-canvas{width:100%;height:55mm}
-.rel-chart-row{display:grid;grid-template-columns:1fr 1fr;gap:5mm;align-items:start}
-.rel-leg{margin-top:4mm;display:flex;flex-direction:column;gap:2mm;font-family:'Mulish',sans-serif;font-size:9pt}
-.rel-leg-row{display:flex;align-items:center;gap:3mm;padding:1.5mm 0;border-bottom:1px dashed #e2e6ed}
+.rel-cover-logo{margin-bottom:20mm}
+.rel-cover-logo img{height:42px;width:auto}
+.rel-cover-tag{font-family:'Mulish',sans-serif;font-size:9pt;font-weight:600;letter-spacing:3px;color:#515151;text-transform:uppercase;margin-bottom:10mm}
+.rel-cover-cli{font-family:'Quicksand',sans-serif;font-size:26pt;font-weight:600;color:#2C3E50;letter-spacing:-.3px;line-height:1.15;margin-bottom:5mm;max-width:160mm}
+.rel-cover-banco{font-family:'Mulish',sans-serif;font-size:10pt;color:#515151;letter-spacing:.5px;margin-bottom:5mm}
+.rel-cover-data{font-family:'Mulish',sans-serif;font-size:10pt;color:#515151;margin-bottom:14mm;text-transform:capitalize;letter-spacing:.3px}
+.rel-cover-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin-top:6mm;width:100%;max-width:140mm;border-top:1px solid #e2e6ed;border-bottom:1px solid #e2e6ed}
+.rel-cover-stat{padding:6mm 3mm;text-align:center;border-right:1px solid #e2e6ed}
+.rel-cover-stat:last-child{border-right:none}
+.rel-cover-stat-l{font-family:'Mulish',sans-serif;font-size:7pt;font-weight:600;letter-spacing:1px;color:#515151;text-transform:uppercase;margin-bottom:2mm}
+.rel-cover-stat-v{font-family:'Quicksand',sans-serif;font-size:14pt;font-weight:600;color:#2C3E50;line-height:1}
+.rel-cover-foot{padding:10mm 18mm;border-top:1px solid #e2e6ed;display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:6mm}
+.rel-cover-foot-l{font-family:'Mulish',sans-serif;font-size:8.5pt;line-height:1.5;color:#515151}
+.rel-cover-foot-l b{color:#2C3E50;font-family:'Mulish',sans-serif;font-size:8.5pt;font-weight:600;display:inline;letter-spacing:0}
+.rel-cover-foot-l small{display:block;font-size:7pt;letter-spacing:.5px;text-transform:uppercase;color:#999;margin-bottom:.8mm}
+.rel-cover-foot-r{font-family:'Quicksand',sans-serif;font-size:9pt;font-weight:500;letter-spacing:2px;color:#515151}
+/* HEADER recorrente — minimalista */
+.rel-page-header{display:flex;justify-content:space-between;align-items:center;padding-bottom:4mm;border-bottom:1px solid #e2e6ed;margin-bottom:7mm}
+.rel-page-header-l{font-family:'Quicksand',sans-serif;font-size:10pt;font-weight:600;color:#2C3E50;letter-spacing:.5px}
+.rel-page-header-l b{color:#D6AF5C;font-weight:600}
+.rel-page-header-r{font-family:'Mulish',sans-serif;font-size:7.5pt;color:#999;text-align:right;line-height:1.3;letter-spacing:.2px}
+.rel-page-header-r b{color:#515151;font-family:'Mulish',sans-serif;font-size:8pt;font-weight:600}
+.rel-page-title{font-family:'Quicksand',sans-serif;font-size:14pt;font-weight:600;color:#2C3E50;letter-spacing:-.2px;margin-bottom:2mm}
+.rel-page-subtitle{font-family:'Mulish',sans-serif;font-size:8.5pt;color:#999;margin-bottom:7mm;line-height:1.5}
+/* KPIs do relatório — minimalista, sem cores fortes */
+.rel-kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin-bottom:7mm;border-top:1px solid #e2e6ed;border-left:1px solid #e2e6ed}
+.rel-kpi-card{padding:5mm 5mm;border-right:1px solid #e2e6ed;border-bottom:1px solid #e2e6ed;break-inside:avoid;page-break-inside:avoid}
+.rel-kpi-l{font-family:'Mulish',sans-serif;font-size:7pt;font-weight:600;letter-spacing:.8px;color:#999;text-transform:uppercase;margin-bottom:3mm}
+.rel-kpi-v{font-family:'Quicksand',sans-serif;font-size:16pt;font-weight:600;color:#2C3E50;line-height:1;margin-bottom:2mm;letter-spacing:-.3px}
+.rel-kpi-s{font-family:'Mulish',sans-serif;font-size:7.5pt;color:#999;line-height:1.4}
+.rel-kpi-s b{color:#515151;font-weight:600}
+/* Stats — sem fundos saturados */
+.rel-stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4mm;margin-bottom:7mm}
+.rel-stat-card{padding:4mm 5mm;text-align:left;break-inside:avoid;border-left:2px solid #e2e6ed}
+.rel-stat-card.green{border-left-color:#059669}
+.rel-stat-card.gold{border-left-color:#D6AF5C}
+.rel-stat-card.teal{border-left-color:#226866}
+.rel-stat-n{font-family:'Quicksand',sans-serif;font-size:18pt;font-weight:600;line-height:1;color:#2C3E50}
+.rel-stat-l{font-family:'Mulish',sans-serif;font-size:7.5pt;font-weight:600;color:#999;margin:2mm 0 1mm;text-transform:uppercase;letter-spacing:.5px}
+.rel-stat-v{font-family:'Mulish',sans-serif;font-size:8pt;font-weight:600;color:#515151}
+/* Charts — minimalista */
+.rel-chart-wrap{margin:5mm 0;padding:5mm;border:1px solid #e2e6ed;break-inside:avoid;page-break-inside:avoid}
+.rel-chart-title{font-family:'Quicksand',sans-serif;font-size:9.5pt;font-weight:600;color:#2C3E50;margin-bottom:1mm;letter-spacing:.2px}
+.rel-chart-sub{font-family:'Mulish',sans-serif;font-size:7.5pt;color:#999;margin-bottom:4mm}
+.rel-chart-canvas{width:100%;height:50mm}
+.rel-chart-row{display:grid;grid-template-columns:1fr 1fr;gap:4mm;align-items:start}
+.rel-leg{margin-top:3mm;display:flex;flex-direction:column;gap:0;font-family:'Mulish',sans-serif;font-size:8pt}
+.rel-leg-row{display:flex;align-items:center;gap:3mm;padding:1.5mm 0;border-bottom:1px solid #f3f4f6}
 .rel-leg-row:last-child{border-bottom:none}
-.rel-leg-dot{width:3mm;height:3mm;border-radius:50%;flex-shrink:0}
-.rel-leg-row span{flex:1;color:#515151}
-.rel-leg-row b{color:#2C3E50;font-family:'Quicksand',sans-serif}
-/* Tabela do portfólio */
-.rel-port-tbl{width:100%;border-collapse:collapse;font-family:'Mulish',sans-serif;font-size:8.5pt}
-.rel-port-tbl thead tr{background:#2C3E50;color:#fff}
-.rel-port-tbl thead th{padding:3mm 2.5mm;text-align:left;font-family:'Mulish',sans-serif;font-size:7.5pt;font-weight:700;letter-spacing:.6px;text-transform:uppercase;border:none}
-.rel-port-tbl tbody td{padding:2.5mm;border-bottom:1px solid #e2e6ed;vertical-align:middle}
+.rel-leg-dot{width:2mm;height:2mm;border-radius:50%;flex-shrink:0}
+.rel-leg-row span{flex:1;color:#515151;font-size:7.5pt}
+.rel-leg-row b{color:#2C3E50;font-family:'Quicksand',sans-serif;font-weight:600;font-size:8pt}
+/* Tabela do portfólio — minimalista, linhas finas */
+.rel-port-tbl{width:100%;border-collapse:collapse;font-family:'Mulish',sans-serif;font-size:7.5pt;table-layout:fixed}
+.rel-port-tbl thead tr{background:transparent}
+.rel-port-tbl thead th{padding:2mm 1.5mm;text-align:left;font-family:'Mulish',sans-serif;font-size:6.5pt;font-weight:600;letter-spacing:.4px;text-transform:uppercase;border:none;border-bottom:1.5px solid #2C3E50;line-height:1.2;vertical-align:middle;color:#515151}
+.rel-port-tbl tbody td{padding:2mm 1.5mm;border-bottom:1px solid #f0f0ed;vertical-align:middle;word-wrap:break-word;overflow-wrap:break-word;line-height:1.3;color:#2C3E50}
 .rel-port-tbl tbody tr{break-inside:avoid;page-break-inside:avoid}
-.rel-port-tbl tbody tr:nth-child(even){background:#fafaf7}
-.rel-port-tbl tfoot{font-weight:700}
-.rel-port-tbl tfoot td{padding:3mm 2.5mm;border-top:1.5px solid #2C3E50;background:#FFF3DD;color:#2C3E50}
-.rel-port-section-h{font-family:'Quicksand',sans-serif;font-size:11pt;font-weight:700;color:#2C3E50;margin:8mm 0 3mm;padding-left:3mm;border-left:3px solid #D6AF5C}
-.rel-status-pill{display:inline-block;padding:.8mm 2.5mm;border-radius:8mm;font-size:7.5pt;font-weight:700;font-family:'Mulish',sans-serif}
-.rel-prog{width:24mm;height:2mm;background:#e5e7eb;border-radius:1mm;overflow:hidden;margin-top:1mm}
-.rel-prog-fill{height:100%;border-radius:1mm}
-/* Footer recorrente */
-.rel-page-footer{margin-top:auto;padding-top:5mm;border-top:1px solid #e2e6ed;display:flex;justify-content:space-between;font-family:'Mulish',sans-serif;font-size:7.5pt;color:#515151}
-.rel-page-footer b{color:#2C3E50}
-.rel-page-footer-r{font-family:'Quicksand',sans-serif;color:#D6AF5C;letter-spacing:1.5px;font-weight:600}
-/* Box de observações */
-.rel-note{margin-top:6mm;padding:5mm;background:#FFF3DD;border-left:3px solid #D6AF5C;border-radius:2px;font-family:'Mulish',sans-serif;font-size:8.5pt;color:#515151;line-height:1.6}
-.rel-note b{color:#2C3E50}
+.rel-port-tbl tbody tr:nth-child(even){background:transparent}
+.rel-port-tbl tfoot{font-weight:600}
+.rel-port-tbl tfoot td{padding:2.5mm 1.5mm;border-top:1.5px solid #2C3E50;border-bottom:none;background:transparent;color:#2C3E50;font-size:7.5pt}
+.rel-port-section-h{font-family:'Quicksand',sans-serif;font-size:10pt;font-weight:600;color:#2C3E50;margin:7mm 0 3mm;padding:0;border:none;letter-spacing:.2px}
+.rel-status-pill{display:inline-block;padding:.5mm 2mm;border-radius:1mm;font-size:6.5pt;font-weight:600;font-family:'Mulish',sans-serif;line-height:1.3;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis;letter-spacing:.2px}
+.rel-prog{width:100%;max-width:24mm;height:1.2mm;background:#f0f0ed;border-radius:0;overflow:hidden;margin-top:1mm}
+.rel-prog-fill{height:100%;border-radius:0}
+/* Footer recorrente — minimalista */
+.rel-page-footer{margin-top:auto;padding-top:4mm;border-top:1px solid #f0f0ed;display:flex;justify-content:space-between;font-family:'Mulish',sans-serif;font-size:6.5pt;color:#999;letter-spacing:.2px}
+.rel-page-footer b{color:#515151;font-weight:600}
+.rel-page-footer-r{font-family:'Quicksand',sans-serif;color:#D6AF5C;letter-spacing:1.5px;font-weight:500;font-size:7pt}
+/* Box de observações — minimalista */
+.rel-note{margin-top:5mm;padding:4mm 5mm;background:transparent;border-top:1px solid #e2e6ed;border-left:none;border-radius:0;font-family:'Mulish',sans-serif;font-size:7.5pt;color:#999;line-height:1.6}
+.rel-note b{color:#515151;font-weight:600}
 /* PRINT — só o relatório imprime */
 @media print{
   .sb,#header-bar,.fab-compare,#login-screen,.moverlay,.lpop,.lpop-bd,#toast,#load-overlay,
@@ -8808,12 +8808,15 @@ function gerarRelatorioCliente(name){
   const stBg={Contemplado:'#d1fae5',CONTEMPLADO:'#d1fae5',Faturado:'#d1f0ee','Em Andamento':'#fef3c7','Lance Livre':'#dbeafe','Lance Fixo':'#fdf6e3',LANCE:'#fef3c7',Sorteio:'#f3f4f6','SORTEIO / LANCE':'#f3f4f6'};
   const stTx={Contemplado:'#065f46',CONTEMPLADO:'#065f46',Faturado:'#185b59','Em Andamento':'#92400e','Lance Livre':'#1e40af','Lance Fixo':'#7a5c1e',LANCE:'#92400e',Sorteio:'#4a5568','SORTEIO / LANCE':'#4a5568'};
   const stPc={Contemplado:'#059669',CONTEMPLADO:'#059669',Faturado:'#185b59','Em Andamento':'#D6AF5C','Lance Livre':'#3b82f6','Lance Fixo':'#D6AF5C',LANCE:'#D6AF5C',Sorteio:'#94a3b8','SORTEIO / LANCE':'#94a3b8'};
+  // Status visual minimalista (relatório): backgrounds sutis, sem emojis
+  const stBgMin={Contemplado:'transparent',CONTEMPLADO:'transparent',Faturado:'transparent','Em Andamento':'transparent','Lance Livre':'transparent','Lance Fixo':'transparent',LANCE:'transparent',Sorteio:'transparent','SORTEIO / LANCE':'transparent'};
+  const stBdMin={Contemplado:'#059669',CONTEMPLADO:'#059669',Faturado:'#185b59','Em Andamento':'#D6AF5C','Lance Livre':'#3b82f6','Lance Fixo':'#D6AF5C',LANCE:'#D6AF5C',Sorteio:'#94a3b8','SORTEIO / LANCE':'#94a3b8'};
   const statusBoleto=r=>{
-    if(!r.ultima_parcela_paga)return{cor:'#fef3c7',txt:'#92400e',label:'⚠ Pendente',sub:'sem registro'};
+    if(!r.ultima_parcela_paga)return{txt:'#92400e',label:'Pendente',sub:'sem registro'};
     const ult=new Date(r.ultima_parcela_paga+'T00:00:00');
     const inicioMes=new Date(today.getFullYear(),today.getMonth(),1);
-    if(ult>=inicioMes)return{cor:'#d1fae5',txt:'#065f46',label:'✓ Pago',sub:fmtDataBr(r.ultima_parcela_paga)};
-    return{cor:'#fee2e2',txt:'#991b1b',label:'⚠ Em atraso',sub:'últ. '+fmtDataBr(r.ultima_parcela_paga)};
+    if(ult>=inicioMes)return{txt:'#059669',label:'Pago',sub:fmtDataBr(r.ultima_parcela_paga)};
+    return{txt:'#991b1b',label:'Em atraso',sub:'últ. '+fmtDataBr(r.ultima_parcela_paga)};
   };
   // Crédito liberado por cota
   const credLibCota=r=>{
@@ -8828,14 +8831,21 @@ function gerarRelatorioCliente(name){
   const hojeFmt=today.toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'});
   const assessor=cotas[0]?.assessor||'—';
   const cpf=cotas[0]?.cpf?pcpf(cotas[0].cpf):'—';
+  // Banco predominante (pra título do relatório)
+  const bancoCounts={};
+  en.forEach(r=>{const b=r.banco||'';if(b)bancoCounts[b]=(bancoCounts[b]||0)+1;});
+  const bancosOrd=Object.entries(bancoCounts).sort((a,b)=>b[1]-a[1]);
+  const bancoPrin=bancosOrd[0]?.[0]||'';
+  const totalBancos=bancosOrd.length;
+  const subtTitulo=totalBancos===0?'Consórcio':totalBancos===1?`Consórcio ${bancoPrin}`:`Consórcio · ${bancosOrd.map(([b])=>b).join(' · ')}`;
   // Header recorrente helper
   const hdr=(num,total)=>`<div class="rel-page-header">
     <div class="rel-page-header-l">HC<b>360</b></div>
-    <div class="rel-page-header-r"><b>${name}</b><br>${mesAno} &nbsp;·&nbsp; pág. ${num}/${total}</div>
+    <div class="rel-page-header-r"><b>${name}</b><br>${subtTitulo} &nbsp;·&nbsp; ${mesAno} &nbsp;·&nbsp; pág. ${num}/${total}</div>
   </div>`;
   const ftr=()=>`<div class="rel-page-footer">
-    <span><b>HC360 Consórcio</b> &nbsp;·&nbsp; Posição em ${hojeFmt} &nbsp;·&nbsp; Documento de uso exclusivo do cliente</span>
-    <span class="rel-page-footer-r">HC<b style="color:#fff">360</b></span>
+    <span><b>HC360 Consultoria Financeira</b> &nbsp;·&nbsp; Posição em ${hojeFmt}</span>
+    <span class="rel-page-footer-r">HC<b style="color:#D6AF5C">360</b></span>
   </div>`;
   // Ordenar cotas: contempladas primeiro, depois em andamento, depois sorteio
   const stOrd={Contemplado:0,CONTEMPLADO:0,Faturado:1,'Em Andamento':2,'Lance Livre':2,'Lance Fixo':2,LANCE:2,'SORTEIO / LANCE':3,Sorteio:3,'SUPLENCIA - 2 NA FRENTE':3};
@@ -8856,23 +8866,23 @@ function gerarRelatorioCliente(name){
   const capa=`<div class="rel-page rel-cover">
     <div class="rel-cover-band"></div>
     <div class="rel-cover-body">
-      <div class="rel-cover-logo">${logoSrc?`<img src="${logoSrc}" alt="HC360">`:`<div style="font-family:'Quicksand',sans-serif;font-size:42pt;font-weight:700;color:#2C3E50;letter-spacing:2px">HC<span style="color:#D6AF5C">360</span></div>`}</div>
+      <div class="rel-cover-logo">${logoSrc?`<img src="${logoSrc}" alt="HC360">`:`<div style="font-family:'Quicksand',sans-serif;font-size:32pt;font-weight:600;color:#2C3E50;letter-spacing:2px">HC<span style="color:#D6AF5C">360</span></div>`}</div>
       <div class="rel-cover-tag">Relatório Patrimonial</div>
       <div class="rel-cover-cli">${name}</div>
+      ${bancoPrin?`<div class="rel-cover-banco">${subtTitulo}</div>`:''}
       <div class="rel-cover-data">${mesAno}</div>
       <div class="rel-cover-stats">
         <div class="rel-cover-stat"><div class="rel-cover-stat-l">Crédito Total</div><div class="rel-cover-stat-v">${fb(totCr)}</div></div>
         <div class="rel-cover-stat"><div class="rel-cover-stat-l">Cotas Ativas</div><div class="rel-cover-stat-v">${en.length}</div></div>
-        <div class="rel-cover-stat"><div class="rel-cover-stat-l">% Contemplado</div><div class="rel-cover-stat-v">${pctContemp}%</div></div>
+        <div class="rel-cover-stat"><div class="rel-cover-stat-l">Contemplado</div><div class="rel-cover-stat-v">${pctContemp}%</div></div>
       </div>
     </div>
     <div class="rel-cover-foot">
       <div class="rel-cover-foot-l">
-        <b>Preparado por</b>
-        ${assessor}<br>
-        Consultoria Financeira HC360
+        <small>Preparado por</small>
+        <b>${assessor}</b> · HC360 Consultoria Financeira
       </div>
-      <div class="rel-cover-foot-r">HC<span style="color:#fff">360</span></div>
+      <div class="rel-cover-foot-r">HC<span style="color:#D6AF5C">360</span></div>
     </div>
   </div>`;
   // PÁGINA 2: RESUMO EXECUTIVO
@@ -8880,19 +8890,19 @@ function gerarRelatorioCliente(name){
   const resumo=`<div class="rel-page">
     ${hdr(pgIdx,totalPgs)}
     <div class="rel-page-title">Resumo Executivo</div>
-    <div class="rel-page-subtitle">Visão consolidada da posição do cliente em ${en.length} cota${en.length>1?'s':''} ativa${en.length>1?'s':''}, com indicadores de performance e composição da carteira.</div>
+    <div class="rel-page-subtitle">${en.length} cota${en.length>1?'s':''} ativa${en.length>1?'s':''} · indicadores consolidados em ${hojeFmt}</div>
     <div class="rel-kpi-grid">
-      <div class="rel-kpi-card navy"><div class="rel-kpi-l">💎 Crédito Total</div><div class="rel-kpi-v">${fb(totCr)}</div><div class="rel-kpi-s">${en.length} cotas &middot; <b>${nC+nFat}</b> contempladas</div></div>
-      <div class="rel-kpi-card"><div class="rel-kpi-l">🔓 Crédito Liberado</div><div class="rel-kpi-v">${fb(credLib)}</div><div class="rel-kpi-s">crédito líquido recebido<br>(carta − lance embutido)</div></div>
-      <div class="rel-kpi-card gold"><div class="rel-kpi-l">⚖️ Saldo Devedor</div><div class="rel-kpi-v">${fb(totSdDB)}</div><div class="rel-kpi-s">saldo real consolidado<br>de todas as cotas</div></div>
-      <div class="rel-kpi-card"><div class="rel-kpi-l">💳 Parcela Mensal</div><div class="rel-kpi-v">${fb(totParc)}</div><div class="rel-kpi-s">pré-contempl. (ativas) + pós (contempladas)</div></div>
-      <div class="rel-kpi-card navy"><div class="rel-kpi-l">🏦 Valor Pago em Lances</div><div class="rel-kpi-v">${fb(totLancePago)}</div><div class="rel-kpi-s">recurso próprio aplicado<br>(excluindo embutido)</div></div>
-      <div class="rel-kpi-card green"><div class="rel-kpi-l">📈 Rendimento Estimado</div><div class="rel-kpi-v" style="color:#059669">${fb(totRend)}</div><div class="rel-kpi-s">CDI ${taxaA?taxaA.taxa_aa+'% a.a.':'—'}<br>sobre cotas contempladas</div></div>
+      <div class="rel-kpi-card"><div class="rel-kpi-l">Crédito Total</div><div class="rel-kpi-v">${fb(totCr)}</div><div class="rel-kpi-s"><b>${nC+nFat}</b> de ${en.length} contempladas</div></div>
+      <div class="rel-kpi-card"><div class="rel-kpi-l">Crédito Liberado</div><div class="rel-kpi-v">${fb(credLib)}</div><div class="rel-kpi-s">líquido recebido</div></div>
+      <div class="rel-kpi-card"><div class="rel-kpi-l">Saldo Devedor</div><div class="rel-kpi-v">${fb(totSdDB)}</div><div class="rel-kpi-s">consolidado</div></div>
+      <div class="rel-kpi-card"><div class="rel-kpi-l">Parcela Mensal</div><div class="rel-kpi-v">${fb(totParc)}</div><div class="rel-kpi-s">pré + pós contempl.</div></div>
+      <div class="rel-kpi-card"><div class="rel-kpi-l">Lances Pagos</div><div class="rel-kpi-v">${fb(totLancePago)}</div><div class="rel-kpi-s">recurso próprio</div></div>
+      <div class="rel-kpi-card"><div class="rel-kpi-l">Rendimento Est.</div><div class="rel-kpi-v">${fb(totRend)}</div><div class="rel-kpi-s">CDI ${taxaA?taxaA.taxa_aa+'% a.a.':'—'}</div></div>
     </div>
     <div class="rel-stats-grid">
-      <div class="rel-stat-card green"><div class="rel-stat-n" style="color:#059669">${nC}</div><div class="rel-stat-l">Contempladas</div><div class="rel-stat-v">${fb(crC)}</div></div>
-      <div class="rel-stat-card gold"><div class="rel-stat-n" style="color:#d97706">${nAtivo}</div><div class="rel-stat-l">Em Andamento</div><div class="rel-stat-v">${fb(crAtivo)}</div></div>
-      <div class="rel-stat-card teal"><div class="rel-stat-n" style="color:#185b59">${nFat}</div><div class="rel-stat-l">Faturadas</div><div class="rel-stat-v">${nFat>0?fb(crFat):'—'}</div></div>
+      <div class="rel-stat-card green"><div class="rel-stat-n">${nC}</div><div class="rel-stat-l">Contempladas</div><div class="rel-stat-v">${fb(crC)}</div></div>
+      <div class="rel-stat-card gold"><div class="rel-stat-n">${nAtivo}</div><div class="rel-stat-l">Em Andamento</div><div class="rel-stat-v">${fb(crAtivo)}</div></div>
+      <div class="rel-stat-card teal"><div class="rel-stat-n">${nFat}</div><div class="rel-stat-l">Faturadas</div><div class="rel-stat-v">${nFat>0?fb(crFat):'—'}</div></div>
     </div>
     <div class="rel-chart-row">
       <div class="rel-chart-wrap">
@@ -8916,9 +8926,7 @@ function gerarRelatorioCliente(name){
       </div>
     </div>
     <div class="rel-note">
-      <b>Sobre estes números:</b> os valores acima refletem a posição registrada no sistema HC360 em ${hojeFmt}.
-      <b>Crédito Liberado</b> considera carta atualizada menos lance embutido para cotas contempladas.
-      <b>Rendimento Estimado</b> aplica histórico de CDI à carta contemplada — cálculo virtual, não altera valores contratuais.
+      Posição registrada em ${hojeFmt}. <b>Crédito Liberado</b>: carta atualizada menos lance embutido (cotas contempladas). <b>Rendimento Estimado</b>: histórico de CDI aplicado à carta contemplada — cálculo virtual.
     </div>
     ${ftr()}
   </div>`;
@@ -8933,28 +8941,39 @@ function gerarRelatorioCliente(name){
       const cl=credLibCota(r);
       const proxA=calcProxAgo(r.grupo);
       const sb=statusBoleto(r);
+      const stCol=stBdMin[r.status]||'#94a3b8';
       return`<tr>
-        <td><b>${r.grupo||'—'}</b><div style="font-size:7pt;color:#515151;margin-top:.5mm">Cota ${r.cota||'—'}</div></td>
-        <td><span class="rel-status-pill" style="background:${bg};color:${tx}">${r.status}</span></td>
-        <td style="text-align:right;font-weight:700">${ff(r.credito||0)}</td>
-        <td style="text-align:right;font-weight:600;color:#226866">${cl>0?ff(cl):'—'}</td>
-        <td style="text-align:center;font-weight:600">${proxA?fmtDataBr(proxA):'—'}</td>
-        <td style="text-align:center"><span class="rel-status-pill" style="background:${sb.cor};color:${sb.txt}">${sb.label}</span><div style="font-size:7pt;color:#515151;margin-top:.5mm">${sb.sub}</div></td>
-        <td><div style="font-size:7pt;color:#515151">${pct}% &middot; ${r.meses}/${r.prazoTotal}m</div><div class="rel-prog"><div class="rel-prog-fill" style="width:${pct}%;background:${pc}"></div></div></td>
+        <td><b style="font-weight:600">${r.grupo||'—'}</b><div style="font-size:6.5pt;color:#999;margin-top:.5mm">Cota ${r.cota||'—'}</div></td>
+        <td><span style="font-size:7pt;color:${stCol};font-weight:600;letter-spacing:.2px;border:1px solid ${stCol};padding:.5mm 1.5mm;border-radius:1mm;display:inline-block">${r.status}</span></td>
+        <td style="text-align:right;font-weight:600">${ff(r.credito||0)}</td>
+        <td style="text-align:right;color:#226866">${cl>0?ff(cl):'<span style="color:#ccc">—</span>'}</td>
+        <td style="text-align:center">${proxA?fmtDataBr(proxA):'—'}</td>
+        <td style="text-align:center"><span style="font-size:7pt;color:${sb.txt};font-weight:600;letter-spacing:.2px">${sb.label}</span><div style="font-size:6.5pt;color:#999;margin-top:.5mm">${sb.sub}</div></td>
+        <td><div style="font-size:6.5pt;color:#999">${pct}% &middot; ${r.meses}/${r.prazoTotal}m</div><div class="rel-prog"><div class="rel-prog-fill" style="width:${pct}%;background:${pc}"></div></div></td>
         <td style="text-align:right;font-weight:600">${ff(parcEf(r))}</td>
       </tr>`;
     }).join('');
     return`<div class="rel-page">
       ${hdr(pgIdx,totalPgs)}
-      ${isFirst?'<div class="rel-page-title">Portfólio Detalhado</div><div class="rel-page-subtitle">Lista completa das cotas com status atual, próxima assembleia, situação do boleto e progresso desde a data de adesão. Marco zero do progresso = adesão de cada cota.</div>':'<div class="rel-port-section-h">Portfólio Detalhado (continuação)</div>'}
+      ${isFirst?'<div class="rel-page-title">Portfólio Detalhado</div><div class="rel-page-subtitle">Cotas ordenadas por status. Progresso medido a partir da data de adesão.</div>':'<div class="rel-port-section-h">Portfólio Detalhado · continuação</div>'}
       <table class="rel-port-tbl">
+        <colgroup>
+          <col style="width:11%">
+          <col style="width:14%">
+          <col style="width:11%">
+          <col style="width:11%">
+          <col style="width:11%">
+          <col style="width:14%">
+          <col style="width:17%">
+          <col style="width:11%">
+        </colgroup>
         <thead><tr>
           <th>Grupo / Cota</th>
           <th>Status</th>
           <th style="text-align:right">Crédito</th>
-          <th style="text-align:right">Crédito Liberado</th>
+          <th style="text-align:right">Cred. Lib.</th>
           <th style="text-align:center">Próx. AGO</th>
-          <th style="text-align:center">Boleto do Mês</th>
+          <th style="text-align:center">Boleto Mês</th>
           <th>Progresso</th>
           <th style="text-align:right">Parcela</th>
         </tr></thead>
@@ -8968,14 +8987,14 @@ function gerarRelatorioCliente(name){
           <td style="text-align:right">${ff(totParc)}/mês</td>
         </tr></tfoot>`:''}
       </table>
-      ${isLast?'<div class="rel-note"><b>Boleto do Mês:</b> ✓ Pago = registro no mês corrente · ⚠ Pendente = sem registro · ⚠ Em atraso = último pagamento em mês anterior.<br><b>Progresso:</b> medido a partir da data de adesão da cota — 100% representa o prazo que restava ao grupo no momento da adesão do cliente.</div>':''}
+      ${isLast?'<div class="rel-note"><b>Boleto do Mês</b>: pago = com registro no mês corrente · pendente = sem registro · em atraso = último pagamento em mês anterior. <b>Progresso</b>: medido a partir da data de adesão da cota.</div>':''}
       ${ftr()}
     </div>`;
   }).join('');
   // Montar modal
   const html=`<div class="rel-modal open" id="rel-modal">
     <div class="rel-toolbar">
-      <div class="rel-toolbar-title">Relatório Patrimonial<small>${name} &middot; ${mesAno}</small></div>
+      <div class="rel-toolbar-title">Relatório Patrimonial<small>${name} &middot; ${subtTitulo} &middot; ${mesAno}</small></div>
       <button onclick="window.print()" class="primary">🖨 Imprimir / Salvar PDF</button>
       <button onclick="fecharRelatorio()">✕ Fechar</button>
     </div>
