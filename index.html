@@ -856,6 +856,40 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
 }
 .pd-print-header,.pd-print-footer{display:none}
 
+/* ── PRINT — proposta comercial (Step 2 do simulador) ── */
+@media print{
+  body.printing-prop *{visibility:hidden!important}
+  body.printing-prop .prop-doc,
+  body.printing-prop .prop-doc *{visibility:visible!important}
+  body.printing-prop .prop-doc{
+    position:absolute!important;left:0!important;top:0!important;right:0!important;
+    width:100%!important;max-width:none!important;margin:0!important;
+    box-shadow:none!important;border:none!important;border-radius:0!important;border-left:none!important
+  }
+  body.printing-prop .prop-doc-actions,
+  body.printing-prop #prop-breakdown,
+  body.printing-prop .prop-cet-foot{display:none!important}
+  body.printing-prop .prop-doc-hdr{padding:18px 22px!important;break-inside:avoid;page-break-inside:avoid}
+  body.printing-prop .prop-doc-title{font-size:20pt!important}
+  body.printing-prop .prop-kpis{break-inside:avoid;page-break-inside:avoid}
+  body.printing-prop .prop-kpi{padding:12px 14px!important}
+  body.printing-prop .prop-kpi-val{font-size:15pt!important}
+  body.printing-prop .prop-mini,
+  body.printing-prop .prop-cet{break-inside:avoid;page-break-inside:avoid;margin-bottom:10px!important}
+  body.printing-prop .prop-cet{padding:14px 16px!important}
+  body.printing-prop .prop-cet-val.big{font-size:18pt!important}
+  body.printing-prop .prop-cet-val.big2{font-size:16pt!important}
+  body.printing-prop .prop-mini.pos .prop-mini-hero{font-size:22pt!important}
+  /* Garante render dos gradients e cores chapadas */
+  body.printing-prop .prop-doc-hdr,
+  body.printing-prop .prop-cet,
+  body.printing-prop .prop-mini.lance,
+  body.printing-prop .prop-mini.pos,
+  body.printing-prop .prop-kpi{
+    -webkit-print-color-adjust:exact!important;print-color-adjust:exact!important
+  }
+}
+
 /* ── RELATÓRIO PATRIMONIAL — view dedicada A4 ────────── */
 .rel-modal{display:none;position:fixed;inset:0;background:#f5f3ee;z-index:9000;overflow-y:auto;-webkit-print-color-adjust:exact;print-color-adjust:exact}
 .rel-modal.open{display:block}
@@ -1965,7 +1999,7 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
             </div>
             <div class="prop-doc-actions">
               <button class="btn btn-sm" onclick="propGoStep(1)">← Editar</button>
-              <button class="btn btn-sm" onclick="window.print()">🖨 Imprimir</button>
+              <button class="btn btn-sm" onclick="printPropDoc()">🖨 Imprimir</button>
             </div>
           </div>
         </div>
@@ -2056,7 +2090,7 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
       </div>
 
       <!-- Estratégias de lance abaixo da proposta -->
-      <div class="card" style="margin-top:14px">
+      <div class="card prop-strat-card" style="margin-top:14px">
         <div class="ch"><span class="ct">Estratégias de Lance</span><span style="font-size:11px;color:var(--txt2)" id="cen-sub">por mês de contemplação</span></div>
         <div class="tw"><table style="font-size:12px"><thead><tr><th>Estratégia</th><th>Lance %</th><th>Rec. Próprios</th><th>Crédito Líq.</th><th>Parcela Pré</th><th>Parcela Pós</th><th>Economia/mês</th><th>Total Desembolso</th></tr></thead><tbody id="estrat-tbody"></tbody></table></div>
       </div>
@@ -7388,6 +7422,14 @@ document.addEventListener('keydown',function(e){
 });
 
 // ═══ PROPOSTA ═══
+function printPropDoc(){
+  document.body.classList.add('printing-prop');
+  // delay curto pra browser aplicar o CSS antes de abrir o diálogo
+  setTimeout(()=>{
+    window.print();
+    setTimeout(()=>document.body.classList.remove('printing-prop'),300);
+  },80);
+}
 function propGoStep(n){
   [1,2,3].forEach(i=>{
     const s=document.getElementById('prop-s'+i);if(s)s.style.display=i===n?'':'none';
