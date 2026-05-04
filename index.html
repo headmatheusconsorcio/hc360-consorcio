@@ -986,9 +986,15 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
   .rel-page-footer{font-size:8pt!important}
   .rel-page-footer-r{font-size:8.5pt!important}
   .rel-note{font-size:9pt!important;line-height:1.65!important}
-  /* Tabela do portfolio detalhado */
-  .rel-port-table,.rel-port-table th,.rel-port-table td{font-size:9pt!important}
-  .rel-port-table th{font-size:8.5pt!important;letter-spacing:.6px!important}
+  /* Tabela do portfolio detalhado - mantem compacta pra caber 22 cotas/pagina */
+  .rel-port-tbl{font-size:7.5pt!important}
+  .rel-port-tbl thead th{font-size:6.8pt!important;padding:1.5mm 1mm!important;letter-spacing:.4px!important}
+  .rel-port-tbl tbody td{font-size:7.5pt!important;padding:1.4mm 1mm!important;line-height:1.25!important}
+  .rel-port-tbl tfoot td{font-size:7.8pt!important;padding:2mm 1mm!important}
+  .rel-port-section-h{font-size:11pt!important;margin:5mm 0 2mm!important}
+  /* Layout das paginas - sem altura forcada, evita pagina vazia */
+  .rel-page{min-height:auto!important;padding:12mm 10mm!important}
+  .rel-page.rel-cover{min-height:auto!important;padding:0!important}
 }
 @media (max-width:840px){.rel-page{width:100%;padding:14mm 8mm}}
 
@@ -8943,8 +8949,8 @@ function gerarRelatorioCliente(name){
   // Ordenar cotas: contempladas primeiro, depois em andamento, depois sorteio
   const stOrd={Contemplado:0,CONTEMPLADO:0,Faturado:1,'Em Andamento':2,'Lance Livre':2,'Lance Fixo':2,LANCE:2,'SORTEIO / LANCE':3,Sorteio:3,'SUPLENCIA - 2 NA FRENTE':3};
   const enOrd=en.slice().sort((a,b)=>(stOrd[a.status]??9)-(stOrd[b.status]??9));
-  // Quebrar tabela em chunks por página (15 cotas/pág)
-  const chunkSize=15;
+  // Quebrar tabela em chunks por página (22 cotas/pág - otimizado pra fontes do print)
+  const chunkSize=22;
   const chunks=[];
   for(let i=0;i<enOrd.length;i+=chunkSize)chunks.push(enOrd.slice(i,i+chunkSize));
   if(chunks.length===0)chunks.push([]);
