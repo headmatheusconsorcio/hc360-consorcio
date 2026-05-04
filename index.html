@@ -3377,7 +3377,7 @@ async function assessorEnviarLead(){
     observacao:document.getElementById('al-obs').value.trim(),
     indicado_por:aName,
     assessor:aName,
-    status:'Novo',
+    status:'Novo Lead',
     updated_at:new Date().toISOString()
   };
   const {data,error}=await sb.from('leads').insert(payload).select().single();
@@ -5290,8 +5290,9 @@ function renderCRM(){
   document.getElementById('crm-count').textContent=leadsFiltered.length+' leads';
   crmRenderKpis();
   renderAssessorLeads();
-  const orfaos=leadsFiltered.filter(l=>!PIPE_STAGES.includes(l.status));
-  if(orfaos.length){console.warn('Leads com status órfão:',orfaos.map(l=>({id:l.id,nome:l.nome,status:l.status})));}
+  // Safety net: leads com status órfão (não bate com nenhum stage) viram 'Novo Lead' em memória
+  // pra aparecerem na primeira coluna em vez de sumir do pipeline.
+  leadsFiltered.forEach(l=>{if(!PIPE_STAGES.includes(l.status)){console.warn('Lead com status órfão promovido a Novo Lead em memória:',l.id,l.nome,l.status);l.status='Novo Lead';}});
   document.getElementById('crm-pipeline').innerHTML=PIPE_FASES.map(fase=>{
     const faseCount=fase.stages.reduce((s,st)=>s+leadsFiltered.filter(l=>l.status===st).length,0);
     return`<div class="pipe-fase">
