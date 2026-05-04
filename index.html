@@ -5221,18 +5221,22 @@ function renderAssessorLeads(){
 
 function leadCreditoNegociado(l){
   const obs=l.observacao||'';
-  if(!obs.startsWith('SIM:'))return null;
+  const isSim=obs.startsWith('SIM:');
+  const isDone=obs.startsWith('SIM_DONE:');
+  if(!isSim&&!isDone)return null;
   try{
-    const d=JSON.parse(obs.slice(4));
+    const d=JSON.parse(obs.slice(obs.indexOf(':')+1));
     const rows=d.rows||[];
     if(!rows.length)return null;
     const credTot=rows.reduce((s,r)=>s+(r.credito||0)*(r.qtd||0),0);
     const cotas=rows.reduce((s,r)=>s+(r.qtd||0),0);
-    return{credTot,cotas};
+    return{credTot,cotas,done:isDone};
   }catch(e){return null;}
 }
 function pipeCardHtml(l,stage,idx){
-  const lHasSim=l.observacao&&l.observacao.startsWith('SIM:');
+  const obs=l.observacao||'';
+  const lHasSim=obs.startsWith('SIM:');
+  const lSimDone=obs.startsWith('SIM_DONE:');
   const sim=leadCreditoNegociado(l);
   const tel=l.telefone||'';
   const telDigits=tel.replace(/\D/g,'');
@@ -5242,6 +5246,24 @@ function pipeCardHtml(l,stage,idx){
   const initial=crmInitial(l.nome);
   const ass=l.assessor?l.assessor.split('/')[0].trim():'';
   const delay=Math.min(idx*40,280);
+  // Botão final do card:
+  // - SIM: em Proposta Enviada/Em Negociação → "Fechar Negócio" (cria cotas + Ganho)
+  // - SIM: em Ganho → "Lançar Cotas" (cria cotas, mantém Ganho)
+  // - SIM_DONE: → "Cotas lançadas" (read-only)
+  // - sem sim em Ganho → "+ Cota" (abre modal de cota pré-preenchido)
+  let btnFinal='';
+  if(lHasSim&&(stage==='Proposta Enviada'||stage==='Em Negociação')){
+    btnFinal=`<button class="btn btn-ok btn-sm pipe-card-fechar" onclick="event.stopPropagation();simFecharNegocio('${l.id}')">✓ Fechar Negócio</button>`;
+  }else if(lHasSim&&stage==='Ganho'){
+    btnFinal=`<button class="btn btn-ok btn-sm pipe-card-fechar" onclick="event.stopPropagation();simFecharNegocio('${l.id}')">🏠 Lançar ${sim?sim.cotas:''} Cota${sim&&sim.cotas!==1?'s':''}</button>`;
+  }else if(lSimDone&&stage==='Ganho'){
+    btnFinal=`<button class="btn btn-out btn-sm pipe-card-fechar" disabled style="opacity:.65;cursor:default" title="Cotas já criadas a partir desta proposta">✓ ${sim?sim.cotas:''} cota${sim&&sim.cotas!==1?'s':''} lançada${sim&&sim.cotas!==1?'s':''}</button>`;
+  }else if(stage==='Ganho'&&!lHasSim&&!lSimDone){
+    btnFinal=`<button class="btn btn-acc btn-sm pipe-card-fechar" onclick="event.stopPropagation();cotaNovaDoLead('${l.id}')" title="Cadastrar cota avulsa pra este cliente">+ Cota</button>`;
+  }
+  const simIcon=lSimDone?'✅':lHasSim?'📋':'📊';
+  const simBg=lSimDone?'#059669':lHasSim?'var(--ok)':'var(--acc)';
+  const simTitle=lSimDone?'Proposta executada':lHasSim?'Ver proposta':'Nova simulação';
   return`<div class="pipe-card" draggable="true" data-lid="${l.id}" ondragstart="dragStartLead(event,'${l.id}')" ondragend="dragEndLead(event)" onclick="openModalLead('${l.id}')" style="animation-delay:${delay}ms">
     <div class="pipe-card-row">
       <div class="pipe-card-avatar" title="${(l.nome||'').replace(/"/g,'&quot;')}">${initial}</div>
@@ -5252,16 +5274,16 @@ function pipeCardHtml(l,stage,idx){
           ${ass?`<span class="pc-tag pc-tag-ass">${ass}</span>`:''}
         </div>
       </div>
-      <button class="pipe-card-sim" style="background:${lHasSim?'var(--ok)':'var(--acc)'}" onclick="event.stopPropagation();openModalSim('${l.id}')" title="${lHasSim?'Ver proposta':'Nova simulação'}">${lHasSim?'📋':'📊'}</button>
+      <button class="pipe-card-sim" style="background:${simBg}" onclick="event.stopPropagation();openModalSim('${l.id}')" title="${simTitle}">${simIcon}</button>
     </div>
     <div class="pipe-card-info">
       ${tel?`<a class="pc-line pc-tel" href="tel:${telDigits}" onclick="event.stopPropagation()" title="Ligar para ${tel}">📞 ${tel}</a>`:''}
-      ${sim?`<div class="pc-line pc-cred"><span>💰 Negociado</span><strong>${brl(sim.credTot,0)}</strong><span class="pc-cotas">${sim.cotas}c</span></div>`
+      ${sim?`<div class="pc-line pc-cred"><span>💰 ${lSimDone?'Cotas':'Negociado'}</span><strong>${brl(sim.credTot,0)}</strong><span class="pc-cotas">${sim.cotas}c</span></div>`
            :l.valor_potencial?`<div class="pc-line"><span>💰 Potencial</span><strong>${brl(l.valor_potencial,0)}</strong></div>`:''}
       ${l.indicado_por?`<div class="pc-line pc-ind">👥 via ${l.indicado_por}</div>`:''}
       ${isReuniao&&dtRStr?`<div class="pc-line pc-reuniao">📅 ${dtRStr}</div>`:''}
     </div>
-    ${lHasSim&&(stage==='Proposta Enviada'||stage==='Em Negociação')?`<button class="btn btn-ok btn-sm pipe-card-fechar" onclick="event.stopPropagation();simFecharNegocio('${l.id}')">✓ Fechar Negócio</button>`:''}
+    ${btnFinal}
   </div>`;
 }
 function pipeColHtml(stage,leadsFilt){
@@ -5341,6 +5363,40 @@ async function crmQuickStatus(id,newStatus){
   showLoad();const res=await upsertLead({id,status:newStatus,updated_at:new Date().toISOString()});hideLoad();
   if(res){Object.assign(l,res);toast(`${l.nome} → ${newStatus}`);filterCRM();}
 }
+// Abre o modal de Cota com os dados básicos do lead pré-preenchidos.
+// Útil pra cadastrar uma cota avulsa pra um cliente que já fechou (Ganho).
+function cotaNovaDoLead(leadId){
+  const lead=LEADS.find(l=>l.id===leadId);
+  if(!lead){toast('Lead não encontrado','err');return;}
+  // Abre modal vazio e depois preenche com dados do lead
+  openModalCota(-1);
+  setTimeout(()=>{
+    const set=(id,v)=>{const el=document.getElementById(id);if(el&&v!=null&&v!=='')el.value=v;};
+    set('mc-nome',lead.nome||'');
+    set('mc-cpf',lead.cpf||'');
+    set('mc-assessor',lead.assessor||'');
+    set('mc-status','Sorteio');
+    set('mc-adesao',new Date().toISOString().slice(0,10));
+    // Vincular finalidade do lead com tipo_bem se possível
+    const tbEl=document.getElementById('mc-tipo-bem');
+    if(tbEl&&!tbEl.value&&lead.interesse){
+      const map={'Imóvel':'IMÓVEL','Veículo':'VEÍCULO LEVE','Moto':'MOTO'};
+      tbEl.value=map[lead.interesse]||'';
+    }
+    // Mostra um banner sutil avisando a vinculação
+    const banner=document.getElementById('mc-grupo-banner');
+    const info=document.getElementById('mc-grupo-info');
+    if(banner&&info){
+      banner.style.display='flex';
+      banner.style.background='#ecfeff';
+      banner.style.borderColor='#a5f3fc';
+      info.innerHTML=`📎 Cadastrando cota para o cliente <strong>${pn(lead.nome)}</strong> (do CRM). Preencha grupo, cota, crédito e parcela.`;
+    }
+    // Foca no grupo
+    const gEl=document.getElementById('mc-grupo');if(gEl)gEl.focus();
+    toast('Modal pré-preenchido com dados do cliente — preencha os dados da cota');
+  },100);
+}
 function crmRowHtml(l){
   const initial=crmInitial(l.nome);
   const tel=l.telefone||'';
@@ -5378,6 +5434,20 @@ function crmRowHtml(l){
     </td>
   </tr>`;
 }
+// Conta cotas reais vinculadas a um lead via nome (e CPF se disponível)
+function cotasDoLead(l){
+  if(!Array.isArray(COTAS))return [];
+  const nomeNorm=(l.nome||'').toLowerCase().trim();
+  const cpfNorm=(l.cpf||'').replace(/\D/g,'');
+  return COTAS.filter(c=>{
+    if(cpfNorm&&c.cpf){
+      const ccpf=String(c.cpf).replace(/\D/g,'');
+      if(ccpf===cpfNorm)return true;
+    }
+    if(nomeNorm&&c.nome&&c.nome.toLowerCase().trim()===nomeNorm)return true;
+    return false;
+  });
+}
 function renderClientes(){
   const tbody=document.getElementById('cli-tbody');if(!tbody)return;
   const ganhos=LEADS.filter(l=>l.status==='Ganho').sort((a,b)=>new Date(b.updated_at||0)-new Date(a.updated_at||0));
@@ -5386,16 +5456,34 @@ function renderClientes(){
   tbody.innerHTML=ganhos.map(l=>{
     const initial=crmInitial(l.nome);
     const tel=l.telefone||'';const telDigits=tel.replace(/\D/g,'');
+    const obs=l.observacao||'';
+    const lHasSim=obs.startsWith('SIM:');
+    const lSimDone=obs.startsWith('SIM_DONE:');
     const sim=leadCreditoNegociado(l);
-    const credTot=sim?sim.credTot:(l.valor_potencial||0);
-    const cotas=sim?sim.cotas:0;
+    const cotasReais=cotasDoLead(l);
+    const cotasReaisCnt=cotasReais.length;
+    const credReal=cotasReais.reduce((s,c)=>s+(c.credito||0),0);
+    const credTot=credReal>0?credReal:(sim?sim.credTot:(l.valor_potencial||0));
     const dtFech=l.updated_at?new Date(l.updated_at).toLocaleDateString('pt-BR'):'—';
     const cidUf=[l.cidade,l.estado].filter(Boolean).join(' / ')||'—';
+    // Status das cotas
+    let cotaCell;
+    if(cotasReaisCnt>0){
+      cotaCell=`<span class="badge b-ok" title="${cotasReaisCnt} cota${cotasReaisCnt!==1?'s':''} ativa${cotasReaisCnt!==1?'s':''} no sistema">✓ ${cotasReaisCnt}</span>`;
+    }else if(lHasSim&&sim){
+      cotaCell=`<span class="badge b-warn" title="Proposta com ${sim.cotas} cota${sim.cotas!==1?'s':''} ainda não lançadas">⏳ ${sim.cotas}</span>`;
+    }else{
+      cotaCell=`<span style="color:var(--txt2);font-style:italic;font-size:10.5px">a lançar</span>`;
+    }
+    // Botão principal de ação: lançar (se sim pendente) ou +cota (sempre)
+    const btnLancar=lHasSim&&sim&&cotasReaisCnt===0
+      ?`<button class="crm-act-btn" style="border-color:var(--ok);color:var(--ok);font-weight:700" onclick="event.stopPropagation();simFecharNegocio('${l.id}')" title="Lançar ${sim.cotas} cota${sim.cotas!==1?'s':''} a partir da proposta">🏠 Lançar ${sim.cotas}</button>`:'';
+    const btnNova=`<button class="crm-act-btn" style="border-color:var(--acc);color:var(--acc);font-weight:700" onclick="event.stopPropagation();cotaNovaDoLead('${l.id}')" title="Cadastrar nova cota avulsa">+ Cota</button>`;
     return`<tr onclick="openModalLead('${l.id}')" style="cursor:pointer">
       <td>
         <div class="crm-row-name">
           <div class="crm-row-avatar" style="background:linear-gradient(135deg,#10b981 0%,#059669 100%)">${initial}</div>
-          <div><div class="crm-row-name-text">${pn(l.nome)}</div><div class="crm-row-name-sub">⭐ Cliente</div></div>
+          <div><div class="crm-row-name-text">${pn(l.nome)}</div><div class="crm-row-name-sub">⭐ Cliente${lSimDone?' · proposta executada':''}</div></div>
         </div>
       </td>
       <td>
@@ -5408,13 +5496,15 @@ function renderClientes(){
       <td style="font-size:11.5px">${cidUf}</td>
       <td style="font-size:11.5px">${atag(l.assessor)}</td>
       <td style="font-weight:800;color:#065f46">${credTot>0?brl(credTot,0):'—'}</td>
-      <td><span class="badge b-ok">${cotas||'—'}</span></td>
+      <td>${cotaCell}</td>
       <td style="font-size:11px;color:var(--txt2)">${dtFech}</td>
       <td onclick="event.stopPropagation()">
         <div class="crm-row-acoes">
+          ${btnLancar}
+          ${btnNova}
           ${telDigits?`<a class="crm-act-btn crm-act-tel" href="tel:${telDigits}" title="Ligar">📞</a>`:''}
-          <button class="crm-act-btn crm-act-edit" onclick="openModalLead('${l.id}')" title="Editar">✏️</button>
-          ${sim?`<button class="crm-act-btn crm-act-sim" onclick="openModalSim('${l.id}')" title="Ver proposta">📋</button>`:''}
+          <button class="crm-act-btn crm-act-edit" onclick="openModalLead('${l.id}')" title="Editar lead">✏️</button>
+          ${sim?`<button class="crm-act-btn crm-act-sim" onclick="openModalSim('${l.id}')" title="Ver/editar proposta">📋</button>`:''}
         </div>
       </td>
     </tr>`;
@@ -5564,7 +5654,17 @@ function simGoStep(n){
   const fa=document.getElementById('sim-footer-acts');
   if(n===1)fa.innerHTML='';
   else if(n===2)fa.innerHTML=`<button class="btn btn-pri" onclick="simAddSelecionados()">Adicionar Selecionados →</button>`;
-  else fa.innerHTML=`<button class="btn btn-out btn-sm" onclick="simSalvar()">💾 Salvar Proposta</button>`;
+  else{
+    const leadGanho=simLead&&simLead.status==='Ganho';
+    const totalCotas=simRows.reduce((s,r)=>s+(r.qtd||0),0);
+    if(leadGanho){
+      // Lead já está em Ganho — botão principal cria cotas direto
+      fa.innerHTML=`<button class="btn btn-out btn-sm" onclick="simSalvar()" title="Salva sem criar cotas — útil pra revisar antes">💾 Só salvar proposta</button>
+        <button class="btn btn-ok" onclick="simLancarDiretoGanho()" style="font-weight:700">🏠 Lançar ${totalCotas||''} Cota${totalCotas!==1?'s':''} no Sistema</button>`;
+    }else{
+      fa.innerHTML=`<button class="btn btn-out btn-sm" onclick="simSalvar()">💾 Salvar Proposta</button>`;
+    }
+  }
 }
 /* ── HELPER: format hint below input ── */
 function simFmtHint(inputId,hintId){
@@ -5826,30 +5926,82 @@ function calcSimTotals(){
 async function simSalvar(){
   if(!simLead||!simRows.length){toast('Adicione grupos antes de salvar','err');return;}
   const payload={rows:simRows,nota:document.getElementById('sim-obs').value,caso:document.getElementById('sim-caso').value,ts:new Date().toISOString()};
-  const res=await upsertLead({id:simLead.id,observacao:'SIM:'+JSON.stringify(payload),status:'Proposta Enviada',updated_at:new Date().toISOString()});
-  if(res){Object.assign(simLead,res);toast('Proposta salva! Lead → Proposta Enviada');renderCRM();}
+  // Se lead já está em Ganho/Em Negociação, NÃO desmover; só salvar a proposta
+  const stMantem=['Em Negociação','Ganho','Perdido'].includes(simLead.status);
+  const novoStatus=stMantem?simLead.status:'Proposta Enviada';
+  const res=await upsertLead({id:simLead.id,observacao:'SIM:'+JSON.stringify(payload),status:novoStatus,updated_at:new Date().toISOString()});
+  if(res){Object.assign(simLead,res);toast(stMantem?'Proposta salva!':'Proposta salva! Lead → Proposta Enviada');renderCRM();}
 }
+// Cria cotas reais a partir das simRows, vinculadas ao lead (nome, cpf, assessor, telefone)
+async function simCriarCotasDoLead(lead,rows,opts){
+  opts=opts||{};
+  const hoje=new Date().toISOString().slice(0,10);
+  let erros=0;
+  for(const r of rows){
+    for(let i=0;i<(r.qtd||1);i++){
+      const lancePerc=Number(r.lancePerc||0);
+      const credito=Number(r.credito||0);
+      const cota={
+        nome:lead.nome,
+        cpf:lead.cpf||null,
+        assessor:lead.assessor||'ALAN / ESCRITORIO',
+        grupo:r.grupo,
+        credito,
+        status:'Sorteio',
+        lance1:lancePerc>0?lancePerc/100:null,
+        lance_total:lancePerc>0?Math.round(credito*lancePerc/100):null,
+        taxa_adm:r.taxaAdm!=null?Number(r.taxaAdm):null,
+        fundo_reserva:r.fr!=null?Number(r.fr):3,
+        prazo_total:r.prazo?Number(r.prazo):null,
+        prazo_restante:r.prazo?Number(r.prazo):null,
+        tipo_bem:r.tipo||null,
+        adesao:hoje,
+        informacao:'Contratado via CRM'+(opts.note?' · '+opts.note:''),
+        updated_at:new Date().toISOString()
+      };
+      const res=await upsertCota(cota);
+      if(!res)erros++;
+    }
+  }
+  return erros;
+}
+
 async function simFecharNegocio(leadId){
   const lead=LEADS.find(l=>l.id===leadId);
   if(!lead)return;
   const obs=lead.observacao||'';
-  if(!obs.startsWith('SIM:')){toast('Nenhuma proposta salva para este lead','err');return;}
-  let rows=[];
-  try{rows=JSON.parse(obs.slice(4)).rows||[];}catch(e){toast('Erro ao ler proposta','err');return;}
-  const totalCotas=rows.reduce((s,r)=>s+r.qtd,0);
-  if(!confirm(`Fechar negócio com ${lead.nome}?
-Serão criadas ${totalCotas} cotas no sistema.`))return;
+  if(!obs.startsWith('SIM:')&&!obs.startsWith('SIM_DONE:')){toast('Nenhuma proposta salva para este lead','err');return;}
+  let payload=null;
+  try{payload=JSON.parse(obs.slice(obs.indexOf(':')+1));}catch(e){toast('Erro ao ler proposta','err');return;}
+  const rows=(payload&&payload.rows)||[];
+  if(!rows.length){toast('Proposta vazia','err');return;}
+  if(obs.startsWith('SIM_DONE:')){toast('Cotas dessa proposta já foram lançadas','warn');return;}
+  const totalCotas=rows.reduce((s,r)=>s+(r.qtd||0),0);
+  const jaGanho=lead.status==='Ganho';
+  const acao=jaGanho?'Lançar':'Fechar negócio e lançar';
+  if(!confirm(`${acao} ${totalCotas} cota${totalCotas!==1?'s':''} no sistema para ${lead.nome}?`))return;
   showLoad();
-  let erros=0;
-  for(const r of rows){
-    for(let i=0;i<r.qtd;i++){
-      const res=await upsertCota({nome:lead.nome,assessor:lead.assessor||'ALAN / ESCRITORIO',grupo:r.grupo,credito:r.credito,status:'Sorteio',lance1:r.lancePerc/100,informacao:'Contratado via CRM',updated_at:new Date().toISOString()});
-      if(!res)erros++;
-    }
-  }
-  await upsertLead({id:leadId,status:'Cota Aberta',updated_at:new Date().toISOString()});
+  const erros=await simCriarCotasDoLead(lead,rows,{note:'Lead '+leadId.slice(0,8)});
+  // Marca proposta como concretizada e move (ou mantém) status pra Ganho
+  const novoObs='SIM_DONE:'+JSON.stringify(payload);
+  await upsertLead({id:leadId,observacao:novoObs,status:'Ganho',updated_at:new Date().toISOString()});
   hideLoad();
-  if(erros===0)toast(`${totalCotas} cotas criadas! Lead → Cota Aberta.`,'ok');
+  if(erros===0)toast(`${totalCotas} cota${totalCotas!==1?'s':''} criada${totalCotas!==1?'s':''}! Cliente em Ganho.`,'ok');
+  else toast(`Concluído com ${erros} erro(s) ao criar cotas`,'err');
+  initDash();filterCtrl();renderCRM();renderProj();
+}
+
+// Lança as cotas DIRETO (sem precisar salvar proposta antes) — usado quando lead já está em Ganho
+async function simLancarDiretoGanho(){
+  if(!simLead||!simRows.length){toast('Adicione grupos antes de lançar','err');return;}
+  const totalCotas=simRows.reduce((s,r)=>s+(r.qtd||0),0);
+  if(!confirm(`Lançar ${totalCotas} cota${totalCotas!==1?'s':''} no sistema para ${simLead.nome}?`))return;
+  showLoad();
+  const payload={rows:simRows,nota:document.getElementById('sim-obs').value,caso:document.getElementById('sim-caso').value,ts:new Date().toISOString()};
+  const erros=await simCriarCotasDoLead(simLead,simRows,{note:'Lead '+simLead.id.slice(0,8)});
+  await upsertLead({id:simLead.id,observacao:'SIM_DONE:'+JSON.stringify(payload),status:'Ganho',updated_at:new Date().toISOString()});
+  hideLoad();
+  if(erros===0){toast(`${totalCotas} cota${totalCotas!==1?'s':''} criada${totalCotas!==1?'s':''}!`,'ok');closeModal('modal-sim');}
   else toast(`Concluído com ${erros} erro(s)`,'err');
   initDash();filterCtrl();renderCRM();renderProj();
 }
