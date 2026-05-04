@@ -3435,7 +3435,16 @@ function taxaCdiAtual(){
   return atual;
 }
 // Próxima assembleia FUTURA do grupo: pega g.asm e avança de mês em mês até virar uma data futura
-function calcProxAgo(grupo){
+function calcProxAgo(grupo,cotaRow){
+  // Prioridade 1: data_assembleia preenchida na propria cota (vinda do extrato)
+  if(cotaRow&&cotaRow.data_assembleia){
+    const hoje=new Date();hoje.setHours(0,0,0,0);
+    const d=new Date(cotaRow.data_assembleia+'T00:00:00');
+    let guard=0;
+    while(d<hoje&&guard<60){d.setMonth(d.getMonth()+1);guard++;}
+    return d.toISOString().slice(0,10);
+  }
+  // Prioridade 2: dado do GUIA (Itaú)
   const g=GUIA[grupo]||GUIA[String(grupo)]||{};
   if(!g.asm)return null;
   const hoje=new Date();hoje.setHours(0,0,0,0);
@@ -3480,7 +3489,7 @@ async function toggleLanceOfertado(id){
   const est=estadoOferta(id);
   showLoad();
   if(est.tipo==='sem'){
-    const proxAgo=calcProxAgo(r.grupo);
+    const proxAgo=calcProxAgo(r.grupo,r);
     if(!proxAgo){hideLoad();toast('Grupo sem AGO cadastrada no GUIA','err');return;}
     const lancePct=r.lance1?+(r.lance1*100).toFixed(2):null;
     const {data:nova,error}=await sb.from('ofertas_lance').insert({cota_id:id,data_assembleia:proxAgo,lance_pct:lancePct}).select().single();
@@ -3504,7 +3513,7 @@ async function toggleLanceOfertado(id){
   if(e1){hideLoad();toast('Erro: '+e1.message,'err');return;}
   const idx=(OFERTAS[id]||[]).findIndex(o=>o.id===est.oferta.id);
   if(idx>=0)OFERTAS[id][idx].resultado='Nao contemplado';
-  const proxAgo=calcProxAgo(r.grupo);
+  const proxAgo=calcProxAgo(r.grupo,r);
   if(proxAgo){
     const lancePct=r.lance1?+(r.lance1*100).toFixed(2):null;
     const {data:nova,error:e2}=await sb.from('ofertas_lance').insert({cota_id:id,data_assembleia:proxAgo,lance_pct:lancePct}).select().single();
@@ -4185,7 +4194,7 @@ function renderCtrl(){
     const isCan=r.status==='Cancelado'||r.status==='CANCELADO';
     const isCp=r.status==='Contemplado'||r.status==='CONTEMPLADO'||r.status==='Faturado';
     const parcEf=isCp?(r.parcela_pos||r.parcela||0):(r.parcela||0);
-    const proxAgo=calcProxAgo(r.grupo);
+    const proxAgo=calcProxAgo(r.grupo,r);
     return `<tr id="ctrl-row-${r.id}" style="${isCan?'opacity:.4;background:#fafafa':''}">
       <td><strong>${pn(r.nome)}</strong><br><span style="font-size:10.5px;color:var(--txt2)">${pcpf(r.cpf)}</span></td>
       <td><strong>${r.grupo||'—'}</strong> / ${r.cota||'—'}</td>
@@ -7972,7 +7981,7 @@ function renderProjDetail(name){
         </select>
       </td>
       <td><input class="form-i" style="padding:3px 6px;font-size:12px;width:70px" id="pl1-${r.id}" type="number" step="0.1" min="0" max="100" value="${r.lance1?+(r.lance1*100).toFixed(1):''}" placeholder="%" oninput="projMarkDirty('${r.id}')"></td>
-      <td style="font-size:11.5px;text-align:center;white-space:nowrap;font-weight:600;color:var(--sb)">${fmtDataBr(calcProxAgo(r.grupo))}</td>
+      <td style="font-size:11.5px;text-align:center;white-space:nowrap;font-weight:600;color:var(--sb)">${fmtDataBr(calcProxAgo(r.grupo,r))}</td>
       <td style="text-align:center">${renderToggleOferta(r.id)}</td>
       <td style="white-space:nowrap;text-align:center">
         <button id="psave-${r.id}" class="btn btn-ok btn-sm" style="display:none" onclick="projSaveRow('${r.id}')" title="Salvar">💾</button>
@@ -8092,7 +8101,7 @@ function renderProjDash(name){
   const totRend=en.reduce((s,r)=>s+rendimentoCota(r),0);
   const taxaAtual=taxaCdiAtual();
   const nC=en.filter(r=>isC(r.status)&&!isFat(r.status)).length;
-  const crC=en.filter(r=>isC(r.status)&&!isFat(r.status)).reduce((s,r)=>s+(r.credito||0),0);
+  const crC=en.filter(r=>isC(r.status)&&!isFat(r.status)).reduce((s,r)=>s+(r.credito_liberado||r.credito||0),0);
   const nFat=en.filter(r=>isFat(r.status)).length;
   const crFat=en.filter(r=>isFat(r.status)).reduce((s,r)=>s+(r.credito||0),0);
   const nAtivo=en.filter(r=>isAtivo(r.status)).length;
@@ -8122,7 +8131,7 @@ function renderProjDash(name){
       if(r.lance_embutido!=null&&r.lance_embutido>0)return Math.max(0,(r.carta_atualizada||r.credito||0)-r.lance_embutido);
       return isC(r.status)?(r.carta_atualizada||r.credito||0):0;
     };
-    const proxAOf=r=>{const d=calcProxAgo(r.grupo);return d?new Date(d+'T00:00:00').getTime():0;};
+    const proxAOf=r=>{const d=calcProxAgo(r.grupo,r);return d?new Date(d+'T00:00:00').getTime():0;};
     const boletoOrd=r=>{
       if(!r.ultima_parcela_paga)return 1;
       const ult=new Date(r.ultima_parcela_paga+'T00:00:00');
@@ -8172,7 +8181,7 @@ function renderProjDash(name){
     else if(r.lance_embutido!=null&&r.lance_embutido>0)cl=Math.max(0,(r.carta_atualizada||r.credito||0)-r.lance_embutido);
     else if(isC(r.status))cl=r.carta_atualizada||r.credito||0;
     // Próxima assembleia do grupo
-    const proxA=calcProxAgo(r.grupo);
+    const proxA=calcProxAgo(r.grupo,r);
     // Status do boleto deste mês
     const sb=statusBoleto(r);
     // Parcela efetiva (pré ou pós)
@@ -8494,7 +8503,7 @@ function renderProjList(){
     const isCan=r.status==='Cancelado'||r.status==='CANCELADO';
     const isCp=r.status==='Contemplado'||r.status==='CONTEMPLADO'||r.status==='Faturado';
     const parcEf=isCp?(r.parcela_pos||r.parcela||0):(r.parcela||0);
-    const proxAgo=calcProxAgo(r.grupo);
+    const proxAgo=calcProxAgo(r.grupo,r);
     const rowStyle=isDirty?'background:#fdf6e3':(isCan?'opacity:.4;background:#fafafa':'');
     const chkCell=bulkMode?`<td><input type="checkbox" id="pchk-${r.id}" ${isSelected?'checked':''} data-rid="${r.id}" onchange="projSelectRow(this.dataset.rid,this.checked)"></td>`:'';
     return `<tr id="plist-row-${r.id}" style="${rowStyle}">
@@ -8606,7 +8615,7 @@ function openLanceInteligente(cotaId,btnEl){
   const h=hist12mo(r.grupo);
   const sug=lpopSugerirLance(h);
   const lanceAtualPct=r.lance1?+(r.lance1*100).toFixed(1):null;
-  const proxAgo=calcProxAgo(r.grupo);
+  const proxAgo=calcProxAgo(r.grupo,r);
   const est=estadoOferta(cotaId);
 
   const corResultado={Pendente:'#fbbf24',Contemplado:'#10b981','Nao contemplado':'#94a3b8',Cancelado:'#ef4444'};
@@ -8797,7 +8806,7 @@ function gerarRelatorioCliente(name){
   const totRend=en.reduce((s,r)=>s+rendimentoCota(r),0);
   const taxaA=taxaCdiAtual();
   const nC=en.filter(r=>isC(r.status)&&!isFat(r.status)).length;
-  const crC=en.filter(r=>isC(r.status)&&!isFat(r.status)).reduce((s,r)=>s+(r.credito||0),0);
+  const crC=en.filter(r=>isC(r.status)&&!isFat(r.status)).reduce((s,r)=>s+(r.credito_liberado||r.credito||0),0);
   const nFat=en.filter(r=>isFat(r.status)).length;
   const crFat=en.filter(r=>isFat(r.status)).reduce((s,r)=>s+(r.credito||0),0);
   const nAtivo=en.filter(r=>isAtivo(r.status)).length;
@@ -8954,7 +8963,7 @@ function gerarRelatorioCliente(name){
       const pct=r.prazoTotal>0?Math.min(100,Math.round(r.meses/r.prazoTotal*100)):0;
       const bg=stBg[r.status]||'#f3f4f6';const tx=stTx[r.status]||'#374151';const pc=stPc[r.status]||'#94a3b8';
       const cl=credLibCota(r);
-      const proxA=calcProxAgo(r.grupo);
+      const proxA=calcProxAgo(r.grupo,r);
       const sb=statusBoleto(r);
       const stCol=stBdMin[r.status]||'#94a3b8';
       return`<tr>
