@@ -1154,10 +1154,16 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
     </div>
     <div class="tb-acts">
       <span style="font-size:11px;color:var(--txt2)" id="sync-status">Conectando...</span>
+      <span id="dash-refresh-status" style="font-size:11px;color:var(--txt2);font-style:italic"></span>
+      <button id="dash-refresh-btn" class="btn btn-out btn-sm" onclick="dashRefresh()" title="Atualizar carteira agora" style="font-size:13px;padding:4px 10px"><span id="dash-refresh-ico">🔄</span></button>
       <button id="priv-tb" class="priv-tb" onclick="togglePriv()" title="Ocultar nomes/CPFs em toda a página (apresentações)"><span id="priv-tb-ico">👁️</span><span id="priv-tb-lbl">Visível</span></button>
       <button id="topbar-nova-cota" class="btn btn-out btn-sm" onclick="openModalCota(-1)">+ Nova Cota</button>
       <button class="btn btn-pri btn-sm" onclick="nav('crm',document.querySelectorAll('.ni')[3])">+ Novo Lead</button>
     </div>
+    <style>
+      @keyframes dashSpin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+      #dash-refresh-ico.spinning{display:inline-block;animation:dashSpin .8s linear}
+    </style>
   </div>
   <div class="content">
 
@@ -1252,7 +1258,7 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
       </select>
       <select class="fi fi-md" id="f-assessor" onchange="filterCtrl()">
         <option value="">Todos Assessores</option>
-        <option>ALAN / ESCRITORIO</option><option>ALE / ESCRITORIO</option><option>GLAUCO</option><option>GIL</option><option>SZPIN</option><option>Coyote</option>
+        <option>ALAN / ESCRITORIO</option><option>ALE / ESCRITORIO</option><option>GLAUCO</option><option>GIL</option><option>SZPIN</option><option>Coyote</option><option>BUZA</option><option>GUSTAVO SANTOS</option><option>GUSTAVO MARTINI</option><option>NETÃO</option><option>FELIPE MOGI</option><option>Indicação / Marcus</option>
       </select>
       <select class="fi fi-md" id="f-banco" onchange="filterCtrl()">
         <option value="">Todos Bancos</option>
@@ -1448,7 +1454,7 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
       <span id="crm-assessor-f-wrap">
       <select class="fi fi-md" id="crm-assessor-f" onchange="filterCRM()">
         <option value="">Todos Assessores</option>
-        <option>ALAN / ESCRITORIO</option><option>ALE / ESCRITORIO</option><option>GLAUCO</option><option>GIL</option><option>SZPIN</option><option>Coyote</option>
+        <option>ALAN / ESCRITORIO</option><option>ALE / ESCRITORIO</option><option>GLAUCO</option><option>GIL</option><option>SZPIN</option><option>Coyote</option><option>BUZA</option><option>GUSTAVO SANTOS</option><option>GUSTAVO MARTINI</option><option>NETÃO</option><option>FELIPE MOGI</option><option>Indicação / Marcus</option>
       </select>
       </span>
       <button class="btn btn-out btn-sm" onclick="crmClearFilters()">Limpar</button>
@@ -2598,7 +2604,7 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
         </select>
         <select class="fi fi-md" id="pf-assessor" onchange="filterProjList()">
           <option value="">Todos Assessores</option>
-          <option>ALAN / ESCRITORIO</option><option>ALE / ESCRITORIO</option><option>GLAUCO</option><option>GIL</option><option>SZPIN</option><option>Coyote</option>
+          <option>ALAN / ESCRITORIO</option><option>ALE / ESCRITORIO</option><option>GLAUCO</option><option>GIL</option><option>SZPIN</option><option>Coyote</option><option>BUZA</option><option>GUSTAVO SANTOS</option><option>GUSTAVO MARTINI</option><option>NETÃO</option><option>FELIPE MOGI</option><option>Indicação / Marcus</option>
         </select>
         <select class="fi fi-md" id="pf-banco" onchange="filterProjList()">
           <option value="">Todos Bancos</option>
@@ -2642,7 +2648,7 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
         </select>
         <select class="fi fi-md" id="pcards-assessor" onchange="syncProjFilter('assessor',this.value)">
           <option value="">Todos Assessores</option>
-          <option>ALAN / ESCRITORIO</option><option>ALE / ESCRITORIO</option><option>GLAUCO</option><option>GIL</option><option>SZPIN</option><option>Coyote</option>
+          <option>ALAN / ESCRITORIO</option><option>ALE / ESCRITORIO</option><option>GLAUCO</option><option>GIL</option><option>SZPIN</option><option>Coyote</option><option>BUZA</option><option>GUSTAVO SANTOS</option><option>GUSTAVO MARTINI</option><option>NETÃO</option><option>FELIPE MOGI</option><option>Indicação / Marcus</option>
         </select>
         <select class="fi fi-md" id="pcards-banco" onchange="syncProjFilter('banco',this.value)">
           <option value="">Todos Bancos</option>
@@ -2677,7 +2683,7 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
         </select>
         <select class="fi fi-md" id="pcards-assessor-bot" onchange="syncProjFilter('assessor',this.value)">
           <option value="">Todos Assessores</option>
-          <option>ALAN / ESCRITORIO</option><option>ALE / ESCRITORIO</option><option>GLAUCO</option><option>GIL</option><option>SZPIN</option><option>Coyote</option>
+          <option>ALAN / ESCRITORIO</option><option>ALE / ESCRITORIO</option><option>GLAUCO</option><option>GIL</option><option>SZPIN</option><option>Coyote</option><option>BUZA</option><option>GUSTAVO SANTOS</option><option>GUSTAVO MARTINI</option><option>NETÃO</option><option>FELIPE MOGI</option><option>Indicação / Marcus</option>
         </select>
         <select class="fi fi-md" id="pcards-banco-bot" onchange="syncProjFilter('banco',this.value)">
           <option value="">Todos Bancos</option>
@@ -2700,7 +2706,7 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
           <input id="proj-bulk-lance" type="number" class="fi" placeholder="↳ Lance %..." style="width:110px">
           <select id="proj-bulk-assessor" class="fi fi-md">
             <option value="">↳ Assessor...</option>
-            <option>ALAN / ESCRITORIO</option><option>ALE / ESCRITORIO</option><option>GLAUCO</option><option>GIL</option><option>SZPIN</option><option>Coyote</option>
+            <option>ALAN / ESCRITORIO</option><option>ALE / ESCRITORIO</option><option>GLAUCO</option><option>GIL</option><option>SZPIN</option><option>Coyote</option><option>BUZA</option><option>GUSTAVO SANTOS</option><option>GUSTAVO MARTINI</option><option>NETÃO</option><option>FELIPE MOGI</option><option>Indicação / Marcus</option>
           </select>
           <button class="btn btn-pri btn-sm" onclick="projApplyBulk()">Aplicar a Selecionadas</button>
           <button class="btn btn-ok" onclick="projSalvarTudo()" id="proj-save-all-btn" style="display:none">💾 Salvar Tudo (<span id="proj-dirty-count">0</span>)</button>
@@ -3001,7 +3007,7 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
       <div class="g2" style="margin-bottom:0">
         <div class="form-g"><label class="form-l">Assessor</label>
           <select class="form-i" id="mc-assessor">
-            <option>ALAN / ESCRITORIO</option><option>ALE / ESCRITORIO</option><option>GLAUCO</option><option>GIL</option><option>SZPIN</option><option>Coyote</option>
+            <option>ALAN / ESCRITORIO</option><option>ALE / ESCRITORIO</option><option>GLAUCO</option><option>GIL</option><option>SZPIN</option><option>Coyote</option><option>BUZA</option><option>GUSTAVO SANTOS</option><option>GUSTAVO MARTINI</option><option>NETÃO</option><option>FELIPE MOGI</option><option>Indicação / Marcus</option>
           </select>
         </div>
         <div class="form-g"><label class="form-l">Data de Adesão</label><input type="date" class="form-i" id="mc-adesao"></div>
@@ -3171,7 +3177,7 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
       <div class="g2" style="margin-bottom:0">
         <div class="form-g"><label class="form-l">Assessor <span class="form-l-hint" id="ml-ass-hint"></span></label>
           <select class="form-i" id="ml-assessor">
-            <option>ALAN / ESCRITORIO</option><option>ALE / ESCRITORIO</option><option>GLAUCO</option><option>GIL</option><option>SZPIN</option><option>Coyote</option>
+            <option>ALAN / ESCRITORIO</option><option>ALE / ESCRITORIO</option><option>GLAUCO</option><option>GIL</option><option>SZPIN</option><option>Coyote</option><option>BUZA</option><option>GUSTAVO SANTOS</option><option>GUSTAVO MARTINI</option><option>NETÃO</option><option>FELIPE MOGI</option><option>Indicação / Marcus</option>
           </select>
         </div>
         <div class="form-g"><label class="form-l">Status <span class="form-l-hint" id="ml-st-hint"></span></label>
@@ -3827,9 +3833,9 @@ function nav(id,el){if(window.innerWidth<=700){const sb=document.getElementById(
 document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));document.getElementById('page-'+id).classList.add('active');if(el)el.classList.add('active');document.getElementById('pg-title').textContent=PGT[id]||id;if(id==='ctrl')filterCtrl();if(id==='agenda')renderAgenda();if(id==='crm')renderCRM();if(id==='guia'){browseData=Object.entries(GUIA);renderBrowse(browseData,1);}if(id==='oport'){ortData=buildOrtData();renderOportunidades();renderOportSugestoes();}if(id==='prop'){renderPropGrupos();calcProp();updLance();}if(id==='proj')renderProj();if(id==='fat')renderFatPage();}
 
 // ═══ SUPABASE ═══
-async function loadData(){
+async function loadData(silent){
   if(!sb){setSync(false);toast('Cliente Supabase não inicializado','err');return;}
-  showLoad();
+  if(!silent) showLoad();
   try{
     const [{data:c,error:e1},{data:l,error:e2},{data:tx},{data:gm},{data:ofs},{data:gg},{data:lm},{data:lhm}]=await Promise.all([
       sb.from('cotas').select('*').order('nome'),
@@ -3942,10 +3948,14 @@ async function loadData(){
       console.info('[HC360] taxa_adm column not detected yet');
     }
     setSync(true);
-    initDash();ctrlFiltered=[...COTAS];renderCtrl();renderAgenda();renderCRM();renderProj();try{renderFatPage();}catch(_){}
+    initDash();ctrlFiltered=[...COTAS];renderCtrl();renderAgenda();renderCRM();renderProj();
+    _dashLastRefresh=Date.now();
+    if(typeof _dashUpdateRefreshLbl==='function') _dashUpdateRefreshLbl();
+    if(typeof dashStartAutoRefresh==='function') dashStartAutoRefresh();
+    if(typeof dashStartRealtime==='function') dashStartRealtime();try{renderFatPage();}catch(_){}
     document.getElementById('kpi-leads').textContent=LEADS.length;
   }catch(err){setSync(false);toast('Erro ao conectar: '+err.message,'err');}
-  hideLoad();
+  if(!silent) hideLoad();
 }
 
 async function upsertCota(data){
@@ -4035,9 +4045,86 @@ const ASSESSOR_PALETTE={
   'GIL':'#b8923a',
   'SZPIN':'#2C3E50',
   'Coyote':'#94a3b8',
+  'BUZA':'#ec4899',
+  'GUSTAVO SANTOS':'#f59e0b',
+  'GUSTAVO MARTINI':'#fbbf24',
+  'NETÃO':'#3b82f6',
+  'FELIPE MOGI':'#8b5cf6',
+  'Indicação / Marcus':'#06b6d4',
   'Outros':'#cbd5e1'
 };
-function corAssessor(a){ const k=a==='Gil'?'GIL':(a||'Outros'); return ASSESSOR_PALETTE[k]||'#94a3b8'; }
+// Normaliza variações de capitalização → label canônico
+function normAssessor(a){
+  if(!a) return 'Outros';
+  const s=String(a).trim();
+  if(s==='Gil') return 'GIL';
+  if(s==='Alan'||s==='ALAN') return 'ALAN / ESCRITORIO';
+  if(s==='Netão'||s==='netão'||s==='NETAO') return 'NETÃO';
+  return s;
+}
+function corAssessor(a){ return ASSESSOR_PALETTE[normAssessor(a)]||'#94a3b8'; }
+
+// ═══ Refresh manual + auto + realtime ═══
+let _dashRefreshInt=null, _dashRealtimeChan=null, _dashLastRefresh=null;
+function _dashFmtTimeAgo(){
+  if(!_dashLastRefresh) return '';
+  const sec=Math.floor((Date.now()-_dashLastRefresh)/1000);
+  if(sec<5) return 'atualizado agora';
+  if(sec<60) return 'atualizado há '+sec+'s';
+  const min=Math.floor(sec/60);
+  if(min<60) return 'atualizado há '+min+'min';
+  return 'atualizado há '+Math.floor(min/60)+'h';
+}
+function _dashUpdateRefreshLbl(){
+  const el=document.getElementById('dash-refresh-status');
+  if(el) el.textContent=_dashFmtTimeAgo();
+}
+async function dashRefresh(silent){
+  const ico=document.getElementById('dash-refresh-ico');
+  if(ico) ico.classList.add('spinning');
+  try{
+    await loadData(true);
+    if(typeof initDash==='function') initDash();
+    _dashLastRefresh=Date.now();
+    _dashUpdateRefreshLbl();
+    if(!silent) toast('Carteira atualizada','ok');
+  }finally{
+    setTimeout(()=>{if(ico) ico.classList.remove('spinning');}, 600);
+  }
+}
+function dashStartAutoRefresh(){
+  if(_dashRefreshInt) return;
+  _dashRefreshInt=setInterval(()=>{
+    if(document.hidden) return;
+    const pg=document.getElementById('page-dash');
+    if(!pg||!pg.classList.contains('active')) { _dashUpdateRefreshLbl(); return; }
+    dashRefresh(true);
+  }, 60000);
+  // Atualiza o label "há Xs" a cada 15s
+  setInterval(_dashUpdateRefreshLbl, 15000);
+}
+function dashStartRealtime(){
+  if(!sb||_dashRealtimeChan) return;
+  try{
+    _dashRealtimeChan=sb.channel('hc360-rt')
+      .on('postgres_changes',{event:'*',schema:'public',table:'cotas'}, async ()=>{
+        await loadData(true);
+        if(typeof initDash==='function') initDash();
+        if(typeof renderCtrl==='function') renderCtrl();
+        if(typeof renderProj==='function') renderProj();
+        _dashLastRefresh=Date.now(); _dashUpdateRefreshLbl();
+      })
+      .on('postgres_changes',{event:'*',schema:'public',table:'leads'}, async ()=>{
+        await loadData(true);
+        if(typeof renderCRM==='function') renderCRM();
+        if(typeof initDash==='function') initDash();
+      })
+      .subscribe((status)=>{
+        if(status==='SUBSCRIBED') console.info('[HC360] Realtime ativo');
+        else if(status==='CHANNEL_ERROR') console.warn('[HC360] Realtime indisponível — fallback no auto-refresh 60s');
+      });
+  }catch(e){ console.warn('[HC360] erro ao iniciar realtime:',e); }
+}
 
 function dashSetEvo(btn,mode){
   dashEvoMode=mode;
@@ -4098,7 +4185,7 @@ function openMddet(title, sub, htmlBody){
 function openAssessorDet(assessorName){
   const isContemp=s=>s==='Contemplado'||s==='CONTEMPLADO'||s==='Faturado';
   const list=COTAS.filter(r=>{
-    let a=r.assessor||'Outros'; if(a==='Gil')a='GIL';
+    let a=normAssessor(r.assessor); if(a==='Gil')a='GIL';
     return a===assessorName && (r.status||'').toUpperCase()!=='CANCELADO';
   });
   // Consolida por cliente
@@ -4284,7 +4371,7 @@ function initDash(){
   dashCharts.clients=new Chart(document.getElementById('ch-clients'),{type:'bar',data:{labels:tc.map(([n])=>pn(n)),datasets:[{label:'Crédito',data:tc.map(([,d])=>d.credito),backgroundColor:tc.map(([,d])=>corAssessor(d.assessor)),hoverBackgroundColor:tc.map(([,d])=>corAssessor(d.assessor)),borderWidth:0,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',onClick:(e,el)=>{if(el&&el.length){const n=tc[el[0].index][0];openClienteDet(n);}},onHover:(e,el)=>{e.native.target.style.cursor=(el&&el.length)?'pointer':'default';},plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(44,62,80,.96)',padding:11,cornerRadius:6,titleFont:{size:12,family:'Mulish',weight:'600'},bodyFont:{size:11,family:'Mulish'},displayColors:false,callbacks:{title:(items)=>pn(tc[items[0].dataIndex][0]),label:(it)=>{const d=tc[it.dataIndex][1];return ['Volume: '+brl(d.credito,0),'Cotas: '+d.cotas+'  ·  Contempladas: '+d.contemp,'% carteira: '+(d.credito/totalCarteira*100).toFixed(1)+'%','Assessor: '+(d.assessor||'—'),'','› clique para abrir cotas'];}}}},scales:{x:{beginAtZero:true,grid:{color:'rgba(0,0,0,.04)'},ticks:{font:{size:10,family:'Mulish'},color:'#515151',callback:v=>v>=1e6?(v/1e6).toFixed(1)+'M':(v/1e3).toFixed(0)+'k'}},y:{grid:{display:false},ticks:{font:{size:11,family:'Quicksand'},color:'#2C3E50'}}}}});
 
   // ═ Por Assessor — Performance (sem tabela, click filtra Projetos) ═
-  const amd={};ativas.forEach(r=>{let a=r.assessor||'Outros';if(a==='Gil')a='GIL';if(!amd[a])amd[a]={cotas:0,contemp:0,credito:0};amd[a].cotas++;if(isContemp(r.status))amd[a].contemp++;if(r.credito)amd[a].credito+=r.credito;});
+  const amd={};ativas.forEach(r=>{let a=normAssessor(r.assessor);if(!amd[a])amd[a]={cotas:0,contemp:0,credito:0};amd[a].cotas++;if(isContemp(r.status))amd[a].contemp++;if(r.credito)amd[a].credito+=r.credito;});
   const tamd=Object.entries(amd).sort((a,b)=>b[1].credito-a[1].credito).slice(0,8);
 
   dashCharts.assessPerf=new Chart(document.getElementById('ch-assess-perf'),{type:'bar',data:{labels:tamd.map(x=>x[0]),datasets:[{label:'Em andamento',data:tamd.map(x=>x[1].cotas-x[1].contemp),backgroundColor:'#D6AF5C',borderRadius:3,stack:'cotas'},{label:'Contempladas',data:tamd.map(x=>x[1].contemp),backgroundColor:'#226866',borderRadius:3,stack:'cotas'}]},options:{responsive:true,maintainAspectRatio:false,onClick:(e,el)=>{if(el&&el.length){const a=tamd[el[0].index][0];openAssessorDet(a);}},onHover:(e,el)=>{e.native.target.style.cursor=(el&&el.length)?'pointer':'default';},plugins:{legend:{position:'top',align:'end',labels:{font:{size:10.5,family:'Mulish'},boxWidth:10,boxHeight:10,padding:10}},tooltip:{backgroundColor:'rgba(44,62,80,.96)',padding:11,cornerRadius:6,titleFont:{size:12,family:'Mulish',weight:'600'},bodyFont:{size:11,family:'Mulish'},callbacks:{afterBody:(items)=>{const i=items[0].dataIndex;const d=tamd[i][1];const tk=d.cotas?d.credito/d.cotas:0;const pct=cred?(d.credito/cred*100):0;return ['Volume: '+brl(d.credito,0),'Ticket médio: '+brl(tk,0),'% carteira: '+pct.toFixed(1)+'%','','› clique para filtrar'];}}}},scales:{x:{stacked:true,grid:{display:false},ticks:{font:{size:10.5,family:'Mulish'},color:'#515151'}},y:{stacked:true,beginAtZero:true,grid:{color:'rgba(0,0,0,.04)'},ticks:{precision:0,font:{size:10,family:'Mulish'},color:'#515151'}}}}});
