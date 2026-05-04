@@ -3315,6 +3315,28 @@ const mpt=m=>MPT[m]||m;
 // ═══ AUTH ═══
 let CURRENT_USER=null; // {email, assessorName, isAdmin, displayName}
 
+// Retorna true se o registro (cota ou lead) pertence ao usuário não-admin.
+// Compara contra assessor_name e display_name (case-insensitive, normalizado).
+// Para leads, também aceita match em `indicado_por` (lead enviado pelo próprio assessor).
+function userOwnsRecord(rec,user,isLead){
+  if(!user||user.isAdmin)return true;
+  const norm=s=>(s==null?'':String(s)).normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().trim();
+  const myNames=[user.assessorName,user.displayName].filter(Boolean).map(norm);
+  if(!myNames.length)return true; // sem identidade clara, não filtra (admin de fato)
+  const fields=[rec.assessor];
+  if(isLead)fields.push(rec.indicado_por);
+  for(const f of fields){
+    if(!f)continue;
+    const fn=norm(f);
+    for(const my of myNames){
+      if(!my)continue;
+      // Match exato OU substring (cobre "ALAN / ESCRITORIO" vs "alan")
+      if(fn===my||fn.includes(my)||my.includes(fn))return true;
+    }
+  }
+  return false;
+}
+
 function updateSidebarUser(u){
   const ini=(u.displayName||u.email||'·')[0].toUpperCase();
   document.getElementById('sb-avatar').textContent=ini;
@@ -3905,13 +3927,13 @@ async function loadData(){
       }
     }catch(_){};
     let rawCotas=c||[];
-    if(CURRENT_USER&&!CURRENT_USER.isAdmin&&CURRENT_USER.assessorName){
-      rawCotas=rawCotas.filter(r=>r.assessor&&r.assessor.toLowerCase().includes(CURRENT_USER.assessorName.toLowerCase()));
+    if(CURRENT_USER&&!CURRENT_USER.isAdmin){
+      rawCotas=rawCotas.filter(r=>userOwnsRecord(r,CURRENT_USER,false));
     }
     COTAS=rawCotas;
     let rawLeads=l||[];
-    if(CURRENT_USER&&!CURRENT_USER.isAdmin&&CURRENT_USER.assessorName){
-      rawLeads=rawLeads.filter(r=>r.assessor&&r.assessor.toLowerCase().includes(CURRENT_USER.assessorName.toLowerCase()));
+    if(CURRENT_USER&&!CURRENT_USER.isAdmin){
+      rawLeads=rawLeads.filter(r=>userOwnsRecord(r,CURRENT_USER,true));
     }
     LEADS=rawLeads;
     window._hasTaxaAdm=COTAS.length===0||'taxa_adm' in (COTAS[0]||{});
@@ -5182,13 +5204,11 @@ function filterCRM(){
   const st=document.getElementById('crm-status-f').value;
   const asEl=document.getElementById('crm-assessor-f');
   const as=asEl?asEl.value:'';
-  // Assessores só veem seus próprios leads
-  const aName=CURRENT_USER&&!CURRENT_USER.isAdmin?(CURRENT_USER.assessorName||CURRENT_USER.displayName):'';
   leadsFiltered=LEADS.filter(l=>
-    (!s||(l.nome||'').toLowerCase().includes(s)||(l.indicado_por||'').toLowerCase().includes(s))
+    (!s||(l.nome||'').toLowerCase().includes(s)||(l.indicado_por||'').toLowerCase().includes(s)||(l.telefone||'').toLowerCase().includes(s))
     &&(!st||l.status===st)
     &&(!as||l.assessor===as)
-    &&(!aName||l.assessor===aName||l.indicado_por===aName)
+    &&userOwnsRecord(l,CURRENT_USER,true)
   );
   renderCRM();
 }
@@ -5450,7 +5470,7 @@ function cotasDoLead(l){
 }
 function renderClientes(){
   const tbody=document.getElementById('cli-tbody');if(!tbody)return;
-  const ganhos=LEADS.filter(l=>l.status==='Ganho').sort((a,b)=>new Date(b.updated_at||0)-new Date(a.updated_at||0));
+  const ganhos=LEADS.filter(l=>l.status==='Ganho'&&userOwnsRecord(l,CURRENT_USER,true)).sort((a,b)=>new Date(b.updated_at||0)-new Date(a.updated_at||0));
   const elCnt=document.getElementById('cli-count');if(elCnt)elCnt.textContent=ganhos.length;
   if(!ganhos.length){tbody.innerHTML=`<tr><td colspan="9" style="text-align:center;color:var(--txt2);padding:24px;font-style:italic">Nenhum cliente fechado ainda. Mova um lead para "Ganho" no pipeline.</td></tr>`;return;}
   tbody.innerHTML=ganhos.map(l=>{
