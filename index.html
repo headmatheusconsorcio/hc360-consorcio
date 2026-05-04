@@ -942,16 +942,22 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
 /* Box de observações — minimalista */
 .rel-note{margin-top:5mm;padding:4mm 5mm;background:transparent;border-top:1px solid #e2e6ed;border-left:none;border-radius:0;font-family:'Mulish',sans-serif;font-size:7.5pt;color:#999;line-height:1.6}
 .rel-note b{color:#515151;font-weight:600}
-/* PRINT — só o relatório imprime */
+/* PRINT — só o relatório imprime quando o modal está aberto */
 @media print{
+  /* Esconde TODO mundo (sidebar, lista de clientes, dashboard, modais, etc) */
+  body > *:not(#rel-modal),
   .sb,#header-bar,.fab-compare,#login-screen,.moverlay,.lpop,.lpop-bd,#toast,#load-overlay,
-  .rel-toolbar,#proj-detail,.pg-title,header{display:none!important}
-  .rel-modal{position:static;background:#fff;display:block!important}
-  .rel-modal.open{display:block!important}
-  .rel-pages{padding:0;gap:0}
-  .rel-page{width:auto;min-height:auto;box-shadow:none;page-break-after:always;break-after:page;margin:0;padding:14mm 12mm}
+  .rel-toolbar,#proj-detail,.pg-title,header,
+  .main,main,.app,#main,#app,#page-dash,#page-agenda,#page-crm,#page-guia,#page-oport,
+  #page-prop,#page-proj,#page-fat,#page-ctrl,.tab-bar{display:none!important}
+  /* Mostra só o modal do relatório (id=rel-modal, classe .rel-modal.open) */
+  #rel-modal,.rel-modal.open{display:block!important;position:static!important;background:#fff!important;inset:auto!important}
+  .rel-toolbar{display:none!important}
+  .rel-pages{padding:0;gap:0;display:block!important}
+  .rel-page{width:auto;min-height:auto;box-shadow:none;page-break-after:always;break-after:page;margin:0;padding:14mm 12mm;display:block!important}
   .rel-page:last-child{page-break-after:auto;break-after:auto}
-  body{background:#fff!important;display:block!important}
+  body{background:#fff!important;display:block!important;overflow:visible!important}
+  html{overflow:visible!important}
   *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
 }
 @media (max-width:840px){.rel-page{width:100%;padding:14mm 8mm}}
