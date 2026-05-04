@@ -856,71 +856,49 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
 }
 .pd-print-header,.pd-print-footer{display:none}
 
-/* ── PRINT — proposta comercial (Step 2 do simulador) ── */
+/* ── PRINT — proposta comercial (Step 2 do simulador) ──
+   .prop-doc é movida pra ser filho direto do body via JS no beforeprint.
+   Esconde todos os outros filhos do body e mostra só a .prop-doc. */
 @media print{
-  /* Esconde top-level (sidebar, login, toasts, overlays) */
-  body.printing-prop > #login-screen,
-  body.printing-prop > #loading,
-  body.printing-prop > #toast,
-  body.printing-prop > #sb-overlay,
-  body.printing-prop > .sb,
-  body.printing-prop > #sidebar,
-  body.printing-prop > aside,
-  body.printing-prop > .moverlay,
-  body.printing-prop > .ap-overlay{display:none!important}
-  /* Dentro do main: esconde topbar e header da página */
-  body.printing-prop main > .topbar,
-  body.printing-prop main > .pg-h,
-  body.printing-prop main > .pg-actions{display:none!important}
-  /* Esconde todas as outras pages e mostra só prop */
-  body.printing-prop .page{display:none!important}
-  body.printing-prop #page-prop{display:block!important}
-  /* Esconde step bar e os outros sub-steps */
-  body.printing-prop #prop-step-bar,
-  body.printing-prop #prop-s1,
-  body.printing-prop #prop-s3{display:none!important}
-  body.printing-prop #prop-s2{display:block!important}
-  /* Esconde elementos auxiliares dentro do step 2 */
-  body.printing-prop .prop-doc-actions,
-  body.printing-prop #prop-breakdown,
-  body.printing-prop .prop-cet-foot,
-  body.printing-prop .prop-strat-card,
-  body.printing-prop .note{display:none!important}
-  /* Reset layout: full width, sem margens */
-  body.printing-prop{margin:0!important;padding:0!important;background:#fff!important}
-  body.printing-prop main{margin:0!important;padding:0!important;width:100%!important;max-width:none!important}
-  body.printing-prop main .content,
-  body.printing-prop #page-prop{margin:0!important;padding:0!important;width:100%!important;max-width:none!important}
-  body.printing-prop #prop-s2 > div{max-width:none!important;margin:0!important}
-  body.printing-prop .prop-doc{margin:0!important;border-radius:0!important;border:none!important;border-left:none!important;box-shadow:none!important}
-  /* Tipografia e quebras */
-  body.printing-prop .prop-doc-hdr{padding:14px 18px!important;break-inside:avoid;page-break-inside:avoid}
-  body.printing-prop .prop-doc-title{font-size:18pt!important}
-  body.printing-prop .prop-doc-eyebrow{font-size:8pt!important}
-  body.printing-prop .prop-doc-sub{font-size:9pt!important}
-  body.printing-prop .prop-kpis{break-inside:avoid;page-break-inside:avoid;grid-template-columns:repeat(4,1fr)!important}
-  body.printing-prop .prop-kpi{padding:10px 12px!important}
-  body.printing-prop .prop-kpi-val{font-size:13pt!important}
-  body.printing-prop .prop-kpi-lbl{font-size:7pt!important}
-  body.printing-prop .prop-kpi-sub{font-size:8pt!important}
-  body.printing-prop .prop-mini{padding:12px 14px!important;break-inside:avoid;page-break-inside:avoid}
-  body.printing-prop .prop-mini-hero{font-size:20pt!important}
-  body.printing-prop .prop-mini-val{font-size:11pt!important}
-  body.printing-prop .prop-cet{padding:14px 16px!important;break-inside:avoid;page-break-inside:avoid;margin-bottom:0!important}
-  body.printing-prop .prop-cet-hdr{font-size:9pt!important;margin-bottom:10px!important}
-  body.printing-prop .prop-cet-val{font-size:11pt!important}
-  body.printing-prop .prop-cet-val.big{font-size:18pt!important}
-  body.printing-prop .prop-cet-val.big2{font-size:14pt!important}
-  body.printing-prop .prop-cet-cell{padding:9px 12px!important}
-  /* g2 lado a lado mesmo em folha */
-  body.printing-prop .prop-doc .g2{grid-template-columns:1fr 1fr!important;gap:10px!important;margin-bottom:10px!important}
-  /* Garante render dos gradients e cores chapadas */
-  body.printing-prop .prop-doc-hdr,
-  body.printing-prop .prop-cet,
-  body.printing-prop .prop-mini.lance,
-  body.printing-prop .prop-mini.pos,
-  body.printing-prop .prop-kpi,
-  body.printing-prop .prop-cet-cell.hl{
+  body.printing-prop{margin:0!important;padding:0!important;background:#fff!important;display:block!important;width:auto!important}
+  body.printing-prop > *{display:none!important}
+  body.printing-prop > .prop-doc{
+    display:block!important;width:100%!important;max-width:none!important;
+    margin:0!important;border:none!important;border-left:none!important;border-radius:0!important;box-shadow:none!important
+  }
+  /* Mostra os filhos da prop-doc */
+  body.printing-prop > .prop-doc *{visibility:visible!important}
+  /* Esconde elementos auxiliares dentro da proposta */
+  body.printing-prop > .prop-doc .prop-doc-actions,
+  body.printing-prop > .prop-doc #prop-breakdown,
+  body.printing-prop > .prop-doc .prop-cet-foot{display:none!important}
+  /* Tipografia A4 */
+  body.printing-prop > .prop-doc .prop-doc-hdr{padding:14px 18px!important;break-inside:avoid;page-break-inside:avoid}
+  body.printing-prop > .prop-doc .prop-doc-title{font-size:18pt!important}
+  body.printing-prop > .prop-doc .prop-doc-eyebrow{font-size:8pt!important}
+  body.printing-prop > .prop-doc .prop-doc-sub{font-size:9pt!important}
+  body.printing-prop > .prop-doc .prop-kpis{break-inside:avoid;page-break-inside:avoid;grid-template-columns:repeat(4,1fr)!important}
+  body.printing-prop > .prop-doc .prop-kpi{padding:10px 12px!important}
+  body.printing-prop > .prop-doc .prop-kpi-val{font-size:13pt!important}
+  body.printing-prop > .prop-doc .prop-kpi-lbl{font-size:7pt!important}
+  body.printing-prop > .prop-doc .prop-kpi-sub{font-size:8pt!important}
+  body.printing-prop > .prop-doc .prop-mini{padding:12px 14px!important;break-inside:avoid;page-break-inside:avoid}
+  body.printing-prop > .prop-doc .prop-mini-hero{font-size:20pt!important}
+  body.printing-prop > .prop-doc .prop-mini-val{font-size:11pt!important}
+  body.printing-prop > .prop-doc .prop-cet{padding:14px 16px!important;break-inside:avoid;page-break-inside:avoid;margin-bottom:0!important}
+  body.printing-prop > .prop-doc .prop-cet-hdr{font-size:9pt!important;margin-bottom:10px!important}
+  body.printing-prop > .prop-doc .prop-cet-val{font-size:11pt!important}
+  body.printing-prop > .prop-doc .prop-cet-val.big{font-size:18pt!important}
+  body.printing-prop > .prop-doc .prop-cet-val.big2{font-size:14pt!important}
+  body.printing-prop > .prop-doc .prop-cet-cell{padding:9px 12px!important}
+  body.printing-prop > .prop-doc .g2{grid-template-columns:1fr 1fr!important;gap:10px!important;margin-bottom:10px!important}
+  /* Cores chapadas */
+  body.printing-prop > .prop-doc .prop-doc-hdr,
+  body.printing-prop > .prop-doc .prop-cet,
+  body.printing-prop > .prop-doc .prop-mini.lance,
+  body.printing-prop > .prop-doc .prop-mini.pos,
+  body.printing-prop > .prop-doc .prop-kpi,
+  body.printing-prop > .prop-doc .prop-cet-cell.hl{
     -webkit-print-color-adjust:exact!important;print-color-adjust:exact!important
   }
 }
@@ -1016,12 +994,37 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
 .rel-note b{color:#515151;font-weight:600}
 /* PRINT — só o relatório imprime quando o modal está aberto */
 @media print{
-  /* Esconde TODO mundo (sidebar, lista de clientes, dashboard, modais, etc) */
-  body > *:not(#rel-modal),
-  .sb,#header-bar,.fab-compare,#login-screen,.moverlay,.lpop,.lpop-bd,#toast,#load-overlay,
-  .rel-toolbar,#proj-detail,.pg-title,header,
-  .main,main,.app,#main,#app,#page-dash,#page-agenda,#page-crm,#page-guia,#page-oport,
-  #page-prop,#page-proj,#page-fat,#page-ctrl,.tab-bar{display:none!important}
+  /* Esconde TODO mundo (sidebar, lista de clientes, dashboard, modais, etc).
+     Skip se estamos imprimindo a proposta (body.printing-prop tem suas próprias regras). */
+  body:not(.printing-prop) > *:not(#rel-modal),
+  body:not(.printing-prop) .sb,
+  body:not(.printing-prop) #header-bar,
+  body:not(.printing-prop) .fab-compare,
+  body:not(.printing-prop) #login-screen,
+  body:not(.printing-prop) .moverlay,
+  body:not(.printing-prop) .lpop,
+  body:not(.printing-prop) .lpop-bd,
+  body:not(.printing-prop) #toast,
+  body:not(.printing-prop) #load-overlay,
+  body:not(.printing-prop) .rel-toolbar,
+  body:not(.printing-prop) #proj-detail,
+  body:not(.printing-prop) .pg-title,
+  body:not(.printing-prop) header,
+  body:not(.printing-prop) .main,
+  body:not(.printing-prop) main,
+  body:not(.printing-prop) .app,
+  body:not(.printing-prop) #main,
+  body:not(.printing-prop) #app,
+  body:not(.printing-prop) #page-dash,
+  body:not(.printing-prop) #page-agenda,
+  body:not(.printing-prop) #page-crm,
+  body:not(.printing-prop) #page-guia,
+  body:not(.printing-prop) #page-oport,
+  body:not(.printing-prop) #page-prop,
+  body:not(.printing-prop) #page-proj,
+  body:not(.printing-prop) #page-fat,
+  body:not(.printing-prop) #page-ctrl,
+  body:not(.printing-prop) .tab-bar{display:none!important}
   /* Mostra só o modal do relatório (id=rel-modal, classe .rel-modal.open) */
   #rel-modal,.rel-modal.open{display:block!important;position:static!important;background:#fff!important;inset:auto!important}
   .rel-toolbar{display:none!important}
@@ -7458,19 +7461,34 @@ document.addEventListener('keydown',function(e){
 
 // ═══ PROPOSTA ═══
 function printPropDoc(){
-  // chama print direto — handler de beforeprint adiciona a classe
   window.print();
 }
-// Auto-aplica classe printing-prop quando Step 2 do simulador está visível ao imprimir
-// (cobre Ctrl+P e File>Print do navegador, não só o botão da página)
+// Print da proposta: move .prop-doc pra ser filho direto do body durante o print,
+// e restaura depois. Isolamento total — bypass de regras conflitantes na árvore.
+let __propDocAnchor=null,__propDocOrigParent=null;
 window.addEventListener('beforeprint',()=>{
   const s2=document.getElementById('prop-s2');
-  if(s2&&s2.offsetParent!==null){
-    document.body.classList.add('printing-prop');
-  }
+  if(!s2||s2.offsetParent===null) return;
+  const propDoc=document.querySelector('.prop-doc');
+  if(!propDoc) return;
+  // Cria âncora invisível no lugar original pra restaurar depois
+  __propDocAnchor=document.createComment('prop-doc-anchor');
+  __propDocOrigParent=propDoc.parentNode;
+  __propDocOrigParent.insertBefore(__propDocAnchor,propDoc);
+  // Move pra body (filho direto)
+  document.body.appendChild(propDoc);
+  document.body.classList.add('printing-prop');
 });
 window.addEventListener('afterprint',()=>{
   document.body.classList.remove('printing-prop');
+  if(__propDocAnchor&&__propDocOrigParent){
+    const propDoc=document.querySelector('.prop-doc');
+    if(propDoc&&__propDocAnchor.parentNode){
+      __propDocOrigParent.insertBefore(propDoc,__propDocAnchor);
+      __propDocAnchor.remove();
+    }
+    __propDocAnchor=null;__propDocOrigParent=null;
+  }
 });
 function propGoStep(n){
   [1,2,3].forEach(i=>{
