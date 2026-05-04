@@ -5961,10 +5961,14 @@ async function simCriarCotasDoLead(lead,rows,opts){
     for(let i=0;i<(r.qtd||1);i++){
       const lancePerc=Number(r.lancePerc||0);
       const credito=Number(r.credito||0);
+      // Assessor: lead.assessor > lead.indicado_por > assessor logado > fallback ALAN
+      const assessorCota=((lead.assessor||'').trim())||((lead.indicado_por||'').trim())
+                       ||(CURRENT_USER?(CURRENT_USER.assessorName||CURRENT_USER.displayName||''):'')
+                       ||'ALAN / ESCRITORIO';
       const cota={
         nome:lead.nome,
         cpf:lead.cpf||null,
-        assessor:lead.assessor||'ALAN / ESCRITORIO',
+        assessor:assessorCota,
         grupo:r.grupo,
         credito,
         status:'Sorteio',
