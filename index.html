@@ -8145,12 +8145,22 @@ function renderProjDash(name){
   } else {
     enSorted=en.slice().sort((a,b)=>(stOrd[a.status]??9)-(stOrd[b.status]??9));
   }
-  // Status do boleto do mês a partir de ultima_parcela_paga (mesma data => pago neste mês)
+  // Status do boleto do mês a partir de ultima_parcela_paga
+  // Pago    = pagou no mês corrente
+  // Em dia  = pagou no mês anterior E o boleto deste mês ainda não venceu (vencimento > hoje)
+  // Em atraso = passou do vencimento do mês corrente sem pagar
+  // Pendente = nunca houve registro de pagamento
   const statusBoleto=r=>{
     if(!r.ultima_parcela_paga)return{cor:'#fef3c7',txt:'#92400e',label:'⚠ Pendente',sub:'sem registro'};
     const ult=new Date(r.ultima_parcela_paga+'T00:00:00');
     const inicioMes=new Date(today.getFullYear(),today.getMonth(),1);
     if(ult>=inicioMes)return{cor:'#d1fae5',txt:'#065f46',label:'✓ Pago',sub:fmtDataBr(r.ultima_parcela_paga)};
+    const diaVenc=r.vencimento||10;
+    const venceuEsteMes=today.getDate()>=diaVenc;
+    if(!venceuEsteMes){
+      const proxVenc=new Date(today.getFullYear(),today.getMonth(),diaVenc);
+      return{cor:'#d1fae5',txt:'#065f46',label:'✓ Em dia',sub:'últ. '+fmtDataBr(r.ultima_parcela_paga)+' · próx. '+fmtDataBr(proxVenc.toISOString().slice(0,10))};
+    }
     return{cor:'#fee2e2',txt:'#991b1b',label:'⚠ Em atraso',sub:'últ. '+fmtDataBr(r.ultima_parcela_paga)};
   };
   const rows=enSorted.map(r=>{
@@ -8816,6 +8826,12 @@ function gerarRelatorioCliente(name){
     const ult=new Date(r.ultima_parcela_paga+'T00:00:00');
     const inicioMes=new Date(today.getFullYear(),today.getMonth(),1);
     if(ult>=inicioMes)return{txt:'#059669',label:'Pago',sub:fmtDataBr(r.ultima_parcela_paga)};
+    const diaVenc=r.vencimento||10;
+    const venceuEsteMes=today.getDate()>=diaVenc;
+    if(!venceuEsteMes){
+      const proxVenc=new Date(today.getFullYear(),today.getMonth(),diaVenc);
+      return{txt:'#059669',label:'Em dia',sub:'últ. '+fmtDataBr(r.ultima_parcela_paga)+' · próx. '+fmtDataBr(proxVenc.toISOString().slice(0,10))};
+    }
     return{txt:'#991b1b',label:'Em atraso',sub:'últ. '+fmtDataBr(r.ultima_parcela_paga)};
   };
   // Crédito liberado por cota
