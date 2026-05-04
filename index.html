@@ -3321,24 +3321,23 @@ const mpt=m=>MPT[m]||m;
 // ═══ AUTH ═══
 let CURRENT_USER=null; // {email, assessorName, isAdmin, displayName}
 
-// Retorna true se o registro (cota ou lead) pertence ao usuário não-admin.
-// Compara contra assessor_name e display_name (case-insensitive, normalizado).
-// Para leads, também aceita match em `indicado_por` (lead enviado pelo próprio assessor).
+// Visibilidade pra usuário não-admin:
+// - LEADS: SÓ os que ele indicou (campo `indicado_por` bate com nome dele).
+//   Quem indica é o dono. O `assessor` (responsável atribuído pelo admin) NÃO dá visibilidade.
+// - COTAS: as que tem ele como `assessor` responsável.
+// Comparação normalizada (NFD sem acento, lowercase, trim) com match exato OU substring.
 function userOwnsRecord(rec,user,isLead){
   if(!user||user.isAdmin)return true;
   const norm=s=>(s==null?'':String(s)).normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().trim();
   const myNames=[user.assessorName,user.displayName].filter(Boolean).map(norm);
-  if(!myNames.length)return true; // sem identidade clara, não filtra (admin de fato)
-  const fields=[rec.assessor];
-  if(isLead)fields.push(rec.indicado_por);
-  for(const f of fields){
-    if(!f)continue;
-    const fn=norm(f);
-    for(const my of myNames){
-      if(!my)continue;
-      // Match exato OU substring (cobre "ALAN / ESCRITORIO" vs "alan")
-      if(fn===my||fn.includes(my)||my.includes(fn))return true;
-    }
+  if(!myNames.length)return true; // sem identidade clara, não filtra
+  // LEADS: campo `indicado_por`. COTAS: campo `assessor`.
+  const target=isLead?rec.indicado_por:rec.assessor;
+  if(!target)return false;
+  const tn=norm(target);
+  for(const my of myNames){
+    if(!my)continue;
+    if(tn===my||tn.includes(my)||my.includes(tn))return true;
   }
   return false;
 }
