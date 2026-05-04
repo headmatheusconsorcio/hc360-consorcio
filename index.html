@@ -8771,6 +8771,38 @@ async function lpopAplicar(cotaId,marcarOferta){
 // ═══ RELATÓRIO PATRIMONIAL — view dedicada A4 ═══
 let relCharts={};
 function relDestroyCharts(){Object.values(relCharts).forEach(c=>{try{c.destroy();}catch(_){}});relCharts={};}
+// Imprime o modal do relatorio escondendo TODO o resto via JavaScript (forca, alem do CSS @media print)
+function imprimirRelatorio(){
+  const modal=document.getElementById('rel-modal');
+  if(!modal){window.print();return;}
+  // Esconde todos os filhos diretos do body, exceto o modal
+  const escondidos=[];
+  Array.from(document.body.children).forEach(el=>{
+    if(el===modal)return;
+    if(el.tagName==='SCRIPT'||el.tagName==='STYLE')return;
+    escondidos.push({el,prevDisplay:el.style.display});
+    el.style.display='none';
+  });
+  // Tira a toolbar do print (so as paginas)
+  const toolbar=modal.querySelector('.rel-toolbar');
+  const tbPrev=toolbar?toolbar.style.display:null;
+  if(toolbar)toolbar.style.display='none';
+  // Forca posicionamento correto do modal pra impressao
+  const modalPrev={position:modal.style.position,inset:modal.style.inset,background:modal.style.background};
+  modal.style.position='static';
+  modal.style.inset='auto';
+  modal.style.background='#fff';
+  // Print
+  window.print();
+  // Restaura
+  setTimeout(()=>{
+    escondidos.forEach(({el,prevDisplay})=>el.style.display=prevDisplay);
+    if(toolbar)toolbar.style.display=tbPrev;
+    modal.style.position=modalPrev.position;
+    modal.style.inset=modalPrev.inset;
+    modal.style.background=modalPrev.background;
+  },100);
+}
 function fecharRelatorio(){
   relDestroyCharts();
   const m=document.getElementById('rel-modal');
@@ -9025,7 +9057,7 @@ function gerarRelatorioCliente(name){
   const html=`<div class="rel-modal open" id="rel-modal">
     <div class="rel-toolbar">
       <div class="rel-toolbar-title">Relatório Consórcio Santander<small>${name} &middot; ${subtTitulo} &middot; ${mesAno}</small></div>
-      <button onclick="window.print()" class="primary">🖨 Imprimir / Salvar PDF</button>
+      <button onclick="imprimirRelatorio()" class="primary">🖨 Imprimir / Salvar PDF</button>
       <button onclick="fecharRelatorio()">✕ Fechar</button>
     </div>
     <div class="rel-pages">
