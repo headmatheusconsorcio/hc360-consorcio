@@ -3349,7 +3349,12 @@ function updateSidebarUser(u){
   const ini=(u.displayName||u.email||'·')[0].toUpperCase();
   document.getElementById('sb-avatar').textContent=ini;
   document.getElementById('sb-name').textContent=u.displayName||u.email.split('@')[0];
-  document.getElementById('sb-role').textContent=u.isAdmin?'Administrador':'Assessor';
+  const roleEl=document.getElementById('sb-role');
+  if(roleEl){
+    roleEl.textContent=u.isAdmin?'⭐ Administrador':'👤 Assessor';
+    roleEl.style.color=u.isAdmin?'#10b981':'';
+    roleEl.style.fontWeight=u.isAdmin?'700':'';
+  }
   document.querySelectorAll('[data-admin-only]').forEach(el=>{el.style.display=u.isAdmin?'':'none';});
   const nbtn=document.getElementById('topbar-nova-cota');if(nbtn)nbtn.style.display=u.isAdmin?'':'none';
   const alCard=document.getElementById('assessor-lead-card');if(alCard)alCard.style.display=u.isAdmin?'none':'block';
@@ -3362,12 +3367,17 @@ function updateSidebarUser(u){
 
 async function loadProfile(user){
   const meta=user.app_metadata||{};
+  const umeta=user.user_metadata||{};
+  // Fallback robusto pra is_admin: app_metadata > user_metadata > email (admin@*)
+  const emailLower=(user.email||'').toLowerCase();
+  const isAdminEmail=emailLower.startsWith('admin@');
   CURRENT_USER={
     email:user.email,
-    assessorName:meta.assessor_name||null,
-    isAdmin:meta.is_admin===true,
-    displayName:meta.display_name||meta.assessor_name||user.email.split('@')[0]
+    assessorName:meta.assessor_name||umeta.assessor_name||null,
+    isAdmin:meta.is_admin===true||umeta.is_admin===true||isAdminEmail,
+    displayName:meta.display_name||umeta.display_name||meta.assessor_name||umeta.assessor_name||user.email.split('@')[0]
   };
+  console.info('[HC360] login:',CURRENT_USER.email,'isAdmin:',CURRENT_USER.isAdmin,'displayName:',CURRENT_USER.displayName);
   updateSidebarUser(CURRENT_USER);
 }
 
