@@ -7458,13 +7458,20 @@ document.addEventListener('keydown',function(e){
 
 // ═══ PROPOSTA ═══
 function printPropDoc(){
-  document.body.classList.add('printing-prop');
-  // delay curto pra browser aplicar o CSS antes de abrir o diálogo
-  setTimeout(()=>{
-    window.print();
-    setTimeout(()=>document.body.classList.remove('printing-prop'),300);
-  },80);
+  // chama print direto — handler de beforeprint adiciona a classe
+  window.print();
 }
+// Auto-aplica classe printing-prop quando Step 2 do simulador está visível ao imprimir
+// (cobre Ctrl+P e File>Print do navegador, não só o botão da página)
+window.addEventListener('beforeprint',()=>{
+  const s2=document.getElementById('prop-s2');
+  if(s2&&s2.offsetParent!==null){
+    document.body.classList.add('printing-prop');
+  }
+});
+window.addEventListener('afterprint',()=>{
+  document.body.classList.remove('printing-prop');
+});
 function propGoStep(n){
   [1,2,3].forEach(i=>{
     const s=document.getElementById('prop-s'+i);if(s)s.style.display=i===n?'':'none';
