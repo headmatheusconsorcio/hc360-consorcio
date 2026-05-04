@@ -8883,7 +8883,7 @@ function gerarRelatorioCliente(name){
     <div class="rel-cover-band"></div>
     <div class="rel-cover-body">
       <div class="rel-cover-logo">${logoSrc?`<img src="${logoSrc}" alt="HC360">`:`<div style="font-family:'Quicksand',sans-serif;font-size:32pt;font-weight:600;color:#2C3E50;letter-spacing:2px">HC<span style="color:#D6AF5C">360</span></div>`}</div>
-      <div class="rel-cover-tag">Relatório Patrimonial</div>
+      <div class="rel-cover-tag">Relatório Consórcio Santander</div>
       <div class="rel-cover-cli">${name}</div>
       ${bancoPrin?`<div class="rel-cover-banco">${subtTitulo}</div>`:''}
       <div class="rel-cover-data">${mesAno}</div>
@@ -8895,8 +8895,7 @@ function gerarRelatorioCliente(name){
     </div>
     <div class="rel-cover-foot">
       <div class="rel-cover-foot-l">
-        <small>Preparado por</small>
-        <b>${assessor}</b> · HC360 Consultoria Financeira
+        <b>HC360 Consultoria Financeira</b>
       </div>
       <div class="rel-cover-foot-r">HC<span style="color:#D6AF5C">360</span></div>
     </div>
@@ -9010,7 +9009,7 @@ function gerarRelatorioCliente(name){
   // Montar modal
   const html=`<div class="rel-modal open" id="rel-modal">
     <div class="rel-toolbar">
-      <div class="rel-toolbar-title">Relatório Patrimonial<small>${name} &middot; ${subtTitulo} &middot; ${mesAno}</small></div>
+      <div class="rel-toolbar-title">Relatório Consórcio Santander<small>${name} &middot; ${subtTitulo} &middot; ${mesAno}</small></div>
       <button onclick="window.print()" class="primary">🖨 Imprimir / Salvar PDF</button>
       <button onclick="fecharRelatorio()">✕ Fechar</button>
     </div>
