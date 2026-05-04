@@ -954,8 +954,7 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
   #rel-modal,.rel-modal.open{display:block!important;position:static!important;background:#fff!important;inset:auto!important}
   .rel-toolbar{display:none!important}
   .rel-pages{padding:0;gap:0;display:block!important}
-  .rel-page{width:auto;min-height:auto;box-shadow:none;page-break-after:always;break-after:page;margin:0;padding:14mm 12mm;display:block!important}
-  .rel-page:last-child{page-break-after:auto;break-after:auto}
+  .rel-page{width:auto;min-height:auto;box-shadow:none;margin:0;padding:14mm 12mm;display:block!important}
   body{background:#fff!important;display:block!important;overflow:visible!important}
   html{overflow:visible!important}
   *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
@@ -995,6 +994,15 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
   /* Layout das paginas - sem altura forcada, evita pagina vazia */
   .rel-page{min-height:auto!important;padding:12mm 10mm!important}
   .rel-page.rel-cover{min-height:auto!important;padding:0!important}
+  /* Quebra de pagina: SOMENTE depois da capa e do resumo. Portfolio flui livre. */
+  .rel-cover{page-break-after:always!important;break-after:page!important}
+  .rel-page-resumo{page-break-after:always!important;break-after:page!important}
+  .rel-page:last-child{page-break-after:auto!important;break-after:auto!important}
+  /* Tabela do portfolio quebra naturalmente entre as paginas */
+  .rel-port-tbl{page-break-inside:auto!important}
+  .rel-port-tbl thead{display:table-header-group!important}
+  .rel-port-tbl tfoot{display:table-row-group!important}
+  .rel-port-tbl tbody tr{page-break-inside:avoid!important;break-inside:avoid!important}
 }
 @media (max-width:840px){.rel-page{width:100%;padding:14mm 8mm}}
 
@@ -8949,11 +8957,8 @@ function gerarRelatorioCliente(name){
   // Ordenar cotas: contempladas primeiro, depois em andamento, depois sorteio
   const stOrd={Contemplado:0,CONTEMPLADO:0,Faturado:1,'Em Andamento':2,'Lance Livre':2,'Lance Fixo':2,LANCE:2,'SORTEIO / LANCE':3,Sorteio:3,'SUPLENCIA - 2 NA FRENTE':3};
   const enOrd=en.slice().sort((a,b)=>(stOrd[a.status]??9)-(stOrd[b.status]??9));
-  // Quebrar tabela em chunks por página (22 cotas/pág - otimizado pra fontes do print)
-  const chunkSize=22;
-  const chunks=[];
-  for(let i=0;i<enOrd.length;i+=chunkSize)chunks.push(enOrd.slice(i,i+chunkSize));
-  if(chunks.length===0)chunks.push([]);
+  // Tabela ÚNICA — navegador quebra naturalmente, sem páginas desiguais
+  const chunks=[enOrd];
   // Total de páginas: 1 capa + 1 resumo + N tabelas (só 1 fluxo se couber junto, ou separado)
   const totalPgs=2+chunks.length;
   // Pega o logo dark do login (sempre presente no DOM)
@@ -8985,7 +8990,7 @@ function gerarRelatorioCliente(name){
   </div>`;
   // PÁGINA 2: RESUMO EXECUTIVO
   pgIdx++;
-  const resumo=`<div class="rel-page">
+  const resumo=`<div class="rel-page rel-page-resumo">
     ${hdr(pgIdx,totalPgs)}
     <div class="rel-page-title">Resumo Executivo</div>
     <div class="rel-page-subtitle">${en.length} cota${en.length>1?'s':''} ativa${en.length>1?'s':''} · indicadores consolidados em ${hojeFmt}</div>
