@@ -3953,7 +3953,7 @@ async function loadData(silent){
     if(typeof _dashUpdateRefreshLbl==='function') _dashUpdateRefreshLbl();
     if(typeof dashStartAutoRefresh==='function') dashStartAutoRefresh();
     if(typeof dashStartRealtime==='function') dashStartRealtime();try{renderFatPage();}catch(_){}
-    document.getElementById('kpi-leads').textContent=LEADS.length;
+    document.getElementById('kpi-leads').textContent=LEADS.filter(l=>!['Cota Aberta','Perdido','Ganho','GANHO','PERDIDO'].includes(l.status||'')).length;
   }catch(err){setSync(false);toast('Erro ao conectar: '+err.message,'err');}
   if(!silent) hideLoad();
 }
@@ -4350,7 +4350,7 @@ function initDash(){
   document.getElementById('kpi-cred').textContent=cred>=1e6?(cred/1e6).toFixed(1)+'M':brl(cred,0);
   document.getElementById('kpi-lance').textContent=lance;
   document.getElementById('kpi-aguard').textContent=aguard;
-  document.getElementById('kpi-leads').textContent=LEADS.length;
+  document.getElementById('kpi-leads').textContent=LEADS.filter(l=>!['Cota Aberta','Perdido','Ganho','GANHO','PERDIDO'].includes(l.status||'')).length;
   document.getElementById('kpi-cancel').textContent=canceladas.length;
   document.getElementById('kpi-cancel-sub').textContent=canceladas.length>0?'- '+brl(credCancel,0)+' da carteira':'excluídas da carteira';
 
@@ -5728,7 +5728,7 @@ async function saveLead(){
   };
   if(currentLead)data.id=currentLead;
   showLoad();const res=await upsertLead(data);hideLoad();
-  if(res){toast('Lead salvo!');closeModal('modal-lead');filterCRM();document.getElementById('kpi-leads').textContent=LEADS.length;}
+  if(res){toast('Lead salvo!');closeModal('modal-lead');filterCRM();document.getElementById('kpi-leads').textContent=LEADS.filter(l=>!['Cota Aberta','Perdido','Ganho','GANHO','PERDIDO'].includes(l.status||'')).length;}
 }
 async function deleteLead(){
   if(!confirm('Excluir este lead?'))return;
