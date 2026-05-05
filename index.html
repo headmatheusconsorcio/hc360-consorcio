@@ -3927,9 +3927,10 @@ async function loadData(silent){
       sb.from('taxas_cdi').select('*').order('data_inicio'),
       sb.from('grupos_meta').select('*'),
       sb.from('ofertas_lance').select('*').order('data_assembleia',{ascending:false}),
-      sb.from('guia_grupos').select('*'),
-      sb.from('lances_medias').select('*'),
-      sb.from('lances_historico_mensal').select('grupo,ano_mes,lance_min,lance_max,qtd_contemplados_lance_livre,qtd_contemplados_lance_fixo,qtd_contemplados_suplencia,lance_min_suplencia').order('ano_mes')
+      // Tira o limite default do Supabase (1000 linhas) — view tem 1118 grupos, histórico tem 50k+
+      sb.from('guia_grupos').select('*').range(0,9999),
+      sb.from('lances_medias').select('*').range(0,9999),
+      sb.from('lances_historico_mensal').select('grupo,ano_mes,lance_min,lance_max,qtd_contemplados_lance_livre,qtd_contemplados_lance_fixo,qtd_contemplados_suplencia,lance_min_suplencia').order('ano_mes').range(0,99999)
     ]);
     if(e1)throw e1;
     TAXAS_CDI=tx||[];
