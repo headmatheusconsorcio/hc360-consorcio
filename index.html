@@ -15,6 +15,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&family=Mulish:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
@@ -6719,16 +6720,36 @@ function renderGuiaCharts(){
   if(mx)datasets.push({label:'Máx.',data:mx.map(v=>v>0?v:null),borderColor:'#b8923a',backgroundColor:'rgba(184,146,58,.04)',tension:.4,fill:false,pointRadius:1.8,pointHoverRadius:4,pointBackgroundColor:'#b8923a',pointBorderWidth:0,borderWidth:1.1,spanGaps:true});
   // Linha horizontal do Lance Médio do período (sincronizada com chip e Selector)
   if(lmRef!=null)datasets.push({label:lmLabel,data:Array(mn.length).fill(lmRef),borderColor:'#94a3b8',backgroundColor:'transparent',tension:0,fill:false,pointRadius:0,pointHoverRadius:0,borderWidth:1,borderDash:[2,3],spanGaps:true});
+  // Registra plugin de data-labels (uma vez) — desabilitado por padrão; cada chart habilita explicitamente
+  if(window.ChartDataLabels&&!Chart._datalabelsRegistered){Chart.register(ChartDataLabels);Chart.defaults.plugins.datalabels={display:false};Chart._datalabelsRegistered=true;}
   window.minChart=new Chart(document.getElementById('ch-lance'),{
     type:'line',
     data:{labels,datasets},
     options:{
       responsive:true,maintainAspectRatio:false,
-      layout:{padding:{top:8,right:6,bottom:0,left:0}},
+      layout:{padding:{top:22,right:14,bottom:0,left:0}},
       interaction:{mode:'index',intersect:false},
       plugins:{
         legend:{display:true,position:'bottom',align:'end',labels:{font:{size:10.5,family:'Mulish',weight:'600'},usePointStyle:true,pointStyle:'line',boxWidth:18,padding:14,color:'#515151'}},
-        tooltip:{backgroundColor:'rgba(44,62,80,.95)',titleFont:{size:11,family:'Raleway',weight:'700'},bodyFont:{size:11,family:'Mulish'},padding:10,cornerRadius:8,displayColors:true,boxPadding:4,callbacks:{label:c=>` ${c.dataset.label}: ${c.parsed.y.toFixed(2)}%`}}
+        tooltip:{backgroundColor:'rgba(44,62,80,.95)',titleFont:{size:11,family:'Raleway',weight:'700'},bodyFont:{size:11,family:'Mulish'},padding:10,cornerRadius:8,displayColors:true,boxPadding:4,callbacks:{label:c=>` ${c.dataset.label}: ${c.parsed.y.toFixed(2)}%`}},
+        datalabels:{
+          display:ctx=>{
+            const lbl=ctx.dataset.label||'';
+            // Não mostra label na linha horizontal de "Médio" (poluiria visualmente)
+            if(lbl.startsWith('Médio'))return false;
+            const v=ctx.parsed.y;
+            return v!=null&&v>0;
+          },
+          align:ctx=>ctx.dataset.label==='Mín.'?'bottom':'top',
+          anchor:ctx=>ctx.dataset.label==='Mín.'?'end':'start',
+          offset:4,
+          color:ctx=>ctx.dataset.borderColor,
+          backgroundColor:'rgba(255,255,255,.9)',
+          borderRadius:3,
+          padding:{top:1,bottom:1,left:4,right:4},
+          font:{size:9.5,weight:'700',family:'Inter'},
+          formatter:v=>v!=null?v.toFixed(1)+'%':''
+        }
       },
       scales:{
         y:{beginAtZero:true,grid:{color:'rgba(226,230,237,.6)',drawTicks:false,lineWidth:.6},ticks:{callback:v=>v+'%',font:{size:10.5,family:'Mulish'},color:'#515151',padding:6},border:{display:false}},
@@ -6741,10 +6762,19 @@ function renderGuiaCharts(){
     data:{labels,datasets:[{label:'Contemplados',data:ct,backgroundColor:guiaVisao==='supl'?'rgba(214,175,92,.7)':'rgba(34,104,102,.65)',borderRadius:3,barThickness:'flex',maxBarThickness:24}]},
     options:{
       responsive:true,maintainAspectRatio:false,
-      layout:{padding:{top:8,right:6,bottom:0,left:0}},
+      layout:{padding:{top:18,right:6,bottom:0,left:0}},
       plugins:{
         legend:{display:false},
-        tooltip:{backgroundColor:'rgba(44,62,80,.95)',titleFont:{size:11,family:'Raleway',weight:'700'},bodyFont:{size:11,family:'Mulish'},padding:10,cornerRadius:8}
+        tooltip:{backgroundColor:'rgba(44,62,80,.95)',titleFont:{size:11,family:'Raleway',weight:'700'},bodyFont:{size:11,family:'Mulish'},padding:10,cornerRadius:8},
+        datalabels:{
+          display:ctx=>ctx.parsed.y>0,
+          anchor:'end',
+          align:'top',
+          offset:2,
+          color:guiaVisao==='supl'?'#7a5c1e':'#1a4f4d',
+          font:{size:10,weight:'700',family:'Inter'},
+          formatter:v=>v
+        }
       },
       scales:{
         y:{beginAtZero:true,grid:{color:'rgba(226,230,237,.6)',drawTicks:false,lineWidth:.6},ticks:{stepSize:1,font:{size:10.5,family:'Mulish'},color:'#515151',padding:6},border:{display:false}},
