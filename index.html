@@ -3971,9 +3971,16 @@ async function loadData(silent){
     }else{
       console.warn('[HC360] guia_grupos vazio — usando fallback JSON local');
     }
-    // Carrega view de médias 3m/6m/12m
+    // Carrega view de médias 3m/6m/12m (Supabase tem hard cap de 1000 — view tem ~1118)
     LANCES_MEDIAS={};
     if(lm&&lm.length)lm.forEach(r=>{LANCES_MEDIAS[String(r.grupo)]=r;});
+    // Se atingiu o cap, busca a próxima página (cobre até 2000)
+    if(lm&&lm.length>=1000){
+      try{
+        const {data:lm2}=await sb.from('lances_medias').select('*').range(1000,1999);
+        if(lm2&&lm2.length)lm2.forEach(r=>{LANCES_MEDIAS[String(r.grupo)]=r;});
+      }catch(e){console.warn('[HC360] lances_medias página 2 falhou',e);}
+    }
     console.info('[HC360] lances_medias carregado:',Object.keys(LANCES_MEDIAS).length,'grupos');
     // Reconstroi HIST (livre + suplência) a partir do banco — fonte de verdade
     if(lhm&&lhm.length){
