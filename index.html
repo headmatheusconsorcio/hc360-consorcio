@@ -3921,18 +3921,41 @@ document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));docu
 async function loadData(silent){
   if(!sb){setSync(false);toast('Cliente Supabase não inicializado','err');return;}
   if(!silent) showLoad();
+  // Helper: pagina manualmente (Supabase tem hard cap de 1000 linhas por request)
+  async function fetchAllPaged(table, opts){
+    const sel=opts.select||'*';
+    const order=opts.order;
+    const eq=opts.eq;
+    const PAGE=1000;
+    const all=[];
+    let from=0;
+    while(true){
+      let q=sb.from(table).select(sel);
+      if(eq)q=q.eq(eq[0],eq[1]);
+      if(order)q=q.order(order.col,{ascending:order.asc!==false});
+      q=q.range(from,from+PAGE-1);
+      const {data,error}=await q;
+      if(error)throw error;
+      if(!data||!data.length)break;
+      all.push(...data);
+      if(data.length<PAGE)break;
+      from+=PAGE;
+    }
+    return all;
+  }
   try{
-    const [{data:c,error:e1},{data:l,error:e2},{data:tx},{data:gm},{data:ofs},{data:gg},{data:lm},{data:lhm}]=await Promise.all([
+    const [{data:c,error:e1},{data:l,error:e2},{data:tx},{data:gm},{data:ofs},gg,lm,lhm]=await Promise.all([
       sb.from('cotas').select('*').order('nome'),
       sb.from('leads').select('*').order('created_at',{ascending:false}),
       sb.from('taxas_cdi').select('*').order('data_inicio'),
       sb.from('grupos_meta').select('*'),
       sb.from('ofertas_lance').select('*').order('data_assembleia',{ascending:false}),
-      // Tira o limite default do Supabase (1000 linhas) — view tem 1118 grupos, histórico tem 50k+
-      sb.from('guia_grupos').select('*').range(0,9999),
-      sb.from('lances_medias').select('*').range(0,9999),
-      sb.from('lances_historico_mensal').select('grupo,ano_mes,lance_min,lance_max,qtd_contemplados_lance_livre,qtd_contemplados_lance_fixo,qtd_contemplados_suplencia,lance_min_suplencia').order('ano_mes').range(0,99999)
+      // Pagina cobertas (sem limite) — view tem 1118 grupos, histórico tem 50k+ linhas
+      fetchAllPaged('guia_grupos',{}),
+      fetchAllPaged('lances_medias',{}),
+      fetchAllPaged('lances_historico_mensal',{select:'grupo,ano_mes,data_assembleia,lance_min,lance_max,qtd_contemplados_lance_livre,qtd_contemplados_lance_fixo,qtd_contemplados_suplencia,lance_min_suplencia',order:{col:'ano_mes'}})
     ]);
+    console.info('[HC360] fetched: guia_grupos='+gg.length+' lances_medias='+lm.length+' lances_historico_mensal='+lhm.length);
     if(e1)throw e1;
     TAXAS_CDI=tx||[];
     GRUPOS_META={};(gm||[]).forEach(g=>{GRUPOS_META[String(g.grupo)]=g;});
@@ -6715,10 +6738,11 @@ function renderGuiaCharts(){
   // Apenas as duas séries reais: Mín e Máx (sem linha tracejada de "Médio" — fica no chip)
   const datasets=[{label:'Mín.',data:mn.map(v=>v>0?v:null),borderColor:'#226866',backgroundColor:'rgba(34,104,102,.04)',tension:.4,fill:false,pointRadius:1.8,pointHoverRadius:4,pointBackgroundColor:'#226866',pointBorderWidth:0,borderWidth:1.1,spanGaps:true}];
   if(mx)datasets.push({label:'Máx.',data:mx.map(v=>v>0?v:null),borderColor:'#b8923a',backgroundColor:'rgba(184,146,58,.04)',tension:.4,fill:false,pointRadius:1.8,pointHoverRadius:4,pointBackgroundColor:'#b8923a',pointBorderWidth:0,borderWidth:1.1,spanGaps:true});
-  // Registra plugin de data-labels (uma vez) — desabilitado por padrão; cada chart habilita explicitamente
-  if(window.ChartDataLabels&&!Chart._datalabelsRegistered){Chart.register(ChartDataLabels);Chart.defaults.plugins.datalabels={display:false};Chart._datalabelsRegistered=true;}
+  // Plugin datalabels APENAS pra esses 2 charts (não global — não afeta outros gráficos do sistema)
+  const dlPlugin=window.ChartDataLabels?[window.ChartDataLabels]:[];
   window.minChart=new Chart(document.getElementById('ch-lance'),{
     type:'line',
+    plugins:dlPlugin,
     data:{labels,datasets},
     options:{
       responsive:true,maintainAspectRatio:false,
@@ -6748,6 +6772,7 @@ function renderGuiaCharts(){
   });
   window.contChart=new Chart(document.getElementById('ch-cont'),{
     type:'bar',
+    plugins:dlPlugin,
     data:{labels,datasets:[{label:'Contemplados',data:ct,backgroundColor:guiaVisao==='supl'?'rgba(214,175,92,.7)':'rgba(34,104,102,.65)',borderRadius:3,barThickness:'flex',maxBarThickness:24}]},
     options:{
       responsive:true,maintainAspectRatio:false,
