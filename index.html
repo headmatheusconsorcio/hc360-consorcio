@@ -2834,13 +2834,7 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
         <button class="btn btn-pri btn-sm" onclick="openModalCadastrarUser()" style="font-size:13px;padding:7px 14px"><span style="margin-right:5px">＋</span>Novo Usuário</button>
       </div>
 
-      <!-- Visão 1: Por papel/comissão -->
-      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--txt2);margin:8px 0 10px">📊 Visão por papel e comissão</div>
-      <div id="usu-v1-container" style="display:flex;flex-direction:column;gap:14px;margin-bottom:32px"></div>
-
-      <!-- Visão 2: Por filial -->
-      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--txt2);margin:8px 0 10px">🏢 Visão por filial · acessos ao sistema</div>
-      <div id="usu-v2-container" style="display:flex;flex-direction:column;gap:14px"></div>
+      <div id="usu-v1-container"></div>
     </div>
   </div>
 
@@ -3251,6 +3245,11 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
           <option value="80">80,0%</option>
           <option value="100">100,0%</option>
         </select>
+      </div>
+
+      <div style="border-top:1px solid var(--bdr);padding-top:14px;margin-top:8px">
+        <div style="font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--txt2);margin-bottom:10px">Acesso ao sistema</div>
+        <div id="er-acesso-box" style="background:var(--card2);padding:12px 14px;border-radius:8px;border:1px solid var(--bdr);font-size:12.5px"></div>
       </div>
 
     </div>
@@ -4052,93 +4051,73 @@ function _jsesc(s){return (s||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'");}
 async function renderUsuariosPage(){
   if(!CURRENT_USER||!CURRENT_USER.isAdmin){
     document.getElementById('usu-v1-container').innerHTML='<div style="padding:40px;text-align:center;color:var(--err)">Apenas administradores.</div>';
-    document.getElementById('usu-v2-container').innerHTML='';
     return;
   }
   const v1=document.getElementById('usu-v1-container');
-  const v2=document.getElementById('usu-v2-container');
   v1.innerHTML='<div style="padding:40px;text-align:center;color:var(--txt2)">Carregando…</div>';
-  v2.innerHTML='';
   try{
     const {data,error}=await sb.rpc('admin_list_assessores_completo');
     if(error)throw error;
     _USUDATA=data||[];
     _renderV1();
-    _renderV2();
   }catch(e){
     v1.innerHTML='<div style="padding:40px;text-align:center;color:var(--err)">Erro: '+(e.message||e)+'</div>';
   }
 }
 
-function _renderV1(){
-  const groups=[
-    {key:'ativo',ico:'🟢',title:'Assessores Ativos',bg:'#ECFDF5',brd:'#A7F3D0'},
-    {key:'head',ico:'👑',title:'Heads',bg:'#FEF3C7',brd:'#FCD34D'},
-    {key:'socio_op',ico:'🤝',title:'Sócios Operacionais',bg:'#FCE7F3',brd:'#F9A8D4'},
-    {key:'historico',ico:'📦',title:'Sem comissões em 2026 / Histórico',bg:'#F3F4F6',brd:'#D1D5DB'}
-  ];
-  const html=groups.map(g=>{
-    const list=_USUDATA.filter(p=>p.categoria===g.key);
-    const rows=list.length===0?
-      '<tr><td colspan="4" style="text-align:center;padding:18px;color:var(--txt3);font-style:italic">Ninguém nesta categoria.</td></tr>'
-      :list.map(p=>`<tr>
-        <td style="font-weight:700;font-size:13px;padding:11px 14px">${_esc(p.assessor_name)}${p.papel_extra?'<div style="font-size:11px;color:var(--acc2);font-weight:500;margin-top:2px">'+_esc(p.papel_extra)+'</div>':''}</td>
-        <td style="font-size:12.5px;color:var(--txt2);padding:11px 14px"><span style="margin-right:4px">🏢</span>${_esc(p.filial)}</td>
-        <td style="text-align:center;font-weight:700;font-size:14px;color:var(--acc2);padding:11px 14px">${Number(p.pct_padrao).toFixed(1).replace('.',',')}%</td>
-        <td style="text-align:right;padding:11px 14px"><button class="btn btn-out btn-sm" style="font-size:11.5px;padding:4px 10px" onclick="openModalEditarRepasse('${_jsesc(p.assessor_name)}')"><span style="color:var(--acc)">⚙</span> Editar</button></td>
-      </tr>`).join('');
-    return `<div style="background:var(--card);border:1px solid var(--bdr);border-radius:12px;overflow:hidden">
-      <div style="display:flex;align-items:center;gap:10px;padding:14px 18px;background:${g.bg};border-bottom:1px solid ${g.brd}">
-        <span style="font-size:18px">${g.ico}</span>
-        <div style="font-weight:700;font-size:14px">${g.title}</div>
-        <span style="font-size:11.5px;color:var(--txt2);font-weight:600">· ${list.length}</span>
-      </div>
-      <div class="tw" style="overflow-x:auto"><table style="width:100%;font-size:12.5px;min-width:560px">
-        <thead><tr style="background:var(--card2)">
-          <th style="text-align:left;padding:9px 14px;font-size:10.5px;color:var(--txt2);font-weight:700;letter-spacing:.4px">ASSESSOR</th>
-          <th style="text-align:left;padding:9px 14px;font-size:10.5px;color:var(--txt2);font-weight:700;letter-spacing:.4px">FILIAL</th>
-          <th style="text-align:center;padding:9px 14px;font-size:10.5px;color:var(--txt2);font-weight:700;letter-spacing:.4px">% REPASSE</th>
-          <th style="padding:9px 14px"></th>
-        </tr></thead>
-        <tbody>${rows}</tbody>
-      </table></div>
-    </div>`;
-  }).join('');
-  document.getElementById('usu-v1-container').innerHTML=html;
+function _fmtBRL(n){
+  if(n==null||isNaN(n))return '—';
+  const v=Number(n);
+  if(v===0)return '—';
+  if(v>=1000000)return 'R$ '+(v/1000000).toFixed(1).replace('.',',')+' mi';
+  if(v>=1000)return 'R$ '+(v/1000).toFixed(1).replace('.',',')+' mil';
+  return 'R$ '+v.toFixed(0);
 }
-
-function _renderV2(){
-  const byFilial={};
-  _FILIAL_ORDER.forEach(f=>byFilial[f]=[]);
-  _USUDATA.forEach(p=>{(byFilial[p.filial]||(byFilial[p.filial]=[])).push(p);});
-  const html=_FILIAL_ORDER.filter(f=>byFilial[f].length>0).map(f=>{
-    const list=byFilial[f].sort((a,b)=>a.assessor_name.localeCompare(b.assessor_name));
-    const rows=list.map(p=>{
-      const acoes=p.auth_user_id?
-        `<button class="btn btn-out btn-sm" style="font-size:11.5px;padding:4px 10px" onclick="resetarSenhaUsuario('${p.auth_user_id}','${_jsesc(p.email||'')}','${_jsesc(p.assessor_name)}')"><span style="color:var(--acc)">🔑</span> Trocar senha</button>`
-        :`<button class="btn btn-out btn-sm" style="font-size:11.5px;padding:4px 10px" onclick="openModalCadastrarUser('${_jsesc(p.assessor_name)}')"><span style="color:var(--acc)">＋</span> Cadastrar</button>`;
-      return `<tr>
-        <td style="padding:11px 14px"><div style="font-weight:700;font-size:13px">${_esc(p.assessor_name)}</div>${p.email?'<div style="font-family:Consolas,monospace;font-size:11px;color:var(--txt3);margin-top:2px">'+_esc(p.email)+'</div>':''}</td>
-        <td style="padding:11px 14px">${_statusBadge(p)}</td>
-        <td style="padding:11px 14px;text-align:right">${acoes}</td>
+function _renderV1(){
+  const list=[..._USUDATA].sort((a,b)=>Number(b.producao_total||0)-Number(a.producao_total||0));
+  const rows=list.length===0?
+    '<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--txt3);font-style:italic">Nenhum assessor cadastrado.</td></tr>'
+    :list.map(p=>{
+      const catBadge=p.categoria==='head'?'<span style="background:#FEF3C7;color:#92400E;padding:1.5px 7px;border-radius:4px;font-size:10px;font-weight:700;margin-left:6px">HEAD</span>':
+                    p.categoria==='socio_op'?'<span style="background:#FCE7F3;color:#9D174D;padding:1.5px 7px;border-radius:4px;font-size:10px;font-weight:700;margin-left:6px">SÓCIO OP</span>':
+                    p.categoria==='historico'?'<span style="background:#F3F4F6;color:#6B7280;padding:1.5px 7px;border-radius:4px;font-size:10px;font-weight:700;margin-left:6px">HISTÓRICO</span>':'';
+      return `<tr style="border-bottom:1px solid var(--bdr-soft)">
+        <td style="padding:14px 16px">
+          <div style="display:flex;align-items:center;flex-wrap:wrap"><span style="font-weight:700;font-size:13.5px">${_esc(p.assessor_name)}</span>${catBadge}</div>
+          ${p.papel_extra?'<div style="font-size:11px;color:var(--acc2);font-weight:500;margin-top:3px">'+_esc(p.papel_extra)+'</div>':''}
+        </td>
+        <td style="font-size:12.5px;color:var(--txt2);padding:14px 16px;white-space:nowrap"><span style="margin-right:5px">🏢</span>${_esc(p.filial)}</td>
+        <td style="text-align:center;font-weight:700;font-size:14px;color:var(--acc2);padding:14px 16px">${Number(p.pct_padrao).toFixed(1).replace('.',',')}%</td>
+        <td style="text-align:right;padding:14px 16px;color:var(--txt3);font-size:12.5px">—</td>
+        <td style="text-align:right;padding:14px 16px">
+          <div style="font-weight:700;font-size:13px;color:${p.producao_total>0?'var(--ok-deep)':'var(--txt3)'}">${_fmtBRL(p.producao_total)}</div>
+          ${p.qtd_cotas>0?'<div style="font-size:10.5px;color:var(--txt3);margin-top:2px">'+p.qtd_cotas+' cota'+(p.qtd_cotas>1?'s':'')+'</div>':''}
+        </td>
+        <td style="text-align:right;padding:14px 16px"><button class="btn btn-out btn-sm" style="font-size:11.5px;padding:5px 12px" onclick="openModalEditarRepasse('${_jsesc(p.assessor_name)}')"><span style="color:var(--acc);margin-right:3px">⚙</span>Editar</button></td>
       </tr>`;
     }).join('');
-    return `<div style="background:var(--card);border:1px solid var(--bdr);border-radius:12px;overflow:hidden">
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:var(--card2);border-bottom:1px solid var(--bdr)">
-        <div style="font-weight:700;font-size:14px;letter-spacing:.3px">${_esc(f).toUpperCase()}</div>
-        <div style="font-size:11.5px;color:var(--txt2);text-transform:uppercase;letter-spacing:.5px">${list.length} ${list.length===1?'pessoa':'pessoas'}</div>
+  const totalProd=list.reduce((s,p)=>s+Number(p.producao_total||0),0);
+  const totalCotas=list.reduce((s,p)=>s+Number(p.qtd_cotas||0),0);
+  document.getElementById('usu-v1-container').innerHTML=`
+    <div style="background:var(--card);border:1px solid var(--bdr);border-radius:14px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.04)">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;background:linear-gradient(135deg,var(--card2),var(--card));border-bottom:1px solid var(--bdr);flex-wrap:wrap;gap:12px">
+        <div>
+          <div style="font-weight:700;font-size:15px">👥 Assessores</div>
+          <div style="font-size:11.5px;color:var(--txt2);margin-top:2px">${list.length} cadastrados · ${totalCotas} cotas · produção total ${_fmtBRL(totalProd)}</div>
+        </div>
       </div>
-      <div class="tw" style="overflow-x:auto"><table style="width:100%;font-size:12.5px;min-width:480px">
-        <thead><tr style="background:#FAFAF7">
-          <th style="text-align:left;padding:9px 14px;font-size:10.5px;color:var(--txt2);font-weight:700;letter-spacing:.4px">NOME</th>
-          <th style="text-align:left;padding:9px 14px;font-size:10.5px;color:var(--txt2);font-weight:700;letter-spacing:.4px">STATUS</th>
-          <th style="text-align:right;padding:9px 14px;font-size:10.5px;color:var(--txt2);font-weight:700;letter-spacing:.4px">AÇÕES</th>
+      <div class="tw" style="overflow-x:auto"><table style="width:100%;font-size:12.5px;min-width:760px;border-collapse:collapse">
+        <thead><tr style="background:var(--card2)">
+          <th style="text-align:left;padding:11px 16px;font-size:10.5px;color:var(--txt2);font-weight:700;letter-spacing:.5px">ASSESSOR</th>
+          <th style="text-align:left;padding:11px 16px;font-size:10.5px;color:var(--txt2);font-weight:700;letter-spacing:.5px">FILIAL</th>
+          <th style="text-align:center;padding:11px 16px;font-size:10.5px;color:var(--txt2);font-weight:700;letter-spacing:.5px">% REPASSE</th>
+          <th style="text-align:right;padding:11px 16px;font-size:10.5px;color:var(--txt2);font-weight:700;letter-spacing:.5px">RENDA<br><span style="font-weight:500;text-transform:none;letter-spacing:0">no consórcio</span></th>
+          <th style="text-align:right;padding:11px 16px;font-size:10.5px;color:var(--txt2);font-weight:700;letter-spacing:.5px">PRODUÇÃO<br><span style="font-weight:500;text-transform:none;letter-spacing:0">em venda</span></th>
+          <th style="padding:11px 16px"></th>
         </tr></thead>
         <tbody>${rows}</tbody>
       </table></div>
     </div>`;
-  }).join('');
-  document.getElementById('usu-v2-container').innerHTML=html||'<div style="padding:40px;text-align:center;color:var(--txt3)">Nenhuma filial com pessoas.</div>';
 }
 
 // === Modal Editar Repasse ===
@@ -4155,6 +4134,26 @@ function openModalEditarRepasse(name){
   const pctV=String(Math.round(Number(p.pct_padrao)));
   if(![...pctSel.options].some(o=>o.value===pctV))pctSel.add(new Option(pctV+',0%',pctV));
   pctSel.value=pctV;
+  // Caixa de acesso ao sistema
+  const ab=document.getElementById('er-acesso-box');
+  if(p.auth_user_id){
+    const last=p.last_sign_in_at?_fmtRel(p.last_sign_in_at):'nunca acessou';
+    ab.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+      <div>
+        <div style="font-weight:700;color:var(--ok-deep)">✓ Cadastrado</div>
+        <div style="font-size:11.5px;color:var(--txt2);margin-top:2px">${p.email||'sem e-mail'} · ${last}</div>
+      </div>
+      <button class="btn btn-out btn-sm" style="font-size:11.5px;padding:5px 12px" onclick="resetarSenhaUsuario('${p.auth_user_id}','${_jsesc(p.email||'')}','${_jsesc(p.assessor_name)}')"><span style="color:var(--acc);margin-right:3px">🔑</span>Trocar senha</button>
+    </div>`;
+  }else{
+    ab.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+      <div>
+        <div style="font-weight:700;color:var(--err-deep)">✗ Sem login no sistema</div>
+        <div style="font-size:11.5px;color:var(--txt2);margin-top:2px">Cadastre um e-mail/senha pra esta pessoa acessar</div>
+      </div>
+      <button class="btn btn-out btn-sm" style="font-size:11.5px;padding:5px 12px" onclick="closeModal('modal-edit-repasse');openModalCadastrarUser('${_jsesc(p.assessor_name)}')"><span style="color:var(--acc);margin-right:3px">＋</span>Cadastrar acesso</button>
+    </div>`;
+  }
   document.getElementById('modal-edit-repasse').classList.add('open');
 }
 async function salvarRepasse(){
