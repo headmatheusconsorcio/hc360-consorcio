@@ -3929,8 +3929,24 @@ async function loadData(silent){
       sb.from('ofertas_lance').select('*').order('data_assembleia',{ascending:false}),
       sb.from('guia_grupos').select('*'),
       sb.from('lances_medias').select('*'),
-      sb.from('lances_historico_mensal').select('grupo,ano_mes,lance_min,lance_max,qtd_contemplados_lance_livre,qtd_contemplados_lance_fixo,qtd_contemplados_suplencia,lance_min_suplencia').order('ano_mes')
+      sb.from('lances_historico_mensal').select('grupo,ano_mes,lance_min,lance_max,qtd_contemplados_lance_livre,qtd_contemplados_lance_fixo,qtd_contemplados_suplencia,lance_min_suplencia').gte('ano_mes',_lhmCutoff()).order('grupo').order('ano_mes').range(0,999)
     ]);
+    // Paginação completa do lances_historico_mensal (Supabase cap = 1000; tabela ~50k linhas filtradas → ~22k em 18m)
+    if(lhm&&lhm.length>=1000){
+      try{
+        const lhmAll=[...lhm];let off=1000;
+        for(let pg=0;pg<60;pg++){
+          const {data:lhmN,error:lhmE}=await sb.from('lances_historico_mensal').select('grupo,ano_mes,lance_min,lance_max,qtd_contemplados_lance_livre,qtd_contemplados_lance_fixo,qtd_contemplados_suplencia,lance_min_suplencia').gte('ano_mes',_lhmCutoff()).order('grupo').order('ano_mes').range(off,off+999);
+          if(lhmE){console.warn('[HC360] lhm pg falhou',lhmE);break;}
+          if(!lhmN||!lhmN.length)break;
+          lhmAll.push(...lhmN);
+          if(lhmN.length<1000)break;
+          off+=1000;
+        }
+        console.info('[HC360] lances_historico_mensal carregado:',lhmAll.length,'linhas (paginado)');
+        lhm.length=0;Array.prototype.push.apply(lhm,lhmAll);
+      }catch(e){console.warn('[HC360] paginação lhm falhou',e);}
+    }
     if(e1)throw e1;
     TAXAS_CDI=tx||[];
     GRUPOS_META={};(gm||[]).forEach(g=>{GRUPOS_META[String(g.grupo)]=g;});
@@ -4533,7 +4549,7 @@ function renderCtrl(){
       <td style="white-space:nowrap;text-align:center">
         <button id="psave-${r.id}" class="btn btn-ok btn-sm" style="display:none" onclick="projSaveRow('${r.id}')" title="Salvar">??</button>
         ${!isCan&&!isCp?`<button class="btn btn-ok btn-sm" onclick="openModalContemp('${r.id}')" title="Contemplar">✓</button> `:''}
-        <button class="btn btn-out btn-sm emoji-btn" onclick="openLanceInteligente('${r.id}',this)" title="Inteligência de lance: histórico desta cota + histórico do grupo + sugestão">??</button>
+        <button class="btn btn-out btn-sm" onclick="openLanceInteligente('${r.id}',this)" title="Inteligência de lance: histórico desta cota + histórico do grupo + sugestão" style="padding:5px 8px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></button>
         <button class="btn btn-out btn-sm" onclick="openModalCota('${r.id}')" title="Editar completo">✏️</button>
       </td>
     </tr>`;}).join('');
@@ -4758,6 +4774,8 @@ function mcRecalc(src){
 }
 // Helpers de pagamento (mesma lógica usada em Agenda e Lista Completa)
 function _hojeStr(){const d=new Date();return new Date(d.getFullYear(),d.getMonth(),d.getDate()).toISOString().slice(0,10);}
+// Cutoff pra carregar histórico de lances dos últimos 18 meses (suficiente pra hist12mo + folga)
+function _lhmCutoff(){const d=new Date();d.setMonth(d.getMonth()-18);return d.toISOString().slice(0,7);}
 function _inicioDoMes(){const d=new Date();return new Date(d.getFullYear(),d.getMonth(),1);}
 function jaPagoNoMes(r){
   if(!r||!r.ultima_parcela_paga)return false;
@@ -8492,7 +8510,7 @@ function renderProjDetail(name){
       <td style="white-space:nowrap;text-align:center">
         <button id="psave-${r.id}" class="btn btn-ok btn-sm" style="display:none" onclick="projSaveRow('${r.id}')" title="Salvar">💾</button>
         ${!isCan?`<button class="btn btn-out btn-sm" onclick="openModalContemp('${r.id}')" title="Registrar contemplação">✓</button> `:''}
-        <button class="btn btn-out btn-sm emoji-btn" onclick="openLanceInteligente('${r.id}',this)" title="Inteligência de lance: histórico desta cota + histórico do grupo + sugestão">??</button>
+        <button class="btn btn-out btn-sm" onclick="openLanceInteligente('${r.id}',this)" title="Inteligência de lance: histórico desta cota + histórico do grupo + sugestão" style="padding:5px 8px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></button>
         <button class="btn btn-out btn-sm" onclick="openModalCota('${r.id}')" title="Ver / editar completo">✏️</button>
       </td>
     </tr>`;
@@ -9030,7 +9048,7 @@ function renderProjList(){
       <td style="white-space:nowrap;text-align:center">
         <button id="psave-${r.id}" class="btn btn-ok btn-sm" style="display:none" onclick="projSaveRow('${r.id}')" title="Salvar">??</button>
         ${!isCan&&!isCp?`<button class="btn btn-ok btn-sm" onclick="openModalContemp('${r.id}')" title="Contemplar">✓</button> `:''}
-        <button class="btn btn-out btn-sm emoji-btn" onclick="openLanceInteligente('${r.id}',this)" title="Inteligência de lance: histórico desta cota + histórico do grupo + sugestão">??</button>
+        <button class="btn btn-out btn-sm" onclick="openLanceInteligente('${r.id}',this)" title="Inteligência de lance: histórico desta cota + histórico do grupo + sugestão" style="padding:5px 8px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></button>
         <button class="btn btn-out btn-sm" onclick="openModalCota('${r.id}')" title="Editar completo">✏️</button>
       </td>
     </tr>`;
