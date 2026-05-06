@@ -4118,12 +4118,9 @@ function _renderV2(){
         `<button class="btn btn-out btn-sm" style="font-size:11.5px;padding:4px 10px" onclick="resetarSenhaUsuario('${p.auth_user_id}','${_jsesc(p.email||'')}','${_jsesc(p.assessor_name)}')"><span style="color:var(--acc)">🔑</span> Trocar senha</button>`
         :`<button class="btn btn-out btn-sm" style="font-size:11.5px;padding:4px 10px" onclick="openModalCadastrarUser('${_jsesc(p.assessor_name)}')"><span style="color:var(--acc)">＋</span> Cadastrar</button>`;
       return `<tr>
-        <td style="font-weight:700;font-size:12.5px;padding:11px 12px">${_esc(p.assessor_name)}</td>
-        <td style="padding:11px 12px">${_papelLabel(p)}</td>
-        <td style="font-family:Consolas,monospace;font-size:11.5px;color:var(--txt2);padding:11px 12px">${p.email?_esc(p.email):'—'}</td>
-        <td style="padding:11px 12px">${_statusBadge(p)}</td>
-        <td style="font-size:11.5px;color:var(--txt2);padding:11px 12px;text-align:right">${p.last_sign_in_at?_fmtRel(p.last_sign_in_at):'—'}</td>
-        <td style="padding:11px 12px;text-align:right">${acoes}</td>
+        <td style="padding:11px 14px"><div style="font-weight:700;font-size:13px">${_esc(p.assessor_name)}</div>${p.email?'<div style="font-family:Consolas,monospace;font-size:11px;color:var(--txt3);margin-top:2px">'+_esc(p.email)+'</div>':''}</td>
+        <td style="padding:11px 14px">${_statusBadge(p)}</td>
+        <td style="padding:11px 14px;text-align:right">${acoes}</td>
       </tr>`;
     }).join('');
     return `<div style="background:var(--card);border:1px solid var(--bdr);border-radius:12px;overflow:hidden">
@@ -4131,14 +4128,11 @@ function _renderV2(){
         <div style="font-weight:700;font-size:14px;letter-spacing:.3px">${_esc(f).toUpperCase()}</div>
         <div style="font-size:11.5px;color:var(--txt2);text-transform:uppercase;letter-spacing:.5px">${list.length} ${list.length===1?'pessoa':'pessoas'}</div>
       </div>
-      <div class="tw" style="overflow-x:auto"><table style="width:100%;font-size:12.5px;min-width:780px">
+      <div class="tw" style="overflow-x:auto"><table style="width:100%;font-size:12.5px;min-width:480px">
         <thead><tr style="background:#FAFAF7">
-          <th style="text-align:left;padding:9px 12px;font-size:10.5px;color:var(--txt2);font-weight:700;letter-spacing:.4px">NOME</th>
-          <th style="text-align:left;padding:9px 12px;font-size:10.5px;color:var(--txt2);font-weight:700;letter-spacing:.4px">PAPEL</th>
-          <th style="text-align:left;padding:9px 12px;font-size:10.5px;color:var(--txt2);font-weight:700;letter-spacing:.4px">E-MAIL</th>
-          <th style="text-align:left;padding:9px 12px;font-size:10.5px;color:var(--txt2);font-weight:700;letter-spacing:.4px">STATUS</th>
-          <th style="text-align:right;padding:9px 12px;font-size:10.5px;color:var(--txt2);font-weight:700;letter-spacing:.4px">ÚLTIMO ACESSO</th>
-          <th style="text-align:right;padding:9px 12px;font-size:10.5px;color:var(--txt2);font-weight:700;letter-spacing:.4px">AÇÕES</th>
+          <th style="text-align:left;padding:9px 14px;font-size:10.5px;color:var(--txt2);font-weight:700;letter-spacing:.4px">NOME</th>
+          <th style="text-align:left;padding:9px 14px;font-size:10.5px;color:var(--txt2);font-weight:700;letter-spacing:.4px">STATUS</th>
+          <th style="text-align:right;padding:9px 14px;font-size:10.5px;color:var(--txt2);font-weight:700;letter-spacing:.4px">AÇÕES</th>
         </tr></thead>
         <tbody>${rows}</tbody>
       </table></div>
