@@ -3253,13 +3253,6 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
         </select>
       </div>
 
-      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--txt2);margin:18px 0 8px">Usa Head em quais produtos?</div>
-      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;background:var(--card2);padding:14px;border-radius:8px;border:1px solid var(--bdr)">
-        <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"><input type="checkbox" id="er-flag-cons" style="width:16px;height:16px;cursor:pointer"> Consórcio</label>
-        <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"><input type="checkbox" id="er-flag-cam" style="width:16px;height:16px;cursor:pointer"> Câmbio</label>
-        <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"><input type="checkbox" id="er-flag-he" style="width:16px;height:16px;cursor:pointer"> Home Equity</label>
-        <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"><input type="checkbox" id="er-flag-fil" style="width:16px;height:16px;cursor:pointer"> Filial</label>
-      </div>
     </div>
     <div class="mf">
       <button class="btn btn-out" onclick="closeModal('modal-edit-repasse')">Cancelar</button>
@@ -4079,53 +4072,33 @@ async function renderUsuariosPage(){
 
 function _renderV1(){
   const groups=[
-    {key:'ativo',ico:'🟢',title:'Assessores Ativos (com comissões em 2026)',desc:'Atuam como A1 em comissões. % padrão define o repasse e flags controlam quais heads aplicam',bg:'#ECFDF5',brd:'#A7F3D0'},
-    {key:'head',ico:'👑',title:'Heads de Produto / Filial',desc:'Recebem head sobre operações da equipe — Consórcio, Câmbio, Home Equity, Filial',bg:'#FEF3C7',brd:'#FCD34D'},
-    {key:'socio_op',ico:'🤝',title:'Sócios Operacionais',desc:'Recebem % específico A2 em comissões de assessores que acompanham operacionalmente',bg:'#FCE7F3',brd:'#F9A8D4'},
-    {key:'historico',ico:'📦',title:'Sem comissões em 2026 / Histórico',desc:'Cadastrados no Airtable mas sem atividade em 2026 (anteriores ou novos sem operação)',bg:'#F3F4F6',brd:'#D1D5DB'}
+    {key:'ativo',ico:'🟢',title:'Assessores Ativos',bg:'#ECFDF5',brd:'#A7F3D0'},
+    {key:'head',ico:'👑',title:'Heads',bg:'#FEF3C7',brd:'#FCD34D'},
+    {key:'socio_op',ico:'🤝',title:'Sócios Operacionais',bg:'#FCE7F3',brd:'#F9A8D4'},
+    {key:'historico',ico:'📦',title:'Sem comissões em 2026 / Histórico',bg:'#F3F4F6',brd:'#D1D5DB'}
   ];
   const html=groups.map(g=>{
     const list=_USUDATA.filter(p=>p.categoria===g.key);
     const rows=list.length===0?
-      '<tr><td colspan="9" style="text-align:center;padding:18px;color:var(--txt3);font-style:italic">Nenhum nesta categoria.</td></tr>'
+      '<tr><td colspan="4" style="text-align:center;padding:18px;color:var(--txt3);font-style:italic">Ninguém nesta categoria.</td></tr>'
       :list.map(p=>`<tr>
-        <td style="font-weight:700;font-size:12.5px">${_esc(p.assessor_name)}</td>
-        <td style="font-size:12px;color:var(--txt2)"><span style="margin-right:4px">🏢</span>${_esc(p.filial)}</td>
-        <td style="font-size:11.5px;color:var(--acc2)">${p.papel_extra?_esc(p.papel_extra):'—'}</td>
-        <td style="text-align:center;font-weight:700;font-size:13px">${Number(p.pct_padrao).toFixed(1).replace('.',',')}%</td>
-        <td style="text-align:center">${_flag(p.usa_head_consorcio)}</td>
-        <td style="text-align:center">${_flag(p.usa_head_cambio)}</td>
-        <td style="text-align:center">${_flag(p.usa_head_he)}</td>
-        <td style="text-align:center">${_flag(p.usa_head_filial)}</td>
-        <td style="text-align:center;color:var(--txt3)">—</td>
-        <td style="text-align:right;color:var(--txt3)">—</td>
-        <td style="text-align:right"><button class="btn btn-out btn-sm" style="font-size:11.5px;padding:4px 10px" onclick="openModalEditarRepasse('${_jsesc(p.assessor_name)}')"><span style="color:var(--acc)">⚙</span> Editar</button></td>
+        <td style="font-weight:700;font-size:13px;padding:11px 14px">${_esc(p.assessor_name)}${p.papel_extra?'<div style="font-size:11px;color:var(--acc2);font-weight:500;margin-top:2px">'+_esc(p.papel_extra)+'</div>':''}</td>
+        <td style="font-size:12.5px;color:var(--txt2);padding:11px 14px"><span style="margin-right:4px">🏢</span>${_esc(p.filial)}</td>
+        <td style="text-align:center;font-weight:700;font-size:14px;color:var(--acc2);padding:11px 14px">${Number(p.pct_padrao).toFixed(1).replace('.',',')}%</td>
+        <td style="text-align:right;padding:11px 14px"><button class="btn btn-out btn-sm" style="font-size:11.5px;padding:4px 10px" onclick="openModalEditarRepasse('${_jsesc(p.assessor_name)}')"><span style="color:var(--acc)">⚙</span> Editar</button></td>
       </tr>`).join('');
     return `<div style="background:var(--card);border:1px solid var(--bdr);border-radius:12px;overflow:hidden">
-      <div style="display:flex;align-items:center;gap:10px;padding:14px 18px;background:${g.bg};border-bottom:1px solid ${g.brd};flex-wrap:wrap">
+      <div style="display:flex;align-items:center;gap:10px;padding:14px 18px;background:${g.bg};border-bottom:1px solid ${g.brd}">
         <span style="font-size:18px">${g.ico}</span>
         <div style="font-weight:700;font-size:14px">${g.title}</div>
         <span style="font-size:11.5px;color:var(--txt2);font-weight:600">· ${list.length}</span>
-        <div style="margin-left:auto;font-size:11.5px;color:var(--txt2);font-style:italic;max-width:520px;text-align:right">${g.desc}</div>
       </div>
-      <div class="tw" style="overflow-x:auto"><table style="width:100%;font-size:12.5px;min-width:920px">
+      <div class="tw" style="overflow-x:auto"><table style="width:100%;font-size:12.5px;min-width:560px">
         <thead><tr style="background:var(--card2)">
-          <th style="text-align:left;padding:9px 12px;font-size:10.5px;color:var(--txt2);font-weight:700;letter-spacing:.4px">ASSESSOR</th>
-          <th style="text-align:left;padding:9px 12px;font-size:10.5px;color:var(--txt2);font-weight:700;letter-spacing:.4px">FILIAL</th>
-          <th style="text-align:left;padding:9px 12px;font-size:10.5px;color:var(--txt2);font-weight:700;letter-spacing:.4px">PAPEL</th>
-          <th style="text-align:center;padding:9px 12px;font-size:10.5px;color:var(--txt2);font-weight:700;letter-spacing:.4px">% PADRÃO</th>
-          <th colspan="4" style="text-align:center;padding:9px 12px;font-size:10.5px;color:var(--txt2);font-weight:700;letter-spacing:.4px;border-bottom:1px dashed var(--bdr)">USA HEAD EM…</th>
-          <th style="text-align:center;padding:9px 12px;font-size:10.5px;color:var(--txt2);font-weight:700;letter-spacing:.4px">COM. 2026</th>
-          <th style="text-align:right;padding:9px 12px;font-size:10.5px;color:var(--txt2);font-weight:700;letter-spacing:.4px">RECEBIDO</th>
-          <th style="padding:9px 12px"></th>
-        </tr>
-        <tr style="background:var(--card2)">
-          <th colspan="4"></th>
-          <th style="font-size:10.5px;color:var(--txt2);font-weight:700;text-align:center;padding:0 6px 8px">Cons.</th>
-          <th style="font-size:10.5px;color:var(--txt2);font-weight:700;text-align:center;padding:0 6px 8px">Câm.</th>
-          <th style="font-size:10.5px;color:var(--txt2);font-weight:700;text-align:center;padding:0 6px 8px">HE</th>
-          <th style="font-size:10.5px;color:var(--txt2);font-weight:700;text-align:center;padding:0 6px 8px">Filial</th>
-          <th colspan="3"></th>
+          <th style="text-align:left;padding:9px 14px;font-size:10.5px;color:var(--txt2);font-weight:700;letter-spacing:.4px">ASSESSOR</th>
+          <th style="text-align:left;padding:9px 14px;font-size:10.5px;color:var(--txt2);font-weight:700;letter-spacing:.4px">FILIAL</th>
+          <th style="text-align:center;padding:9px 14px;font-size:10.5px;color:var(--txt2);font-weight:700;letter-spacing:.4px">% REPASSE</th>
+          <th style="padding:9px 14px"></th>
         </tr></thead>
         <tbody>${rows}</tbody>
       </table></div>
@@ -4188,10 +4161,6 @@ function openModalEditarRepasse(name){
   const pctV=String(Math.round(Number(p.pct_padrao)));
   if(![...pctSel.options].some(o=>o.value===pctV))pctSel.add(new Option(pctV+',0%',pctV));
   pctSel.value=pctV;
-  document.getElementById('er-flag-cons').checked=!!p.usa_head_consorcio;
-  document.getElementById('er-flag-cam').checked=!!p.usa_head_cambio;
-  document.getElementById('er-flag-he').checked=!!p.usa_head_he;
-  document.getElementById('er-flag-fil').checked=!!p.usa_head_filial;
   document.getElementById('modal-edit-repasse').classList.add('open');
 }
 async function salvarRepasse(){
@@ -4201,10 +4170,6 @@ async function salvarRepasse(){
     categoria:document.getElementById('er-categoria').value,
     papel_extra:document.getElementById('er-papel-extra').value.trim()||null,
     pct_padrao:Number(document.getElementById('er-pct').value),
-    usa_head_consorcio:document.getElementById('er-flag-cons').checked,
-    usa_head_cambio:document.getElementById('er-flag-cam').checked,
-    usa_head_he:document.getElementById('er-flag-he').checked,
-    usa_head_filial:document.getElementById('er-flag-fil').checked,
     updated_at:new Date().toISOString()
   };
   showLoad();
