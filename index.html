@@ -2834,6 +2834,7 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
         <button class="btn btn-pri btn-sm" onclick="openModalCadastrarUser()" style="font-size:13px;padding:7px 14px"><span style="margin-right:5px">＋</span>Novo Usuário</button>
       </div>
 
+      <div id="usu-filiais-container" style="margin-bottom:20px"></div>
       <div id="usu-v1-container"></div>
     </div>
   </div>
@@ -4054,15 +4055,74 @@ async function renderUsuariosPage(){
     return;
   }
   const v1=document.getElementById('usu-v1-container');
+  const vf=document.getElementById('usu-filiais-container');
   v1.innerHTML='<div style="padding:40px;text-align:center;color:var(--txt2)">Carregando…</div>';
+  vf.innerHTML='';
   try{
-    const {data,error}=await sb.rpc('admin_list_assessores_completo');
-    if(error)throw error;
-    _USUDATA=data||[];
+    const [r1,r2]=await Promise.all([
+      sb.rpc('admin_list_assessores_completo'),
+      sb.rpc('admin_list_filial_resumo')
+    ]);
+    if(r1.error)throw r1.error;
+    if(r2.error)throw r2.error;
+    _USUDATA=r1.data||[];
+    _renderFiliais(r2.data||[]);
     _renderV1();
   }catch(e){
     v1.innerHTML='<div style="padding:40px;text-align:center;color:var(--err)">Erro: '+(e.message||e)+'</div>';
   }
+}
+
+function _renderFiliais(rows){
+  const tot={cotas:0,total:0,ass:0,coy:0,hc:0,prod:0};
+  rows.forEach(r=>{
+    tot.cotas+=Number(r.qtd_cotas||0);
+    tot.total+=Number(r.comissao_total||0);
+    tot.ass+=Number(r.repasse_assessor||0);
+    tot.coy+=Number(r.repasse_coyote||0);
+    tot.hc+=Number(r.repasse_hc360||0);
+    tot.prod+=Number(r.producao_total||0);
+  });
+  const trs=rows.map(r=>{
+    const isOrf=r.filial.startsWith('—');
+    return `<tr style="border-bottom:1px solid var(--bdr-soft);${isOrf?'background:#FEF9C3':''}">
+      <td style="padding:14px 16px;font-weight:700;font-size:13.5px">${r.filial==='Matriz'?'🏛️ ':'🏢 '}${_esc(r.filial)}</td>
+      <td style="padding:14px 16px;text-align:right;font-size:12.5px;color:var(--txt2)">${r.qtd_cotas}</td>
+      <td style="padding:14px 16px;text-align:right;font-size:12.5px;color:var(--txt2)">${_fmtBRL(r.producao_total)}</td>
+      <td style="padding:14px 16px;text-align:right;font-weight:700;font-size:13px">${_fmtBRL(r.comissao_total)}</td>
+      <td style="padding:14px 16px;text-align:right;font-size:12.5px;color:#1E40AF">${_fmtBRL(r.repasse_assessor)}</td>
+      <td style="padding:14px 16px;text-align:right;font-size:12.5px;color:#92400E">${_fmtBRL(r.repasse_coyote)}</td>
+      <td style="padding:14px 16px;text-align:right;font-weight:700;font-size:13px;color:var(--ok-deep)">${_fmtBRL(r.repasse_hc360)}</td>
+    </tr>`;
+  }).join('');
+  document.getElementById('usu-filiais-container').innerHTML=`
+    <div style="background:var(--card);border:1px solid var(--bdr);border-radius:14px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.04)">
+      <div style="padding:16px 20px;background:linear-gradient(135deg,var(--cream),var(--card));border-bottom:1px solid var(--bdr)">
+        <div style="font-weight:700;font-size:15px">💰 Repasse por Filial</div>
+        <div style="font-size:11.5px;color:var(--txt2);margin-top:2px">Comissão calculada sobre todas as cotas: assessor recebe % padrão · Coyote leva 10% (exceto vendas do próprio Sardinha) · sobra é HC360</div>
+      </div>
+      <div class="tw" style="overflow-x:auto"><table style="width:100%;font-size:12.5px;min-width:840px;border-collapse:collapse">
+        <thead><tr style="background:var(--card2)">
+          <th style="text-align:left;padding:11px 16px;font-size:10.5px;color:var(--txt2);font-weight:700;letter-spacing:.5px">FILIAL</th>
+          <th style="text-align:right;padding:11px 16px;font-size:10.5px;color:var(--txt2);font-weight:700;letter-spacing:.5px">COTAS</th>
+          <th style="text-align:right;padding:11px 16px;font-size:10.5px;color:var(--txt2);font-weight:700;letter-spacing:.5px">PRODUÇÃO<br><span style="font-weight:500;text-transform:none;letter-spacing:0">cartas vendidas</span></th>
+          <th style="text-align:right;padding:11px 16px;font-size:10.5px;color:var(--txt2);font-weight:700;letter-spacing:.5px">COMISSÃO<br><span style="font-weight:500;text-transform:none;letter-spacing:0">total bruta</span></th>
+          <th style="text-align:right;padding:11px 16px;font-size:10.5px;color:#1E40AF;font-weight:700;letter-spacing:.5px">ASSESSOR</th>
+          <th style="text-align:right;padding:11px 16px;font-size:10.5px;color:#92400E;font-weight:700;letter-spacing:.5px">COYOTE 10%</th>
+          <th style="text-align:right;padding:11px 16px;font-size:10.5px;color:var(--ok-deep);font-weight:700;letter-spacing:.5px">HC360<br><span style="font-weight:500;text-transform:none;letter-spacing:0">líquido</span></th>
+        </tr></thead>
+        <tbody>${trs}</tbody>
+        <tfoot><tr style="background:var(--card2);border-top:2px solid var(--bdr)">
+          <td style="padding:14px 16px;font-weight:700;font-size:13px">TOTAL</td>
+          <td style="padding:14px 16px;text-align:right;font-weight:700;font-size:13px">${tot.cotas}</td>
+          <td style="padding:14px 16px;text-align:right;font-weight:700;font-size:13px">${_fmtBRL(tot.prod)}</td>
+          <td style="padding:14px 16px;text-align:right;font-weight:700;font-size:13px">${_fmtBRL(tot.total)}</td>
+          <td style="padding:14px 16px;text-align:right;font-weight:700;font-size:13px;color:#1E40AF">${_fmtBRL(tot.ass)}</td>
+          <td style="padding:14px 16px;text-align:right;font-weight:700;font-size:13px;color:#92400E">${_fmtBRL(tot.coy)}</td>
+          <td style="padding:14px 16px;text-align:right;font-weight:700;font-size:14px;color:var(--ok-deep)">${_fmtBRL(tot.hc)}</td>
+        </tr></tfoot>
+      </table></div>
+    </div>`;
 }
 
 function _fmtBRL(n){
@@ -4088,7 +4148,7 @@ function _renderV1(){
         </td>
         <td style="font-size:12.5px;color:var(--txt2);padding:14px 16px;white-space:nowrap"><span style="margin-right:5px">🏢</span>${_esc(p.filial)}</td>
         <td style="text-align:center;font-weight:700;font-size:14px;color:var(--acc2);padding:14px 16px">${Number(p.pct_padrao).toFixed(1).replace('.',',')}%</td>
-        <td style="text-align:right;padding:14px 16px;color:var(--txt3);font-size:12.5px">—</td>
+        <td style="text-align:right;padding:14px 16px;font-weight:700;font-size:13px;color:${Number(p.renda_consorcio)>0?'#1E40AF':'var(--txt3)'}">${_fmtBRL(p.renda_consorcio)}</td>
         <td style="text-align:right;padding:14px 16px">
           <div style="font-weight:700;font-size:13px;color:${p.producao_total>0?'var(--ok-deep)':'var(--txt3)'}">${_fmtBRL(p.producao_total)}</div>
           ${p.qtd_cotas>0?'<div style="font-size:10.5px;color:var(--txt3);margin-top:2px">'+p.qtd_cotas+' cota'+(p.qtd_cotas>1?'s':'')+'</div>':''}
