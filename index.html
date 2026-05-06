@@ -4092,13 +4092,14 @@ async function renderUsuariosPage(){
 }
 
 function _renderFiliais(rows){
-  const tot={cotas:0,bruto:0,imp:0,liq:0,ass:0,coy:0,hc:0,prod:0};
+  const tot={cotas:0,bruto:0,imp:0,liq:0,ass:0,hf:0,coy:0,hc:0,prod:0};
   rows.forEach(r=>{
     tot.cotas+=Number(r.qtd_cotas||0);
     tot.bruto+=Number(r.comissao_total||0);
     tot.imp+=Number(r.imposto||0);
     tot.liq+=Number(r.comissao_liquida||0);
     tot.ass+=Number(r.repasse_assessor||0);
+    tot.hf+=Number(r.repasse_head_filial||0);
     tot.coy+=Number(r.repasse_coyote||0);
     tot.hc+=Number(r.repasse_hc360||0);
     tot.prod+=Number(r.producao_total||0);
@@ -4106,32 +4107,34 @@ function _renderFiliais(rows){
   const trs=rows.map(r=>{
     const isOrf=r.filial.startsWith('—');
     return `<tr style="border-bottom:1px solid var(--bdr-soft);${isOrf?'background:#FEF9C3':''}">
-      <td style="padding:14px 16px;font-weight:700;font-size:13.5px">${r.filial==='Matriz'?'🏛️ ':'🏢 '}${_esc(r.filial)}</td>
-      <td style="padding:14px 16px;text-align:right;font-size:12.5px;color:var(--txt2)">${r.qtd_cotas}</td>
-      <td style="padding:14px 16px;text-align:right;font-size:12.5px;color:var(--txt2)">${_fmtBRL(r.producao_total)}</td>
-      <td style="padding:14px 16px;text-align:right;font-size:12.5px;color:var(--txt2)">${_fmtBRL(r.comissao_total)}</td>
-      <td style="padding:14px 16px;text-align:right;font-size:12px;color:#B91C1C">−${_fmtBRL(r.imposto)}</td>
-      <td style="padding:14px 16px;text-align:right;font-weight:700;font-size:13px">${_fmtBRL(r.comissao_liquida)}</td>
-      <td style="padding:14px 16px;text-align:right;font-size:12.5px;color:#1E40AF">${_fmtBRL(r.repasse_assessor)}</td>
-      <td style="padding:14px 16px;text-align:right;font-size:12.5px;color:#92400E">${_fmtBRL(r.repasse_coyote)}</td>
-      <td style="padding:14px 16px;text-align:right;font-weight:700;font-size:13px;color:var(--ok-deep)">${_fmtBRL(r.repasse_hc360)}</td>
+      <td style="padding:14px 14px;font-weight:700;font-size:13.5px">${r.filial==='Matriz'?'🏛️ ':'🏢 '}${_esc(r.filial)}</td>
+      <td style="padding:14px 14px;text-align:right;font-size:12.5px;color:var(--txt2)">${r.qtd_cotas}</td>
+      <td style="padding:14px 14px;text-align:right;font-size:12.5px;color:var(--txt2)">${_fmtBRL(r.producao_total)}</td>
+      <td style="padding:14px 14px;text-align:right;font-size:12.5px;color:var(--txt2)">${_fmtBRL(r.comissao_total)}</td>
+      <td style="padding:14px 14px;text-align:right;font-size:12px;color:#B91C1C">−${_fmtBRL(r.imposto)}</td>
+      <td style="padding:14px 14px;text-align:right;font-weight:700;font-size:13px">${_fmtBRL(r.comissao_liquida)}</td>
+      <td style="padding:14px 14px;text-align:right;font-size:12.5px;color:#1E40AF">${_fmtBRL(r.repasse_assessor)}</td>
+      <td style="padding:14px 14px;text-align:right;font-size:12.5px;color:#7C2D12">${Number(r.repasse_head_filial)>0?_fmtBRL(r.repasse_head_filial):'<span style=\'color:var(--txt3)\'>—</span>'}</td>
+      <td style="padding:14px 14px;text-align:right;font-size:12.5px;color:#92400E">${_fmtBRL(r.repasse_coyote)}</td>
+      <td style="padding:14px 14px;text-align:right;font-weight:700;font-size:13px;color:var(--ok-deep)">${_fmtBRL(r.repasse_hc360)}</td>
     </tr>`;
   }).join('');
   document.getElementById('usu-filiais-container').innerHTML=`
     <div style="background:var(--card);border:1px solid var(--bdr);border-radius:14px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.04)">
       <div style="padding:16px 20px;background:linear-gradient(135deg,var(--cream),var(--card));border-bottom:1px solid var(--bdr)">
         <div style="font-weight:700;font-size:15px">💰 Repasse por Filial</div>
-        <div style="font-size:11.5px;color:var(--txt2);margin-top:2px">Comissão bruta − 17,5% imposto = líquido. Do líquido: assessor recebe seu % padrão · Coyote leva 10% separado (zero em vendas do Sardinha) · HC360 fica com (90 − % padrão), ou (100 − %) quando Sardinha vende.</div>
+        <div style="font-size:11.5px;color:var(--txt2);margin-top:2px">Bruta − 17,5% imposto = líquida. Sem head de filial: assessor pct% · Coyote 10% · HC360 (90−pct)%. <b>Com head de filial</b> (Sorocaba: Aranha · Mogi Guaçu: Carvalho): assessor (pct−10)% · Head Filial 10% · Coyote 10% · HC360 (90−pct)%. Sardinha vendendo: Coyote = 0.</div>
       </div>
-      <div class="tw" style="overflow-x:auto"><table style="width:100%;font-size:12.5px;min-width:1020px;border-collapse:collapse">
+      <div class="tw" style="overflow-x:auto"><table style="width:100%;font-size:12.5px;min-width:1100px;border-collapse:collapse">
         <thead><tr style="background:var(--card2)">
           <th style="text-align:left;padding:11px 14px;font-size:10.5px;color:var(--txt2);font-weight:700;letter-spacing:.5px">FILIAL</th>
           <th style="text-align:right;padding:11px 14px;font-size:10.5px;color:var(--txt2);font-weight:700;letter-spacing:.5px">COTAS</th>
           <th style="text-align:right;padding:11px 14px;font-size:10.5px;color:var(--txt2);font-weight:700;letter-spacing:.5px">PRODUÇÃO</th>
           <th style="text-align:right;padding:11px 14px;font-size:10.5px;color:var(--txt2);font-weight:700;letter-spacing:.5px">BRUTA</th>
-          <th style="text-align:right;padding:11px 14px;font-size:10.5px;color:#B91C1C;font-weight:700;letter-spacing:.5px">IMP. 17,5%</th>
+          <th style="text-align:right;padding:11px 14px;font-size:10.5px;color:#B91C1C;font-weight:700;letter-spacing:.5px">IMP.</th>
           <th style="text-align:right;padding:11px 14px;font-size:10.5px;color:var(--txt2);font-weight:700;letter-spacing:.5px">LÍQUIDA</th>
           <th style="text-align:right;padding:11px 14px;font-size:10.5px;color:#1E40AF;font-weight:700;letter-spacing:.5px">ASSESSOR</th>
+          <th style="text-align:right;padding:11px 14px;font-size:10.5px;color:#7C2D12;font-weight:700;letter-spacing:.5px">HEAD<br><span style="font-weight:500;text-transform:none;letter-spacing:0">filial</span></th>
           <th style="text-align:right;padding:11px 14px;font-size:10.5px;color:#92400E;font-weight:700;letter-spacing:.5px">COYOTE</th>
           <th style="text-align:right;padding:11px 14px;font-size:10.5px;color:var(--ok-deep);font-weight:700;letter-spacing:.5px">HC360</th>
         </tr></thead>
@@ -4144,6 +4147,7 @@ function _renderFiliais(rows){
           <td style="padding:14px 14px;text-align:right;font-weight:700;font-size:13px;color:#B91C1C">−${_fmtBRL(tot.imp)}</td>
           <td style="padding:14px 14px;text-align:right;font-weight:700;font-size:13px">${_fmtBRL(tot.liq)}</td>
           <td style="padding:14px 14px;text-align:right;font-weight:700;font-size:13px;color:#1E40AF">${_fmtBRL(tot.ass)}</td>
+          <td style="padding:14px 14px;text-align:right;font-weight:700;font-size:13px;color:#7C2D12">${_fmtBRL(tot.hf)}</td>
           <td style="padding:14px 14px;text-align:right;font-weight:700;font-size:13px;color:#92400E">${_fmtBRL(tot.coy)}</td>
           <td style="padding:14px 14px;text-align:right;font-weight:700;font-size:14px;color:var(--ok-deep)">${_fmtBRL(tot.hc)}</td>
         </tr></tfoot>
@@ -4324,12 +4328,14 @@ async function loadData(silent){
       sb.from('guia_grupos').select('*'),
       sb.from('lances_medias').select('*'),
       sb.from('lances_historico_mensal').select('grupo,ano_mes,lance_min,lance_max,qtd_contemplados_lance_livre,qtd_contemplados_lance_fixo,qtd_contemplados_suplencia,lance_min_suplencia').gte('ano_mes',_lhmCutoff()).order('grupo').order('ano_mes').range(0,999),
-      sb.from('assessores_perfil').select('assessor_name,filial,pct_padrao,categoria,apelidos,email')
+      sb.from('assessores_perfil').select('assessor_name,filial,pct_padrao,categoria,apelidos,email,head_filial')
     ]);
-    // Indexar perfis por apelido pra cálculo de receita estimada
+    // Indexar perfis por apelido + heads de filial pra cálculo de receita
     PERFIS_BY_APELIDO={};
+    HEADS_POR_FILIAL={};
     (perfis||[]).forEach(p=>{
       (p.apelidos||[]).forEach(a=>{PERFIS_BY_APELIDO[a]=p;PERFIS_BY_APELIDO[(a||'').toUpperCase()]=p;PERFIS_BY_APELIDO[(a||'').toLowerCase()]=p;});
+      if(p.head_filial)HEADS_POR_FILIAL[p.filial]=p;
     });
     // Paginação completa do lances_historico_mensal (Supabase cap = 1000; tabela ~50k linhas filtradas → ~22k em 18m)
     if(lhm&&lhm.length>=1000){
@@ -5955,16 +5961,18 @@ function _crmLegacyRowDeprecated(){
   </tr>`;
 }
 
-// Mapa de perfis (carregado em loadData) — apelido → {assessor_name, pct_padrao, ...}
+// Mapas carregados em loadData
 let PERFIS_BY_APELIDO={};
+let HEADS_POR_FILIAL={};
 
 // === Estimativa de receita do assessor a partir de um lead ===
 // Regra:
-// 1. Bruta = 4% × valor da carta (Itaú Auto pós-fev/26 = 5%, mas lead não tem banco → 4% padrão)
+// 1. Bruta = 4% × valor da carta
 // 2. Imposto = 17,5% × bruta → Líquida
 // 3. Divisão da líquida:
-//    Caso geral: Assessor pct%, Coyote 10% (head consórcio), HC360 (90 − pct)%
-//    Sardinha vendendo: Assessor pct%, Coyote 0%, HC360 (100 − pct)%
+//    Sem head de filial: Assessor pct%, Coyote 10%, HC360 (90−pct)%
+//    Com head de filial (e o assessor não é o head): Assessor (pct−10)%, Head Filial 10%, Coyote 10%, HC360 (90−pct)%
+//    Sardinha vendendo: Coyote = 0, HC360 (100−pct)%
 function _estimarReceitaLead(l){
   const valor=Number((l&&(l.sim?l.sim.credTot:l.valor_potencial))||0);
   if(!valor||valor<=0)return null;
@@ -5981,11 +5989,21 @@ function _estimarReceitaLead(l){
     pct=Number(CURRENT_USER.pctPadrao);
     ehSardinha=(CURRENT_USER.assessorName==='MATHEUS SARDINHA');
   }
-  if(pct==null)return {valor,bruta,imposto,liquida,repasse:null,pct:null,head:null,hc360:null,perfilAss:perfilAss?perfilAss.assessor_name:null};
-  const repasse=liquida*pct/100;
+  if(pct==null)return {valor,bruta,imposto,liquida,repasse:null,pct:null,head:null,headFilial:null,hc360:null,perfilAss:perfilAss?perfilAss.assessor_name:null};
+  // Head de filial: se a filial do assessor tem um head e o assessor não é o próprio head
+  let headFilialNome=null, headFilialVal=0, descontoHF=0;
+  if(perfilAss&&perfilAss.filial&&HEADS_POR_FILIAL[perfilAss.filial]){
+    const hf=HEADS_POR_FILIAL[perfilAss.filial];
+    if(hf.assessor_name!==perfilAss.assessor_name){
+      headFilialNome=hf.assessor_name;
+      headFilialVal=liquida*0.10;
+      descontoHF=10;
+    }
+  }
+  const repasse=liquida*Math.max(pct-descontoHF,0)/100;
   const head=ehSardinha?0:liquida*0.10;
   const hc360=ehSardinha?(liquida*(100-pct)/100):(liquida*(90-pct)/100);
-  return {valor,bruta,imposto,liquida,repasse,head,hc360,pct,ehSardinha,perfilAss:perfilAss?perfilAss.assessor_name:null};
+  return {valor,bruta,imposto,liquida,repasse,head,headFilial:headFilialVal,headFilialNome,hc360,pct,ehSardinha,perfilAss:perfilAss?perfilAss.assessor_name:null};
 }
 function _fmtBRLcurto(n){
   if(n==null||isNaN(n))return '—';
@@ -6255,9 +6273,16 @@ function mlAtualizaReceita(){
     det.innerHTML=`<div style="color:var(--err);font-size:12px">Assessor sem perfil cadastrado em Usuários. Configure o % padrão pra ver a receita.</div>
       <div style="font-size:11.5px;color:var(--txt2);margin-top:4px">Bruta: <b>${fmt(r.bruta)}</b> · Imposto (17,5%): <b>${fmt(r.imposto)}</b> · Líquida: <b>${fmt(r.liquida)}</b></div>`;
   }else{
-    const pctAss=r.pct;
+    const temHF=r.headFilial>0;
+    const pctAss=temHF?Math.max(r.pct-10,0):r.pct;
     const headPct=r.ehSardinha?0:10;
     const hcPct=r.ehSardinha?(100-r.pct):(90-r.pct);
+    const hfBlock=temHF?`<div style="background:#fff;padding:9px 11px;border-radius:7px;border:1px solid var(--bdr)">
+          <div style="font-size:10px;color:#7C2D12;text-transform:uppercase;letter-spacing:.4px">Head Filial (10%)</div>
+          <div style="font-weight:700;font-size:13px;color:#7C2D12">${fmt(r.headFilial)}</div>
+          <div style="font-size:9.5px;color:var(--txt3);margin-top:1px">${r.headFilialNome}</div>
+        </div>`:'';
+    const grid=temHF?'1.3fr 1fr 1fr 1fr':'1.4fr 1fr 1fr';
     det.innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px">
         <div style="background:#fff;padding:7px 9px;border-radius:6px;border:1px solid #BBF7D0">
           <div style="font-size:10px;color:var(--txt2);text-transform:uppercase;letter-spacing:.4px">Bruta (4%)</div>
@@ -6272,11 +6297,12 @@ function mlAtualizaReceita(){
           <div style="font-weight:700;font-size:13px">${fmt(r.liquida)}</div>
         </div>
       </div>
-      <div style="display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:8px">
+      <div style="display:grid;grid-template-columns:${grid};gap:8px">
         <div style="background:#0F766E;color:#fff;padding:9px 11px;border-radius:7px">
           <div style="font-size:10px;opacity:.85;text-transform:uppercase;letter-spacing:.4px">💸 Sua receita (${pctAss}%)</div>
           <div style="font-weight:700;font-size:16px;margin-top:1px">${fmt(r.repasse)}</div>
         </div>
+        ${hfBlock}
         <div style="background:#fff;padding:9px 11px;border-radius:7px;border:1px solid var(--bdr)">
           <div style="font-size:10px;color:#92400E;text-transform:uppercase;letter-spacing:.4px">Coyote (${headPct}%)</div>
           <div style="font-weight:700;font-size:13px;color:#92400E">${fmt(r.head)}</div>
@@ -6286,7 +6312,7 @@ function mlAtualizaReceita(){
           <div style="font-weight:700;font-size:13px;color:var(--ok-deep)">${fmt(r.hc360)}</div>
         </div>
       </div>
-      <div style="font-size:10.5px;color:var(--txt2);margin-top:8px;font-style:italic">${r.perfilAss?'Assessor designado: '+r.perfilAss+' · ':''}% padrão ${r.pct}%${r.ehSardinha?' · Sardinha vendendo: head 0%':' · head leva 10% do líquido'}. Recebível segue o prazo do plano (Itaú imóvel 6-12x · auto 4x · Santander 6-8x · Safra 12x).</div>`;
+      <div style="font-size:10.5px;color:var(--txt2);margin-top:8px;font-style:italic">${r.perfilAss?'Assessor designado: '+r.perfilAss+' · ':''}% padrão ${r.pct}%${temHF?' · '+r.headFilialNome+' leva 10% (head da filial)':''}${r.ehSardinha?' · Sardinha vendendo: Coyote 0%':''}. Recebível segue o prazo do plano.</div>`;
   }
   box.style.display='';
 }
