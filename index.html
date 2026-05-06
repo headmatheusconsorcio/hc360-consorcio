@@ -690,8 +690,10 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
 /* Última recuperação: 2026-05-06. Ver memory file feedback_protege_aba_ajuda.md */
 /* ════════════════════════════════════════════════════════════════════════ */
 /* ── AJUDA / CENTRAL DE AJUDA ──────────────── */
-/* Página Ajuda ocupa 100% da largura disponível (sem o max-width:1480 do .content). */
-/* Cobertura tripla: caso esteja dentro do .content, irmã dele, ou pai descendente. */
+/* Identidade unificada: ADM + Assessor com mesma linguagem visual.
+   Tipografia em 4 tamanhos. Espaçamento via variáveis. Cores enxutas. */
+
+/* Página ocupa 100% da largura */
 body:has(#page-ajuda.active) .content,
 .content:has(#page-ajuda.active),
 main.main:has(#page-ajuda.active) .content{
@@ -701,113 +703,245 @@ main.main:has(#page-ajuda.active) .content{
 }
 #page-ajuda.active{width:100%;max-width:100%}
 
-.ajuda-hero{background:linear-gradient(135deg,var(--sb) 0%,var(--sb2) 100%);border-radius:var(--r-md);padding:var(--sp-4) var(--sp-6);color:#fff;margin-bottom:var(--sp-4);position:relative;overflow:hidden;box-shadow:var(--sh-2);border-bottom:3px solid var(--acc)}
-.ajuda-hero::after{content:'❓';position:absolute;right:-10px;top:-30px;font-size:160px;opacity:.07;font-weight:700}
-.ajuda-hero-title{font-size:22px;font-weight:700;font-family:'Quicksand',sans-serif;margin-bottom:4px;position:relative;z-index:1}
-.ajuda-hero-sub{font-size:13px;opacity:.85;max-width:680px;line-height:1.5;position:relative;z-index:1}
-.ajuda-search-card{margin-bottom:var(--sp-4)}
-.ajuda-search-card .inp{outline:none}
+/* HERO */
+.ajuda-hero{
+  background:linear-gradient(135deg,var(--sb) 0%,var(--sb2) 100%);
+  color:#fff;border-radius:14px;padding:24px 28px;margin-bottom:16px;
+  position:relative;border-bottom:3px solid var(--acc);box-shadow:var(--sh-2)
+}
+.ajuda-hero-title{
+  font-family:'Quicksand',sans-serif;font-size:24px;font-weight:700;
+  margin-bottom:4px;letter-spacing:.3px
+}
+.ajuda-hero-sub{font-size:14px;opacity:.85;line-height:1.55;max-width:760px}
+
+/* BUSCA — sticky no topo ao rolar */
+.ajuda-search-card{
+  margin-bottom:24px;position:sticky;top:12px;z-index:5;
+  background:#fff;border:1px solid #e5e7eb;border-radius:12px;
+  box-shadow:0 1px 3px rgba(0,0,0,.05)
+}
+.ajuda-search-card .cb{padding:14px 18px}
+.ajuda-search-card .inp{outline:none;border:none;background:transparent;font-size:14px}
 .ajuda-search-card .inp:focus{outline:none;box-shadow:none}
-.ajuda-atalhos{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:var(--sp-3);margin-bottom:var(--sp-5)}
-.ajuda-atalho{background:#fff;border:1px solid #e5e7eb;border-radius:var(--r-md);padding:var(--sp-3) var(--sp-3);text-decoration:none;color:var(--txt);transition:all var(--t-fast);cursor:pointer;display:block;border-left:3px solid var(--acc)}
-.ajuda-atalho:hover{transform:translateY(-2px);box-shadow:var(--sh-2);background:#fdf6e3;border-left-color:var(--sb)}
-.ajuda-atalho-ico{font-size:24px;margin-bottom:6px}
-.ajuda-atalho-tit{font-size:13.5px;font-weight:700;color:var(--sb);margin-bottom:2px;letter-spacing:.2px}
-.ajuda-atalho-sub{font-size:11px;color:var(--txt2)}
-.ajuda-secao{margin-bottom:var(--sp-5);scroll-margin-top:80px}
-.ajuda-secao-titulo{font-size:18px;font-weight:700;color:var(--sb);margin-bottom:var(--sp-3);padding-bottom:var(--sp-2);border-bottom:2px solid var(--acc);font-family:'Quicksand',sans-serif}
-.ajuda-acord{background:#fff;border:1px solid #e5e7eb;border-radius:var(--r-sm);margin-bottom:8px;overflow:hidden;transition:box-shadow var(--t-fast)}
-.ajuda-acord:hover{box-shadow:0 1px 3px rgba(0,0,0,.06)}
-.ajuda-acord[open]{box-shadow:var(--sh-1);border-color:var(--acc)}
-.ajuda-acord summary{padding:14px 18px;cursor:pointer;font-weight:600;font-size:14px;color:var(--sb);user-select:none;display:flex;align-items:center;justify-content:space-between;gap:10px;list-style:none;position:relative;background:#fafbfc;transition:background var(--t-fast)}
+
+/* ATALHOS */
+.ajuda-atalhos{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+  gap:12px;margin-bottom:32px
+}
+.ajuda-atalho{
+  background:#fff;border:1px solid #e5e7eb;border-left:4px solid var(--acc);
+  border-radius:12px;padding:18px;text-decoration:none;color:var(--txt);
+  cursor:pointer;transition:all var(--t-fast);display:block
+}
+.ajuda-atalho:hover{
+  transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.08);
+  background:#fffdf7;border-left-color:var(--sb)
+}
+.ajuda-atalho-ico{font-size:28px;margin-bottom:8px;line-height:1}
+.ajuda-atalho-tit{
+  font-family:'Quicksand',sans-serif;font-size:15px;font-weight:700;
+  color:var(--sb);margin-bottom:3px;letter-spacing:.2px
+}
+.ajuda-atalho-sub{font-size:12.5px;color:#6b7280;line-height:1.45}
+.ajuda-atalhos.ass{grid-template-columns:repeat(auto-fill,minmax(210px,1fr))}
+
+/* SEÇÃO */
+.ajuda-secao{margin-bottom:36px;scroll-margin-top:80px}
+.ajuda-secao-titulo{
+  font-family:'Quicksand',sans-serif;font-size:19px;font-weight:700;
+  color:var(--sb);margin-bottom:16px;padding-bottom:8px;
+  border-bottom:2px solid var(--acc);letter-spacing:.3px
+}
+
+/* CARD BASE — todos cards (ADM acordeão + Assessor cards) usam esta base */
+.ajuda-acord,.ass-objecao,.ass-qa-item,.ass-passo,.ass-card-info{
+  background:#fff;border:1px solid #e5e7eb;border-radius:12px;
+  margin-bottom:10px;overflow:hidden;
+  transition:box-shadow var(--t-fast),border-color var(--t-fast)
+}
+.ajuda-acord:hover,.ass-objecao:hover,.ass-qa-item:hover{
+  box-shadow:0 4px 12px rgba(0,0,0,.08)
+}
+
+/* ACORDEÕES (ADM) */
+.ajuda-acord summary{
+  padding:14px 20px;cursor:pointer;font-weight:600;font-size:15px;
+  color:var(--sb);user-select:none;display:flex;align-items:center;gap:12px;
+  list-style:none;background:#fafbfc;transition:background var(--t-fast)
+}
 .ajuda-acord summary::-webkit-details-marker{display:none}
-.ajuda-acord summary::before{content:'▸';display:inline-block;margin-right:8px;transition:transform var(--t-fast);font-size:12px;color:var(--acc);font-weight:900}
-.ajuda-acord[open] summary::before{transform:rotate(90deg)}
-.ajuda-acord summary:hover{background:#fdf6e3}
-.ajuda-acord[open] summary{background:linear-gradient(90deg,#fdf6e3 0%,#fff 100%);border-bottom:1px solid #f0e5c5}
-.ajuda-tag{font-size:10px;font-weight:600;color:var(--txt2);background:#f3f4f6;padding:2px 8px;border-radius:10px;text-transform:uppercase;letter-spacing:.5px;flex-shrink:0}
+.ajuda-acord summary::before{
+  content:'+';display:inline-flex;align-items:center;justify-content:center;
+  width:24px;height:24px;border-radius:50%;background:var(--acc);color:#fff;
+  font-size:18px;font-weight:700;flex-shrink:0;line-height:1
+}
+.ajuda-acord[open] summary::before{content:'−';background:var(--sb)}
+.ajuda-acord summary .ajuda-tag{margin-left:auto}
+.ajuda-acord summary:hover{background:#fffdf7}
+.ajuda-acord[open]{border-color:var(--acc)}
+.ajuda-acord[open] summary{
+  background:linear-gradient(90deg,#fffdf7 0%,#fff 100%);
+  border-bottom:1px solid #f0e5c5
+}
+.ajuda-tag{
+  font-size:11px;font-weight:600;color:#6b7280;background:#f3f4f6;
+  padding:3px 9px;border-radius:12px;text-transform:uppercase;
+  letter-spacing:.4px;flex-shrink:0
+}
 .ajuda-tag.admin{background:#fef3c7;color:#92400e}
-.ajuda-corpo{padding:18px 22px;font-size:13px;line-height:1.65;color:var(--txt)}
+
+/* CORPO */
+.ajuda-corpo{padding:18px 22px;font-size:14px;line-height:1.7;color:var(--txt)}
 .ajuda-corpo p{margin:0 0 10px}
 .ajuda-corpo p:last-child{margin-bottom:0}
 .ajuda-corpo ul,.ajuda-corpo ol{margin:8px 0 12px;padding-left:22px}
-.ajuda-corpo li{margin-bottom:4px}
+.ajuda-corpo li{margin-bottom:5px}
 .ajuda-corpo b{color:var(--sb);font-weight:700}
-.ajuda-corpo code{background:#f3f4f6;padding:1px 6px;border-radius:3px;font-family:'JetBrains Mono','Consolas',monospace;font-size:11.5px;color:#1e40af}
-.ajuda-dica{background:#fdf6e3;border-left:3px solid var(--acc);padding:10px 14px;margin:10px 0;border-radius:0 4px 4px 0;font-size:12.5px}
-.ajuda-tab{width:100%;border-collapse:collapse;margin:10px 0;font-size:12.5px}
-.ajuda-tab th{background:var(--sb);color:#fff;padding:8px 12px;text-align:left;font-weight:600;font-size:11.5px;letter-spacing:.3px}
-.ajuda-tab td{padding:7px 12px;border-bottom:1px solid #f0f0f0}
-.ajuda-tab tr:last-child td{border-bottom:none}
-.ajuda-tab tr:nth-child(even) td{background:#fafbfc}
-.ajuda-code{background:#1e293b;color:#e2e8f0;padding:12px 14px;border-radius:var(--r-sm);font-family:'JetBrains Mono','Consolas',monospace;font-size:11.5px;line-height:1.6;overflow-x:auto;margin:10px 0;white-space:pre}
-.ajuda-glos{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px}
-.ajuda-glos-item{background:#fff;border:1px solid #e5e7eb;border-left:3px solid var(--acc);padding:10px 14px;border-radius:0 4px 4px 0;font-size:12.5px;line-height:1.5}
-.ajuda-glos-item b{color:var(--sb);font-weight:700;display:block;margin-bottom:2px;font-size:13px}
-.ajuda-acord.ajuda-hidden,.ajuda-secao.ajuda-hidden,.ajuda-glos-item.ajuda-hidden{display:none}
-.ajuda-highlight{background:#fef08a;padding:0 2px;border-radius:2px}
-@media(max-width:700px){
-  .ajuda-atalhos{grid-template-columns:repeat(2,1fr)}
-  .ajuda-glos{grid-template-columns:1fr}
-  .ajuda-corpo{padding:14px 16px}
-  .ajuda-acord summary{padding:12px 14px;font-size:13px}
-  .ajuda-secao-titulo{font-size:16px}
-  .ajuda-hero-title{font-size:18px}
+.ajuda-corpo code{
+  background:#f3f4f6;padding:2px 6px;border-radius:4px;
+  font-family:'JetBrains Mono','Consolas',monospace;font-size:12.5px;color:#1e40af
 }
 
-/* ── AJUDA ASSESSOR — versão simplificada de venda ── */
-.ajuda-atalhos.ass{grid-template-columns:repeat(auto-fill,minmax(190px,1fr))}
-.ajuda-atalhos.ass .ajuda-atalho{padding:16px 16px}
-.ajuda-atalhos.ass .ajuda-atalho-ico{font-size:30px;margin-bottom:8px}
-.ajuda-atalhos.ass .ajuda-atalho-tit{font-size:15px}
-.ajuda-atalhos.ass .ajuda-atalho-sub{font-size:12px}
-.ass-intro{font-size:14px;color:var(--txt2);margin:-4px 0 16px;line-height:1.5}
-.ass-objecoes{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:14px}
-.ass-objecao{background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:16px 18px;border-left:4px solid var(--acc);box-shadow:0 1px 3px rgba(0,0,0,.04);transition:box-shadow var(--t-fast)}
-.ass-objecao:hover{box-shadow:0 4px 12px rgba(0,0,0,.08)}
-.ass-obj-tag{font-size:13px;font-weight:700;color:var(--sb);margin-bottom:10px;display:inline-block;background:#fef3c7;padding:4px 10px;border-radius:14px;letter-spacing:.2px}
-.ass-obj-cliente{font-size:14px;color:var(--txt);font-style:italic;background:#f3f4f6;padding:10px 14px;border-radius:8px;margin-bottom:10px;line-height:1.5;position:relative;padding-left:32px}
-.ass-obj-cliente::before{content:'💬';position:absolute;left:10px;top:10px;font-style:normal}
-.ass-obj-resp{font-size:14px;line-height:1.65;color:var(--txt)}
+/* DICA */
+.ajuda-dica{
+  background:#fef9e0;border-left:4px solid var(--acc);padding:12px 16px;
+  margin:14px 0;border-radius:0 8px 8px 0;font-size:13.5px;line-height:1.55
+}
+
+/* TABELA */
+.ajuda-tab{
+  width:100%;border-collapse:collapse;margin:12px 0;font-size:13px;
+  background:#fff;border-radius:8px;overflow:hidden
+}
+.ajuda-tab th{
+  background:var(--sb);color:#fff;padding:10px 14px;text-align:left;
+  font-weight:600;font-size:12.5px;letter-spacing:.3px
+}
+.ajuda-tab td{padding:9px 14px;border-bottom:1px solid #f0f0f0}
+.ajuda-tab tr:last-child td{border-bottom:none}
+.ajuda-tab tr:nth-child(even) td{background:#fafbfc}
+
+/* CODE block */
+.ajuda-code{
+  background:#1e293b;color:#e2e8f0;padding:14px 16px;border-radius:8px;
+  font-family:'JetBrains Mono','Consolas',monospace;font-size:12.5px;
+  line-height:1.6;overflow-x:auto;margin:12px 0;white-space:pre
+}
+
+/* GLOSSÁRIO unificado (ADM + Assessor usam o mesmo) */
+.ajuda-glos,.ass-glos{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px
+}
+.ajuda-glos-item,.ass-glos-item{
+  background:#fff;border:1px solid #e5e7eb;border-left:4px solid var(--acc);
+  padding:14px 16px;border-radius:0 12px 12px 0;
+  font-size:13.5px;line-height:1.55;transition:all var(--t-fast)
+}
+.ajuda-glos-item:hover,.ass-glos-item:hover{
+  border-left-color:var(--sb);background:#fffdf7;transform:translateX(2px)
+}
+.ajuda-glos-item b,.ass-glos-item b{
+  color:var(--sb);font-weight:700;display:block;margin-bottom:4px;
+  font-size:14.5px;font-family:'Quicksand',sans-serif
+}
+.ass-glos-item span{color:#6b7280}
+
+/* HIDDEN/HIGHLIGHT */
+.ajuda-acord.ajuda-hidden,.ajuda-secao.ajuda-hidden,.ajuda-glos-item.ajuda-hidden,
+.ass-objecao.ajuda-hidden,.ass-qa-item.ajuda-hidden,.ass-glos-item.ajuda-hidden{display:none}
+.ajuda-highlight{background:#fef08a;padding:0 2px;border-radius:2px;font-weight:600}
+
+/* ── ASSESSOR — cards específicos ── */
+.ass-intro{font-size:14px;color:#6b7280;margin:-4px 0 18px;line-height:1.55}
+
+/* OBJEÇÕES — cards de venda */
+.ass-objecoes{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:14px
+}
+.ass-objecao{
+  padding:18px 20px;border-left:4px solid var(--acc);
+  box-shadow:0 1px 3px rgba(0,0,0,.04)
+}
+.ass-obj-tag{
+  font-family:'Quicksand',sans-serif;font-size:13px;font-weight:700;
+  color:var(--sb);margin-bottom:12px;display:inline-block;
+  background:#fef3c7;padding:5px 11px;border-radius:14px;letter-spacing:.3px
+}
+.ass-obj-cliente{
+  font-size:14px;color:var(--txt);font-style:italic;
+  background:#f3f4f6;padding:11px 14px 11px 38px;border-radius:8px;
+  margin-bottom:12px;line-height:1.55;position:relative
+}
+.ass-obj-cliente::before{content:'💬';position:absolute;left:12px;top:11px;font-style:normal}
+.ass-obj-resp{font-size:14px;line-height:1.7;color:var(--txt)}
 .ass-obj-resp b{color:var(--sb);font-weight:700}
-.ass-qa{display:flex;flex-direction:column;gap:12px}
-.ass-qa-item{background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:14px 18px;transition:all var(--t-fast)}
-.ass-qa-item:hover{border-color:var(--acc);background:#fffdf7}
-.ass-qa-q{font-size:15px;font-weight:700;color:var(--sb);margin-bottom:6px}
-.ass-qa-q::before{content:'❓ ';opacity:.7}
-.ass-qa-a{font-size:14px;line-height:1.65;color:var(--txt)}
+
+/* Q&A — direto, sem acordeão */
+.ass-qa{display:flex;flex-direction:column;gap:10px}
+.ass-qa-item{
+  padding:16px 20px;border-left:4px solid #e5e7eb;
+  transition:all var(--t-fast)
+}
+.ass-qa-item:hover{border-left-color:var(--acc);background:#fffdf7}
+.ass-qa-q{
+  font-family:'Quicksand',sans-serif;font-size:15px;font-weight:700;
+  color:var(--sb);margin-bottom:8px;display:flex;align-items:center;gap:8px;
+  letter-spacing:.2px
+}
+.ass-qa-q::before{content:'❓';flex-shrink:0;font-size:14px}
+.ass-qa-a{font-size:14px;line-height:1.7;color:var(--txt)}
 .ass-qa-a b{color:var(--sb);font-weight:700}
-.ass-passo{display:flex;gap:16px;background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:18px 20px;margin-bottom:12px;align-items:flex-start;border-left:4px solid var(--sb)}
-.ass-passo-num{flex-shrink:0;width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--sb),var(--sb2));color:#fff;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;font-family:'Quicksand',sans-serif}
+
+/* PASSOS (CRM) */
+.ass-passo{
+  display:flex;gap:18px;padding:20px 22px;align-items:flex-start;
+  border-left:4px solid var(--sb)
+}
+.ass-passo-num{
+  flex-shrink:0;width:44px;height:44px;border-radius:50%;
+  background:linear-gradient(135deg,var(--sb),var(--sb2));color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;font-weight:700;font-family:'Quicksand',sans-serif
+}
 .ass-passo-cont{flex:1}
-.ass-passo-tit{font-size:16px;font-weight:700;color:var(--sb);margin-bottom:4px}
-.ass-passo-desc{font-size:14px;line-height:1.65;color:var(--txt)}
+.ass-passo-tit{
+  font-family:'Quicksand',sans-serif;font-size:16px;font-weight:700;
+  color:var(--sb);margin-bottom:5px;letter-spacing:.2px
+}
+.ass-passo-desc{font-size:14px;line-height:1.7;color:var(--txt)}
 .ass-passo-desc b{color:var(--sb);font-weight:700}
-.ass-card-info{background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:16px 20px;margin-bottom:12px;border-left:4px solid #10b981}
+
+/* CARDS info (Pós-Contemp do assessor) */
+.ass-card-info{padding:18px 22px;border-left:4px solid #10b981}
 .ass-card-info.alerta{border-left-color:#dc2626;background:#fef2f2}
-.ass-card-tit{font-size:15px;font-weight:700;color:var(--sb);margin-bottom:8px}
+.ass-card-tit{
+  font-family:'Quicksand',sans-serif;font-size:15.5px;font-weight:700;
+  color:var(--sb);margin-bottom:10px;letter-spacing:.2px
+}
 .ass-card-info.alerta .ass-card-tit{color:#991b1b}
-.ass-card-cont{font-size:14px;line-height:1.65;color:var(--txt)}
-.ass-card-cont p{margin:0 0 6px}
+.ass-card-cont{font-size:14px;line-height:1.7;color:var(--txt)}
+.ass-card-cont p{margin:0 0 8px}
 .ass-card-cont p:last-child{margin-bottom:0}
 .ass-card-cont b{color:var(--sb);font-weight:700}
 .ass-card-info.alerta .ass-card-cont b{color:#991b1b}
-.ass-card-cont ul{margin:6px 0 0;padding-left:22px}
-.ass-card-cont li{margin-bottom:4px}
-.ass-glos{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
-.ass-glos-item{background:#fff;border:1px solid #e5e7eb;border-left:4px solid var(--acc);padding:12px 16px;border-radius:0 8px 8px 0;font-size:14px;line-height:1.55}
-.ass-glos-item b{color:var(--sb);font-weight:700;font-size:15px;display:block;margin-bottom:4px}
-.ass-glos-item span{color:var(--txt2);font-size:13.5px}
+.ass-card-cont ul{margin:8px 0 0;padding-left:22px}
+.ass-card-cont li{margin-bottom:5px}
+
+/* MOBILE */
 @media(max-width:700px){
-  .ass-objecoes{grid-template-columns:1fr}
-  .ass-glos{grid-template-columns:1fr}
-  .ass-passo{flex-direction:column;align-items:stretch}
+  .ajuda-hero{padding:18px 20px}
+  .ajuda-hero-title{font-size:20px}
+  .ajuda-secao-titulo{font-size:17px}
+  .ajuda-atalhos{grid-template-columns:repeat(2,1fr)}
+  .ajuda-glos,.ass-glos,.ass-objecoes{grid-template-columns:1fr}
+  .ajuda-corpo{padding:14px 16px;font-size:13.5px}
+  .ajuda-acord summary{padding:12px 16px;font-size:14px;gap:10px}
+  .ass-passo{flex-direction:column;align-items:stretch;gap:12px}
   .ass-passo-num{margin:0 auto}
-  .ass-obj-cliente{font-size:13px}
-  .ass-obj-resp,.ass-qa-a,.ass-passo-desc,.ass-card-cont{font-size:13.5px}
+  .ass-obj-cliente,.ass-obj-resp,.ass-qa-a,.ass-passo-desc,.ass-card-cont{font-size:13.5px}
 }
-
-
 
 /* ── PÓS-CONTEMPLAÇÃO ───────────────────────── */
 .fat-hero{background:linear-gradient(135deg,var(--sb) 0%,var(--sb2) 100%);border-radius:var(--r-md);padding:var(--sp-4) var(--sp-6);color:#fff;margin-bottom:var(--sp-4);position:relative;overflow:hidden;box-shadow:var(--sh-2)}
