@@ -8424,7 +8424,9 @@ function renderOportSugestoes(){
     const atualPct=d.at_min?d.at_min*100:null;
     const cont6=(hd.cont||[]).slice(-6).filter(v=>v>0);
     const avgCont=cont6.length?cont6.reduce((a,b)=>a+b,0)/cont6.length:0;
-    scored.push({g,d,avgMin,lanceMed,trend,success,successCount,successTotal,vagas:d.vagas||0,isIm:isImov,dist,prazo:d.pr,cred:d.vmax,atualPct,avgCont,hasLf,hasPr});
+    const vagas=d.vagas||0;
+    if(vagas<=0)return; // Descarta grupos sem vagas — não faz sentido sugerir
+    scored.push({g,d,avgMin,lanceMed,trend,success,successCount,successTotal,vagas,isIm:isImov,dist,prazo:d.pr,cred:d.vmax,atualPct,avgCont,hasLf,hasPr});
   });
   // Ordenacao
   const cmpFn={
@@ -8439,6 +8441,15 @@ function renderOportSugestoes(){
     'cred-desc':(a,b)=>b.cred-a.cred,
   }[sortBy]||((a,b)=>0);
   scored.sort(cmpFn);
+  // Quando segmento é "Todos" (sem toggle Im/Ro), garante balanço:
+  // pega top 15 de cada categoria (já ordenados) e remontamos pra que ambos apareçam
+  if(!ortTipo){
+    const topIm=scored.filter(o=>o.isIm).slice(0,15);
+    const topRo=scored.filter(o=>!o.isIm).slice(0,15);
+    scored.length=0;
+    scored.push(...topIm,...topRo);
+    scored.sort(cmpFn);
+  }
   function mkRow(o){
     const credFmt=o.cred>=1e6?(o.cred/1e6).toFixed(2)+'M':brl(o.cred,0);
     const matchDot=targetCred>0&&o.dist<0.15?'<span style="color:var(--ok);margin-left:4px" title="Bate com o credito alvo">✓</span>':'';
