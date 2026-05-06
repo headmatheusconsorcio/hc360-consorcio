@@ -7885,8 +7885,9 @@ function renderOportunidades(){
   }
   function rankSeg(predicate){
     // Filtro mínimo de prazo: Imóvel ≥ 50m, Auto/Moto ≥ 24m (descarta grupos prestes a encerrar)
+    // Filtro de vagas: descarta grupos sem vaga
     const prazoMin=o=>o.isIm?50:24;
-    return ortData.filter(predicate).filter(o=>(o.prazo||0)>=prazoMin(o)).map(o=>({...o,ch:chance(o)})).filter(o=>o.ch!=null).sort((a,b)=>(b.ch-a.ch)||(b.vagas-a.vagas)).slice(0,10);
+    return ortData.filter(predicate).filter(o=>(o.prazo||0)>=prazoMin(o)&&(o.d.vagas||0)>0).map(o=>({...o,ch:chance(o)})).filter(o=>o.ch!=null).sort((a,b)=>(b.ch-a.ch)||(b.vagas-a.vagas)).slice(0,5);
   }
   const top3Im=rankSeg(o=>o.isIm);
   const top3Ro=rankSeg(o=>o.isRo);
@@ -7894,7 +7895,7 @@ function renderOportunidades(){
     const visible=ortTipo===''||ortTipo===segKey;
     if(!visible)return '';
     if(!items.length)return '<div class="card" style="padding:32px;text-align:center;color:var(--txt2);font-size:13px">'+emoji+' Sem dados de '+label+'</div>';
-    const head='<div style="background:linear-gradient(135deg,var(--sb) 0%,var(--sb2) 100%);padding:14px 18px;color:#fff;display:flex;align-items:center;justify-content:space-between"><div style="font-family:Quicksand,sans-serif;font-size:16px;font-weight:600;letter-spacing:.5px">'+emoji+' Top 10 '+label+'</div><div style="font-size:10.5px;color:rgba(255,243,221,.7);text-transform:uppercase;letter-spacing:1.5px">Maior chance</div></div>';
+    const head='<div style="background:linear-gradient(135deg,var(--sb) 0%,var(--sb2) 100%);padding:14px 18px;color:#fff;display:flex;align-items:center;justify-content:space-between"><div style="font-family:Quicksand,sans-serif;font-size:16px;font-weight:600;letter-spacing:.5px">'+emoji+' Top 5 '+label+'</div><div style="font-size:10.5px;color:rgba(255,243,221,.7);text-transform:uppercase;letter-spacing:1.5px">Maior chance</div></div>';
     const rows=items.map((o,i)=>{
       const ch=Math.round(o.ch*100);
       const cat=ch>=70?{lbl:'Alta',bg:'#d1fae5',fg:'#065f46',icon:'🎯'}:ch>=40?{lbl:'Média',bg:'#fef3c7',fg:'#92400e',icon:'⚠️'}:{lbl:'Baixa',bg:'#fee2e2',fg:'#991b1b',icon:'⚡'};
