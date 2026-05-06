@@ -1572,6 +1572,7 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
           <th onclick="sortCRM('assessor')" style="cursor:pointer">Assessor <span id="lsort-assessor" class="sort-ico">⇅</span></th>
           <th onclick="sortCRM('interesse')" style="cursor:pointer">Interesse <span id="lsort-interesse" class="sort-ico">⇅</span></th>
           <th onclick="sortCRM('valor_potencial')" style="cursor:pointer">Crédito <span id="lsort-valor_potencial" class="sort-ico">⇅</span></th>
+          <th title="Receita estimada do assessor: 4% sobre a carta × % padrão de repasse">Sua Receita</th>
           <th onclick="sortCRM('status')" style="cursor:pointer">Status <span id="lsort-status" class="sort-ico">⇅</span></th>
           <th onclick="sortCRM('created_at')" style="cursor:pointer">Idade <span id="lsort-created_at" class="sort-ico">⇅</span></th>
           <th>Ações</th>
@@ -3358,7 +3359,11 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
             <option>Imóvel</option><option>Veículo</option><option>Moto</option><option>Não definido</option>
           </select>
         </div>
-        <div class="form-g"><label class="form-l">Valor do Crédito (R$) <span class="form-req">*</span></label><input type="number" class="form-i" id="ml-val" placeholder="Ex.: 300000"></div>
+        <div class="form-g"><label class="form-l">Valor do Crédito (R$) <span class="form-req">*</span></label><input type="number" class="form-i" id="ml-val" placeholder="Ex.: 300000" oninput="mlAtualizaReceita()"></div>
+      </div>
+      <div id="ml-receita-box" style="display:none;background:#F0FDF4;border:1px solid #BBF7D0;border-radius:9px;padding:12px 14px;margin-bottom:12px">
+        <div style="font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#0F766E;margin-bottom:6px">💸 Quanto você ganha com este lead</div>
+        <div id="ml-receita-detalhe" style="font-size:13px;line-height:1.6;color:var(--txt)"></div>
       </div>
       <div class="g2" style="margin-bottom:0">
         <div class="form-g"><label class="form-l">Assessor <span class="form-l-hint" id="ml-ass-hint"></span></label>
@@ -3558,9 +3563,22 @@ async function loadProfile(user){
     email:user.email,
     assessorName:meta.assessor_name||umeta.assessor_name||null,
     isAdmin:meta.is_admin===true||umeta.is_admin===true||isAdminEmail,
-    displayName:meta.display_name||umeta.display_name||meta.assessor_name||umeta.assessor_name||user.email.split('@')[0]
+    displayName:meta.display_name||umeta.display_name||meta.assessor_name||umeta.assessor_name||user.email.split('@')[0],
+    pctPadrao:null,
+    perfilFilial:null,
+    perfilApelidos:[]
   };
-  console.info('[HC360] login:',CURRENT_USER.email,'isAdmin:',CURRENT_USER.isAdmin,'displayName:',CURRENT_USER.displayName);
+  // Carrega pct_padrao do perfil (se cadastrado)
+  try{
+    const {data:perfil}=await sb.rpc('get_my_pct_padrao');
+    if(perfil&&perfil.found){
+      CURRENT_USER.pctPadrao=Number(perfil.pct_padrao);
+      CURRENT_USER.perfilFilial=perfil.filial;
+      CURRENT_USER.perfilApelidos=perfil.apelidos||[];
+      if(!CURRENT_USER.assessorName)CURRENT_USER.assessorName=perfil.assessor_name;
+    }
+  }catch(e){console.warn('[HC360] perfil n/d',e);}
+  console.info('[HC360] login:',CURRENT_USER.email,'isAdmin:',CURRENT_USER.isAdmin,'pct:',CURRENT_USER.pctPadrao);
   updateSidebarUser(CURRENT_USER);
 }
 
@@ -5864,6 +5882,7 @@ function pipeCardHtml(l,stage,idx){
       ${tel?`<a class="pc-line pc-tel" href="tel:${telDigits}" onclick="event.stopPropagation()" title="Ligar para ${tel}">📞 ${tel}</a>`:''}
       ${sim?`<div class="pc-line pc-cred"><span>💰 ${lSimDone?'Cotas':'Negociado'}</span><strong>${brl(sim.credTot,0)}</strong><span class="pc-cotas">${sim.cotas}c</span></div>`
            :l.valor_potencial?`<div class="pc-line"><span>💰 Potencial</span><strong>${brl(l.valor_potencial,0)}</strong></div>`:''}
+      ${(()=>{ const rec=_estimarReceitaLead({...l,sim}); if(!rec)return ''; const txt=rec.repasse!=null?'<strong style="color:#0F766E">'+_fmtBRLcurto(rec.repasse)+'</strong>':'<span style="color:var(--txt3);font-size:11px">defina seu %</span>'; return `<div class="pc-line" style="background:#F0FDF4;border-radius:5px;padding:3px 6px;border:1px solid #BBF7D0"><span style="color:#0F766E">💸 Sua receita</span>${txt}</div>`; })()}
       ${l.indicado_por?`<div class="pc-line pc-ind">👥 via ${l.indicado_por}</div>`:''}
       ${isReuniao&&dtRStr?`<div class="pc-line pc-reuniao">📅 ${dtRStr}</div>`:''}
     </div>
@@ -5910,7 +5929,7 @@ function renderCRM(){
   const elTbLista=document.getElementById('crm-tab-lista-c');if(elTbLista)elTbLista.textContent=leadsFiltered.length;
   const ganhosCnt=LEADS.filter(l=>l.status==='Ganho').length;
   const elTbCli=document.getElementById('crm-tab-clientes-c');if(elTbCli)elTbCli.textContent=ganhosCnt;
-  document.getElementById('crm-tbody').innerHTML=leadsFiltered.map(l=>crmRowHtml(l)).join('')||`<tr><td colspan="9" style="text-align:center;color:var(--txt2);padding:24px;font-style:italic">Nenhum lead encontrado</td></tr>`;
+  document.getElementById('crm-tbody').innerHTML=leadsFiltered.map(l=>crmRowHtml(l)).join('')||`<tr><td colspan="10" style="text-align:center;color:var(--txt2);padding:24px;font-style:italic">Nenhum lead encontrado</td></tr>`;
   renderClientes();
 }
 function _crmLegacyRowDeprecated(){
@@ -5922,6 +5941,26 @@ function _crmLegacyRowDeprecated(){
   </tr>`;
 }
 
+// === Estimativa de receita do assessor a partir de um lead ===
+// Regra simples: 4% (taxa média Itaú/Santander/Safra imóvel ou Auto pré-fev) sobre valor da carta.
+// Se for Auto Itaú e adesão >= 01/02/2026, sobe pra 5%, mas como não temos o banco/data no lead,
+// usamos 4% como base conservadora. % padrão do assessor logado é aplicado em cima.
+function _estimarReceitaLead(l){
+  const valor=Number((l&&(l.sim?l.sim.credTot:l.valor_potencial))||0);
+  if(!valor||valor<=0)return null;
+  const taxa=0.04;
+  const comissao=valor*taxa;
+  const pct=(CURRENT_USER&&CURRENT_USER.pctPadrao!=null)?Number(CURRENT_USER.pctPadrao):null;
+  if(pct==null)return {comissao,repasse:null,pct:null,valor};
+  return {comissao,repasse:comissao*pct/100,pct,valor};
+}
+function _fmtBRLcurto(n){
+  if(n==null||isNaN(n))return '—';
+  const v=Number(n);
+  if(v>=1000000)return 'R$ '+(v/1000000).toFixed(1).replace('.',',')+'mi';
+  if(v>=1000)return 'R$ '+(v/1000).toFixed(1).replace('.',',')+'k';
+  return 'R$ '+v.toFixed(0);
+}
 function crmDaysSince(iso){
   if(!iso)return null;
   const d=new Date(iso);
@@ -6007,6 +6046,7 @@ function crmRowHtml(l){
     <td style="font-size:11.5px">${atag(l.assessor)}</td>
     <td><span class="pc-tag pc-tag-int">${l.interesse||'—'}</span></td>
     <td style="font-weight:700;color:var(--sb);white-space:nowrap">${credLabel}</td>
+    <td style="white-space:nowrap">${(()=>{const r=_estimarReceitaLead({...l,sim});if(!r)return '<span style="color:var(--txt3)">—</span>';if(r.repasse==null)return '<span style="color:var(--txt3);font-size:11px" title="Seu perfil não tem % padrão definido">defina seu %</span>';return '<span style="font-weight:700;color:#0F766E">'+_fmtBRLcurto(r.repasse)+'</span><div style="font-size:10px;color:var(--txt3);margin-top:1px">4% × '+r.pct+'%</div>';})()}</td>
     <td onclick="event.stopPropagation()">${crmRowStatusEdit(l)}</td>
     <td>${crmIdadeBadge(l)}</td>
     <td onclick="event.stopPropagation()">
@@ -6164,7 +6204,28 @@ function openModalLead(id){
   document.getElementById('ml-obs').value=(l.observacao||'').startsWith('SIM:')?'':(l.observacao||'');
   document.getElementById('ml-reuniao').value=l.data_reuniao?l.data_reuniao.slice(0,16):'';
   mlToggleReuniao();
+  mlAtualizaReceita();
   document.getElementById('modal-lead').classList.add('open');
+}
+function mlAtualizaReceita(){
+  const valor=Number(document.getElementById('ml-val').value)||0;
+  const box=document.getElementById('ml-receita-box');
+  const det=document.getElementById('ml-receita-detalhe');
+  if(!box||!det)return;
+  if(!valor||valor<=0){box.style.display='none';return;}
+  const r=_estimarReceitaLead({valor_potencial:valor});
+  if(!r){box.style.display='none';return;}
+  if(r.repasse==null){
+    det.innerHTML=`<div style="color:var(--err);font-size:12px">Seu perfil não tem % padrão definido. Peça pro admin configurar.</div>
+      <div style="font-size:11.5px;color:var(--txt2);margin-top:4px">Comissão estimada bruta: <b>R$ ${r.comissao.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})}</b> (4% sobre R$ ${r.valor.toLocaleString('pt-BR',{maximumFractionDigits:0})})</div>`;
+  }else{
+    det.innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div><div style="font-size:10.5px;color:var(--txt2)">Comissão bruta (4%)</div><div style="font-weight:700">R$ ${r.comissao.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})}</div></div>
+      <div><div style="font-size:10.5px;color:var(--txt2)">Sua receita (${r.pct}%)</div><div style="font-weight:700;color:#0F766E;font-size:15px">R$ ${r.repasse.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})}</div></div>
+    </div>
+    <div style="font-size:10.5px;color:var(--txt2);margin-top:8px;font-style:italic">Cálculo: 4% × R$ ${r.valor.toLocaleString('pt-BR',{maximumFractionDigits:0})} × ${r.pct}% padrão. Auto Itaú a partir de fev/26 sobe pra 5%.</div>`;
+  }
+  box.style.display='';
 }
 async function saveLead(){
   const nome=document.getElementById('ml-nome').value.trim();
