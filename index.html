@@ -682,6 +682,17 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
 .sb-overlay.open{display:block}
 
 /* ── AJUDA / CENTRAL DE AJUDA ──────────────── */
+/* Página Ajuda ocupa 100% da largura disponível (sem o max-width:1480 do .content). */
+/* Cobertura tripla: caso esteja dentro do .content, irmã dele, ou pai descendente. */
+body:has(#page-ajuda.active) .content,
+.content:has(#page-ajuda.active),
+main.main:has(#page-ajuda.active) .content{
+  max-width:100%!important;
+  padding-left:clamp(16px,2.4vw,40px)!important;
+  padding-right:clamp(16px,2.4vw,40px)!important;
+}
+#page-ajuda.active{width:100%;max-width:100%}
+
 .ajuda-hero{background:linear-gradient(135deg,var(--sb) 0%,var(--sb2) 100%);border-radius:var(--r-md);padding:var(--sp-4) var(--sp-6);color:#fff;margin-bottom:var(--sp-4);position:relative;overflow:hidden;box-shadow:var(--sh-2);border-bottom:3px solid var(--acc)}
 .ajuda-hero::after{content:'❓';position:absolute;right:-10px;top:-30px;font-size:160px;opacity:.07;font-weight:700}
 .ajuda-hero-title{font-size:22px;font-weight:700;font-family:'Quicksand',sans-serif;margin-bottom:4px;position:relative;z-index:1}
