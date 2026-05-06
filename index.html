@@ -736,6 +736,58 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
   .ajuda-hero-title{font-size:18px}
 }
 
+/* ── AJUDA ASSESSOR — versão simplificada de venda ── */
+.ajuda-atalhos.ass{grid-template-columns:repeat(auto-fill,minmax(190px,1fr))}
+.ajuda-atalhos.ass .ajuda-atalho{padding:16px 16px}
+.ajuda-atalhos.ass .ajuda-atalho-ico{font-size:30px;margin-bottom:8px}
+.ajuda-atalhos.ass .ajuda-atalho-tit{font-size:15px}
+.ajuda-atalhos.ass .ajuda-atalho-sub{font-size:12px}
+.ass-intro{font-size:14px;color:var(--txt2);margin:-4px 0 16px;line-height:1.5}
+.ass-objecoes{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:14px}
+.ass-objecao{background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:16px 18px;border-left:4px solid var(--acc);box-shadow:0 1px 3px rgba(0,0,0,.04);transition:box-shadow var(--t-fast)}
+.ass-objecao:hover{box-shadow:0 4px 12px rgba(0,0,0,.08)}
+.ass-obj-tag{font-size:13px;font-weight:700;color:var(--sb);margin-bottom:10px;display:inline-block;background:#fef3c7;padding:4px 10px;border-radius:14px;letter-spacing:.2px}
+.ass-obj-cliente{font-size:14px;color:var(--txt);font-style:italic;background:#f3f4f6;padding:10px 14px;border-radius:8px;margin-bottom:10px;line-height:1.5;position:relative;padding-left:32px}
+.ass-obj-cliente::before{content:'💬';position:absolute;left:10px;top:10px;font-style:normal}
+.ass-obj-resp{font-size:14px;line-height:1.65;color:var(--txt)}
+.ass-obj-resp b{color:var(--sb);font-weight:700}
+.ass-qa{display:flex;flex-direction:column;gap:12px}
+.ass-qa-item{background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:14px 18px;transition:all var(--t-fast)}
+.ass-qa-item:hover{border-color:var(--acc);background:#fffdf7}
+.ass-qa-q{font-size:15px;font-weight:700;color:var(--sb);margin-bottom:6px}
+.ass-qa-q::before{content:'❓ ';opacity:.7}
+.ass-qa-a{font-size:14px;line-height:1.65;color:var(--txt)}
+.ass-qa-a b{color:var(--sb);font-weight:700}
+.ass-passo{display:flex;gap:16px;background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:18px 20px;margin-bottom:12px;align-items:flex-start;border-left:4px solid var(--sb)}
+.ass-passo-num{flex-shrink:0;width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--sb),var(--sb2));color:#fff;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;font-family:'Quicksand',sans-serif}
+.ass-passo-cont{flex:1}
+.ass-passo-tit{font-size:16px;font-weight:700;color:var(--sb);margin-bottom:4px}
+.ass-passo-desc{font-size:14px;line-height:1.65;color:var(--txt)}
+.ass-passo-desc b{color:var(--sb);font-weight:700}
+.ass-card-info{background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:16px 20px;margin-bottom:12px;border-left:4px solid #10b981}
+.ass-card-info.alerta{border-left-color:#dc2626;background:#fef2f2}
+.ass-card-tit{font-size:15px;font-weight:700;color:var(--sb);margin-bottom:8px}
+.ass-card-info.alerta .ass-card-tit{color:#991b1b}
+.ass-card-cont{font-size:14px;line-height:1.65;color:var(--txt)}
+.ass-card-cont p{margin:0 0 6px}
+.ass-card-cont p:last-child{margin-bottom:0}
+.ass-card-cont b{color:var(--sb);font-weight:700}
+.ass-card-info.alerta .ass-card-cont b{color:#991b1b}
+.ass-card-cont ul{margin:6px 0 0;padding-left:22px}
+.ass-card-cont li{margin-bottom:4px}
+.ass-glos{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+.ass-glos-item{background:#fff;border:1px solid #e5e7eb;border-left:4px solid var(--acc);padding:12px 16px;border-radius:0 8px 8px 0;font-size:14px;line-height:1.55}
+.ass-glos-item b{color:var(--sb);font-weight:700;font-size:15px;display:block;margin-bottom:4px}
+.ass-glos-item span{color:var(--txt2);font-size:13.5px}
+@media(max-width:700px){
+  .ass-objecoes{grid-template-columns:1fr}
+  .ass-glos{grid-template-columns:1fr}
+  .ass-passo{flex-direction:column;align-items:stretch}
+  .ass-passo-num{margin:0 auto}
+  .ass-obj-cliente{font-size:13px}
+  .ass-obj-resp,.ass-qa-a,.ass-passo-desc,.ass-card-cont{font-size:13.5px}
+}
+
 /* ── PÓS-CONTEMPLAÇÃO ───────────────────────── */
 .fat-hero{background:linear-gradient(135deg,var(--sb) 0%,var(--sb2) 100%);border-radius:var(--r-md);padding:var(--sp-4) var(--sp-6);color:#fff;margin-bottom:var(--sp-4);position:relative;overflow:hidden;box-shadow:var(--sh-2)}
 .fat-hero::after{content:'';position:absolute;right:-40px;top:-40px;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,.05)}
@@ -3534,368 +3586,245 @@ CET ao Ano     = CET ao Mês × 12</pre>
     <div data-assessor-only="1" id="ajuda-ass">
 
       <!-- Atalhos rápidos -->
-      <div class="ajuda-atalhos">
-        <a class="ajuda-atalho" href="#" onclick="ajudaIr('ass-leads');return false">
-          <div class="ajuda-atalho-ico">🎯</div>
-          <div class="ajuda-atalho-tit">Meus Leads</div>
-          <div class="ajuda-atalho-sub">CRM passo a passo</div>
+      <div class="ajuda-atalhos ass">
+        <a class="ajuda-atalho" href="#" onclick="ajudaIr('ass-vender');return false">
+          <div class="ajuda-atalho-ico">🚀</div>
+          <div class="ajuda-atalho-tit">Argumentos de Venda</div>
+          <div class="ajuda-atalho-sub">Frases prontas pra fechar</div>
         </a>
-        <a class="ajuda-atalho" href="#" onclick="ajudaIr('ass-cotas');return false">
-          <div class="ajuda-atalho-ico">👤</div>
-          <div class="ajuda-atalho-tit">Meus Clientes</div>
-          <div class="ajuda-atalho-sub">Acompanhar cotas</div>
+        <a class="ajuda-atalho" href="#" onclick="ajudaIr('ass-duvidas');return false">
+          <div class="ajuda-atalho-ico">📞</div>
+          <div class="ajuda-atalho-tit">Dúvidas do Cliente</div>
+          <div class="ajuda-atalho-sub">Respostas rápidas</div>
+        </a>
+        <a class="ajuda-atalho" href="#" onclick="ajudaIr('ass-crm');return false">
+          <div class="ajuda-atalho-ico">🎯</div>
+          <div class="ajuda-atalho-tit">CRM em 3 passos</div>
+          <div class="ajuda-atalho-sub">Cadastrar e mover lead</div>
         </a>
         <a class="ajuda-atalho" href="#" onclick="ajudaIr('ass-pos');return false">
           <div class="ajuda-atalho-ico">📋</div>
-          <div class="ajuda-atalho-tit">Pós-Contemplação</div>
-          <div class="ajuda-atalho-sub">Quando o cliente ganha</div>
+          <div class="ajuda-atalho-tit">Cliente Contemplou</div>
+          <div class="ajuda-atalho-sub">O que falar pra ele</div>
         </a>
         <a class="ajuda-atalho" href="#" onclick="ajudaIr('ass-glos');return false">
           <div class="ajuda-atalho-ico">📖</div>
-          <div class="ajuda-atalho-tit">Glossário Básico</div>
-          <div class="ajuda-atalho-sub">Termos do dia a dia</div>
-        </a>
-        <a class="ajuda-atalho" href="#" onclick="ajudaIr('ass-faq');return false">
-          <div class="ajuda-atalho-ico">💡</div>
-          <div class="ajuda-atalho-tit">Dúvidas Comuns</div>
-          <div class="ajuda-atalho-sub">FAQ rápido</div>
+          <div class="ajuda-atalho-tit">Glossário Rápido</div>
+          <div class="ajuda-atalho-sub">10 termos essenciais</div>
         </a>
       </div>
 
-      <!-- ── O que você acessa no sistema ── -->
-      <div class="ajuda-secao">
-        <div class="ajuda-secao-titulo">🗺️ O que você vê no sistema</div>
-        <div class="card">
-          <div class="cb">
-            <p>Como Assessor, você acessa estas abas:</p>
-            <ul>
-              <li><b>📊 Dashboard</b> — visão geral da sua carteira</li>
-              <li><b>📅 Agenda</b> — vencimentos e cotas sem lance</li>
-              <li><b>🎯 CRM / Indicações</b> — seus leads</li>
-              <li><b>👤 Projetos / Cotas</b> — seus clientes e cotas</li>
-              <li><b>📋 Pós-Contemplação</b> — esteira após contemplar</li>
-            </ul>
-            <p class="ajuda-dica">💡 As abas <b>Guia</b>, <b>Oportunidades</b> e <b>Gerar Proposta</b> são do Administrador. Se precisar simular uma proposta, fala com o ADM.</p>
+      <!-- ═══ ARGUMENTOS DE VENDA ═══ -->
+      <div class="ajuda-secao" id="ass-vender">
+        <div class="ajuda-secao-titulo">🚀 Argumentos pra Vender</div>
+        <p class="ass-intro">Quando o cliente travar com uma dessas objeções, a resposta tá aqui. Pode falar igual.</p>
+
+        <div class="ass-objecoes">
+
+          <div class="ass-objecao">
+            <div class="ass-obj-tag">😬 Cliente acha caro</div>
+            <div class="ass-obj-cliente">"Tá saindo R$ 5 mil por mês, é muito!"</div>
+            <div class="ass-obj-resp">
+              <b>Você responde:</b> "Olha só — você não tá só pagando uma parcela, você tá <b>juntando</b> R$ 340 mil. O total é o mesmo de um financiamento, mas o juro do consórcio é <b>3x menor</b>. E ainda, na contemplação você reduz parcela ou prazo. É o jeito mais inteligente de comprar."
+            </div>
           </div>
+
+          <div class="ass-objecao">
+            <div class="ass-obj-tag">⏳ Cliente tem medo de não contemplar</div>
+            <div class="ass-obj-cliente">"E se eu não ganhar nunca?"</div>
+            <div class="ass-obj-resp">
+              <b>Você responde:</b> "Pode ficar tranquilo: <b>todos os grupos têm 100% de contemplação até o fim</b>. Na pior das hipóteses, o último contemplado é o último mês do grupo. E se quiser acelerar, oferta lance — temos histórico dos grupos pra você saber o quanto dar."
+            </div>
+          </div>
+
+          <div class="ass-objecao">
+            <div class="ass-obj-tag">🏦 Cliente compara com financiamento</div>
+            <div class="ass-obj-cliente">"O banco financia direto, por que não financiar?"</div>
+            <div class="ass-obj-resp">
+              <b>Você responde:</b> "É a maior pegadinha do mercado. Financiamento Itaú cobra <b>9 a 12% ao ano</b> de juros. Consórcio Itaú? <b>3 a 4% ao ano</b> de CET. Em uma carta de R$ 300 mil, isso é <b>R$ 200 mil de diferença</b> no total pago."
+            </div>
+          </div>
+
+          <div class="ass-objecao">
+            <div class="ass-obj-tag">💸 Cliente quer parcela BEM baixa</div>
+            <div class="ass-obj-cliente">"Tem uma opção de parcela só metade?"</div>
+            <div class="ass-obj-resp">
+              <b>Cuidado:</b> existe a Parcela Reduzida (PR 50%), mas <b>só recomenda se o cliente vai contemplar cedo</b>. Quanto mais tarde contempla com PR, mais a parcela pós-contemplação <b>dispara</b> (pode passar de R$ 100k!). Explica isso antes de oferecer.
+            </div>
+          </div>
+
+          <div class="ass-objecao">
+            <div class="ass-obj-tag">💰 Cliente: "e se sobrar dinheiro?"</div>
+            <div class="ass-obj-cliente">"Carta de R$ 340k mas o imóvel é R$ 280k, perco a diferença?"</div>
+            <div class="ass-obj-resp">
+              <b>Você responde:</b> "Não perde nada! A sobra pode <b>reembolsar ITBI e cartório</b> (até 10% do crédito), <b>pagar parcelas vincendas</b>, <b>reduzir o valor das parcelas</b>, ou até <b>comprar outro bem</b> do mesmo segmento."
+            </div>
+          </div>
+
+          <div class="ass-objecao">
+            <div class="ass-obj-tag">🤔 Cliente: "consórcio não dá entrada"</div>
+            <div class="ass-obj-cliente">"Eu já tenho 50 mil pra dar de entrada, não dá pra usar?"</div>
+            <div class="ass-obj-resp">
+              <b>Você responde:</b> "Dá sim! Esse dinheiro vira <b>lance</b>. Você oferta no início e <b>contempla rápido</b> (em meses). Os 50 mil podem ser metade em dinheiro e metade <b>embutido na carta</b> (até 30%) — ou seja, sem precisar tirar nada do bolso."
+            </div>
+          </div>
+
         </div>
       </div>
 
-      <!-- ── Meus Leads (CRM) ── -->
-      <div class="ajuda-secao" id="ass-leads">
-        <div class="ajuda-secao-titulo">🎯 Meus Leads — Como Usar o CRM</div>
+      <!-- ═══ DÚVIDAS DO CLIENTE ═══ -->
+      <div class="ajuda-secao" id="ass-duvidas">
+        <div class="ajuda-secao-titulo">📞 Dúvidas que o Cliente Faz</div>
+        <p class="ass-intro">Respostas curtas pra você falar de cabeça.</p>
 
-        <details class="ajuda-acord" open>
-          <summary>Como cadastrar um lead novo</summary>
-          <div class="ajuda-corpo">
-            <ol>
-              <li>Vai em <b>🎯 CRM / Indicações</b></li>
-              <li>Click em <b>+ Novo Lead</b></li>
-              <li>Preenche: Nome · Telefone · Email · Quem indicou · Interesse (Imóvel/Veículo/Moto) · Valor Potencial · Observação</li>
-              <li>Salva → o card aparece na coluna <b>Novo Lead</b></li>
-            </ol>
-            <p class="ajuda-dica">💡 Capricha na <b>Observação</b> — anota o que o cliente quer, prazos, dor.</p>
-          </div>
-        </details>
+        <div class="ass-qa">
 
-        <details class="ajuda-acord">
-          <summary>Como mover o lead pelas fases</summary>
-          <div class="ajuda-corpo">
-            <p>É só <b>arrastar o card</b> pra coluna que ele agora está. Ou abre o card e muda o status.</p>
-            <p><b>Sequência natural do lead:</b></p>
-            <ol>
-              <li><b>Novo Lead</b> — acabou de chegar</li>
-              <li><b>Qualificando</b> — você está conversando, descobrindo o que ele quer</li>
-              <li><b>Reunião Marcada</b> — agendou data/hora (preenche <b>Data da Reunião</b>)</li>
-              <li><b>Reunião Realizada</b> — apresentou o produto</li>
-              <li><b>Simulação</b> — está sendo simulado pelo ADM</li>
-              <li><b>Proposta Enviada</b> — cliente recebeu a apresentação</li>
-              <li><b>Em Negociação</b> — cliente está pensando</li>
-              <li><b>Aguard. Docs</b> — pediu pra fechar, falta documento</li>
-              <li><b>Cota Aberta</b> 🎉 — vendeu!</li>
-              <li><b>Perdido</b> — cliente desistiu</li>
-            </ol>
+          <div class="ass-qa-item">
+            <div class="ass-qa-q">Quanto vou pagar de lance?</div>
+            <div class="ass-qa-a">Depende: no <b>Lance Livre</b>, você decide o %. No <b>Lance Fixo</b>, o Itaú já define 40%. Pode pagar em dinheiro (5 dias úteis), descontado da carta (até 30%) ou com FGTS (só imóvel residencial).</div>
           </div>
-        </details>
 
-        <details class="ajuda-acord">
-          <summary>O que cada coisa do card mostra</summary>
-          <div class="ajuda-corpo">
-            <ul>
-              <li><b>Nome + tags</b> — interesse e seu nome de assessor</li>
-              <li><b>📞 Telefone clicável</b> — toca direto ao clicar</li>
-              <li><b>💰 Crédito Negociado</b> (verde) — soma de tudo que o ADM simulou pra ele</li>
-              <li><b>👥 via [Indicador]</b> — quem mandou esse lead</li>
-              <li><b>📅 Data da reunião</b> — só aparece em "Reunião Marcada/Realizada"</li>
-              <li><b>Borda colorida</b> — cor da fase</li>
-            </ul>
+          <div class="ass-qa-item">
+            <div class="ass-qa-q">Posso usar FGTS como lance?</div>
+            <div class="ass-qa-a">Sim, mas <b>só em imóvel residencial</b> pra moradia própria. Não vale pra terreno, reforma, construção, flat ou imóvel fora do município de trabalho/residência (mín. 1 ano).</div>
           </div>
-        </details>
 
-        <details class="ajuda-acord">
-          <summary>Marquei reunião — como registrar?</summary>
-          <div class="ajuda-corpo">
-            <ol>
-              <li>Move o card pra <b>Reunião Marcada</b></li>
-              <li>Abre o card (clica nele)</li>
-              <li>Preenche <b>Data da Reunião</b> (campo de data e hora)</li>
-              <li>Salva → data aparece no card</li>
-            </ol>
-            <p>Depois da reunião acontecer, move pra <b>Reunião Realizada</b>.</p>
+          <div class="ass-qa-item">
+            <div class="ass-qa-q">Posso atrasar uma parcela?</div>
+            <div class="ass-qa-a">Pode pagar atrasado, mas <b>perde a participação na AGO daquele mês</b> — só concorre no mês seguinte (com tudo em dia). Se atrasar 3 consecutivas: risco de exclusão (com multa 15%).</div>
           </div>
-        </details>
 
-        <details class="ajuda-acord">
-          <summary>Status só ADM altera?</summary>
-          <div class="ajuda-corpo">
-            <p><b>Sim.</b> Você pode arrastar/mudar o stage do seu lead, mas alguns status (como definir Cota Aberta) ficam bloqueados pra você. Quem libera é o ADM. Isso evita confusão na hora de fechar venda.</p>
+          <div class="ass-qa-item">
+            <div class="ass-qa-q">Posso desistir e pegar meu dinheiro de volta?</div>
+            <div class="ass-qa-a">Pode desistir, mas <b>só recebe quando o grupo encerrar</b>. Recebe o que pagou × % amortizado <b>menos multa de 15%</b>. Avisa o ADM antes de orientar — tem detalhes do contrato.</div>
           </div>
-        </details>
+
+          <div class="ass-qa-item">
+            <div class="ass-qa-q">Ofertei lance e não ganhei. Perdi a parcela?</div>
+            <div class="ass-qa-a"><b>Não.</b> Se não ganhou, não paga lance nenhum. Continua pagando só a parcela normal e pode ofertar de novo na próxima AGO.</div>
+          </div>
+
+          <div class="ass-qa-item">
+            <div class="ass-qa-q">Ganhei lance mas não consigo pagar em 5 dias. Perco?</div>
+            <div class="ass-qa-a"><b>A contemplação passa pro próximo da fila</b> (suplência). Mas a cota continua ativa — pode ofertar de novo na próxima AGO.</div>
+          </div>
+
+          <div class="ass-qa-item">
+            <div class="ass-qa-q">Carta cobre o imóvel inteiro?</div>
+            <div class="ass-qa-a">Se a carta for &gt; valor do imóvel, sobra 5 opções (ITBI, cartório, parcelas, reduzir parcela, outro bem). Se a carta for &lt; valor, o cliente <b>complementa com recurso próprio</b>.</div>
+          </div>
+
+          <div class="ass-qa-item">
+            <div class="ass-qa-q">Quanto tempo até receber a carta?</div>
+            <div class="ass-qa-a">Após contemplar e mandar documentação aprovada: <b>~30 a 60 dias</b> até a carta ser liberada. Se o vendedor tem financiamento (IQ), o prazo crítico é <b>45 dias</b> pro registro em cartório.</div>
+          </div>
+
+          <div class="ass-qa-item">
+            <div class="ass-qa-q">Posso comprar mais de um imóvel com a mesma carta?</div>
+            <div class="ass-qa-a"><b>Não.</b> Uma carta = um imóvel. E não dá pra usar duas cartas pra comprar um único imóvel também (regra Itaú).</div>
+          </div>
+
+          <div class="ass-qa-item">
+            <div class="ass-qa-q">Tem seguro?</div>
+            <div class="ass-qa-a">É <b>opcional</b>. Cliente decide na adesão. Cobre morte e invalidez do consorciado — em caso de sinistro, a cota é quitada e a família recebe a carta.</div>
+          </div>
+
+        </div>
       </div>
 
-      <!-- ── Meus Clientes ── -->
-      <div class="ajuda-secao" id="ass-cotas">
-        <div class="ajuda-secao-titulo">👤 Meus Clientes — Acompanhar Cotas</div>
+      <!-- ═══ CRM EM 3 PASSOS ═══ -->
+      <div class="ajuda-secao" id="ass-crm">
+        <div class="ajuda-secao-titulo">🎯 CRM em 3 Passos</div>
 
-        <details class="ajuda-acord" open>
-          <summary>Onde vejo as cotas dos meus clientes?</summary>
-          <div class="ajuda-corpo">
-            <p>Vai em <b>👤 Projetos / Cotas</b>. Você só vê os clientes que estão associados a você como assessor.</p>
-            <p><b>2 modos de visualização:</b></p>
-            <ul>
-              <li><b>Por Cliente</b> (default) — cards horizontais</li>
-              <li><b>Lista Completa</b> — tabela com todas as cotas</li>
-            </ul>
-            <p>Click num cliente → abre painel embaixo com 2 abas:</p>
-            <ul>
-              <li><b>📋 Cotas</b> — todas as cotas dele</li>
-              <li><b>📊 Dashboard</b> — KPIs, gráficos, portfólio dele</li>
-            </ul>
+        <div class="ass-passo">
+          <div class="ass-passo-num">1</div>
+          <div class="ass-passo-cont">
+            <div class="ass-passo-tit">Cadastrar lead</div>
+            <div class="ass-passo-desc">Aba <b>🎯 CRM / Indicações</b> → botão <b>+ Novo Lead</b> → preenche nome, telefone, interesse, valor potencial e quem indicou. Capricha na <b>Observação</b> — anota o que ele quer e a dor dele.</div>
           </div>
-        </details>
+        </div>
 
-        <details class="ajuda-acord">
-          <summary>O que significa cada Status da cota?</summary>
-          <div class="ajuda-corpo">
-            <table class="ajuda-tab">
-              <tr><th>Status</th><th>Significa</th></tr>
-              <tr><td><b>Em Andamento</b></td><td>Cliente pagando, sem lance ativo</td></tr>
-              <tr><td><b>Lance Livre</b></td><td>Cliente vai ofertar lance livre</td></tr>
-              <tr><td><b>Lance Fixo</b></td><td>Cliente vai ofertar lance fixo (40% Itaú)</td></tr>
-              <tr><td><b>Contemplado</b></td><td>Ganhou a cota! Falta usar a carta</td></tr>
-              <tr><td><b>Faturado</b></td><td>Carta usada — fim do ciclo</td></tr>
-              <tr><td><b>Cancelado</b></td><td>Cota desistida</td></tr>
-            </table>
+        <div class="ass-passo">
+          <div class="ass-passo-num">2</div>
+          <div class="ass-passo-cont">
+            <div class="ass-passo-tit">Mover pelas fases</div>
+            <div class="ass-passo-desc"><b>Arrasta o card</b> de uma coluna pra outra conforme avança. Sequência: Novo Lead → Qualificando → Reunião Marcada → Reunião Realizada → Simulação → Proposta Enviada → Em Negociação → Aguard. Docs → <b>Cota Aberta 🎉</b></div>
           </div>
-        </details>
+        </div>
 
-        <details class="ajuda-acord">
-          <summary>Cliente quer ofertar lance — o que faço?</summary>
-          <div class="ajuda-corpo">
-            <ol>
-              <li>Vai em <b>Lista Completa</b> dentro de Projetos / Cotas</li>
-              <li>Acha a cota do cliente (filtra por nome)</li>
-              <li>Edita o <b>Lance %</b> direto na linha</li>
-              <li>Marca o <b>Toggle Ofertado</b></li>
-              <li>Salva (botão 💾)</li>
-            </ol>
-            <p class="ajuda-dica">💡 Pode editar quantas vezes quiser até a AGO. Só a <b>última oferta</b> vale.</p>
+        <div class="ass-passo">
+          <div class="ass-passo-num">3</div>
+          <div class="ass-passo-cont">
+            <div class="ass-passo-tit">Pedir simulação</div>
+            <div class="ass-passo-desc">No card do lead, clica em <b>📊 Nova Simulação</b> ou avisa o ADM. Quando ele simular, o card mostra <b>Crédito Negociado</b> em verde. Move pra <b>Proposta Enviada</b> e marca a reunião pra apresentar.</div>
           </div>
-        </details>
+        </div>
 
-        <details class="ajuda-acord">
-          <summary>Cliente foi contemplado — e agora?</summary>
-          <div class="ajuda-corpo">
-            <ol>
-              <li>Marca status como <b>Contemplado</b> (botão ✓ Contemplar)</li>
-              <li>Confirma data e tipo (sorteio/lance)</li>
-              <li>Vai em <b>📋 Pós-Contemplação</b> e segue as 9 etapas com o cliente</li>
-              <li>Quando o cliente usar a carta (fechar a compra), muda pra <b>Faturado</b> (botão ✓ Pago)</li>
-            </ol>
-            <p class="ajuda-dica">💡 Avisa o ADM quando contemplar — eles cuidam da esteira de faturamento com o cliente.</p>
-          </div>
-        </details>
+        <div class="ajuda-dica" style="font-size:14px;margin-top:14px">💡 <b>Marcou reunião?</b> Abre o card e preenche <b>Data da Reunião</b>. Aparece a data no card, no Pipeline e na Agenda — você não esquece.</div>
       </div>
 
-      <!-- ── Pós-Contemplação ── -->
+      <!-- ═══ CLIENTE CONTEMPLOU ═══ -->
       <div class="ajuda-secao" id="ass-pos">
-        <div class="ajuda-secao-titulo">📋 Pós-Contemplação — O Cliente Ganhou</div>
+        <div class="ajuda-secao-titulo">📋 Cliente Contemplou — O Que Falar Pra Ele</div>
 
-        <details class="ajuda-acord">
-          <summary>O que acontece depois que o cliente contempla?</summary>
-          <div class="ajuda-corpo">
-            <p>Tem <b>9 etapas</b> até o cliente usar a carta:</p>
-            <ol>
-              <li>Cliente envia <b>documentação pessoal e do imóvel</b></li>
-              <li>Itaú avalia o crédito do cliente</li>
-              <li>Itaú analisa a documentação</li>
-              <li>Itaú avalia o imóvel</li>
-              <li>Confirmação dos valores</li>
-              <li>Elaboração do contrato</li>
-              <li>Envio do contrato pra cartório</li>
-              <li>Devolução do contrato registrado (<b>prazo: 45 dias!</b>)</li>
-              <li>Pagamento ao vendedor 🎉 (5 dias úteis após registro)</li>
-            </ol>
+        <div class="ass-card-info">
+          <div class="ass-card-tit">📄 Documentos que ele precisa juntar</div>
+          <div class="ass-card-cont">
+            <p><b>Pessoa Física:</b> RG · CPF · comprovante de residência · estado civil · renda</p>
+            <p><b>Pessoa Jurídica:</b> Contrato Social com carimbo Junta Comercial (ou Estatuto + Ata) · CNPJ · balanço · faturamento</p>
+            <p><b>Imóvel:</b> Matrícula <b>menos de 30 dias</b> · IPTU · documentos do vendedor</p>
           </div>
-        </details>
+        </div>
 
-        <details class="ajuda-acord">
-          <summary>Quais documentos o cliente precisa juntar?</summary>
-          <div class="ajuda-corpo">
-            <p><b>Cliente Pessoa Física:</b></p>
+        <div class="ass-card-info alerta">
+          <div class="ass-card-tit">⚠️ Imóveis que o Itaú NÃO aceita — avisa antes!</div>
+          <div class="ass-card-cont">
             <ul>
-              <li>RG, CPF, comprovante de residência</li>
-              <li>Comprovante de estado civil (casado, união estável → declaração)</li>
-              <li>Comprovante de renda</li>
-            </ul>
-            <p><b>Cliente Pessoa Jurídica:</b></p>
-            <ul>
-              <li>Contrato Social com carimbo Junta Comercial (Ltda)</li>
-              <li>Estatuto + Ata de Eleição (S/A)</li>
-              <li>CNPJ, balanço, faturamento</li>
-            </ul>
-            <p><b>Do imóvel:</b></p>
-            <ul>
-              <li><b>Matrícula atualizada</b> (menos de 30 dias!)</li>
-              <li>IPTU com endereço, metragem e contribuinte</li>
-              <li>Documentos do vendedor</li>
-            </ul>
-          </div>
-        </details>
-
-        <details class="ajuda-acord">
-          <summary>Quais imóveis o Itaú NÃO aceita?</summary>
-          <div class="ajuda-corpo">
-            <p>Avisa o cliente <b>antes</b> de ele perder tempo com:</p>
-            <ul>
-              <li>Imóvel <b>tombado</b> ou em região de patrimônio histórico</li>
               <li>Madeira ou pré-fabricado</li>
+              <li>Tombado / patrimônio histórico</li>
               <li>Galpão, barracão, polo industrial</li>
               <li>Estacionamento (só vaga de garagem)</li>
-              <li>Área de preservação permanente / alagamento</li>
-              <li>Solo contaminado (posto, cemitério)</li>
+              <li>Área de preservação / alagamento / solo contaminado (posto, cemitério)</li>
               <li>Sem averbação na matrícula</li>
               <li>Em processo de leilão</li>
-              <li>Templos, igrejas, escolas, hospitais</li>
+              <li>Templo, igreja, escola, hospital, ONG</li>
               <li>Imóvel no exterior</li>
               <li>Áreas indígenas / de risco</li>
             </ul>
           </div>
-        </details>
-
-        <details class="ajuda-acord">
-          <summary>O que cliente PODE fazer com a carta de imóvel?</summary>
-          <div class="ajuda-corpo">
-            <p><b>Comprar:</b> casa, apartamento, kitnet, terreno urbano, comercial, residencial, multifamiliar, MCMV faixas 2 e 3, imóvel misto, flat (sem FGTS).</p>
-            <p><b>Construir / Reformar:</b> imóvel urbano do consorciado. Reforma tem que ser <b>estrutural</b> (alterar área na matrícula).</p>
-          </div>
-        </details>
-
-        <details class="ajuda-acord">
-          <summary>Cliente pode usar FGTS?</summary>
-          <div class="ajuda-corpo">
-            <p><b>Pode:</b> imóvel urbano residencial pra moradia própria · imóveis mistos (parte residencial) · FGTS do cônjuge.</p>
-            <p><b>NÃO pode:</b> reforma · construção · terreno · flat/hotel · imóvel que não seja moradia própria · imóvel fora do município de trabalho/residência (mín. 1 ano).</p>
-            <p class="ajuda-dica">💡 FGTS extrato deve ser apresentado em <b>5 dias úteis</b> após contemplação.</p>
-          </div>
-        </details>
-      </div>
-
-      <!-- ── Glossário Básico ── -->
-      <div class="ajuda-secao" id="ass-glos">
-        <div class="ajuda-secao-titulo">📖 Glossário Básico</div>
-
-        <div class="ajuda-glos">
-          <div class="ajuda-glos-item"><b>AGO</b> — Assembleia Geral Ordinária. É a "reunião" mensal onde acontece o sorteio e o resultado dos lances.</div>
-          <div class="ajuda-glos-item"><b>Carta de Crédito</b> — Valor que o cliente recebe quando ganha a cota.</div>
-          <div class="ajuda-glos-item"><b>Contemplado</b> — Cliente ganhou a cota (por sorteio ou lance), mas ainda não usou.</div>
-          <div class="ajuda-glos-item"><b>Faturado</b> — Cliente já usou a carta. Fim do ciclo.</div>
-          <div class="ajuda-glos-item"><b>Lance</b> — Valor que o cliente oferta pra tentar ganhar a cota antes do sorteio.</div>
-          <div class="ajuda-glos-item"><b>Lance Livre</b> — Cliente decide o % que oferta. Quem oferta o maior, ganha.</div>
-          <div class="ajuda-glos-item"><b>Lance Fixo</b> — % fixo definido pelo Itaú (40%). Compete só com outros lances fixos.</div>
-          <div class="ajuda-glos-item"><b>Lance Embutido</b> — Pagar parte do lance descontando da própria carta. Limite 30% no Itaú.</div>
-          <div class="ajuda-glos-item"><b>Recurso Próprio</b> — Parte do lance paga em dinheiro/pix.</div>
-          <div class="ajuda-glos-item"><b>Parcela Pré</b> — Mensalidade antes de contemplar.</div>
-          <div class="ajuda-glos-item"><b>Parcela Pós</b> — Mensalidade depois de contemplar.</div>
-          <div class="ajuda-glos-item"><b>PR (Parcela Reduzida)</b> — Modalidade onde a parcela inicial é menor (50% ou 70%). Cuidado: depois da contemplação a parcela pode disparar.</div>
-          <div class="ajuda-glos-item"><b>Saldo Devedor</b> — Quanto ainda falta pagar no consórcio.</div>
-          <div class="ajuda-glos-item"><b>Taxa Adm</b> — Taxa que a administradora cobra pra gerenciar o grupo.</div>
-          <div class="ajuda-glos-item"><b>Fundo de Reserva</b> — Cerca de 3% do crédito. Cobre quem não paga em dia.</div>
-          <div class="ajuda-glos-item"><b>Sorteio</b> — Mensal, na AGO. Usa últimos dígitos da Loteria Federal.</div>
-          <div class="ajuda-glos-item"><b>FGTS</b> — Pode ser usado como lance só em imóvel residencial.</div>
         </div>
+
+        <div class="ass-card-info">
+          <div class="ass-card-tit">⏰ Prazos críticos</div>
+          <div class="ass-card-cont">
+            <ul>
+              <li><b>5 dias úteis</b> — pagar lance (se ganhou) ou apresentar FGTS</li>
+              <li><b>30 dias</b> — matrícula tem que ser mais nova que isso</li>
+              <li><b>45 dias</b> — registrar contrato no cartório (CRÍTICO se vendedor tem financiamento)</li>
+              <li><b>5 dias úteis</b> após registro — Itaú libera o pagamento</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="ajuda-dica" style="font-size:14px">💡 <b>Avisa o ADM</b> assim que o cliente contemplar. Eles cuidam da esteira de faturamento com o cliente — você acompanha pelo sistema na aba <b>📋 Pós-Contemplação</b>.</div>
       </div>
 
-      <!-- ── FAQ ── -->
-      <div class="ajuda-secao" id="ass-faq">
-        <div class="ajuda-secao-titulo">💡 Dúvidas Comuns do Dia a Dia</div>
+      <!-- ═══ GLOSSÁRIO ═══ -->
+      <div class="ajuda-secao" id="ass-glos">
+        <div class="ajuda-secao-titulo">📖 Glossário Rápido — 10 Termos Essenciais</div>
 
-        <details class="ajuda-acord">
-          <summary>Cliente quer saber: "consórcio é melhor que financiamento?"</summary>
-          <div class="ajuda-corpo">
-            <p>Mostra o <b>CET</b> (Custo Efetivo Total). Consórcio Itaú gira em torno de <b>3-4% a.a.</b>, enquanto financiamento imobiliário fica em <b>9-12% a.a.</b></p>
-            <p>Pede uma simulação ao ADM em <b>📄 Gerar Proposta</b> — sai com gráfico comparativo pronto pra mostrar.</p>
-          </div>
-        </details>
-
-        <details class="ajuda-acord">
-          <summary>Cliente quer parcela bem baixa — recomenda PR?</summary>
-          <div class="ajuda-corpo">
-            <p><b>Cuidado.</b> A PR (Parcela Reduzida) parece ótima no início — parcela cai 30-50% — mas depois da contemplação <b>a parcela dispara</b>:</p>
-            <ul>
-              <li>Contempla nos primeiros 12 meses → parcela pós quase igual</li>
-              <li>Contempla aos 60 meses → parcela pós pode triplicar</li>
-              <li>Contempla aos 66 meses → parcela pós pode passar de R$ 100k!</li>
-            </ul>
-            <p>Só recomenda PR se o cliente entender o risco e tiver previsão de contemplar cedo.</p>
-          </div>
-        </details>
-
-        <details class="ajuda-acord">
-          <summary>Cliente quer saber quanto vai pagar de lance</summary>
-          <div class="ajuda-corpo">
-            <p>Depende da modalidade:</p>
-            <ul>
-              <li><b>Lance Livre</b> — cliente decide o %. Recomendação: histórico do grupo (peça pro ADM consultar o Guia de Oportunidades).</li>
-              <li><b>Lance Fixo</b> — Itaú já define 40%.</li>
-            </ul>
-            <p>Sobre o pagamento:</p>
-            <ul>
-              <li><b>Recurso próprio</b> — em até 5 dias úteis após contemplar</li>
-              <li><b>Embutido</b> — máx 30% da carta (deduz do crédito)</li>
-              <li><b>Misto</b> — combina os dois</li>
-              <li><b>FGTS</b> — só imóvel residencial</li>
-            </ul>
-          </div>
-        </details>
-
-        <details class="ajuda-acord">
-          <summary>Cliente perdeu o prazo do lance — perdeu a cota?</summary>
-          <div class="ajuda-corpo">
-            <p><b>Não perde a cota.</b> Se ganhou lance e não pagou em 5 dias úteis, a contemplação passa pro próximo da fila (suplência). A cota dele continua ativa e ele pode ofertar de novo na próxima AGO.</p>
-          </div>
-        </details>
-
-        <details class="ajuda-acord">
-          <summary>Cliente pode atrasar parcela?</summary>
-          <div class="ajuda-corpo">
-            <p>Pode pagar atrasado, mas <b>perde a participação na AGO daquele mês</b>. Só vai concorrer no mês seguinte (e tem que estar com tudo em dia).</p>
-            <p><b>Atrasou 3 parcelas consecutivas</b> (ou 2 na última AGO) → risco de exclusão. Restituição vem com multa de 15%.</p>
-          </div>
-        </details>
-
-        <details class="ajuda-acord">
-          <summary>Cliente quer trocar de cota — pode?</summary>
-          <div class="ajuda-corpo">
-            <p>Cliente não troca, mas pode <b>cancelar e fazer outra adesão</b>. Cancelamento antes de contemplar gera direito à restituição (com multa 15%) só no fim do grupo. Avisa o ADM antes de orientar.</p>
-          </div>
-        </details>
-
-        <details class="ajuda-acord">
-          <summary>Não estou achando um cliente meu no sistema</summary>
-          <div class="ajuda-corpo">
-            <p>Provavelmente o cliente não está associado ao seu email. Cada usuário só vê os clientes/cotas dele. Pede pro ADM verificar a associação em <b>👥 Usuários</b>.</p>
-          </div>
-        </details>
+        <div class="ass-glos">
+          <div class="ass-glos-item"><b>AGO</b><br><span>A "reunião" mensal do grupo — onde acontece o sorteio e o resultado dos lances.</span></div>
+          <div class="ass-glos-item"><b>Carta de Crédito</b><br><span>O dinheiro que o cliente recebe quando ganha a cota.</span></div>
+          <div class="ass-glos-item"><b>Contemplado</b><br><span>Cliente ganhou (por sorteio ou lance), ainda não usou a carta.</span></div>
+          <div class="ass-glos-item"><b>Faturado</b><br><span>Cliente já usou a carta — fim do ciclo.</span></div>
+          <div class="ass-glos-item"><b>Lance Livre</b><br><span>Cliente decide o %. Maior oferta ganha.</span></div>
+          <div class="ass-glos-item"><b>Lance Fixo</b><br><span>Itaú define o % (40%). Compete só com outros fixos.</span></div>
+          <div class="ass-glos-item"><b>Lance Embutido</b><br><span>Pagar lance descontando da própria carta. Limite 30% no Itaú.</span></div>
+          <div class="ass-glos-item"><b>Parcela Pré / Pós</b><br><span>Pré = mensalidade antes de contemplar. Pós = depois de contemplar.</span></div>
+          <div class="ass-glos-item"><b>CET</b><br><span>Custo Efetivo Total. O número pra comparar com financiamento (3-4% a.a. no consórcio vs 9-12% no banco).</span></div>
+          <div class="ass-glos-item"><b>Saldo Devedor</b><br><span>Quanto ainda falta pagar no consórcio.</span></div>
+        </div>
       </div>
 
     </div>
