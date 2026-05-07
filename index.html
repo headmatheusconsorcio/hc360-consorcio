@@ -517,45 +517,120 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
 .ml-prop-actions .btn{font-size:11.5px;padding:6px 11px;border-radius:7px}
 
 /* ── MODAL VER PROPOSTA ──────────────────────── */
-.modal-prop{max-width:780px;width:95%}
-.prop-mh{background:linear-gradient(135deg,var(--sb) 0%,var(--sb2) 100%);color:#fff;padding:14px 18px;border-radius:11px 11px 0 0;display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0;border-bottom:3px solid var(--acc)}
-.prop-mh .mt{color:#fff;font-family:'Playfair Display',serif;font-size:18px;font-weight:700;letter-spacing:-.3px}
-.prop-mh .mc{color:#fff;background:rgba(255,255,255,.15);border:none;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:15px}
-.prop-mh .mc:hover{background:rgba(255,255,255,.28)}
-.prop-body{padding:22px 26px;background:#fff;border-radius:0 0 11px 11px}
-.prop-doc-hdr{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;padding-bottom:14px;border-bottom:2px solid var(--acc);margin-bottom:18px;flex-wrap:wrap}
-.prop-doc-cli{flex:1;min-width:240px}
-.prop-doc-cli-name{font-family:'Playfair Display',serif;font-size:22px;font-weight:800;color:var(--sb);letter-spacing:-.3px;line-height:1.1;margin-bottom:5px}
-.prop-doc-cli-info{font-size:12.5px;color:var(--txt2);line-height:1.5}
-.prop-doc-cli-info strong{color:var(--txt);font-weight:700}
-.prop-doc-meta{text-align:right;font-size:11px;color:var(--txt2);min-width:160px}
-.prop-doc-meta-status{display:inline-block;padding:4px 11px;border-radius:14px;font-size:11px;font-weight:700;margin-bottom:6px;font-family:'Inter',sans-serif;letter-spacing:.3px}
-.prop-doc-meta-date{font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.6px}
-.prop-doc-section-title{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--sb);margin:18px 0 10px;padding-bottom:5px;border-bottom:1px solid var(--bdr)}
-.prop-doc-table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:14px}
-.prop-doc-table th{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--txt2);padding:8px 6px;text-align:left;border-bottom:1.5px solid var(--bdr);background:var(--card2)}
-.prop-doc-table td{padding:9px 6px;border-bottom:1px solid var(--bdr);color:var(--txt)}
-.prop-doc-table td.num{text-align:right;font-family:'Raleway',sans-serif;font-weight:700}
-.prop-doc-table td.tipo{font-size:10.5px;color:var(--txt2);font-weight:600;text-transform:uppercase;letter-spacing:.3px}
-.prop-doc-totais{background:linear-gradient(135deg,#fdf6e3 0%,#fefbf3 100%);border:1.5px solid var(--acc);border-radius:10px;padding:14px 18px;margin:18px 0}
-.prop-doc-totais-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
-.prop-doc-totais-item{text-align:center}
-.prop-doc-totais-lbl{font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--txt2);margin-bottom:4px}
-.prop-doc-totais-val{font-size:18px;font-weight:800;color:var(--sb);font-family:'Playfair Display',serif;letter-spacing:-.3px;line-height:1}
-.prop-doc-totais-sub{font-size:10px;color:var(--txt2);margin-top:3px;font-weight:500}
-.prop-doc-nota{background:#fff;border:1px solid var(--bdr);border-left:3px solid var(--acc);border-radius:7px;padding:10px 13px;font-size:12px;color:var(--txt2);line-height:1.5;font-style:italic}
-.prop-doc-footer{margin-top:22px;padding-top:14px;border-top:1px solid var(--bdr);text-align:center;font-size:10px;color:var(--txt2);font-style:italic;letter-spacing:.3px}
+.modal-prop{max-width:880px;width:96%;max-height:92vh;display:flex;flex-direction:column}
+.prop-mh{background:#fff;color:var(--txt);padding:14px 22px;border-radius:11px 11px 0 0;display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0;border-bottom:1.5px solid var(--bdr);box-shadow:0 1px 0 rgba(0,0,0,.02)}
+.prop-mh .mt{color:var(--sb);font-family:'Playfair Display',serif;font-size:18px;font-weight:800;letter-spacing:-.3px}
+.prop-mh .mc{color:var(--txt2);background:transparent;border:1px solid var(--bdr);width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.prop-mh .mc:hover{background:var(--card2);color:var(--err);border-color:var(--err)}
+.prop-body{padding:22px 28px;background:#fafbfc;border-radius:0 0 11px 11px;overflow-y:auto;flex:1}
+
+/* HEADER CLIENTE — card branco, contraste alto */
+.prop-cli-card{background:#fff;border:1px solid var(--bdr);border-radius:12px;padding:18px 22px;margin-bottom:18px;display:flex;align-items:center;gap:18px;flex-wrap:wrap;box-shadow:0 1px 4px rgba(0,0,0,.04);position:relative;overflow:hidden}
+.prop-cli-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:5px;background:linear-gradient(180deg,var(--sb) 0%,var(--sb2) 50%,var(--acc) 100%)}
+.prop-cli-avatar{width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,var(--sb) 0%,var(--sb2) 100%);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:26px;font-weight:800;flex-shrink:0;box-shadow:0 3px 10px rgba(34,71,80,.25)}
+.prop-cli-info{flex:1;min-width:240px}
+.prop-cli-name{font-family:'Playfair Display',serif;font-size:24px;font-weight:800;color:var(--sb);letter-spacing:-.4px;line-height:1.1;margin-bottom:6px}
+.prop-cli-meta{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--txt);margin-bottom:7px}
+.prop-cli-meta span{font-weight:600}
+.prop-cli-tags{display:flex;flex-wrap:wrap;gap:6px}
+.prop-cli-tag{font-size:11px;background:var(--card2);border:1px solid var(--bdr);border-radius:14px;padding:3px 10px;color:var(--txt2)}
+.prop-cli-tag strong{color:var(--txt)}
+.prop-cli-meta-r{flex-shrink:0;text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.prop-cli-status{padding:5px 13px;border-radius:14px;font-size:11.5px;font-weight:800;border:1px solid;letter-spacing:.3px;font-family:'Inter',sans-serif}
+.prop-cli-date{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--txt2)}
+
+/* KPIs principais */
+.prop-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:22px}
+.prop-kpi{background:#fff;border:1px solid var(--bdr);border-top:3px solid var(--sb);border-radius:10px;padding:14px 16px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.04);transition:transform .15s}
+.prop-kpi:hover{transform:translateY(-2px);box-shadow:0 3px 10px rgba(0,0,0,.07)}
+.prop-kpi.gold{border-top-color:var(--acc)}
+.prop-kpi.green{border-top-color:var(--ok)}
+.prop-kpi.blue{border-top-color:var(--sb2)}
+.prop-kpi-lbl{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--txt2);margin-bottom:6px;font-family:'Raleway',sans-serif}
+.prop-kpi-val{font-size:20px;font-weight:800;color:var(--sb);font-family:'Playfair Display',serif;letter-spacing:-.3px;line-height:1.05}
+.prop-kpi.gold .prop-kpi-val{color:#92400e}
+.prop-kpi.green .prop-kpi-val{color:#065f46}
+.prop-kpi.blue .prop-kpi-val{color:var(--sb2)}
+.prop-kpi-sub{font-size:10.5px;color:var(--txt2);margin-top:5px;font-weight:600}
+
+/* Section title */
+.prop-section-title{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:800;color:var(--sb);margin:18px 0 12px;padding-bottom:6px;border-bottom:1.5px solid var(--bdr);font-family:'Inter',sans-serif;text-transform:uppercase;letter-spacing:1px}
+.prop-section-title>span:first-child{font-size:16px}
+
+/* COTA CARD — ficha completa por cota */
+.prop-cota-card{background:#fff;border:1px solid var(--bdr);border-radius:12px;padding:16px 18px;margin-bottom:14px;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.prop-cota-hdr{display:flex;align-items:center;justify-content:space-between;gap:14px;padding-bottom:13px;border-bottom:1px solid var(--bdr);margin-bottom:14px;flex-wrap:wrap}
+.prop-cota-hdr-l{display:flex;align-items:center;gap:12px;min-width:200px}
+.prop-cota-num{background:linear-gradient(135deg,var(--sb) 0%,var(--sb2) 100%);color:#fff;width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;font-family:'Raleway',sans-serif;flex-shrink:0;box-shadow:0 2px 6px rgba(34,71,80,.22)}
+.prop-cota-grupo{font-family:'Playfair Display',serif;font-size:18px;font-weight:800;color:var(--sb);letter-spacing:-.3px;line-height:1.1}
+.prop-cota-qtd{font-size:11px;font-weight:700;color:var(--acc);font-family:'Inter',sans-serif;letter-spacing:.4px;margin-left:4px}
+.prop-cota-tipo{font-size:11.5px;color:var(--txt2);font-weight:600;margin-top:3px;letter-spacing:.3px}
+.prop-cota-credito{text-align:right}
+.prop-cota-credito-lbl{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--txt2);margin-bottom:3px}
+.prop-cota-credito-val{font-size:22px;font-weight:800;color:var(--sb);font-family:'Playfair Display',serif;letter-spacing:-.4px;line-height:1}
+.prop-cota-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.prop-cota-bloco{background:var(--card2);border:1px solid var(--bdr);border-radius:9px;padding:11px 14px}
+.prop-cota-bloco-title{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--sb);margin-bottom:9px;padding-bottom:6px;border-bottom:1px solid var(--bdr)}
+.prop-cota-row{display:flex;justify-content:space-between;align-items:baseline;padding:5px 0;font-size:12px;color:var(--txt2);gap:8px}
+.prop-cota-row strong{color:var(--txt);font-weight:700;font-family:'Raleway',sans-serif;letter-spacing:-.1px}
+.prop-cota-row small{color:var(--txt2);font-weight:500;font-size:10.5px;margin-left:3px}
+.prop-cota-row.sub{font-size:11.5px;color:var(--txt2);font-style:italic;padding:3px 0 3px 12px}
+.prop-cota-row.sub span:last-child{font-weight:600;font-style:normal}
+.prop-cota-row.hl{margin-top:5px;padding-top:8px;border-top:1px dashed var(--bdr);font-size:13px;color:var(--sb)}
+.prop-cota-row.hl strong{color:var(--sb);font-size:14px}
+
+/* Parcelas (3 boxes) */
+.prop-cota-parcelas{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:6px}
+.prop-parc-item{background:#fff;border:1.5px solid var(--bdr);border-radius:9px;padding:12px 14px;text-align:center;transition:all .15s}
+.prop-parc-item:hover{transform:translateY(-1px);box-shadow:0 2px 8px rgba(0,0,0,.07)}
+.prop-parc-item.alt{border-color:var(--acc);background:linear-gradient(135deg,#fdf6e3 0%,#fefbf3 100%)}
+.prop-parc-item.ok{border-color:var(--ok);background:linear-gradient(135deg,#f0fdf4 0%,#fff 100%)}
+.prop-parc-lbl{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--txt2);margin-bottom:5px;line-height:1.2}
+.prop-parc-val{font-size:18px;font-weight:800;color:var(--sb);font-family:'Playfair Display',serif;letter-spacing:-.3px;line-height:1}
+.prop-parc-item.alt .prop-parc-val{color:#92400e}
+.prop-parc-item.ok .prop-parc-val{color:#065f46}
+.prop-parc-sub{font-size:9.5px;color:var(--txt2);margin-top:4px;font-weight:600;text-transform:uppercase;letter-spacing:.3px}
+
+/* RESUMO consolidado */
+.prop-resumo{background:#fff;border:1.5px solid var(--bdr);border-radius:12px;padding:18px 22px;margin:14px 0;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.prop-resumo-title{font-family:'Inter',sans-serif;font-size:13px;font-weight:800;color:var(--sb);text-transform:uppercase;letter-spacing:1px;margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid var(--acc)}
+.prop-resumo-grid{display:flex;flex-direction:column;gap:0}
+.prop-resumo-row{display:flex;justify-content:space-between;align-items:baseline;padding:7px 0;border-bottom:1px dashed var(--bdr);font-size:13px;color:var(--txt2)}
+.prop-resumo-row:last-child{border-bottom:none}
+.prop-resumo-row strong{color:var(--sb);font-weight:800;font-family:'Raleway',sans-serif;font-size:14px;letter-spacing:-.2px}
+.prop-resumo-row.sub{color:var(--txt3);font-style:italic;font-size:12px;padding:4px 0 4px 14px;border-bottom:none}
+.prop-resumo-divider{height:1px;background:var(--bdr);margin:8px 0}
+
+/* Nota / observações */
+.prop-nota{background:#fff;border:1px solid var(--bdr);border-left:3px solid var(--acc);border-radius:8px;padding:12px 16px;font-size:13px;color:var(--txt);line-height:1.6;white-space:pre-wrap}
+
+/* Footer */
+.prop-footer{margin-top:22px;padding-top:18px;border-top:1.5px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap}
+.prop-footer-brand{font-family:'Playfair Display',serif;font-size:18px;font-weight:800;color:var(--sb);letter-spacing:-.3px}
+.prop-footer-brand span{font-weight:500;color:var(--acc);font-style:italic;margin-left:3px}
+.prop-footer-text{font-size:10.5px;color:var(--txt2);line-height:1.55;font-style:italic;text-align:right;flex:1;max-width:520px}
+
+@media (max-width:780px){
+  .prop-cota-grid,.prop-cota-parcelas{grid-template-columns:1fr}
+  .prop-kpis{grid-template-columns:repeat(2,1fr)}
+  .prop-cli-card{flex-direction:column;align-items:flex-start}
+  .prop-cli-meta-r{align-items:flex-start;text-align:left}
+}
 
 @media print{
   body *{visibility:hidden}
   #modal-prop-view,#modal-prop-view *{visibility:visible}
   .prop-noprint{display:none!important}
-  #modal-prop-view{position:absolute!important;left:0;top:0;background:none;padding:0}
-  #modal-prop-view .modal{box-shadow:none;border:none;margin:0;width:100%;max-width:100%}
-  .prop-mh{border-radius:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  .prop-doc-totais{-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  .prop-doc-meta-status{-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  @page{margin:1.4cm}
+  #modal-prop-view{position:absolute!important;left:0;top:0;background:none;padding:0;overflow:visible!important}
+  #modal-prop-view .modal{box-shadow:none;border:none;margin:0;width:100%;max-width:100%;max-height:none}
+  .prop-body{padding:14px 18px;background:#fff;overflow:visible}
+  .prop-mh{border-radius:0;border-bottom:2px solid var(--acc)}
+  .prop-cli-card,.prop-kpi,.prop-parc-item,.prop-resumo,.prop-cota-card,.prop-cota-bloco,.prop-cli-status,.prop-cota-num,.prop-cli-avatar{
+    -webkit-print-color-adjust:exact;print-color-adjust:exact
+  }
+  .prop-cota-card{page-break-inside:avoid;break-inside:avoid}
+  .prop-resumo{page-break-inside:avoid;break-inside:avoid}
+  @page{margin:1.2cm;size:A4}
 }
 
 @media (min-width:1700px){.pipe-col{width:208px}}
@@ -6152,6 +6227,31 @@ const PROP_STATUS_LIST=[
 function propStatusInfo(key){return PROP_STATUS_LIST.find(s=>s.key===key)||PROP_STATUS_LIST[0];}
 // Renderiza a proposta no modal de visualização (read-only, com print).
 let propViewLeadId=null;
+function _propTipoLabel(t){
+  const s=(t||'').toUpperCase();
+  if(s.includes('IMÓVE')||s.includes('IMOVE'))return {ico:'🏠',lbl:'Imóvel'};
+  if(s.includes('LEVE'))return {ico:'🚗',lbl:'Veículo Leve'};
+  if(s.includes('PESAD'))return {ico:'🚛',lbl:'Veículo Pesado'};
+  if(s.includes('MOTO'))return {ico:'🏍',lbl:'Moto'};
+  return {ico:'📦',lbl:t||'—'};
+}
+function _propCalcRow(r){
+  const credito=Number(r.credito||0);
+  const qtd=Number(r.qtd||1);
+  const lpct=Number(r.lancePerc||0)/100;
+  const tx=Number(r.taxaAdm||0)/100;
+  const fr=Number(r.fr||0)/100;
+  const prazo=Number(r.prazo||192);
+  const lanceTotal=credito*lpct;
+  const credLiq=credito*(1-lpct);             // crédito líquido após lance
+  const saldoTot=credito*(1+tx+fr);            // saldo total a pagar
+  const parcelaCheia=credLiq/prazo*(1+tx+fr);  // parcela pré-contemp (sem redução)
+  const parcelaPRred=parcelaCheia*0.70;        // parcela pré-contemp com redução 30% (Itaú PR)
+  const parcelaPos=(saldoTot-lanceTotal)/prazo;// parcela pós-contemp (saldo devedor / prazo)
+  const lanceEmbutido=credito*0.30;            // 30% padrão Itaú
+  const recursoProprio=Math.max(0,lanceTotal-lanceEmbutido);
+  return{credito,qtd,lpct,tx,fr,prazo,lanceTotal,credLiq,saldoTot,parcelaCheia,parcelaPRred,parcelaPos,lanceEmbutido,recursoProprio};
+}
 function viewProposta(leadId){
   const lead=LEADS.find(l=>l.id===leadId);if(!lead){toast('Lead não encontrado','err');return;}
   const sim=leadCreditoNegociado(lead);
@@ -6162,86 +6262,140 @@ function viewProposta(leadId){
   const dtStr=dt.toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'});
   const ass=lead.assessor||'—';
   const cidUf=[lead.cidade,lead.estado].filter(Boolean).join(' / ');
-  const linhas=sim.rows.map((r,i)=>{
-    const lpct=(r.lancePerc||0)/100;
-    const liq=(r.credito||0)*(1-lpct);
-    const fr=(r.fr||0)/100;
-    const tx=(r.taxaAdm||0)/100;
-    const prazo=r.prazo||192;
-    const parc=liq/prazo*(1+tx+fr);
-    const lanceR=(r.credito||0)*lpct;
-    const tipoLbl=(r.tipo||'').replace('IMÓVEIS','🏠 Imóvel').replace('IMÓVEL','🏠 Imóvel').replace('VEÍCULOS LEVES','🚗 Veículo').replace('VEÍCULOS PESADOS','🚛 Pesado').replace('MOTOS','🏍 Moto');
-    return`<tr>
-      <td><strong>${r.grupo||'—'}</strong></td>
-      <td class="tipo">${tipoLbl}</td>
-      <td class="num">${brl(r.credito||0,0)}</td>
-      <td class="num">${r.qtd||1}</td>
-      <td class="num">${(lpct*100).toFixed(1)}% <span style="font-weight:500;color:var(--txt2);font-size:10.5px">(${brl(lanceR,0)})</span></td>
-      <td class="num">${prazo}m</td>
-      <td class="num" style="color:var(--sb);font-weight:800">${brl(parc)}</td>
-    </tr>`;
+  const initial=crmInitial(lead.nome);
+
+  // Totais agregados (todas as cotas × qtd)
+  let TcredCont=0,TcredLiq=0,TlanceTot=0,Tembutido=0,TrecProp=0,TparcCheia=0,TparcPRred=0,TparcPos=0,TsaldoTot=0;
+  sim.rows.forEach(r=>{
+    const c=_propCalcRow(r);
+    TcredCont+=c.credito*c.qtd;
+    TcredLiq+=c.credLiq*c.qtd;
+    TlanceTot+=c.lanceTotal*c.qtd;
+    Tembutido+=c.lanceEmbutido*c.qtd;
+    TrecProp+=c.recursoProprio*c.qtd;
+    TparcCheia+=c.parcelaCheia*c.qtd;
+    TparcPRred+=c.parcelaPRred*c.qtd;
+    TparcPos+=c.parcelaPos*c.qtd;
+    TsaldoTot+=c.saldoTot*c.qtd;
+  });
+  const lancePctMedio=TcredCont>0?(TlanceTot/TcredCont*100):0;
+
+  // Cards de cada cota — ficha completa
+  const cotaCards=sim.rows.map((r,i)=>{
+    const c=_propCalcRow(r);
+    const tp=_propTipoLabel(r.tipo);
+    return`<div class="prop-cota-card">
+      <div class="prop-cota-hdr">
+        <div class="prop-cota-hdr-l">
+          <span class="prop-cota-num">#${i+1}</span>
+          <div>
+            <div class="prop-cota-grupo">Grupo ${r.grupo||'—'}${c.qtd>1?` <span class="prop-cota-qtd">× ${c.qtd} cotas</span>`:''}</div>
+            <div class="prop-cota-tipo">${tp.ico} ${tp.lbl}</div>
+          </div>
+        </div>
+        <div class="prop-cota-credito">
+          <div class="prop-cota-credito-lbl">Crédito Contratado</div>
+          <div class="prop-cota-credito-val">${brl(c.credito,0)}</div>
+        </div>
+      </div>
+      <div class="prop-cota-grid">
+        <div class="prop-cota-bloco">
+          <div class="prop-cota-bloco-title">📋 Condições do Grupo</div>
+          <div class="prop-cota-row"><span>Taxa de Administração</span><strong>${(c.tx*100).toFixed(2)}%</strong></div>
+          <div class="prop-cota-row"><span>Fundo de Reserva</span><strong>${(c.fr*100).toFixed(2)}%</strong></div>
+          <div class="prop-cota-row"><span>Prazo Total</span><strong>${c.prazo} meses</strong></div>
+          <div class="prop-cota-row"><span>Saldo Total a Pagar</span><strong>${brl(c.saldoTot,0)}</strong></div>
+        </div>
+        <div class="prop-cota-bloco">
+          <div class="prop-cota-bloco-title">🎯 Lance</div>
+          <div class="prop-cota-row"><span>Lance Total <small>(${(c.lpct*100).toFixed(1)}%)</small></span><strong>${brl(c.lanceTotal,0)}</strong></div>
+          <div class="prop-cota-row sub"><span>↪ Embutido (30%)</span><span>${brl(c.lanceEmbutido,0)}</span></div>
+          <div class="prop-cota-row sub"><span>↪ Recurso Próprio</span><span>${brl(c.recursoProprio,0)}</span></div>
+          <div class="prop-cota-row hl"><span>Crédito Líquido</span><strong>${brl(c.credLiq,0)}</strong></div>
+        </div>
+      </div>
+      <div class="prop-cota-parcelas">
+        <div class="prop-parc-item">
+          <div class="prop-parc-lbl">Parcela Pré-Contemp.</div>
+          <div class="prop-parc-val">${brl(c.parcelaCheia)}</div>
+          <div class="prop-parc-sub">parcela cheia / mês</div>
+        </div>
+        <div class="prop-parc-item alt">
+          <div class="prop-parc-lbl">Parcela Pré (com redução 30%)</div>
+          <div class="prop-parc-val">${brl(c.parcelaPRred)}</div>
+          <div class="prop-parc-sub">se contratar PR · ${((c.parcelaPRred/c.parcelaCheia-1)*100).toFixed(0)}%</div>
+        </div>
+        <div class="prop-parc-item ok">
+          <div class="prop-parc-lbl">Parcela Pós-Contemp.</div>
+          <div class="prop-parc-val">${brl(c.parcelaPos)}</div>
+          <div class="prop-parc-sub">após contemplação</div>
+        </div>
+      </div>
+    </div>`;
   }).join('');
+
   const html=`
-    <div class="prop-doc-hdr">
-      <div class="prop-doc-cli">
-        <div class="prop-doc-cli-name">${pn(lead.nome)||'Cliente'}</div>
-        <div class="prop-doc-cli-info">
-          ${lead.telefone?`📞 ${lead.telefone}`:''}${lead.email?` · ✉ ${lead.email}`:''}
-          ${cidUf?`<br>📍 ${cidUf}`:''}
-          ${lead.cpf?`<br>CPF: ${lead.cpf}`:''}
-          <br><strong>Assessor:</strong> ${ass}
-          ${lead.indicado_por?` · <strong>Indicação:</strong> ${lead.indicado_por}`:''}
+    <!-- HEADER CLIENTE -->
+    <div class="prop-cli-card">
+      <div class="prop-cli-avatar">${initial}</div>
+      <div class="prop-cli-info">
+        <div class="prop-cli-name">${pn(lead.nome)||'Cliente'}</div>
+        <div class="prop-cli-meta">
+          ${lead.telefone?`<span>📞 ${lead.telefone}</span>`:''}
+          ${lead.email?`<span>✉ ${lead.email}</span>`:''}
+          ${lead.cpf?`<span>🆔 ${lead.cpf}</span>`:''}
+          ${cidUf?`<span>📍 ${cidUf}</span>`:''}
+        </div>
+        <div class="prop-cli-tags">
+          <span class="prop-cli-tag"><span style="opacity:.7">Assessor:</span> <strong>${ass}</strong></span>
+          ${lead.indicado_por?`<span class="prop-cli-tag"><span style="opacity:.7">Indicação:</span> <strong>${lead.indicado_por}</strong></span>`:''}
         </div>
       </div>
-      <div class="prop-doc-meta">
-        <div class="prop-doc-meta-status" style="background:${stInfo.bg};color:${stInfo.color}">${stInfo.label}</div>
-        <div class="prop-doc-meta-date">📅 ${dtStr}</div>
-      </div>
-    </div>
-
-    <div class="prop-doc-section-title">Composição da Proposta</div>
-    <table class="prop-doc-table">
-      <thead><tr>
-        <th>Grupo</th><th>Bem</th><th style="text-align:right">Crédito</th>
-        <th style="text-align:right">Cotas</th><th style="text-align:right">Lance</th>
-        <th style="text-align:right">Prazo</th><th style="text-align:right">Parcela</th>
-      </tr></thead>
-      <tbody>${linhas}</tbody>
-    </table>
-
-    <div class="prop-doc-totais">
-      <div class="prop-doc-totais-grid">
-        <div class="prop-doc-totais-item">
-          <div class="prop-doc-totais-lbl">Crédito Total</div>
-          <div class="prop-doc-totais-val">${brl(sim.credTot,0)}</div>
-          <div class="prop-doc-totais-sub">soma das cartas</div>
-        </div>
-        <div class="prop-doc-totais-item">
-          <div class="prop-doc-totais-lbl">Cotas</div>
-          <div class="prop-doc-totais-val">${sim.cotas}</div>
-          <div class="prop-doc-totais-sub">${sim.rows.length} grupo${sim.rows.length!==1?'s':''}</div>
-        </div>
-        <div class="prop-doc-totais-item">
-          <div class="prop-doc-totais-lbl">Lance Total</div>
-          <div class="prop-doc-totais-val">${brl(sim.lanceTot,0)}</div>
-          <div class="prop-doc-totais-sub">${sim.credTot>0?(sim.lanceTot/sim.credTot*100).toFixed(1):0}% médio</div>
-        </div>
-        <div class="prop-doc-totais-item">
-          <div class="prop-doc-totais-lbl">Parcela Total</div>
-          <div class="prop-doc-totais-val">${brl(sim.parcTot,0)}</div>
-          <div class="prop-doc-totais-sub">soma estimada/mês</div>
-        </div>
+      <div class="prop-cli-meta-r">
+        <div class="prop-cli-status" style="background:${stInfo.bg};color:${stInfo.color};border-color:${stInfo.color}33">${stInfo.label}</div>
+        <div class="prop-cli-date">📅 ${dtStr}</div>
       </div>
     </div>
 
-    ${sim.nota?`<div class="prop-doc-section-title">Observações</div><div class="prop-doc-nota">${sim.nota.replace(/</g,'&lt;')}</div>`:''}
+    <!-- KPIs PRINCIPAIS -->
+    <div class="prop-kpis">
+      <div class="prop-kpi"><div class="prop-kpi-lbl">Crédito Total</div><div class="prop-kpi-val">${brl(TcredCont,0)}</div><div class="prop-kpi-sub">${sim.cotas} cota${sim.cotas!==1?'s':''} · ${sim.rows.length} grupo${sim.rows.length!==1?'s':''}</div></div>
+      <div class="prop-kpi gold"><div class="prop-kpi-lbl">Lance Total</div><div class="prop-kpi-val">${brl(TlanceTot,0)}</div><div class="prop-kpi-sub">${lancePctMedio.toFixed(1)}% médio</div></div>
+      <div class="prop-kpi green"><div class="prop-kpi-lbl">Crédito Líquido</div><div class="prop-kpi-val">${brl(TcredLiq,0)}</div><div class="prop-kpi-sub">após lance</div></div>
+      <div class="prop-kpi blue"><div class="prop-kpi-lbl">Parcela Total/mês</div><div class="prop-kpi-val">${brl(TparcCheia,0)}</div><div class="prop-kpi-sub">cheia · ${brl(TparcPRred,0)} c/red.</div></div>
+    </div>
 
-    <div class="prop-doc-footer">
-      Proposta gerada por <strong>HC360 Consórcio</strong> · ${dtStr}
-      <br>Os valores são estimativas baseadas nas tabelas vigentes do administrador. Sujeitos à aprovação.
+    <!-- COTAS DETALHADAS -->
+    <div class="prop-section-title"><span>📊</span> Detalhamento por Cota</div>
+    ${cotaCards}
+
+    <!-- RESUMO FINANCEIRO -->
+    <div class="prop-resumo">
+      <div class="prop-resumo-title">💰 Resumo Financeiro Consolidado</div>
+      <div class="prop-resumo-grid">
+        <div class="prop-resumo-row"><span>Crédito Contratado (soma)</span><strong>${brl(TcredCont,0)}</strong></div>
+        <div class="prop-resumo-row"><span>Crédito Líquido (após lance)</span><strong>${brl(TcredLiq,0)}</strong></div>
+        <div class="prop-resumo-row"><span>Lance Total</span><strong>${brl(TlanceTot,0)}</strong></div>
+        <div class="prop-resumo-row sub"><span>↪ Embutido (30%)</span><span>${brl(Tembutido,0)}</span></div>
+        <div class="prop-resumo-row sub"><span>↪ Recurso Próprio</span><span>${brl(TrecProp,0)}</span></div>
+        <div class="prop-resumo-row"><span>Saldo Total a Pagar</span><strong>${brl(TsaldoTot,0)}</strong></div>
+        <div class="prop-resumo-divider"></div>
+        <div class="prop-resumo-row"><span>Parcela Pré-Contemp. (cheia)</span><strong>${brl(TparcCheia)}</strong></div>
+        <div class="prop-resumo-row"><span>Parcela Pré (com redução 30%)</span><strong style="color:var(--acc)">${brl(TparcPRred)}</strong></div>
+        <div class="prop-resumo-row"><span>Parcela Pós-Contemp. (estimada)</span><strong style="color:var(--ok)">${brl(TparcPos)}</strong></div>
+      </div>
+    </div>
+
+    ${sim.nota?`<div class="prop-section-title"><span>📝</span> Observações</div><div class="prop-nota">${sim.nota.replace(/</g,'&lt;')}</div>`:''}
+
+    <div class="prop-footer">
+      <div class="prop-footer-brand">HC360 <span>Consórcio</span></div>
+      <div class="prop-footer-text">
+        Proposta gerada em ${dtStr}<br>
+        Os valores são estimativas baseadas nas tabelas vigentes do administrador, sujeitas à aprovação. A contemplação é via sorteio ou lance, conforme regras do grupo.
+      </div>
     </div>`;
   document.getElementById('prop-view-body').innerHTML=html;
-  // Editar só faz sentido se proposta ainda não foi executada
   document.getElementById('prop-edit-btn').style.display=sim.done?'none':'';
   document.getElementById('modal-prop-view').classList.add('open');
 }
