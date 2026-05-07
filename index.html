@@ -830,6 +830,268 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
 .sb-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:99}
 .sb-overlay.open{display:block}
 
+/* ════════════════════════════════════════════════════════════════════════ */
+/* 🚨 ÁREA PROTEGIDA — CENTRAL DE AJUDA — NÃO REMOVER 🚨                    */
+/* Esta seção é uma feature ATIVA do sistema. Já foi apagada 2x por chats   */
+/* paralelos que reescreveram blocos sem ler. SE VOCÊ É UM CHAT NOVO E NÃO  */
+/* ENTENDE pra que serve esta aba: NÃO DELETE. Pergunte ao mathe primeiro.  */
+/* Última recuperação: 2026-05-06. Ver memory file feedback_protege_aba_ajuda.md */
+/* ════════════════════════════════════════════════════════════════════════ */
+/* ── AJUDA / CENTRAL DE AJUDA ──────────────── */
+/* Identidade unificada: ADM + Assessor com mesma linguagem visual.
+   Tipografia em 4 tamanhos. Espaçamento via variáveis. Cores enxutas. */
+
+/* Página ocupa 100% da largura */
+body:has(#page-ajuda.active) .content,
+.content:has(#page-ajuda.active),
+main.main:has(#page-ajuda.active) .content{
+  max-width:100%!important;
+  padding-left:clamp(16px,2.4vw,40px)!important;
+  padding-right:clamp(16px,2.4vw,40px)!important;
+}
+#page-ajuda.active{width:100%;max-width:100%}
+
+/* HERO */
+.ajuda-hero{
+  background:linear-gradient(135deg,var(--sb) 0%,var(--sb2) 100%);
+  color:#fff;border-radius:14px;padding:24px 28px;margin-bottom:16px;
+  position:relative;border-bottom:3px solid var(--acc);box-shadow:var(--sh-2)
+}
+.ajuda-hero-title{
+  font-family:'Quicksand',sans-serif;font-size:24px;font-weight:700;
+  margin-bottom:4px;letter-spacing:.3px
+}
+.ajuda-hero-sub{font-size:14px;opacity:.85;line-height:1.55;max-width:760px}
+
+/* BUSCA — sticky no topo ao rolar */
+.ajuda-search-card{
+  margin-bottom:24px;position:sticky;top:12px;z-index:5;
+  background:#fff;border:1px solid #e5e7eb;border-radius:12px;
+  box-shadow:0 1px 3px rgba(0,0,0,.05)
+}
+.ajuda-search-card .cb{padding:14px 18px}
+.ajuda-search-card .inp{outline:none;border:none;background:transparent;font-size:14px}
+.ajuda-search-card .inp:focus{outline:none;box-shadow:none}
+
+/* ATALHOS */
+.ajuda-atalhos{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+  gap:12px;margin-bottom:32px
+}
+.ajuda-atalho{
+  background:#fff;border:1px solid #e5e7eb;border-left:4px solid var(--acc);
+  border-radius:12px;padding:18px;text-decoration:none;color:var(--txt);
+  cursor:pointer;transition:all var(--t-fast);display:block
+}
+.ajuda-atalho:hover{
+  transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.08);
+  background:#fffdf7;border-left-color:var(--sb)
+}
+.ajuda-atalho-ico{font-size:28px;margin-bottom:8px;line-height:1}
+.ajuda-atalho-tit{
+  font-family:'Quicksand',sans-serif;font-size:15px;font-weight:700;
+  color:var(--sb);margin-bottom:3px;letter-spacing:.2px
+}
+.ajuda-atalho-sub{font-size:12.5px;color:#6b7280;line-height:1.45}
+.ajuda-atalhos.ass{grid-template-columns:repeat(auto-fill,minmax(210px,1fr))}
+
+/* SEÇÃO */
+.ajuda-secao{margin-bottom:36px;scroll-margin-top:80px}
+.ajuda-secao-titulo{
+  font-family:'Quicksand',sans-serif;font-size:19px;font-weight:700;
+  color:var(--sb);margin-bottom:16px;padding-bottom:8px;
+  border-bottom:2px solid var(--acc);letter-spacing:.3px
+}
+
+/* CARD BASE — todos cards (ADM acordeão + Assessor cards) usam esta base */
+.ajuda-acord,.ass-objecao,.ass-qa-item,.ass-passo,.ass-card-info{
+  background:#fff;border:1px solid #e5e7eb;border-radius:12px;
+  margin-bottom:10px;overflow:hidden;
+  transition:box-shadow var(--t-fast),border-color var(--t-fast)
+}
+.ajuda-acord:hover,.ass-objecao:hover,.ass-qa-item:hover{
+  box-shadow:0 4px 12px rgba(0,0,0,.08)
+}
+
+/* ACORDEÕES (ADM) */
+.ajuda-acord summary{
+  padding:14px 20px;cursor:pointer;font-weight:600;font-size:15px;
+  color:var(--sb);user-select:none;display:flex;align-items:center;gap:12px;
+  list-style:none;background:#fafbfc;transition:background var(--t-fast)
+}
+.ajuda-acord summary::-webkit-details-marker{display:none}
+.ajuda-acord summary::before{
+  content:'+';display:inline-flex;align-items:center;justify-content:center;
+  width:24px;height:24px;border-radius:50%;background:var(--acc);color:#fff;
+  font-size:18px;font-weight:700;flex-shrink:0;line-height:1
+}
+.ajuda-acord[open] summary::before{content:'−';background:var(--sb)}
+.ajuda-acord summary .ajuda-tag{margin-left:auto}
+.ajuda-acord summary:hover{background:#fffdf7}
+.ajuda-acord[open]{border-color:var(--acc)}
+.ajuda-acord[open] summary{
+  background:linear-gradient(90deg,#fffdf7 0%,#fff 100%);
+  border-bottom:1px solid #f0e5c5
+}
+.ajuda-tag{
+  font-size:11px;font-weight:600;color:#6b7280;background:#f3f4f6;
+  padding:3px 9px;border-radius:12px;text-transform:uppercase;
+  letter-spacing:.4px;flex-shrink:0
+}
+.ajuda-tag.admin{background:#fef3c7;color:#92400e}
+
+/* CORPO */
+.ajuda-corpo{padding:18px 22px;font-size:14px;line-height:1.7;color:var(--txt)}
+.ajuda-corpo p{margin:0 0 10px}
+.ajuda-corpo p:last-child{margin-bottom:0}
+.ajuda-corpo ul,.ajuda-corpo ol{margin:8px 0 12px;padding-left:22px}
+.ajuda-corpo li{margin-bottom:5px}
+.ajuda-corpo b{color:var(--sb);font-weight:700}
+.ajuda-corpo code{
+  background:#f3f4f6;padding:2px 6px;border-radius:4px;
+  font-family:'JetBrains Mono','Consolas',monospace;font-size:12.5px;color:#1e40af
+}
+
+/* DICA */
+.ajuda-dica{
+  background:#fef9e0;border-left:4px solid var(--acc);padding:12px 16px;
+  margin:14px 0;border-radius:0 8px 8px 0;font-size:13.5px;line-height:1.55
+}
+
+/* TABELA */
+.ajuda-tab{
+  width:100%;border-collapse:collapse;margin:12px 0;font-size:13px;
+  background:#fff;border-radius:8px;overflow:hidden
+}
+.ajuda-tab th{
+  background:var(--sb);color:#fff;padding:10px 14px;text-align:left;
+  font-weight:600;font-size:12.5px;letter-spacing:.3px
+}
+.ajuda-tab td{padding:9px 14px;border-bottom:1px solid #f0f0f0}
+.ajuda-tab tr:last-child td{border-bottom:none}
+.ajuda-tab tr:nth-child(even) td{background:#fafbfc}
+
+/* CODE block */
+.ajuda-code{
+  background:#1e293b;color:#e2e8f0;padding:14px 16px;border-radius:8px;
+  font-family:'JetBrains Mono','Consolas',monospace;font-size:12.5px;
+  line-height:1.6;overflow-x:auto;margin:12px 0;white-space:pre
+}
+
+/* GLOSSÁRIO unificado (ADM + Assessor usam o mesmo) */
+.ajuda-glos,.ass-glos{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px
+}
+.ajuda-glos-item,.ass-glos-item{
+  background:#fff;border:1px solid #e5e7eb;border-left:4px solid var(--acc);
+  padding:14px 16px;border-radius:0 12px 12px 0;
+  font-size:13.5px;line-height:1.55;transition:all var(--t-fast)
+}
+.ajuda-glos-item:hover,.ass-glos-item:hover{
+  border-left-color:var(--sb);background:#fffdf7;transform:translateX(2px)
+}
+.ajuda-glos-item b,.ass-glos-item b{
+  color:var(--sb);font-weight:700;display:block;margin-bottom:4px;
+  font-size:14.5px;font-family:'Quicksand',sans-serif
+}
+.ass-glos-item span{color:#6b7280}
+
+/* HIDDEN/HIGHLIGHT */
+.ajuda-acord.ajuda-hidden,.ajuda-secao.ajuda-hidden,.ajuda-glos-item.ajuda-hidden,
+.ass-objecao.ajuda-hidden,.ass-qa-item.ajuda-hidden,.ass-glos-item.ajuda-hidden{display:none}
+.ajuda-highlight{background:#fef08a;padding:0 2px;border-radius:2px;font-weight:600}
+
+/* ── ASSESSOR — cards específicos ── */
+.ass-intro{font-size:14px;color:#6b7280;margin:-4px 0 18px;line-height:1.55}
+
+/* OBJEÇÕES — cards de venda */
+.ass-objecoes{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:14px
+}
+.ass-objecao{
+  padding:18px 20px;border-left:4px solid var(--acc);
+  box-shadow:0 1px 3px rgba(0,0,0,.04)
+}
+.ass-obj-tag{
+  font-family:'Quicksand',sans-serif;font-size:13px;font-weight:700;
+  color:var(--sb);margin-bottom:12px;display:inline-block;
+  background:#fef3c7;padding:5px 11px;border-radius:14px;letter-spacing:.3px
+}
+.ass-obj-cliente{
+  font-size:14px;color:var(--txt);font-style:italic;
+  background:#f3f4f6;padding:11px 14px 11px 38px;border-radius:8px;
+  margin-bottom:12px;line-height:1.55;position:relative
+}
+.ass-obj-cliente::before{content:'💬';position:absolute;left:12px;top:11px;font-style:normal}
+.ass-obj-resp{font-size:14px;line-height:1.7;color:var(--txt)}
+.ass-obj-resp b{color:var(--sb);font-weight:700}
+
+/* Q&A — direto, sem acordeão */
+.ass-qa{display:flex;flex-direction:column;gap:10px}
+.ass-qa-item{
+  padding:16px 20px;border-left:4px solid #e5e7eb;
+  transition:all var(--t-fast)
+}
+.ass-qa-item:hover{border-left-color:var(--acc);background:#fffdf7}
+.ass-qa-q{
+  font-family:'Quicksand',sans-serif;font-size:15px;font-weight:700;
+  color:var(--sb);margin-bottom:8px;display:flex;align-items:center;gap:8px;
+  letter-spacing:.2px
+}
+.ass-qa-q::before{content:'❓';flex-shrink:0;font-size:14px}
+.ass-qa-a{font-size:14px;line-height:1.7;color:var(--txt)}
+.ass-qa-a b{color:var(--sb);font-weight:700}
+
+/* PASSOS (CRM) */
+.ass-passo{
+  display:flex;gap:18px;padding:20px 22px;align-items:flex-start;
+  border-left:4px solid var(--sb)
+}
+.ass-passo-num{
+  flex-shrink:0;width:44px;height:44px;border-radius:50%;
+  background:linear-gradient(135deg,var(--sb),var(--sb2));color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;font-weight:700;font-family:'Quicksand',sans-serif
+}
+.ass-passo-cont{flex:1}
+.ass-passo-tit{
+  font-family:'Quicksand',sans-serif;font-size:16px;font-weight:700;
+  color:var(--sb);margin-bottom:5px;letter-spacing:.2px
+}
+.ass-passo-desc{font-size:14px;line-height:1.7;color:var(--txt)}
+.ass-passo-desc b{color:var(--sb);font-weight:700}
+
+/* CARDS info (Pós-Contemp do assessor) */
+.ass-card-info{padding:18px 22px;border-left:4px solid #10b981}
+.ass-card-info.alerta{border-left-color:#dc2626;background:#fef2f2}
+.ass-card-tit{
+  font-family:'Quicksand',sans-serif;font-size:15.5px;font-weight:700;
+  color:var(--sb);margin-bottom:10px;letter-spacing:.2px
+}
+.ass-card-info.alerta .ass-card-tit{color:#991b1b}
+.ass-card-cont{font-size:14px;line-height:1.7;color:var(--txt)}
+.ass-card-cont p{margin:0 0 8px}
+.ass-card-cont p:last-child{margin-bottom:0}
+.ass-card-cont b{color:var(--sb);font-weight:700}
+.ass-card-info.alerta .ass-card-cont b{color:#991b1b}
+.ass-card-cont ul{margin:8px 0 0;padding-left:22px}
+.ass-card-cont li{margin-bottom:5px}
+
+/* MOBILE */
+@media(max-width:700px){
+  .ajuda-hero{padding:18px 20px}
+  .ajuda-hero-title{font-size:20px}
+  .ajuda-secao-titulo{font-size:17px}
+  .ajuda-atalhos{grid-template-columns:repeat(2,1fr)}
+  .ajuda-glos,.ass-glos,.ass-objecoes{grid-template-columns:1fr}
+  .ajuda-corpo{padding:14px 16px;font-size:13.5px}
+  .ajuda-acord summary{padding:12px 16px;font-size:14px;gap:10px}
+  .ass-passo{flex-direction:column;align-items:stretch;gap:12px}
+  .ass-passo-num{margin:0 auto}
+  .ass-obj-cliente,.ass-obj-resp,.ass-qa-a,.ass-passo-desc,.ass-card-cont{font-size:13.5px}
+}
+
+
 /* ── PÓS-CONTEMPLAÇÃO ───────────────────────── */
 .fat-hero{background:linear-gradient(135deg,var(--sb) 0%,var(--sb2) 100%);border-radius:var(--r-md);padding:var(--sp-4) var(--sp-6);color:#fff;margin-bottom:var(--sp-4);position:relative;overflow:hidden;box-shadow:var(--sh-2)}
 .fat-hero::after{content:'';position:absolute;right:-40px;top:-40px;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,.05)}
@@ -1316,6 +1578,32 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
 </head>
 <body>
 
+<!-- Modal forçado de troca de senha (1º login) -->
+<div class="moverlay" id="modal-troca-senha" style="background:rgba(0,0,0,.88);z-index:99999">
+  <div class="modal" style="width:440px;max-width:94vw">
+    <div style="padding:28px 30px">
+      <div style="font-size:32px;text-align:center;margin-bottom:6px">🔐</div>
+      <h2 style="margin:0 0 8px;font-family:'Quicksand',sans-serif;color:var(--sb);text-align:center;font-size:20px">Defina sua senha pessoal</h2>
+      <p style="font-size:13.5px;color:var(--txt2);margin:0 0 22px;line-height:1.55;text-align:center">
+        Você está usando a senha temporária. Antes de continuar, escolha uma nova senha que só você sabe.
+      </p>
+      <div style="margin-bottom:14px">
+        <label style="font-size:11.5px;font-weight:600;color:var(--txt2);text-transform:uppercase;letter-spacing:.5px;display:block">Nova senha</label>
+        <input type="password" id="ts-pass1" class="inp" style="width:100%;margin-top:4px;padding:10px 12px" placeholder="Mínimo 8 caracteres" autocomplete="new-password">
+      </div>
+      <div style="margin-bottom:18px">
+        <label style="font-size:11.5px;font-weight:600;color:var(--txt2);text-transform:uppercase;letter-spacing:.5px;display:block">Confirmar senha</label>
+        <input type="password" id="ts-pass2" class="inp" style="width:100%;margin-top:4px;padding:10px 12px" placeholder="Repita a nova senha" autocomplete="new-password" onkeypress="if(event.key==='Enter')submitNovaSenha()">
+      </div>
+      <div id="ts-err" style="display:none;background:#fef2f2;color:#991b1b;font-size:12.5px;padding:8px 12px;border-radius:6px;margin-bottom:14px;border-left:3px solid #dc2626"></div>
+      <button class="btn btn-pri" id="ts-btn" onclick="submitNovaSenha()" style="width:100%;padding:11px;font-weight:700">Salvar nova senha</button>
+      <p style="font-size:11px;color:var(--txt3);text-align:center;margin:14px 0 0;line-height:1.4">
+        Esta tela só aparece uma vez. Depois, você usa sua senha pessoal pra entrar.
+      </p>
+    </div>
+  </div>
+</div>
+
 <div class="login-screen" id="login-screen">
   <div class="login-box">
     <div class="login-logo">
@@ -1361,6 +1649,9 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
     <div class="ni" onclick="nav('receb',this)"><span class="ico">💸</span> Meus Recebimentos</div>
     <div class="nav-sec" data-admin-only="1">Administração</div>
     <div class="ni" data-admin-only="1" onclick="nav('usuarios',this)"><span class="ico">👥</span> Usuários</div>
+    <div class="nav-sec">Ajuda</div>
+    <!-- 🚨 NÃO REMOVER — item de menu da Central de Ajuda 🚨 -->
+    <div class="ni" onclick="nav('ajuda',this)"><span class="ico">❓</span> Central de Ajuda</div>
   </nav>
   <div class="sb-foot">
     <div class="user-b">
@@ -3003,6 +3294,917 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
   </div>
 
   </div>
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <!-- 🚨 ÁREA PROTEGIDA — CENTRAL DE AJUDA — NÃO REMOVER 🚨                -->
+  <!-- Esta página é uma feature ATIVA do sistema. Já foi apagada 2x por    -->
+  <!-- chats paralelos. SE VOCÊ É UM CHAT NOVO: NÃO DELETE este bloco.      -->
+  <!-- Pergunte ao mathe se está em dúvida.                                 -->
+  <!-- Última recuperação: 2026-05-06.                                      -->
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <!-- AJUDA — Central de Ajuda (ADM e Assessor)            -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <div class="page" id="page-ajuda">
+
+    <!-- Hero -->
+    <div class="ajuda-hero">
+      <div class="ajuda-hero-title">❓ Central de Ajuda</div>
+      <div class="ajuda-hero-sub" data-admin-only="1">Visão completa de Administrador. Tudo sobre o sistema, regras de negócio e operação.</div>
+      <div class="ajuda-hero-sub" data-assessor-only="1">Guia rápido para o seu dia a dia. Tudo que você precisa saber sobre o sistema HC360.</div>
+    </div>
+
+    <!-- Busca -->
+    <div class="card ajuda-search-card">
+      <div class="cb" style="padding:14px 18px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <span style="font-size:18px">🔍</span>
+          <input type="text" id="ajuda-search" class="inp" placeholder="O que você quer saber? (ex: lance, parcela, contemplação, CRM...)" style="flex:1;border:none;font-size:14px;background:transparent" oninput="ajudaBuscar()">
+          <button class="btn btn-ghost btn-sm" onclick="ajudaLimparBusca()" style="display:none" id="ajuda-clear">✕ Limpar</button>
+        </div>
+        <div id="ajuda-busca-info" style="margin-top:6px;font-size:11.5px;color:var(--txt2);display:none"></div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════ -->
+    <!-- VERSÃO ADMINISTRADOR — completa                      -->
+    <!-- ═══════════════════════════════════════════════════ -->
+    <div data-admin-only="1" id="ajuda-adm">
+
+      <!-- Atalhos rápidos -->
+      <div class="ajuda-atalhos">
+        <a class="ajuda-atalho" href="#" onclick="ajudaIr('adm-abas');return false">
+          <div class="ajuda-atalho-ico">📊</div>
+          <div class="ajuda-atalho-tit">Abas do Sistema</div>
+          <div class="ajuda-atalho-sub">As 9 telas explicadas</div>
+        </a>
+        <a class="ajuda-atalho" href="#" onclick="ajudaIr('adm-bancos');return false">
+          <div class="ajuda-atalho-ico">🏦</div>
+          <div class="ajuda-atalho-tit">Regras dos Bancos</div>
+          <div class="ajuda-atalho-sub">Itaú e Santander</div>
+        </a>
+        <a class="ajuda-atalho" href="#" onclick="ajudaIr('adm-glossario');return false">
+          <div class="ajuda-atalho-ico">📖</div>
+          <div class="ajuda-atalho-tit">Glossário</div>
+          <div class="ajuda-atalho-sub">Termos e siglas</div>
+        </a>
+        <a class="ajuda-atalho" href="#" onclick="ajudaIr('adm-faturamento');return false">
+          <div class="ajuda-atalho-ico">📋</div>
+          <div class="ajuda-atalho-tit">Esteira de Faturamento</div>
+          <div class="ajuda-atalho-sub">9 etapas pós-contemplação</div>
+        </a>
+        <a class="ajuda-atalho" href="#" onclick="ajudaIr('adm-fluxos');return false">
+          <div class="ajuda-atalho-ico">🔄</div>
+          <div class="ajuda-atalho-tit">Fluxos Operacionais</div>
+          <div class="ajuda-atalho-sub">Passo a passo</div>
+        </a>
+        <a class="ajuda-atalho" href="#" onclick="ajudaIr('adm-faq');return false">
+          <div class="ajuda-atalho-ico">💡</div>
+          <div class="ajuda-atalho-tit">FAQ</div>
+          <div class="ajuda-atalho-sub">Dúvidas comuns</div>
+        </a>
+      </div>
+
+      <!-- ── 1. Abas do Sistema ── -->
+      <div class="ajuda-secao" id="adm-abas">
+        <div class="ajuda-secao-titulo">📊 Abas do Sistema — o que cada uma faz</div>
+
+        <details class="ajuda-acord" open>
+          <summary>📊 Dashboard <span class="ajuda-tag">Tela inicial</span></summary>
+          <div class="ajuda-corpo">
+            <p><b>Para que serve:</b> visão geral da carteira do escritório. Mostra os números que importam num piscar de olho.</p>
+            <p><b>O que aparece:</b></p>
+            <ul>
+              <li><b>7 cards de KPI</b> — Total de Cotas, Contempladas, Crédito em Carteira, Lance Ativo, Aguardando, Leads no CRM, Canceladas</li>
+              <li><b>Gráfico Status das Cotas</b> (donut) — divide entre Contempladas / Lance Ativo / Sorteio / Outros</li>
+              <li><b>Distribuição por Assessor</b> (barras) — quem tem mais carteira</li>
+              <li><b>Maiores Clientes</b> — top 8 por crédito</li>
+              <li><b>Tabela Por Assessor</b> — cotas, contempladas, volume e %</li>
+            </ul>
+            <p class="ajuda-dica">💡 Use no início do dia para saber onde focar.</p>
+          </div>
+        </details>
+
+        <details class="ajuda-acord">
+          <summary>📅 Agenda <span class="ajuda-tag">Vencimentos & ofertas</span></summary>
+          <div class="ajuda-corpo">
+            <p><b>Para que serve:</b> ver o que precisa de atenção essa semana.</p>
+            <p><b>3 abas dentro:</b></p>
+            <ul>
+              <li><b>Vencimentos próximos</b> — cotas com data de vencimento chegando</li>
+              <li><b>Sem Lance</b> — cotas em andamento que ainda não ofertaram lance (oportunidade perdida)</li>
+              <li><b>Por Assessor</b> — tracking individual</li>
+            </ul>
+            <p class="ajuda-dica">💡 Aba <b>Sem Lance</b> é gold — chama o cliente, oferta lance, contempla mais rápido.</p>
+          </div>
+        </details>
+
+        <details class="ajuda-acord">
+          <summary>🎯 CRM / Indicações <span class="ajuda-tag">Pipeline de leads</span></summary>
+          <div class="ajuda-corpo">
+            <p><b>Para que serve:</b> acompanhar leads (potenciais clientes) do primeiro contato até a venda.</p>
+            <p><b>Pipeline de 10 estágios em 4 fases:</b></p>
+            <ul>
+              <li>📥 <b>Captação</b> — Novo Lead → Qualificando</li>
+              <li>🤝 <b>Reunião</b> — Reunião Marcada → Reunião Realizada</li>
+              <li>💼 <b>Negociação</b> — Simulação → Proposta Enviada → Em Negociação → Aguard. Docs</li>
+              <li>🏁 <b>Resultado</b> — Cota Aberta (ganhou!) ou Perdido</li>
+            </ul>
+            <p><b>O que aparece em cada card:</b> nome, telefone clicável (toca direto), assessor, valor potencial OU crédito negociado, data da reunião (se marcada), botões de ação.</p>
+            <p><b>3 abas internas:</b> 📊 Pipeline (kanban) · 📋 Lista de Leads (tabela) · ⭐ Clientes (já fechados)</p>
+            <p class="ajuda-dica">💡 Drag-and-drop entre colunas funciona — arrasta o card pra mudar o estágio.</p>
+          </div>
+        </details>
+
+        <details class="ajuda-acord">
+          <summary>🏦 Guia de Oportunidades <span class="ajuda-tag admin">só ADM</span></summary>
+          <div class="ajuda-corpo">
+            <p><b>Para que serve:</b> base de 560 grupos do Itaú (242 imóveis + 318 rodas) com histórico dos últimos 12 meses.</p>
+            <p><b>Use para:</b> analisar individualmente como um grupo se comportou — vagas, lance médio, contemplações por mês.</p>
+            <p><b>9 filtros combináveis:</b> Tipo, Situação, LF, PR, Prazo restante, Lance atual, Vagas mínimas, Contempl./mês, Crédito.</p>
+            <p><b>Click numa linha</b> → análise detalhada do grupo (gráficos + tabela mês-a-mês + botão "Usar na Proposta").</p>
+            <p class="ajuda-dica">💡 Coluna <b>LF</b> tem toggle — desabilita Lance Fixo se Itaú suspendeu o grupo.</p>
+          </div>
+        </details>
+
+        <details class="ajuda-acord">
+          <summary>🌟 Oportunidades <span class="ajuda-tag admin">só ADM</span></summary>
+          <div class="ajuda-corpo">
+            <p><b>Para que serve:</b> sugestões automáticas dos melhores grupos para um cliente novo, baseadas em histórico.</p>
+            <p><b>Como funciona:</b> sistema analisa os 560 grupos + histórico 12m e ranqueia por probabilidade de contemplação.</p>
+            <p><b>Probabilidade categórica:</b></p>
+            <ul>
+              <li>🎯 <b>Alta</b> (verde) — bate ≥70% dos meses históricos</li>
+              <li>⚠️ <b>Média</b> (âmbar) — bate 40 a 69%</li>
+              <li>⚡ <b>Baixa</b> (vermelho) — abaixo de 40%</li>
+            </ul>
+            <p><b>Filtro automático (não-óbvio):</b> Imóvel com prazo restante &lt; 50 meses é descartado. Veículo &lt; 24 meses idem.</p>
+            <p><b>Botão "+ Simular"</b> → adiciona o grupo na proposta e leva direto pra Gerar Proposta.</p>
+          </div>
+        </details>
+
+        <details class="ajuda-acord">
+          <summary>📄 Gerar Proposta <span class="ajuda-tag admin">só ADM</span></summary>
+          <div class="ajuda-corpo">
+            <p><b>Para que serve:</b> simulador comercial pra fechar venda com cliente novo.</p>
+            <p><b>3 passos:</b></p>
+            <ul>
+              <li><b>Step 1</b> — crédito desejado, indexador (CDI/Inflação), bem desejado, tipo de estudo</li>
+              <li><b>Step 2</b> — adicionar grupos (manual ou via Oportunidades), prazo, taxa adm, FR, qtd cotas, mês de contemplação esperado. Sistema calcula parcela pré + pós + lance + CET</li>
+              <li><b>Step 3</b> — apresentação final com tabela, gráficos comparativos (consórcio vs financiamento), estratégias de lance, botão Imprimir</li>
+            </ul>
+            <p class="ajuda-dica">💡 Sempre mostre o <b>CET</b> ao cliente, não só a taxa adm. CET inclui FR e lance — é o custo real.</p>
+          </div>
+        </details>
+
+        <details class="ajuda-acord">
+          <summary>👤 Projetos / Cotas <span class="ajuda-tag">Centro da operação</span></summary>
+          <div class="ajuda-corpo">
+            <p><b>Para que serve:</b> ver e gerenciar todos os clientes e suas cotas.</p>
+            <p><b>2 modos de visualização (toggle):</b></p>
+            <ul>
+              <li><b>Por Cliente</b> — cards horizontais, 1 cliente por linha (com 2 sub-layouts: Cards e Tabela)</li>
+              <li><b>Lista Completa</b> — TODAS as cotas num único lugar (a "central de comando" do início do mês)</li>
+            </ul>
+            <p><b>Click num cliente</b> → painel com 2 abas embaixo:</p>
+            <ul>
+              <li>📋 <b>Cotas</b> — tabela editável das cotas dele</li>
+              <li>📊 <b>Dashboard</b> — KPIs do cliente (Crédito Total, Liberado, Saldo Devedor, Lances Pagos, Rendimento Estimado, gráficos, portfólio detalhado)</li>
+            </ul>
+            <p><b>Filtros:</b> busca por nome · ordenação (14 opções) · Assessor · Banco · Limpar.</p>
+          </div>
+        </details>
+
+        <details class="ajuda-acord">
+          <summary>📋 Lista Completa (dentro de Projetos/Cotas) <span class="ajuda-tag">Pré-AGO</span></summary>
+          <div class="ajuda-corpo">
+            <p><b>Para que serve:</b> a ferramenta principal pré-assembleia. Onde se trabalha o tempo todo no início do mês.</p>
+            <p><b>O que dá pra fazer aqui:</b></p>
+            <ul>
+              <li>Ver TODAS as cotas (todos os clientes, todos os bancos)</li>
+              <li>Editar status, lance %, marcar Lance Ofertado direto na linha</li>
+              <li>Filtrar por status (Em Andamento, Lance Livre, Lance Fixo, Contemplado, Faturado, Cancelado)</li>
+              <li>Filtrar por assessor, banco, busca por nome/grupo/cota/CPF</li>
+              <li>Botão <b>💾 Salvar todas</b> no topo — salva tudo que mudou</li>
+            </ul>
+            <p><b>Ações por linha:</b> 💾 (salvar mudança) · 📜 (histórico de ofertas) · ✓ Contemplar / ✓ Pago · ✏️ (editar completo)</p>
+            <p class="ajuda-dica">💡 Toggle <b>Lance Ofertado</b> tem 3 estados: Pendente · Ofertado · Não Ofertado.</p>
+          </div>
+        </details>
+
+        <details class="ajuda-acord">
+          <summary>📋 Pós-Contemplação <span class="ajuda-tag">Esteira</span></summary>
+          <div class="ajuda-corpo">
+            <p><b>Para que serve:</b> acompanhar o processo desde a contemplação até o cliente usar a carta.</p>
+            <p><b>9 etapas:</b></p>
+            <ol>
+              <li>Contemplação registrada</li>
+              <li>Documentação do cliente</li>
+              <li>Avaliação do imóvel/veículo</li>
+              <li>Análise jurídica do bem</li>
+              <li>Aprovação do Itaú</li>
+              <li>Contrato de compra e venda</li>
+              <li>Registro em cartório (prazo crítico: 45 dias!)</li>
+              <li>Liberação dos recursos (5 dias úteis após registro)</li>
+              <li>Faturado ✓</li>
+            </ol>
+            <p><b>4 finalidades</b> — cada uma com documentação diferente: 🏠 Imóvel novo · 🏘️ Imóvel usado · 🏗️ Construção/Reforma · 🚗 Veículo</p>
+          </div>
+        </details>
+
+        <details class="ajuda-acord">
+          <summary>✏️ Modal de Cota <span class="ajuda-tag">Formulário</span></summary>
+          <div class="ajuda-corpo">
+            <p><b>Quando abre:</b> click em <b>+ Nova Cota</b> ou no <b>✏️</b> de uma linha.</p>
+            <p><b>Campos principais:</b> Nome + CPF · Grupo + Cota · Tipo do bem · Status · Banco · Modalidade da Parcela (Padrão / PR 50% / PR 70%) · Valor da Carta · Carta Atualizada · Parcela Pré · Parcela Pós · Lance Pago · Taxa Adm · Oferta de Lance · Saldo Devedor · Datas · Assessor · Fundo de Reserva · Prazo.</p>
+            <p><b>Banner verde "✨ Grupo encontrado no GUIA"</b> aparece quando o grupo digitado bate na base — mostra tipo, índice, prazo, FR, vencimento, próx AGO, LF, PR.</p>
+            <p><b>Resumo Calculado (auto):</b> box verde no fim com Saldo Total, Parcela Pré e Pós já com taxa adm e FR aplicados.</p>
+          </div>
+        </details>
+      </div>
+
+      <!-- ── 2. Regras dos Bancos ── -->
+      <div class="ajuda-secao" id="adm-bancos">
+        <div class="ajuda-secao-titulo">🏦 Regras dos Bancos</div>
+
+        <details class="ajuda-acord">
+          <summary>🟠 Itaú — Composição da Parcela</summary>
+          <div class="ajuda-corpo">
+            <p>Cada parcela mensal tem 5 componentes:</p>
+            <table class="ajuda-tab">
+              <tr><th>Componente</th><th>O que é</th><th>Quanto</th></tr>
+              <tr><td><b>Fundo Comum</b></td><td>Recolhe o valor da carta</td><td>100% do crédito ÷ prazo</td></tr>
+              <tr><td><b>Taxa Adm Mensal</b></td><td>Remuneração da administradora</td><td>% mensal sobre crédito atualizado</td></tr>
+              <tr><td><b>Taxa Adm Antecipada</b></td><td>Adiantamento da taxa total</td><td>% nos primeiros meses</td></tr>
+              <tr><td><b>Fundo de Reserva</b></td><td>Cobertura de inadimplência</td><td>~3% do crédito ao longo do prazo</td></tr>
+              <tr><td><b>Seguro</b></td><td>Opcional</td><td>Se contratado</td></tr>
+            </table>
+            <p><b>Fórmula no sistema:</b></p>
+            <pre class="ajuda-code">saldoTotal = credito × (1 + taxa_adm/100 + fundo_reserva/100)
+parcela_pré = saldoTotal / prazo × fator_PR
+parcela_pós = saldo_remanescente / prazo_restante</pre>
+            <p class="ajuda-dica">⚠️ Taxa adm é aplicada sobre o <b>crédito atualizado</b> (sobe com INCC ano a ano), não sobre o crédito original fixo.</p>
+          </div>
+        </details>
+
+        <details class="ajuda-acord">
+          <summary>🟠 Itaú — Modalidades de Lance</summary>
+          <div class="ajuda-corpo">
+            <p><b>4 tipos de lance:</b></p>
+            <ul>
+              <li><b>Lance Livre</b> — você define o % (ex: 30%). Compete com outros livres. Quem oferta o maior, ganha.</li>
+              <li><b>Lance Fixo (40%)</b> — Itaú define 40% fixo. Compete só com outros fixos. Pode ser suspenso pelo Itaú.</li>
+              <li><b>Lance Quitação</b> — oferta = saldo devedor inteiro. Quita a cota.</li>
+              <li><b>FGTS</b> — só imóvel residencial. Extrato em 5 dias úteis após contemplação.</li>
+            </ul>
+            <p><b>Formas de pagar o lance:</b> Recurso próprio (dinheiro/pix em 5 dias úteis) · Lance Embutido (deduz da carta — limite 30%) · Misto · FGTS.</p>
+            <p><b>Destino do lance vencedor:</b></p>
+            <ul>
+              <li>Reduz o prazo (quita últimas parcelas)</li>
+              <li>Reduz o valor das parcelas (amortiza, mantém prazo)</li>
+              <li>Lance Quitação (quita tudo)</li>
+              <li>Lance com carta (embutido)</li>
+            </ul>
+          </div>
+        </details>
+
+        <details class="ajuda-acord">
+          <summary>🟠 Itaú — Lance Embutido (limite 30%)</summary>
+          <div class="ajuda-corpo">
+            <p><b>O que é:</b> pagar parte do lance com a própria carta de crédito — sem precisar de dinheiro extra.</p>
+            <p><b>Como funciona (exemplo):</b></p>
+            <ul>
+              <li>Carta de R$ 340.000, lance de 60% → R$ 204.000 total</li>
+              <li>Embutido: 30% × 340.000 = R$ 102.000 (limite máximo)</li>
+              <li>Recurso próprio: R$ 102.000 (cliente paga em dinheiro)</li>
+              <li>Crédito líquido recebido: R$ 238.000 (carta − embutido)</li>
+            </ul>
+            <p class="ajuda-dica">⚠️ Embutido <b>NUNCA passa de 30%</b> do crédito. Se quer ofertar mais que 30%, o restante tem que ser dinheiro.</p>
+          </div>
+        </details>
+
+        <details class="ajuda-acord">
+          <summary>🟠 Itaú — Parcela Reduzida (PR)</summary>
+          <div class="ajuda-corpo">
+            <p><b>O que é:</b> parcela menor no início. Após contemplar, o saldo restante é dividido pelo prazo restante e a parcela vira "cheia".</p>
+            <p><b>Variantes:</b></p>
+            <ul>
+              <li><b>Padrão</b> — fator 1,0 (cheia) — taxa adm típica 23%</li>
+              <li><b>PR 50%</b> — fator 0,50 (metade) — taxa adm típica 20%</li>
+              <li><b>PR 70%</b> — fator 0,70 — taxa varia</li>
+            </ul>
+            <p class="ajuda-dica">⚠️ <b>Risco da PR:</b> a dívida não some, só está adiada. Quanto mais tarde contempla, MAIOR a parcela pós:</p>
+            <table class="ajuda-tab">
+              <tr><th>Mês contemplação</th><th>Parcela pós (exemplo)</th></tr>
+              <tr><td>Até 12 meses</td><td>R$ 5.851 a R$ 6.206</td></tr>
+              <tr><td>Até 60 meses</td><td>R$ 10.582 a R$ 20.804</td></tr>
+              <tr><td>Até 66 meses</td><td>R$ 23.592 a <b>R$ 121.166</b> ❗</td></tr>
+            </table>
+          </div>
+        </details>
+
+        <details class="ajuda-acord">
+          <summary>🔴 Santander — Regra DIFERENTE do Itaú</summary>
+          <div class="ajuda-corpo">
+            <p class="ajuda-dica">⚠️ <b>Não aplicar fórmulas Itaú em cotas Santander.</b> A lógica é diferente.</p>
+            <table class="ajuda-tab">
+              <tr><th></th><th>Itaú</th><th>Santander</th></tr>
+              <tr><td>Lance % aplicado sobre</td><td>Crédito puro</td><td>Saldo devedor (créd + tx + FR)</td></tr>
+              <tr><td>Embutido máximo</td><td>30% da carta</td><td>Pode ser maior em valor absoluto</td></tr>
+              <tr><td>Reajuste pré-contemp.</td><td>INCC anual (imóvel)</td><td>IPCA anual</td></tr>
+              <tr><td>credito_liberado</td><td>carta − embutido</td><td>Vem direto do extrato ("Líquido a Pagar")</td></tr>
+            </table>
+            <p><b>Exemplo:</b> carta R$ 131.745, taxa 21,64%, FR 3% → saldo total inicial = R$ 164.232. Lance de 64,86% sobre esse saldo = R$ 106.351 (não 64,86% × 131.745).</p>
+          </div>
+        </details>
+
+        <details class="ajuda-acord">
+          <summary>💸 CET — Custo Efetivo Total</summary>
+          <div class="ajuda-corpo">
+            <p><b>O que é:</b> quanto o consórcio realmente custa pro cliente, em % a.a. e em R$. É o número-chave pra comparar com financiamento bancário.</p>
+            <p><b>Cálculo:</b></p>
+            <pre class="ajuda-code">VP             = Crédito Líquido − Recursos Próprios
+Taxa Adm em R$ = Saldo Devedor − Crédito Total
+CET Total %    = Taxa Adm em R$ / VP
+CET ao Mês     = CET Total % / prazo
+CET ao Ano     = CET ao Mês × 12</pre>
+            <p><b>Exemplo:</b> Crédito R$ 300k · Taxa 23% · FR 3% · Prazo 229m · Lance 60% (RP 30% + Emb 30%) → <b>CET de 3,41% a.a.</b> Comparando: financiamento imobiliário Itaú = 9-12% a.a.</p>
+            <p class="ajuda-dica">💡 CET ≠ Taxa Adm. Cliente pergunta "qual a taxa?" mas o que importa é o CET (que inclui FR e efeito do lance).</p>
+          </div>
+        </details>
+      </div>
+
+      <!-- ── 3. Glossário ── -->
+      <div class="ajuda-secao" id="adm-glossario">
+        <div class="ajuda-secao-titulo">📖 Glossário — termos e siglas</div>
+
+        <div class="ajuda-glos">
+          <div class="ajuda-glos-item"><b>AGO</b> — Assembleia Geral Ordinária. Mensal. Onde acontece o sorteio e o resultado dos lances.</div>
+          <div class="ajuda-glos-item"><b>Adesão</b> — Data em que o cliente entrou no consórcio.</div>
+          <div class="ajuda-glos-item"><b>Carta de Crédito</b> — Valor que o cliente recebe quando contempla.</div>
+          <div class="ajuda-glos-item"><b>Carta Atualizada</b> — Carta corrigida pelo índice (INCC ou IPCA) ano a ano.</div>
+          <div class="ajuda-glos-item"><b>Contemplado</b> — Cliente ganhou a cota (por sorteio ou lance), ainda não usou a carta.</div>
+          <div class="ajuda-glos-item"><b>Crédito Líquido / Liberado</b> — Carta menos lance embutido. É o que o cliente recebe pra usar.</div>
+          <div class="ajuda-glos-item"><b>CET</b> — Custo Efetivo Total. Quanto o consórcio realmente custa em % a.a.</div>
+          <div class="ajuda-glos-item"><b>Faturado</b> — Carta foi usada (Itaú chama "Bem Entregue"). Acabou o ciclo.</div>
+          <div class="ajuda-glos-item"><b>FGTS</b> — Fundo de Garantia. Pode ser usado como lance em imóvel residencial.</div>
+          <div class="ajuda-glos-item"><b>Fundo Comum</b> — Parte da parcela que recolhe o valor da carta. 100% do crédito ÷ prazo.</div>
+          <div class="ajuda-glos-item"><b>Fundo de Reserva (FR)</b> — ~3% do crédito. Cobre inadimplência do grupo.</div>
+          <div class="ajuda-glos-item"><b>INCC</b> — Índice Nacional de Custo da Construção. Reajusta carta de imóvel anualmente.</div>
+          <div class="ajuda-glos-item"><b>IPCA</b> — Índice Nacional de Preços ao Consumidor. Reajusta cartas Santander e veículos.</div>
+          <div class="ajuda-glos-item"><b>IQ</b> — Interveniente Quitante. Quando vendedor do imóvel tem financiamento ativo. Carta vai DIRETO pro banco do vendedor quitar.</div>
+          <div class="ajuda-glos-item"><b>Lance Embutido</b> — Parte do lance paga com a própria carta. Limite 30% no Itaú.</div>
+          <div class="ajuda-glos-item"><b>Lance Fixo (LF)</b> — Modalidade onde o % é fixo (40% no Itaú). Compete só com outros fixos.</div>
+          <div class="ajuda-glos-item"><b>Lance Livre</b> — Cliente define o %. Compete com outros livres. Maior ganha.</div>
+          <div class="ajuda-glos-item"><b>Lance Quitação</b> — Oferta = saldo devedor inteiro. Quita a cota.</div>
+          <div class="ajuda-glos-item"><b>Modalidade da Parcela</b> — Padrão / PR 50% / PR 70%. Define se a parcela pré é cheia ou reduzida.</div>
+          <div class="ajuda-glos-item"><b>Parcela Pré</b> — Parcela mensal antes da contemplação.</div>
+          <div class="ajuda-glos-item"><b>Parcela Pós</b> — Parcela mensal após contemplação. Calculada com saldo remanescente ÷ prazo restante.</div>
+          <div class="ajuda-glos-item"><b>PR (Parcela Reduzida)</b> — Modalidade com parcela menor no início. Risco: parcela pós pode disparar.</div>
+          <div class="ajuda-glos-item"><b>Prazo Total</b> — Total de meses do contrato (do grupo).</div>
+          <div class="ajuda-glos-item"><b>Prazo Restante</b> — Meses que faltam até encerrar a cota.</div>
+          <div class="ajuda-glos-item"><b>Recurso Próprio</b> — Parte do lance paga em dinheiro/pix.</div>
+          <div class="ajuda-glos-item"><b>Saldo Devedor</b> — Quanto ainda falta pagar (crédito + taxa adm + FR − parcelas pagas − lance).</div>
+          <div class="ajuda-glos-item"><b>Sorteio</b> — Mensal, na AGO. Usa últimos dígitos da Loteria Federal.</div>
+          <div class="ajuda-glos-item"><b>Suplência</b> — Quem ganhou lance mas não pagou em 5 dias úteis. Contemplação passa pro próximo da fila.</div>
+          <div class="ajuda-glos-item"><b>Taxa Adm</b> — Remuneração da administradora. Mensal + antecipada. Cobrada sobre crédito atualizado.</div>
+        </div>
+      </div>
+
+      <!-- ── 4. Esteira de Faturamento Itaú ── -->
+      <div class="ajuda-secao" id="adm-faturamento">
+        <div class="ajuda-secao-titulo">📋 Esteira de Faturamento Itaú</div>
+
+        <details class="ajuda-acord" open>
+          <summary>9 Etapas do Processo</summary>
+          <div class="ajuda-corpo">
+            <ol>
+              <li><b>Preenchimento de Formulário e Envio da Documentação</b></li>
+              <li><b>Avaliação do crédito</b></li>
+              <li><b>Análise da documentação</b></li>
+              <li><b>Avaliação do imóvel</b></li>
+              <li><b>Confirmação de valores</b></li>
+              <li><b>Elaboração do Contrato</b></li>
+              <li><b>Envio do contrato para registro</b></li>
+              <li><b>Devolução do contrato</b> (prazo crítico: <b>45 dias</b>!)</li>
+              <li><b>Pagamento dos valores</b> (5 dias úteis após registro)</li>
+            </ol>
+          </div>
+        </details>
+
+        <details class="ajuda-acord">
+          <summary>9 Finalidades disponíveis</summary>
+          <div class="ajuda-corpo">
+            <ol>
+              <li>Aquisição (compra simples)</li>
+              <li>Aquisição com FGTS</li>
+              <li>Aquisição com IQ (vendedor tem financiamento)</li>
+              <li>Aquisição com IQ + FGTS</li>
+              <li>Aquisição com Reembolso (cliente já pagou, quer reembolso)</li>
+              <li>Aquisição com Reembolso + FGTS</li>
+              <li>Quitação de Financiamento Próprio</li>
+              <li>Reforma do Imóvel</li>
+              <li>Construção em Terreno</li>
+            </ol>
+            <p class="ajuda-dica">⚠️ FGTS NÃO pode ser usado em: Terreno, Reforma, Construção.</p>
+          </div>
+        </details>
+
+        <details class="ajuda-acord">
+          <summary>Documentos base (todas as finalidades)</summary>
+          <div class="ajuda-corpo">
+            <p><b>Comprador PF:</b> Formulário eletrônico · Comprovante estado civil (união estável → declaração).</p>
+            <p><b>Comprador PJ:</b> Formulário · Estatuto Social + Ata de Eleição (S/A) · Contrato Social com carimbo Junta Comercial (Ltda) · Declaração Firma Mercantil (EI).</p>
+            <p><b>Vendedor PF/PJ:</b> mesmos docs do comprador.</p>
+            <p><b>Imóvel:</b> Matrícula &lt; 30 dias com certidão negativa de ônus · IPTU com endereço, metragem, contribuinte.</p>
+          </div>
+        </details>
+
+        <details class="ajuda-acord">
+          <summary>Impedimentos do imóvel (Itaú NÃO aceita)</summary>
+          <div class="ajuda-corpo">
+            <ul>
+              <li>Pré-fabricado / pré-moldado / madeira</li>
+              <li>Galpão, armazém, barracão, polo industrial, estrutura metálica</li>
+              <li>Patrimônio histórico / tombamento</li>
+              <li>Estacionamento (só vaga de garagem)</li>
+              <li>Área de preservação permanente</li>
+              <li>Área de alagamento ou solo contaminado (posto, cemitério)</li>
+              <li>Atividade com produtos perigosos</li>
+              <li>Sem averbação (matrícula) da construção</li>
+              <li>Em processo de leilão</li>
+              <li>Templos / Igrejas / Bens sociais (escolas, hospitais, ONGs)</li>
+              <li>Imóvel no exterior</li>
+              <li>Áreas indígenas ou de risco</li>
+              <li>Doação de pagamento / servidão administrativa</li>
+              <li>Misto madeira + alvenaria</li>
+              <li>Imóvel rural sem garantia urbana adicional</li>
+            </ul>
+          </div>
+        </details>
+
+        <details class="ajuda-acord">
+          <summary>Regras críticas do imóvel</summary>
+          <div class="ajuda-corpo">
+            <ul>
+              <li>Matrícula válida = emitida há &lt; 30 dias</li>
+              <li>Área terreno e construção = EXATAMENTE o que consta na matrícula e IPTU</li>
+              <li>Imóvel deve estar em bom estado e ter valor ≥ saldo devedor da cota</li>
+              <li>Fica como garantia via alienação fiduciária</li>
+              <li>Endereço idêntico em todos os documentos</li>
+              <li>Deve ter delimitação física (muro, grade, cerca)</li>
+              <li>Imóvel unificado com 2+ matrículas deve ser regularizado primeiro</li>
+              <li>Todos os proprietários listados como vendedores devem constar na matrícula</li>
+            </ul>
+            <p><b>Custos do consorciado:</b> ITBI (Prefeitura) · Despesas cartorárias (Registro de Imóveis + Notas).</p>
+          </div>
+        </details>
+      </div>
+
+      <!-- ── 5. Fluxos Operacionais ── -->
+      <div class="ajuda-secao" id="adm-fluxos">
+        <div class="ajuda-secao-titulo">🔄 Fluxos Operacionais</div>
+
+        <details class="ajuda-acord">
+          <summary>Como cadastrar um lead novo</summary>
+          <div class="ajuda-corpo">
+            <ol>
+              <li>Vai em <b>🎯 CRM / Indicações</b></li>
+              <li>Click em <b>+ Novo Lead</b> (canto superior direito)</li>
+              <li>Preenche: Nome · Telefone · Email · Indicado por · Assessor · Interesse (Imóvel/Veículo/Moto) · Valor Potencial · Observação</li>
+              <li>Status inicial: <b>Novo Lead</b></li>
+              <li>Salvar → card aparece na coluna "Novo Lead" do pipeline</li>
+            </ol>
+          </div>
+        </details>
+
+        <details class="ajuda-acord">
+          <summary>Como fazer uma simulação para um lead</summary>
+          <div class="ajuda-corpo">
+            <ol>
+              <li>No card do lead, click no botão <b>📊 Nova Simulação</b></li>
+              <li>(ou) Vai em <b>📄 Gerar Proposta</b> e configura do zero</li>
+              <li>Step 1: define crédito, indexador, bem desejado</li>
+              <li>Step 2: adiciona grupos (manual OU via Oportunidades)</li>
+              <li>Step 3: revisa apresentação, imprime e envia ao cliente</li>
+              <li>Volta no CRM e move o card pra <b>Proposta Enviada</b></li>
+            </ol>
+          </div>
+        </details>
+
+        <details class="ajuda-acord">
+          <summary>Como cadastrar uma cota nova</summary>
+          <div class="ajuda-corpo">
+            <ol>
+              <li>Vai em <b>👤 Projetos / Cotas</b></li>
+              <li>Click em <b>+ Nova Cota</b> (topo)</li>
+              <li>Preenche grupo → se bater no GUIA, banner verde aparece com dados pré-preenchidos</li>
+              <li>Define cliente, banco, modalidade (Padrão / PR 50% / PR 70%), valor da carta, prazo</li>
+              <li>Status inicial: <b>Em Andamento</b></li>
+              <li>Salvar → cota aparece na lista do cliente</li>
+            </ol>
+          </div>
+        </details>
+
+        <details class="ajuda-acord">
+          <summary>Como ofertar lance numa cota</summary>
+          <div class="ajuda-corpo">
+            <ol>
+              <li>Vai em <b>📋 Lista Completa</b></li>
+              <li>Acha a cota (filtra por nome, grupo ou status)</li>
+              <li>Edita o campo <b>Lance %</b> direto na linha</li>
+              <li>Marca o toggle <b>Ofertado</b> (vai pra estado verde com data)</li>
+              <li>Botão <b>💾</b> aparece — click pra salvar</li>
+              <li>Histórico de ofertas fica registrado em <b>📜</b></li>
+            </ol>
+            <p class="ajuda-dica">💡 Apenas a <b>última oferta registrada</b> vale na AGO. Pode editar até a hora da assembleia.</p>
+          </div>
+        </details>
+
+        <details class="ajuda-acord">
+          <summary>Como contemplar uma cota</summary>
+          <div class="ajuda-corpo">
+            <ol>
+              <li>Na <b>Lista Completa</b>, click no botão <b>✓ Contemplar</b> da linha</li>
+              <li>Modal abre — confirma data, lance ofertado e tipo (sorteio/lance)</li>
+              <li>Status muda pra <b>Contemplado</b></li>
+              <li>Sistema começa a calcular rendimento da carta (ver Glossário)</li>
+              <li>Cota aparece na esteira <b>📋 Pós-Contemplação</b> pra acompanhar etapas</li>
+              <li>Quando o cliente usar a carta, mudar status pra <b>Faturado</b> (botão ✓ Pago)</li>
+            </ol>
+          </div>
+        </details>
+
+        <details class="ajuda-acord">
+          <summary>Como gerenciar usuários (admin)</summary>
+          <div class="ajuda-corpo">
+            <ol>
+              <li>Sidebar → <b>👥 Usuários</b> (só ADM vê)</li>
+              <li>Lista de assessores cadastrados aparece</li>
+              <li>+ Novo Usuário → Email · Nome · É Administrador? · Assessor associado</li>
+              <li>Cada usuário tem visibilidade por <b>email</b>: vê só os leads/cotas dele (a menos que seja ADM)</li>
+            </ol>
+          </div>
+        </details>
+      </div>
+
+      <!-- ── 6. FAQ ── -->
+      <div class="ajuda-secao" id="adm-faq">
+        <div class="ajuda-secao-titulo">💡 FAQ — Dúvidas Frequentes</div>
+
+        <details class="ajuda-acord">
+          <summary>Cliente pode "sacar" o dinheiro sem comprar bem?</summary>
+          <div class="ajuda-corpo">
+            <p>Só nessas <b>2 condições JUNTAS</b>:</p>
+            <ol>
+              <li>Cota contemplada há <b>≥ 180 dias</b></li>
+              <li>Cota <b>totalmente quitada</b> (saldo = 0)</li>
+            </ol>
+            <p>Se só cumpriu 1 das 2: o saldo devedor é descontado do crédito quando liberar.</p>
+          </div>
+        </details>
+
+        <details class="ajuda-acord">
+          <summary>Carta dá mais que o valor do bem — o que faço com a sobra?</summary>
+          <div class="ajuda-corpo">
+            <p>5 opções:</p>
+            <ul>
+              <li><b>Reembolso de despesas</b> (ITBI, registro) — limite 10% do crédito, com nota fiscal</li>
+              <li><b>Pagar parcelas vincendas</b> (reduz prazo, ordem inversa)</li>
+              <li><b>Reduzir valor das parcelas</b> (mantém prazo)</li>
+              <li><b>Devolução em espécie</b> — só se grupo todo encerrado</li>
+              <li><b>Comprar outro bem</b> do mesmo segmento (alienação fiduciária)</li>
+            </ul>
+          </div>
+        </details>
+
+        <details class="ajuda-acord">
+          <summary>Quando o cliente pode ser excluído?</summary>
+          <div class="ajuda-corpo">
+            <p><b>Antes de contemplar:</b> desistência voluntária OU inadimplência de 3 parcelas consecutivas (ou 2 na última AGO).</p>
+            <p><b>Depois de contemplado (antes de usar a carta):</b> mesmas condições de inadimplência.</p>
+            <p><b>Direito do excluído:</b> restituição do fundo comum pago × % amortizado − multa de <b>15%</b>.</p>
+            <p><b>Prazo da restituição:</b> até 3 dias úteis (se solicitado) ou 30 dias após encerramento do grupo.</p>
+          </div>
+        </details>
+
+        <details class="ajuda-acord">
+          <summary>O que é Suplência?</summary>
+          <div class="ajuda-corpo">
+            <p>Quando alguém oferta lance e ganha mas <b>não paga em 5 dias úteis</b>, a contemplação passa pro próximo da fila (suplente). Cada posição (1ª suplência, 2ª...) representa quem seria contemplado se o anterior não pagar.</p>
+          </div>
+        </details>
+
+        <details class="ajuda-acord">
+          <summary>O que é Interveniente Quitante (IQ)?</summary>
+          <div class="ajuda-corpo">
+            <p>Quando o vendedor do imóvel tem financiamento ativo em outra instituição. O recurso da carta vai DIRETO pra esse banco quitar a dívida do vendedor — não pro vendedor.</p>
+            <p><b>Partes:</b> Itaú (credora) · Vendedor (devedor) · Comprador (consorciado) · IQ (banco do vendedor).</p>
+            <p><b>Exemplo:</b> imóvel R$ 420.777 · carta R$ 284.546 → vai pro IQ · recurso próprio R$ 136.231 → complementa.</p>
+            <p class="ajuda-dica">⚠️ Prazo crítico: contrato deve ser registrado em cartório e devolvido ao Itaú em <b>45 dias</b>. Não cumpriu = contrato resolvido, carta NÃO liberada.</p>
+          </div>
+        </details>
+
+        <details class="ajuda-acord">
+          <summary>Posso usar FGTS em qualquer imóvel?</summary>
+          <div class="ajuda-corpo">
+            <p><b>Pode:</b></p>
+            <ul>
+              <li>Imóveis urbanos residenciais para moradia própria</li>
+              <li>Imóveis mistos (na parte residencial)</li>
+              <li>FGTS do cônjuge (Manual de Moradia Própria CEF)</li>
+              <li>FGTS de terceiros (se imóvel for residência de todos)</li>
+            </ul>
+            <p><b>NÃO pode:</b></p>
+            <ul>
+              <li>Reforma ou construção</li>
+              <li>Flat/hotel residencial</li>
+              <li>Imóvel que não seja moradia própria</li>
+              <li>Imóvel fora do município de trabalho/residência (mín. 1 ano)</li>
+            </ul>
+          </div>
+        </details>
+
+        <details class="ajuda-acord">
+          <summary>O que faz a cota render dinheiro virtual?</summary>
+          <div class="ajuda-corpo">
+            <p>Quando uma cota é <b>contemplada</b> mas ainda não foi <b>faturada</b>, o crédito liberado fica "parado" e rende pela taxa CDI até ser pago ao vendedor.</p>
+            <p><b>Base do rendimento:</b> <code>credito_liberado</code> (carta − embutido). Se não tiver, usa <code>carta_atualizada</code> ou <code>credito</code> como fallback.</p>
+            <p><b>Fórmula:</b> rendimento diário composto pela curva CDI da SELIC × dias entre contemplação e faturamento (ou hoje, se ainda Contemplada).</p>
+            <p class="ajuda-dica">💡 Quando cota fatura, preencher <b>data_faturamento</b> pra congelar o rendimento.</p>
+          </div>
+        </details>
+
+        <details class="ajuda-acord">
+          <summary>Posso usar 1 cota pra comprar mais de 1 imóvel?</summary>
+          <div class="ajuda-corpo">
+            <p><b>NÃO.</b> Uma cota = um imóvel. E também não pode usar mais de uma cota pra comprar um único imóvel (regra Itaú).</p>
+          </div>
+        </details>
+      </div>
+
+    </div>
+    <!-- /VERSÃO ADMINISTRADOR -->
+
+
+    <!-- ═══════════════════════════════════════════════════ -->
+    <!-- VERSÃO ASSESSOR — enxuta                             -->
+    <!-- ═══════════════════════════════════════════════════ -->
+    <div data-assessor-only="1" id="ajuda-ass">
+
+      <!-- Atalhos rápidos -->
+      <div class="ajuda-atalhos ass">
+        <a class="ajuda-atalho" href="#" onclick="ajudaIr('ass-vender');return false">
+          <div class="ajuda-atalho-ico">🚀</div>
+          <div class="ajuda-atalho-tit">Argumentos de Venda</div>
+          <div class="ajuda-atalho-sub">Frases prontas pra fechar</div>
+        </a>
+        <a class="ajuda-atalho" href="#" onclick="ajudaIr('ass-duvidas');return false">
+          <div class="ajuda-atalho-ico">📞</div>
+          <div class="ajuda-atalho-tit">Dúvidas do Cliente</div>
+          <div class="ajuda-atalho-sub">Respostas rápidas</div>
+        </a>
+        <a class="ajuda-atalho" href="#" onclick="ajudaIr('ass-crm');return false">
+          <div class="ajuda-atalho-ico">🎯</div>
+          <div class="ajuda-atalho-tit">CRM em 3 passos</div>
+          <div class="ajuda-atalho-sub">Cadastrar e mover lead</div>
+        </a>
+        <a class="ajuda-atalho" href="#" onclick="ajudaIr('ass-pos');return false">
+          <div class="ajuda-atalho-ico">📋</div>
+          <div class="ajuda-atalho-tit">Cliente Contemplou</div>
+          <div class="ajuda-atalho-sub">O que falar pra ele</div>
+        </a>
+        <a class="ajuda-atalho" href="#" onclick="ajudaIr('ass-glos');return false">
+          <div class="ajuda-atalho-ico">📖</div>
+          <div class="ajuda-atalho-tit">Glossário Rápido</div>
+          <div class="ajuda-atalho-sub">10 termos essenciais</div>
+        </a>
+      </div>
+
+      <!-- ═══ ARGUMENTOS DE VENDA ═══ -->
+      <div class="ajuda-secao" id="ass-vender">
+        <div class="ajuda-secao-titulo">🚀 Argumentos pra Vender</div>
+        <p class="ass-intro">Quando o cliente travar com uma dessas objeções, a resposta tá aqui. Pode falar igual.</p>
+
+        <div class="ass-objecoes">
+
+          <div class="ass-objecao">
+            <div class="ass-obj-tag">😬 Cliente acha caro</div>
+            <div class="ass-obj-cliente">"Tá saindo R$ 5 mil por mês, é muito!"</div>
+            <div class="ass-obj-resp">
+              <b>Você responde:</b> "Olha só — você não está só pagando uma parcela, você está fazendo um <b>investimento de R$ 340 mil</b>. O total é o mesmo de um financiamento, mas o juro do consórcio é <b>3x menor</b>. E ainda: na contemplação, você reduz a parcela ou o prazo. É o jeito mais inteligente de comprar."
+            </div>
+          </div>
+
+          <div class="ass-objecao">
+            <div class="ass-obj-tag">⏳ Cliente tem medo de não contemplar</div>
+            <div class="ass-obj-cliente">"E se eu não ganhar nunca?"</div>
+            <div class="ass-obj-resp">
+              <b>Você responde:</b> "Pode ficar tranquilo: fazemos o <b>mapeamento dos grupos mensalmente</b>, e <b>todos têm 100% de contemplação até o fim do prazo</b>. Na pior das hipóteses, você pode acelerar a contemplação aumentando a oferta do lance — temos histórico dos grupos pra você saber o quanto dar e garantir."
+            </div>
+          </div>
+
+          <div class="ass-objecao">
+            <div class="ass-obj-tag">🏦 Cliente compara com financiamento</div>
+            <div class="ass-obj-cliente">"O banco financia direto, por que não financiar?"</div>
+            <div class="ass-obj-resp">
+              <b>Você responde:</b> "É a maior pegadinha do mercado. O financiamento cobra <b>12% a 14% ao ano</b> de juros, enquanto o consórcio tem CET de <b>2% a 4% ao ano</b>. No papel, o financiamento sai <b>3x mais caro</b>."
+            </div>
+          </div>
+
+          <div class="ass-objecao">
+            <div class="ass-obj-tag">💸 Cliente quer parcela BEM baixa</div>
+            <div class="ass-obj-cliente">"Tem uma opção de parcela só metade?"</div>
+            <div class="ass-obj-resp">
+              <b>Você responde:</b> "Temos dois planos bem interessantes: a <b>Parcela Reduzida de 30% e 50%</b> até a contemplação. Essas opções incluem o <b>Lance Fixo de 40%</b>, trazendo economia tanto em parcelas quanto em lance."
+            </div>
+          </div>
+
+          <div class="ass-objecao">
+            <div class="ass-obj-tag">💰 Cliente: "e se sobrar dinheiro?"</div>
+            <div class="ass-obj-cliente">"Carta de R$ 340k mas o imóvel é R$ 280k, perco a diferença?"</div>
+            <div class="ass-obj-resp">
+              <b>Você responde:</b> "Não perde nada! A sobra pode <b>reembolsar ITBI e cartório</b> (até 10% do crédito), <b>reduzir o valor das parcelas</b>, <b>reduzir o prazo</b> ou até <b>comprar outro bem</b> do mesmo segmento."
+            </div>
+          </div>
+
+          <div class="ass-objecao">
+            <div class="ass-obj-tag">🤔 Cliente: "consórcio não dá entrada"</div>
+            <div class="ass-obj-cliente">"Eu já tenho 50 mil pra dar de entrada, não dá pra usar?"</div>
+            <div class="ass-obj-resp">
+              <b>Você responde:</b> "Dá sim! Esse dinheiro vira <b>lance</b>. Você oferta desde o início — quanto maior a oferta, maior a sua <b>assertividade</b>. E ainda dá pra potencializar com mais <b>30% do crédito</b>, usando recurso próprio somado ao <b>lance embutido</b>."
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ═══ DÚVIDAS DO CLIENTE ═══ -->
+      <div class="ajuda-secao" id="ass-duvidas">
+        <div class="ajuda-secao-titulo">📞 Dúvidas que o Cliente Faz</div>
+        <p class="ass-intro">Respostas curtas pra você falar de cabeça.</p>
+
+        <div class="ass-qa">
+
+          <div class="ass-qa-item">
+            <div class="ass-qa-q">Quanto vou pagar de lance?</div>
+            <div class="ass-qa-a">Depende: no <b>Lance Livre</b>, você decide o %. No <b>Lance Fixo</b>, o Itaú já define 40%. Pode pagar em dinheiro (5 dias úteis), descontado da carta (até 30%) ou com FGTS (só imóvel residencial).</div>
+          </div>
+
+          <div class="ass-qa-item">
+            <div class="ass-qa-q">Posso usar FGTS como lance?</div>
+            <div class="ass-qa-a">Sim, mas <b>só em imóvel residencial</b> pra moradia própria. Não vale pra terreno, reforma, construção, flat ou imóvel fora do município de trabalho/residência (mín. 1 ano).</div>
+          </div>
+
+          <div class="ass-qa-item">
+            <div class="ass-qa-q">Posso atrasar uma parcela?</div>
+            <div class="ass-qa-a">Pode pagar atrasado, mas <b>perde a participação na AGO daquele mês</b> — só concorre no mês seguinte (com tudo em dia). Se atrasar 3 consecutivas: risco de exclusão (com multa 15%).</div>
+          </div>
+
+          <div class="ass-qa-item">
+            <div class="ass-qa-q">Posso desistir e pegar meu dinheiro de volta?</div>
+            <div class="ass-qa-a">Pode desistir, mas <b>só recebe quando o grupo encerrar</b>. Recebe o que pagou × % amortizado <b>menos multa de 15%</b>. Avisa o ADM antes de orientar — tem detalhes do contrato.</div>
+          </div>
+
+          <div class="ass-qa-item">
+            <div class="ass-qa-q">Ofertei lance e não ganhei. Perdi a parcela?</div>
+            <div class="ass-qa-a"><b>Não.</b> Se não ganhou, não paga lance nenhum. Continua pagando só a parcela normal e pode ofertar de novo na próxima AGO.</div>
+          </div>
+
+          <div class="ass-qa-item">
+            <div class="ass-qa-q">Ganhei lance mas não consigo pagar em 5 dias. Perco?</div>
+            <div class="ass-qa-a"><b>A contemplação passa pro próximo da fila</b> (suplência). Mas a cota continua ativa — pode ofertar de novo na próxima AGO.</div>
+          </div>
+
+          <div class="ass-qa-item">
+            <div class="ass-qa-q">Carta cobre o imóvel inteiro?</div>
+            <div class="ass-qa-a">Se a carta for &gt; valor do imóvel, sobra 5 opções (ITBI, cartório, parcelas, reduzir parcela, outro bem). Se a carta for &lt; valor, o cliente <b>complementa com recurso próprio</b>.</div>
+          </div>
+
+          <div class="ass-qa-item">
+            <div class="ass-qa-q">Quanto tempo até receber a carta?</div>
+            <div class="ass-qa-a">Após contemplar e mandar documentação aprovada: <b>~30 a 60 dias</b> até a carta ser liberada. Se o vendedor tem financiamento (IQ), o prazo crítico é <b>45 dias</b> pro registro em cartório.</div>
+          </div>
+
+          <div class="ass-qa-item">
+            <div class="ass-qa-q">Posso comprar mais de um imóvel com a mesma carta?</div>
+            <div class="ass-qa-a"><b>Não.</b> Uma carta = um imóvel. E não dá pra usar duas cartas pra comprar um único imóvel também (regra Itaú).</div>
+          </div>
+
+          <div class="ass-qa-item">
+            <div class="ass-qa-q">Tem seguro?</div>
+            <div class="ass-qa-a">É <b>opcional</b>. Cliente decide na adesão. Cobre morte e invalidez do consorciado — em caso de sinistro, a cota é quitada e a família recebe a carta.</div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ═══ CRM EM 3 PASSOS ═══ -->
+      <div class="ajuda-secao" id="ass-crm">
+        <div class="ajuda-secao-titulo">🎯 CRM em 3 Passos</div>
+
+        <div class="ass-passo">
+          <div class="ass-passo-num">1</div>
+          <div class="ass-passo-cont">
+            <div class="ass-passo-tit">Cadastrar lead</div>
+            <div class="ass-passo-desc">Aba <b>🎯 CRM / Indicações</b> → botão <b>+ Novo Lead</b> → preenche nome, telefone, interesse, valor potencial e quem indicou. Capricha na <b>Observação</b> — anota o que ele quer e a dor dele.</div>
+          </div>
+        </div>
+
+        <div class="ass-passo">
+          <div class="ass-passo-num">2</div>
+          <div class="ass-passo-cont">
+            <div class="ass-passo-tit">Mover pelas fases</div>
+            <div class="ass-passo-desc"><b>Arrasta o card</b> de uma coluna pra outra conforme avança. Sequência: Novo Lead → Qualificando → Reunião Marcada → Reunião Realizada → Simulação → Proposta Enviada → Em Negociação → Aguard. Docs → <b>Cota Aberta 🎉</b></div>
+          </div>
+        </div>
+
+        <div class="ass-passo">
+          <div class="ass-passo-num">3</div>
+          <div class="ass-passo-cont">
+            <div class="ass-passo-tit">Pedir simulação</div>
+            <div class="ass-passo-desc">No card do lead, clica em <b>📊 Nova Simulação</b> ou avisa o ADM. Quando ele simular, o card mostra <b>Crédito Negociado</b> em verde. Move pra <b>Proposta Enviada</b> e marca a reunião pra apresentar.</div>
+          </div>
+        </div>
+
+        <div class="ajuda-dica" style="font-size:14px;margin-top:14px">💡 <b>Marcou reunião?</b> Abre o card e preenche <b>Data da Reunião</b>. Aparece a data no card, no Pipeline e na Agenda — você não esquece.</div>
+      </div>
+
+      <!-- ═══ CLIENTE CONTEMPLOU ═══ -->
+      <div class="ajuda-secao" id="ass-pos">
+        <div class="ajuda-secao-titulo">📋 Cliente Contemplou — O Que Falar Pra Ele</div>
+
+        <div class="ass-card-info">
+          <div class="ass-card-tit">📄 Documentos que ele precisa juntar</div>
+          <div class="ass-card-cont">
+            <p><b>Pessoa Física:</b> RG · CPF · comprovante de residência · estado civil · renda</p>
+            <p><b>Pessoa Jurídica:</b> Contrato Social com carimbo Junta Comercial (ou Estatuto + Ata) · CNPJ · balanço · faturamento</p>
+            <p><b>Imóvel:</b> Matrícula <b>menos de 30 dias</b> · IPTU · documentos do vendedor</p>
+          </div>
+        </div>
+
+        <div class="ass-card-info alerta">
+          <div class="ass-card-tit">⚠️ Imóveis que o Itaú NÃO aceita — avisa antes!</div>
+          <div class="ass-card-cont">
+            <ul>
+              <li>Madeira ou pré-fabricado</li>
+              <li>Tombado / patrimônio histórico</li>
+              <li>Galpão, barracão, polo industrial</li>
+              <li>Estacionamento (só vaga de garagem)</li>
+              <li>Área de preservação / alagamento / solo contaminado (posto, cemitério)</li>
+              <li>Sem averbação na matrícula</li>
+              <li>Em processo de leilão</li>
+              <li>Templo, igreja, escola, hospital, ONG</li>
+              <li>Imóvel no exterior</li>
+              <li>Áreas indígenas / de risco</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="ass-card-info">
+          <div class="ass-card-tit">⏰ Prazos críticos</div>
+          <div class="ass-card-cont">
+            <ul>
+              <li><b>5 dias úteis</b> — pagar lance (se ganhou) ou apresentar FGTS</li>
+              <li><b>30 dias</b> — matrícula tem que ser mais nova que isso</li>
+              <li><b>45 dias</b> — registrar contrato no cartório (CRÍTICO se vendedor tem financiamento)</li>
+              <li><b>5 dias úteis</b> após registro — Itaú libera o pagamento</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="ajuda-dica" style="font-size:14px">💡 <b>Avisa o ADM</b> assim que o cliente contemplar. Eles cuidam da esteira de faturamento com o cliente — você acompanha pelo sistema na aba <b>📋 Pós-Contemplação</b>.</div>
+      </div>
+
+      <!-- ═══ GLOSSÁRIO ═══ -->
+      <div class="ajuda-secao" id="ass-glos">
+        <div class="ajuda-secao-titulo">📖 Glossário Rápido — 10 Termos Essenciais</div>
+
+        <div class="ass-glos">
+          <div class="ass-glos-item"><b>AGO</b><br><span>A "reunião" mensal do grupo — onde acontece o sorteio e o resultado dos lances.</span></div>
+          <div class="ass-glos-item"><b>Carta de Crédito</b><br><span>O dinheiro que o cliente recebe quando ganha a cota.</span></div>
+          <div class="ass-glos-item"><b>Contemplado</b><br><span>Cliente ganhou (por sorteio ou lance), ainda não usou a carta.</span></div>
+          <div class="ass-glos-item"><b>Faturado</b><br><span>Cliente já usou a carta — fim do ciclo.</span></div>
+          <div class="ass-glos-item"><b>Lance Livre</b><br><span>Cliente decide o %. Maior oferta ganha.</span></div>
+          <div class="ass-glos-item"><b>Lance Fixo</b><br><span>Itaú define o % (40%). Compete só com outros fixos.</span></div>
+          <div class="ass-glos-item"><b>Lance Embutido</b><br><span>Pagar lance descontando da própria carta. Limite 30% no Itaú.</span></div>
+          <div class="ass-glos-item"><b>Parcela Pré / Pós</b><br><span>Pré = mensalidade antes de contemplar. Pós = depois de contemplar.</span></div>
+          <div class="ass-glos-item"><b>CET</b><br><span>Custo Efetivo Total. O número pra comparar com financiamento (3-4% a.a. no consórcio vs 9-12% no banco).</span></div>
+          <div class="ass-glos-item"><b>Saldo Devedor</b><br><span>Quanto ainda falta pagar no consórcio.</span></div>
+        </div>
+      </div>
+
+    </div>
+    <!-- /VERSÃO ASSESSOR -->
+
+    <!-- Mensagem de busca vazia -->
+    <div id="ajuda-no-results" style="display:none;text-align:center;padding:40px 20px;color:var(--txt2)">
+      <div style="font-size:48px;margin-bottom:8px">🔍</div>
+      <div style="font-size:15px;font-weight:600">Nada encontrado</div>
+      <div style="font-size:12px;margin-top:4px">Tenta outra palavra ou click em <a href="#" onclick="ajudaLimparBusca();return false" style="color:var(--acc)">limpar a busca</a>.</div>
+    </div>
+
+  </div>
+  <!-- /AJUDA -->
+
 </main>
 
 <!-- MODAL SIMULAÇÃO -->
@@ -3781,6 +4983,10 @@ async function loadProfile(user){
       CURRENT_USER.perfilFilial=perfil.filial;
       CURRENT_USER.perfilApelidos=perfil.apelidos||[];
       if(!CURRENT_USER.assessorName)CURRENT_USER.assessorName=perfil.assessor_name;
+      // Senha temporária: força troca antes de qualquer ação
+      if(perfil.senha_temporaria===true){
+        setTimeout(abrirModalTrocaSenha,250);
+      }
     }
   }catch(e){console.warn('[HC360] perfil n/d',e);}
   console.info('[HC360] login:',CURRENT_USER.email,'isAdmin:',CURRENT_USER.isAdmin,'pct:',CURRENT_USER.pctPadrao);
@@ -3808,6 +5014,33 @@ async function doLogout(){
   document.getElementById('login-screen').style.display='flex';
   document.getElementById('login-email').value='';
   document.getElementById('login-pass').value='';
+}
+
+// ═══ TROCA DE SENHA FORÇADA NO 1º LOGIN ═══
+function abrirModalTrocaSenha(){
+  const m=document.getElementById('modal-troca-senha');
+  if(m){
+    m.classList.add('act');
+    setTimeout(()=>{const i=document.getElementById('ts-pass1');if(i)i.focus();},100);
+  }
+}
+async function submitNovaSenha(){
+  const p1=document.getElementById('ts-pass1').value;
+  const p2=document.getElementById('ts-pass2').value;
+  const err=document.getElementById('ts-err');
+  const btn=document.getElementById('ts-btn');
+  err.style.display='none';
+  if(p1.length<8){err.textContent='A senha precisa ter no mínimo 8 caracteres.';err.style.display='block';return;}
+  if(p1!==p2){err.textContent='As duas senhas não são iguais.';err.style.display='block';return;}
+  if(p1==='HC360@inicial'){err.textContent='A nova senha precisa ser diferente da temporária.';err.style.display='block';return;}
+  btn.disabled=true;btn.textContent='Salvando...';
+  const {error:e1}=await sb.auth.updateUser({password:p1});
+  if(e1){err.textContent='Erro ao salvar: '+e1.message;err.style.display='block';btn.disabled=false;btn.textContent='Salvar nova senha';return;}
+  try{await sb.rpc('marcar_senha_definida');}catch(e){console.warn('falha marcar perfil',e);}
+  document.getElementById('modal-troca-senha').classList.remove('act');
+  document.getElementById('ts-pass1').value='';document.getElementById('ts-pass2').value='';
+  btn.disabled=false;btn.textContent='Salvar nova senha';
+  toast('Senha atualizada! Já pode usar normalmente.');
 }
 
 async function assessorEnviarLead(){
@@ -4625,10 +5858,115 @@ function hideLoad(){document.getElementById('loading').classList.remove('show');
 function setSync(ok){const d=document.getElementById('sync-dot'),s=document.getElementById('sync-status');d.className='sync-dot'+(ok?' ok':' err');s.textContent=ok?'Conectado ao Supabase':'Sem conexão';}
 
 // ═══ NAV ═══
-const PGT={'dash':'Dashboard','ctrl':'Controle de Cotas','agenda':'Agenda','crm':'CRM / Indicações','guia':'Guia de Oportunidades','oport':'Oportunidades','prop':'Gerar Proposta','proj':'Projetos / Cotas','fat':'Pós-Contemplação','usuarios':'Usuários','receb':'Meus Recebimentos'};
+const PGT={'dash':'Dashboard','ctrl':'Controle de Cotas','agenda':'Agenda','crm':'CRM / Indicações','guia':'Guia de Oportunidades','oport':'Oportunidades','prop':'Gerar Proposta','proj':'Projetos / Cotas','fat':'Pós-Contemplação','usuarios':'Usuários','receb':'Meus Recebimentos','ajuda':'Central de Ajuda'};
 function toggleSidebar(){const sb=document.getElementById('sidebar');const ov=document.getElementById('sb-overlay');sb.classList.toggle('mob-open');ov.classList.toggle('open');}
 function nav(id,el){if(window.innerWidth<=700){const sb=document.getElementById('sidebar');const ov=document.getElementById('sb-overlay');sb.classList.remove('mob-open');ov.classList.remove('open');}
 document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));document.getElementById('page-'+id).classList.add('active');if(el)el.classList.add('active');document.getElementById('pg-title').textContent=PGT[id]||id;if(id==='ctrl')filterCtrl();if(id==='agenda')renderAgenda();if(id==='crm')renderCRM();if(id==='guia'){browseData=Object.entries(GUIA);renderBrowse(browseData,1);}if(id==='oport'){ortData=buildOrtData();renderOportunidades();renderOportSugestoes();}if(id==='prop'){renderPropGrupos();calcProp();updLance();}if(id==='proj')renderProj();if(id==='fat')renderFatPage();if(id==='usuarios')renderUsuariosPage();if(id==='receb')renderRecebPage();}
+
+// ════════════════════════════════════════════════════════════════════════
+// 🚨 ÁREA PROTEGIDA — FUNÇÕES DA CENTRAL DE AJUDA — NÃO REMOVER 🚨
+// Funções que alimentam a aba Ajuda (busca, navegação por âncora, etc).
+// Se vc não está alterando a aba Ajuda especificamente, NÃO MEXA AQUI.
+// ════════════════════════════════════════════════════════════════════════
+// ═══ AJUDA / CENTRAL DE AJUDA ═══
+function ajudaNorm(s){return (s||'').toString().toLowerCase().normalize('NFD').replace(new RegExp('[\\u0300-\\u036f]','g'),'');}
+function ajudaIr(secaoId){
+  const el=document.getElementById(secaoId);
+  if(!el)return;
+  el.scrollIntoView({behavior:'smooth',block:'start'});
+  el.querySelectorAll('details.ajuda-acord').forEach((d,i)=>{ if(i===0) d.open=true; });
+}
+function ajudaWrapVisivel(){
+  const u=(typeof CURRENT_USER!=='undefined')?CURRENT_USER:null;
+  if(u && !u.isAdmin) return document.getElementById('ajuda-ass');
+  return document.getElementById('ajuda-adm');
+}
+function ajudaBuscar(){
+  const inp=document.getElementById('ajuda-search');
+  const termo=ajudaNorm(inp.value.trim());
+  const clearBtn=document.getElementById('ajuda-clear');
+  const info=document.getElementById('ajuda-busca-info');
+  const noResults=document.getElementById('ajuda-no-results');
+  const wrap=ajudaWrapVisivel();
+  if(!wrap) return;
+  const atalhos=wrap.querySelector('.ajuda-atalhos');
+
+  if(!termo){
+    ajudaLimparBusca();
+    return;
+  }
+
+  clearBtn.style.display='';
+  if(atalhos) atalhos.style.display='none';
+
+  let totalMatch=0;
+
+  // Acordeões
+  wrap.querySelectorAll('details.ajuda-acord').forEach(d=>{
+    const txt=ajudaNorm(d.textContent);
+    if(txt.includes(termo)){
+      d.classList.remove('ajuda-hidden');
+      d.open=true;
+      totalMatch++;
+    }else{
+      d.classList.add('ajuda-hidden');
+      d.open=false;
+    }
+  });
+
+  // Glossário
+  wrap.querySelectorAll('.ajuda-glos-item').forEach(g=>{
+    const txt=ajudaNorm(g.textContent);
+    if(txt.includes(termo)){
+      g.classList.remove('ajuda-hidden');
+      totalMatch++;
+    }else{
+      g.classList.add('ajuda-hidden');
+    }
+  });
+
+  // Esconder seções inteiras que ficaram vazias
+  wrap.querySelectorAll('.ajuda-secao').forEach(sec=>{
+    const tituloMatch=ajudaNorm(sec.querySelector('.ajuda-secao-titulo')?.textContent||'').includes(termo);
+    const visiveis=sec.querySelectorAll('details.ajuda-acord:not(.ajuda-hidden), .ajuda-glos-item:not(.ajuda-hidden)').length;
+    const cards=sec.querySelectorAll('.card').length;
+    if(visiveis>0 || tituloMatch || cards>0){
+      sec.classList.remove('ajuda-hidden');
+    }else{
+      sec.classList.add('ajuda-hidden');
+    }
+  });
+
+  if(totalMatch===0){
+    noResults.style.display='';
+    info.style.display='none';
+  }else{
+    noResults.style.display='none';
+    info.style.display='';
+    info.textContent=totalMatch+' resultado'+(totalMatch>1?'s':'')+' para "'+inp.value.trim()+'"';
+  }
+}
+function ajudaLimparBusca(){
+  const inp=document.getElementById('ajuda-search');
+  const clearBtn=document.getElementById('ajuda-clear');
+  const info=document.getElementById('ajuda-busca-info');
+  const noResults=document.getElementById('ajuda-no-results');
+  inp.value='';
+  clearBtn.style.display='none';
+  info.style.display='none';
+  noResults.style.display='none';
+  const wrap=ajudaWrapVisivel();
+  if(!wrap) return;
+  const atalhos=wrap.querySelector('.ajuda-atalhos');
+  if(atalhos) atalhos.style.display='';
+  wrap.querySelectorAll('details.ajuda-acord, .ajuda-glos-item, .ajuda-secao').forEach(el=>{
+    el.classList.remove('ajuda-hidden');
+  });
+  // Fecha todos os acordeões exceto os que tinham [open] originalmente
+  wrap.querySelectorAll('details.ajuda-acord').forEach(d=>{
+    d.open=d.hasAttribute('data-default-open');
+  });
+}
 
 // ═══ SUPABASE ═══
 async function loadData(silent){
