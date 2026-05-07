@@ -7166,13 +7166,44 @@ function calcSimTotals(){
   document.getElementById('sim-tot-parc').textContent=brl(totParc);
 }
 async function simSalvar(){
-  if(!simLead||!simRows.length){toast('Adicione grupos antes de salvar','err');return;}
-  const payload={rows:simRows,nota:document.getElementById('sim-obs').value,caso:document.getElementById('sim-caso').value,ts:new Date().toISOString()};
-  // Se lead já está em Ganho/Em Negociação, NÃO desmover; só salvar a proposta
-  const stMantem=['Em Negociação','Ganho','Perdido'].includes(simLead.status);
-  const novoStatus=stMantem?simLead.status:'Proposta Enviada';
-  const res=await upsertLead({id:simLead.id,observacao:'SIM:'+JSON.stringify(payload),status:novoStatus,updated_at:new Date().toISOString()});
-  if(res){Object.assign(simLead,res);toast(stMantem?'Proposta salva!':'Proposta salva! Lead → Proposta Enviada');renderCRM();}
+  try{
+    if(!simLead){toast('Sem lead carregado','err');return;}
+    if(!simRows.length){toast('Adicione grupos antes de salvar','err');return;}
+    // Lê obs/caso de forma defensiva (alguns campos foram renomeados/removidos)
+    const obsEl=document.getElementById('sim-obs');
+    const casoEl=document.getElementById('sim-caso');
+    // Preserva status anterior da proposta (rascunho default em propostas novas)
+    const obsAnt=simLead.observacao||'';
+    let statusAnt='rascunho';
+    if(obsAnt.startsWith('SIM:')){
+      try{const d=JSON.parse(obsAnt.slice(4));if(d.status)statusAnt=d.status;}catch(e){}
+    }
+    const payload={
+      rows:simRows,
+      nota:obsEl?obsEl.value:'',
+      caso:casoEl?casoEl.value:'',
+      ts:new Date().toISOString(),
+      status:statusAnt
+    };
+    const stMantem=['Em Negociação','Ganho','Perdido'].includes(simLead.status);
+    const novoStatus=stMantem?simLead.status:'Proposta Enviada';
+    showLoad();
+    const res=await upsertLead({id:simLead.id,observacao:'SIM:'+JSON.stringify(payload),status:novoStatus,updated_at:new Date().toISOString()});
+    hideLoad();
+    if(res){
+      Object.assign(simLead,res);
+      toast(stMantem?'✓ Proposta salva!':'✓ Proposta salva! Lead → Proposta Enviada','ok');
+      // Fecha o modal de simulação e reabre o modal do lead pra mostrar o card de proposta
+      closeModal('modal-sim');
+      if(typeof renderCRM==='function')renderCRM();
+    }else{
+      toast('Erro: proposta não salvou. Tenta de novo.','err');
+    }
+  }catch(err){
+    hideLoad();
+    console.error('[simSalvar] erro:',err);
+    toast('Erro ao salvar: '+(err.message||err),'err');
+  }
 }
 // Cria cotas reais a partir das simRows, vinculadas ao lead (nome, cpf, assessor, telefone)
 async function simCriarCotasDoLead(lead,rows,opts){
@@ -7239,17 +7270,25 @@ async function simFecharNegocio(leadId){
 
 // Lança as cotas DIRETO (sem precisar salvar proposta antes) — usado quando lead já está em Ganho
 async function simLancarDiretoGanho(){
-  if(!simLead||!simRows.length){toast('Adicione grupos antes de lançar','err');return;}
-  const totalCotas=simRows.reduce((s,r)=>s+(r.qtd||0),0);
-  if(!confirm(`Lançar ${totalCotas} cota${totalCotas!==1?'s':''} no sistema para ${simLead.nome}?`))return;
-  showLoad();
-  const payload={rows:simRows,nota:document.getElementById('sim-obs').value,caso:document.getElementById('sim-caso').value,ts:new Date().toISOString()};
-  const erros=await simCriarCotasDoLead(simLead,simRows,{note:'Lead '+simLead.id.slice(0,8)});
-  await upsertLead({id:simLead.id,observacao:'SIM_DONE:'+JSON.stringify(payload),status:'Ganho',updated_at:new Date().toISOString()});
-  hideLoad();
-  if(erros===0){toast(`${totalCotas} cota${totalCotas!==1?'s':''} criada${totalCotas!==1?'s':''}!`,'ok');closeModal('modal-sim');}
-  else toast(`Concluído com ${erros} erro(s)`,'err');
-  initDash();filterCtrl();renderCRM();renderProj();
+  try{
+    if(!simLead||!simRows.length){toast('Adicione grupos antes de lançar','err');return;}
+    const totalCotas=simRows.reduce((s,r)=>s+(r.qtd||0),0);
+    if(!confirm(`Lançar ${totalCotas} cota${totalCotas!==1?'s':''} no sistema para ${simLead.nome}?`))return;
+    const obsEl=document.getElementById('sim-obs');
+    const casoEl=document.getElementById('sim-caso');
+    showLoad();
+    const payload={rows:simRows,nota:obsEl?obsEl.value:'',caso:casoEl?casoEl.value:'',ts:new Date().toISOString(),status:'executada'};
+    const erros=await simCriarCotasDoLead(simLead,simRows,{note:'Lead '+simLead.id.slice(0,8)});
+    await upsertLead({id:simLead.id,observacao:'SIM_DONE:'+JSON.stringify(payload),status:'Ganho',updated_at:new Date().toISOString()});
+    hideLoad();
+    if(erros===0){toast(`✓ ${totalCotas} cota${totalCotas!==1?'s':''} criada${totalCotas!==1?'s':''}!`,'ok');closeModal('modal-sim');}
+    else toast(`Concluído com ${erros} erro(s)`,'err');
+    initDash();filterCtrl();renderCRM();renderProj();
+  }catch(err){
+    hideLoad();
+    console.error('[simLancarDiretoGanho] erro:',err);
+    toast('Erro: '+(err.message||err),'err');
+  }
 }
 
 // ═══ GUIA ═══
