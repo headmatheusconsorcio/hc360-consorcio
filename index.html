@@ -6203,13 +6203,12 @@ function leadCreditoNegociado(l){
     const credTot=rows.reduce((s,r)=>s+(r.credito||0)*(r.qtd||0),0);
     const cotas=rows.reduce((s,r)=>s+(r.qtd||0),0);
     const lanceTot=rows.reduce((s,r)=>s+(r.credito||0)*((r.lancePerc||0)/100)*(r.qtd||0),0);
+    // Parcela total/mês — usa fórmula oficial via _propCalcRow
     const parcTot=rows.reduce((s,r)=>{
-      const lpct=(r.lancePerc||0)/100;
-      const liq=(r.credito||0)*(1-lpct);
-      const fr=(r.fr||0)/100;
-      const tx=(r.taxaAdm||0)/100;
-      const prazo=r.prazo||192;
-      return s+(liq/prazo*(1+tx+fr))*(r.qtd||0);
+      if(typeof _propCalcRow==='function'){const c=_propCalcRow(r);return s+c.parcelaCheia*c.qtd;}
+      // Fallback: saldo / prazo (fórmula correta)
+      const tx=(r.taxaAdm||0)/100,fr=(r.fr||0)/100,prazo=r.prazo||192;
+      return s+((r.credito||0)*(1+tx+fr)/prazo)*(r.qtd||0);
     },0);
     const status=d.status||(isDone?'executada':'rascunho');
     return{credTot,cotas,done:isDone,lanceTot,parcTot,status,rows,nota:d.nota||'',caso:d.caso||'',ts:d.ts||l.updated_at};
@@ -6234,22 +6233,44 @@ function _propTipoLabel(t){
   if(s.includes('MOTO'))return {ico:'🏍',lbl:'Moto'};
   return {ico:'📦',lbl:t||'—'};
 }
+// === CALCULOS DA PROPOSTA — MESMA FORMULA do simulador oficial 'calcProp' (Gerar Proposta) ===
+// Itaú padrão:
+// - Saldo Devedor   = Crédito × (1 + TaxaAdm + FR)
+// - Amortização Mês = Saldo Devedor / Prazo
+// - Parcela Pré     = Amortização Mês  (+ seguro se houver) — CALCULADA SOBRE CRÉDITO INTEIRO
+// - Parcela PR red. = Parcela Pré × 0,70 (redução Itaú 30%)
+// - Lance Embutido  = min(30% do Crédito, Lance Total)  — padrão Itaú
+// - Recurso Próprio = Lance Total − Embutido
+// - Crédito Líquido = Crédito − Embutido (o RP fica com o cliente)
+// - Parcela Pós     = (Saldo − meses_pagos×amM − Lance) / Prazo Restante  (assume contemp mês 1)
 function _propCalcRow(r){
   const credito=Number(r.credito||0);
   const qtd=Number(r.qtd||1);
-  const lpct=Number(r.lancePerc||0)/100;
+  const lpct=Number(r.lancePerc||0)/100;       // lance total %
   const tx=Number(r.taxaAdm||0)/100;
   const fr=Number(r.fr||0)/100;
-  const prazo=Number(r.prazo||192);
+  const prazo=Math.max(1,Number(r.prazo||192));
   const lanceTotal=credito*lpct;
-  const credLiq=credito*(1-lpct);             // crédito líquido após lance
-  const saldoTot=credito*(1+tx+fr);            // saldo total a pagar
-  const parcelaCheia=credLiq/prazo*(1+tx+fr);  // parcela pré-contemp (sem redução)
-  const parcelaPRred=parcelaCheia*0.70;        // parcela pré-contemp com redução 30% (Itaú PR)
-  const parcelaPos=(saldoTot-lanceTotal)/prazo;// parcela pós-contemp (saldo devedor / prazo)
-  const lanceEmbutido=credito*0.30;            // 30% padrão Itaú
+  // Lance embutido padrão Itaú: 30% do crédito (limitado ao lance total)
+  const lanceEmbutido=Math.min(credito*0.30,lanceTotal);
   const recursoProprio=Math.max(0,lanceTotal-lanceEmbutido);
-  return{credito,qtd,lpct,tx,fr,prazo,lanceTotal,credLiq,saldoTot,parcelaCheia,parcelaPRred,parcelaPos,lanceEmbutido,recursoProprio};
+  const credLiq=credito-lanceEmbutido;          // RP fica com o cliente
+  const saldoTot=credito*(1+tx+fr);             // saldo devedor total
+  const amM=saldoTot/prazo;                     // amortização mensal
+  const parcelaCheia=amM;                       // parcela pré-contemp cheia (= saldo/prazo)
+  const parcelaPRred=parcelaCheia*0.70;         // PR Itaú: redução de 30%
+  // Parcela pós-contemp (assume contemplação no mês 1)
+  const mesContemp=1;
+  const mr=Math.min(mesContemp,prazo-1);
+  const saldoPos=Math.max(0,saldoTot-mr*amM-lanceTotal);
+  const prazoRest=prazo-mr;
+  const parcelaPos=prazoRest>0?saldoPos/prazoRest:0;
+  return{
+    credito,qtd,lpct,tx,fr,prazo,
+    lanceTotal,lanceEmbutido,recursoProprio,credLiq,
+    saldoTot,amM,saldoPos,prazoRest,
+    parcelaCheia,parcelaPRred,parcelaPos
+  };
 }
 function viewProposta(leadId){
   const lead=LEADS.find(l=>l.id===leadId);if(!lead){toast('Lead não encontrado','err');return;}
@@ -7291,7 +7312,9 @@ function simAddSelecionados(){
 function renderSimTable(){
   if(!simRows.length){document.getElementById('sim-tbody').innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--txt2);padding:24px">Nenhum grupo adicionado</td></tr>';calcSimTotals();return;}
   document.getElementById('sim-tbody').innerHTML=simRows.map((r,i)=>{
-    const parcEst=r.credito*(1-r.lancePerc/100)/r.prazo*(1+(r.taxaAdm/100)+r.fr/100)*r.qtd;
+    // Parcela pré-contemp = (Crédito × (1+tx+fr)) / prazo  — MESMA do simulador oficial
+    const c=_propCalcRow(r);
+    const parcEst=c.parcelaCheia*c.qtd;
     return`<tr>
       <td><strong style="color:var(--acc)">${r.grupo}</strong></td>
       <td style="font-size:11px">${simTpLabel(r.tipo)}</td>
@@ -7309,7 +7332,8 @@ function calcSimTotals(){
   const totCotas=simRows.reduce((s,r)=>s+r.qtd,0);
   const totCred=simRows.reduce((s,r)=>s+r.credito*r.qtd,0);
   const totLance=simRows.reduce((s,r)=>s+r.credito*r.qtd*r.lancePerc/100,0);
-  const totParc=simRows.reduce((s,r)=>{const liq=r.credito*(1-r.lancePerc/100);return s+liq/r.prazo*(1+(r.taxaAdm/100)+r.fr/100)*r.qtd;},0);
+  // Parcela pré-contemp = (crédito × (1+tx+fr))/prazo — fórmula oficial Itaú
+  const totParc=simRows.reduce((s,r)=>{const c=_propCalcRow(r);return s+c.parcelaCheia*c.qtd;},0);
   document.getElementById('sim-tot-cotas').textContent=totCotas;
   document.getElementById('sim-tot-cred').textContent=brl(totCred,0);
   document.getElementById('sim-tot-lance').textContent=brl(totLance,0);
