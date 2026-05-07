@@ -7176,7 +7176,9 @@ function simBuscarGrupos(){
     const prazo=d.pr||120;
     const cred=d.vmax||d.vmin||credito;
     const parcBruta=(cred*(1+TAX_ADM/100+FR/100))/prazo;
-    const parcEff=parcRed?parcBruta*0.30:parcBruta;
+    // Fator PR: PR 30% reduz parcela em 30% (×0,70), PR 50% em 50% (×0,50), sem PR fica cheia
+    const fatorPR=reducaoPct===30?0.70:reducaoPct===50?0.50:1;
+    const parcEff=parcBruta*fatorPR;
     const lmSb=getLanceMed(g);const lanceMedPct=lmSb!=null?lmSb:(h.avgMin?h.avgMin:(d.at_min?d.at_min*100:30));
     // Vagas disponíveis (maior = melhor)
     let score=Math.min((d.vagas||0)*2,40);
