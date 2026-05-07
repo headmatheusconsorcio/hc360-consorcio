@@ -3078,10 +3078,11 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
       </div>
       <div class="g2" style="margin-bottom:0">
         <div class="form-g" style="margin-bottom:0">
-          <label class="form-l">Parcela Reduzida (pré-contemp.)</label>
+          <label class="form-l">Parcela Reduzida (pré-contemp.) <span style="color:var(--txt2);font-weight:500;text-transform:none;font-size:10px;letter-spacing:0">PR 30% → taxa 20% · PR 50% → taxa 23%</span></label>
           <div class="toggle-group" id="sim-parc-red">
-            <button class="toggle-btn act" data-val="nao" onclick="simSetToggle('sim-parc-red','nao')">Não</button>
-            <button class="toggle-btn" data-val="sim" onclick="simSetToggle('sim-parc-red','sim')">Sim</button>
+            <button class="toggle-btn act" data-val="nao" onclick="simSetToggle('sim-parc-red','nao')">Sem PR</button>
+            <button class="toggle-btn" data-val="30" onclick="simSetToggle('sim-parc-red','30')">PR 30%</button>
+            <button class="toggle-btn" data-val="50" onclick="simSetToggle('sim-parc-red','50')">PR 50%</button>
           </div>
         </div>
       </div>
@@ -6247,7 +6248,15 @@ function _propCalcRow(r){
   const credito=Number(r.credito||0);
   const qtd=Number(r.qtd||1);
   const lpct=Number(r.lancePerc||0)/100;       // lance total %
-  const tx=Number(r.taxaAdm||0)/100;
+  // Regra Itaú: redução PR define taxa Adm
+  //   reducao 0 (sem PR) → taxa 23% (matriz)
+  //   reducao 30 (PR 30%) → taxa 20%, parcela × 0,70
+  //   reducao 50 (PR 50%) → taxa 23%, parcela × 0,50
+  const reducao=Number(r.reducao||0);          // 0, 30 ou 50
+  const taxaPadrao=reducao===30?20:23;          // Itaú default por PR
+  // Taxa adm: usa o que veio na row, mas se for o default antigo (23) e PR=30, força 20
+  const txDecl=Number(r.taxaAdm||taxaPadrao);
+  const tx=txDecl/100;
   const fr=Number(r.fr||0)/100;
   const prazo=Math.max(1,Number(r.prazo||192));
   const lanceTotal=credito*lpct;
@@ -6258,7 +6267,9 @@ function _propCalcRow(r){
   const saldoTot=credito*(1+tx+fr);             // saldo devedor total
   const amM=saldoTot/prazo;                     // amortização mensal
   const parcelaCheia=amM;                       // parcela pré-contemp cheia (= saldo/prazo)
-  const parcelaPRred=parcelaCheia*0.70;         // PR Itaú: redução de 30%
+  // Fator PR: 0,70 (PR 30%), 0,50 (PR 50%), 1,00 (sem PR)
+  const fatorPR=reducao===30?0.70:reducao===50?0.50:1;
+  const parcelaPRred=parcelaCheia*fatorPR;
   // Parcela pós-contemp (assume contemplação no mês 1)
   const mesContemp=1;
   const mr=Math.min(mesContemp,prazo-1);
@@ -6266,7 +6277,7 @@ function _propCalcRow(r){
   const prazoRest=prazo-mr;
   const parcelaPos=prazoRest>0?saldoPos/prazoRest:0;
   return{
-    credito,qtd,lpct,tx,fr,prazo,
+    credito,qtd,lpct,tx,fr,prazo,reducao,fatorPR,
     lanceTotal,lanceEmbutido,recursoProprio,credLiq,
     saldoTot,amM,saldoPos,prazoRest,
     parcelaCheia,parcelaPRred,parcelaPos
@@ -6321,6 +6332,7 @@ function viewProposta(leadId){
       <div class="prop-cota-grid">
         <div class="prop-cota-bloco">
           <div class="prop-cota-bloco-title">📋 Condições do Grupo</div>
+          <div class="prop-cota-row"><span>Modalidade</span><strong>${c.reducao===30?'PR 30%':c.reducao===50?'PR 50%':'Matriz (sem PR)'}</strong></div>
           <div class="prop-cota-row"><span>Taxa de Administração</span><strong>${(c.tx*100).toFixed(2)}%</strong></div>
           <div class="prop-cota-row"><span>Fundo de Reserva</span><strong>${(c.fr*100).toFixed(2)}%</strong></div>
           <div class="prop-cota-row"><span>Prazo Total</span><strong>${c.prazo} meses</strong></div>
@@ -6340,11 +6352,15 @@ function viewProposta(leadId){
           <div class="prop-parc-val">${brl(c.parcelaCheia)}</div>
           <div class="prop-parc-sub">parcela cheia</div>
         </div>
-        <div class="prop-parc-item alt">
-          <div class="prop-parc-lbl">Pré · Reduzida 30%</div>
+        ${c.reducao>0?`<div class="prop-parc-item alt">
+          <div class="prop-parc-lbl">Pré · Red. ${c.reducao}%</div>
           <div class="prop-parc-val">${brl(c.parcelaPRred)}</div>
-          <div class="prop-parc-sub">se contratar PR</div>
-        </div>
+          <div class="prop-parc-sub">PR ${c.reducao}% · taxa ${(c.tx*100).toFixed(0)}%</div>
+        </div>`:`<div class="prop-parc-item" style="opacity:.55">
+          <div class="prop-parc-lbl" style="text-decoration:line-through">Pré reduzida</div>
+          <div class="prop-parc-val" style="color:var(--txt2)">—</div>
+          <div class="prop-parc-sub">sem PR</div>
+        </div>`}
         <div class="prop-parc-item ok">
           <div class="prop-parc-lbl">Pós-Contemplação</div>
           <div class="prop-parc-val">${brl(c.parcelaPos)}</div>
@@ -6382,7 +6398,7 @@ function viewProposta(leadId){
       <div class="prop-kpi"><div class="prop-kpi-lbl">Crédito Total</div><div class="prop-kpi-val">${brl(TcredCont,0)}</div><div class="prop-kpi-sub">${sim.cotas} cota${sim.cotas!==1?'s':''} · ${sim.rows.length} grupo${sim.rows.length!==1?'s':''}</div></div>
       <div class="prop-kpi gold"><div class="prop-kpi-lbl">Lance Total</div><div class="prop-kpi-val">${brl(TlanceTot,0)}</div><div class="prop-kpi-sub">${lancePctMedio.toFixed(1)}% médio</div></div>
       <div class="prop-kpi green"><div class="prop-kpi-lbl">Crédito Líquido</div><div class="prop-kpi-val">${brl(TcredLiq,0)}</div><div class="prop-kpi-sub">após lance</div></div>
-      <div class="prop-kpi blue"><div class="prop-kpi-lbl">Parcela Total/mês</div><div class="prop-kpi-val">${brl(TparcCheia,0)}</div><div class="prop-kpi-sub">cheia · ${brl(TparcPRred,0)} c/red.</div></div>
+      <div class="prop-kpi blue"><div class="prop-kpi-lbl">Parcela Total/mês</div><div class="prop-kpi-val">${brl(TparcCheia,0)}</div><div class="prop-kpi-sub">${TparcPRred<TparcCheia?'cheia · '+brl(TparcPRred,0)+' c/PR':'cheia (sem PR)'}</div></div>
     </div>
 
     <!-- COTAS DETALHADAS -->
@@ -6401,7 +6417,7 @@ function viewProposta(leadId){
         <div class="prop-resumo-row"><span>Saldo Total a Pagar</span><strong>${brl(TsaldoTot,0)}</strong></div>
         <div class="prop-resumo-divider"></div>
         <div class="prop-resumo-row"><span>Parcela Pré-Contemp. (cheia)</span><strong>${brl(TparcCheia)}</strong></div>
-        <div class="prop-resumo-row"><span>Parcela Pré (com redução 30%)</span><strong style="color:var(--acc)">${brl(TparcPRred)}</strong></div>
+        ${TparcPRred<TparcCheia?`<div class="prop-resumo-row"><span>Parcela Pré (PR · taxa reduzida)</span><strong style="color:var(--acc)">${brl(TparcPRred)}</strong></div>`:''}
         <div class="prop-resumo-row"><span>Parcela Pós-Contemp. (estimada)</span><strong style="color:var(--ok)">${brl(TparcPos)}</strong></div>
       </div>
     </div>
@@ -7140,7 +7156,12 @@ function simBuscarGrupos(){
   const lanceRP=parseFloat(document.getElementById('sim-lance-rp').value)||0;
   const limParc=parseFloat(document.getElementById('sim-limite-parc').value)||Infinity;
   const lanceEmb=simGetToggle('sim-lance-emb')==='sim';
-  const parcRed=simGetToggle('sim-parc-red')==='sim';
+  // Redução PR: 'nao' (sem PR), '30' (PR 30%, taxa 20%), '50' (PR 50%, taxa 23%)
+  const parcRedVal=simGetToggle('sim-parc-red')||'nao';
+  const reducaoPct=parcRedVal==='30'?30:parcRedVal==='50'?50:0;
+  // Taxa Adm muda conforme tipo de PR (regra Itaú): PR 30% → 20%, PR 50% → 23%, sem PR → 23%
+  const TAX_ADM=reducaoPct===30?20:23;
+  const FR=3;
   const prazoMin=parseInt(document.getElementById('sim-prazo-min').value)||0;
   const prazoMax=parseInt(document.getElementById('sim-prazo-max').value)||9999;
   const finalidade=simGetToggle('sim-finalidade');
@@ -7148,7 +7169,6 @@ function simBuscarGrupos(){
   const lanceRPpct=lanceRP>0?(lanceRP/credito*100):0;
   const lanceEmbPct=lanceEmb?30:0;
   const lanceTotalPct=lanceRPpct+lanceEmbPct;
-  const TAX_ADM=23,FR=3;
 
   // Função de score para qualquer grupo
   function calcScore(g,d){
@@ -7300,11 +7320,15 @@ function simCheckAll(v){simSuggestions.forEach((s,i)=>{s.selected=v;});renderSim
 function simAddSelecionados(){
   const sel=simSuggestions.filter(s=>s.selected);
   if(!sel.length){toast('Selecione ao menos um grupo','err');return;}
+  // Captura a redução PR atual da tela (Sem PR / 30% / 50%) e ajusta taxa Adm conforme regra Itaú
+  const parcRedVal=simGetToggle('sim-parc-red')||'nao';
+  const reducaoPct=parcRedVal==='30'?30:parcRedVal==='50'?50:0;
+  const taxaAdmDef=reducaoPct===30?20:23;
   sel.forEach((item)=>{
     const g=item.g,d=item.d,qtd=item.qtd;
     if(!simRows.find(r=>r.grupo===g)){
       const lancePct=item.lanceMedPct>0?+item.lanceMedPct.toFixed(1):30;
-      simRows.push({grupo:g,tipo:d.tp||'',credito:item.cred||d.vmax||340000,qtd,lancePerc:lancePct,prazo:item.prazo||192,taxaAdm:23,fr:d.fr!=null?+(d.fr*100).toFixed(1):3});
+      simRows.push({grupo:g,tipo:d.tp||'',credito:item.cred||d.vmax||340000,qtd,lancePerc:lancePct,prazo:item.prazo||192,taxaAdm:taxaAdmDef,fr:d.fr!=null?+(d.fr*100).toFixed(1):3,reducao:reducaoPct});
     }
   });
   renderSimTable();simGoStep(3);
