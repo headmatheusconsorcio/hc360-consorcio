@@ -484,6 +484,80 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
 .pipe-empty::before{content:'∅';display:block;font-size:16px;margin-bottom:3px;opacity:.5;font-style:normal}
 .pipe-more{font-size:10.5px;color:var(--sb2);text-align:center;padding:6px;font-weight:700;cursor:pointer;border-top:1px dashed var(--bdr);margin-top:3px;transition:color .15s}
 .pipe-more:hover{color:var(--acc)}
+.pipe-card-propstrip{margin-top:6px;padding:6px 9px;background:linear-gradient(90deg,#fdf6e3 0%,#fff 100%);border:1px solid #e6c780;border-radius:6px;display:flex;align-items:center;gap:6px;cursor:pointer;transition:all .15s}
+.pipe-card-propstrip:hover{background:linear-gradient(90deg,#fef9c3 0%,#fefbf3 100%);border-color:var(--acc);box-shadow:0 2px 6px rgba(214,175,92,.2)}
+.pipe-card-propstrip-ico{font-size:13px;flex-shrink:0}
+.pipe-card-propstrip-txt{font-size:10.5px;color:#92400e;font-weight:700;line-height:1.2;flex:1;min-width:0}
+.pipe-card-propstrip-amt{font-size:11.5px;color:var(--sb);font-weight:800;font-family:'Raleway',sans-serif;letter-spacing:-.2px}
+.pipe-card-propstrip-arrow{color:var(--acc);font-size:11px;font-weight:700;flex-shrink:0}
+
+/* ── PROPOSTA — card no modal do lead ────────── */
+.ml-prop-card{background:linear-gradient(135deg,#fdf6e3 0%,#fefbf3 100%);border:1.5px solid var(--acc);border-radius:11px;padding:14px 16px;margin:14px 0;position:relative;overflow:hidden}
+.ml-prop-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(180deg,var(--acc) 0%,var(--sb2) 100%)}
+.ml-prop-empty{background:var(--card2);border:1.5px dashed var(--bdr);border-radius:11px;padding:18px 16px;margin:14px 0;text-align:center}
+.ml-prop-empty-ico{font-size:24px;margin-bottom:6px;opacity:.5}
+.ml-prop-empty-txt{font-size:12.5px;color:var(--txt2);margin-bottom:10px;font-style:italic}
+.ml-prop-hdr{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.ml-prop-title{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.7px;color:var(--sb);display:inline-flex;align-items:center;gap:6px}
+.ml-prop-status{position:relative}
+.ml-prop-status-btn{padding:4px 10px;border-radius:14px;font-size:11px;font-weight:700;border:1.5px solid currentColor;background:#fff;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:4px;font-family:'Inter',sans-serif}
+.ml-prop-status-btn:hover{transform:scale(1.04);box-shadow:0 2px 6px rgba(0,0,0,.08)}
+.ml-prop-status-pop{display:none;position:absolute;right:0;top:calc(100% + 4px);background:#fff;border:1px solid var(--bdr);border-radius:9px;box-shadow:0 6px 20px rgba(0,0,0,.12);padding:5px;min-width:170px;z-index:50}
+.ml-prop-status.open .ml-prop-status-pop{display:block;animation:popIn .18s ease}
+@keyframes popIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+.ml-prop-status-opt{display:flex;align-items:center;gap:7px;padding:7px 10px;font-size:11.5px;font-weight:600;color:var(--txt);cursor:pointer;border-radius:6px;transition:background .12s}
+.ml-prop-status-opt:hover{background:var(--card2)}
+.ml-prop-status-opt.act{background:#fdf6e3;font-weight:800}
+.ml-prop-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
+.ml-prop-kpi{background:#fff;border:1px solid #e6c780;border-radius:8px;padding:8px 10px;text-align:center}
+.ml-prop-kpi-lbl{font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--txt2);margin-bottom:3px}
+.ml-prop-kpi-val{font-size:14px;font-weight:800;color:var(--sb);font-family:'Playfair Display',serif;letter-spacing:-.2px;line-height:1}
+.ml-prop-kpi-sub{font-size:9.5px;color:var(--txt2);margin-top:2px}
+.ml-prop-actions{display:flex;gap:6px;flex-wrap:wrap}
+.ml-prop-actions .btn{font-size:11.5px;padding:6px 11px;border-radius:7px}
+
+/* ── MODAL VER PROPOSTA ──────────────────────── */
+.modal-prop{max-width:780px;width:95%}
+.prop-mh{background:linear-gradient(135deg,var(--sb) 0%,var(--sb2) 100%);color:#fff;padding:14px 18px;border-radius:11px 11px 0 0;display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0;border-bottom:3px solid var(--acc)}
+.prop-mh .mt{color:#fff;font-family:'Playfair Display',serif;font-size:18px;font-weight:700;letter-spacing:-.3px}
+.prop-mh .mc{color:#fff;background:rgba(255,255,255,.15);border:none;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:15px}
+.prop-mh .mc:hover{background:rgba(255,255,255,.28)}
+.prop-body{padding:22px 26px;background:#fff;border-radius:0 0 11px 11px}
+.prop-doc-hdr{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;padding-bottom:14px;border-bottom:2px solid var(--acc);margin-bottom:18px;flex-wrap:wrap}
+.prop-doc-cli{flex:1;min-width:240px}
+.prop-doc-cli-name{font-family:'Playfair Display',serif;font-size:22px;font-weight:800;color:var(--sb);letter-spacing:-.3px;line-height:1.1;margin-bottom:5px}
+.prop-doc-cli-info{font-size:12.5px;color:var(--txt2);line-height:1.5}
+.prop-doc-cli-info strong{color:var(--txt);font-weight:700}
+.prop-doc-meta{text-align:right;font-size:11px;color:var(--txt2);min-width:160px}
+.prop-doc-meta-status{display:inline-block;padding:4px 11px;border-radius:14px;font-size:11px;font-weight:700;margin-bottom:6px;font-family:'Inter',sans-serif;letter-spacing:.3px}
+.prop-doc-meta-date{font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.6px}
+.prop-doc-section-title{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--sb);margin:18px 0 10px;padding-bottom:5px;border-bottom:1px solid var(--bdr)}
+.prop-doc-table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:14px}
+.prop-doc-table th{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--txt2);padding:8px 6px;text-align:left;border-bottom:1.5px solid var(--bdr);background:var(--card2)}
+.prop-doc-table td{padding:9px 6px;border-bottom:1px solid var(--bdr);color:var(--txt)}
+.prop-doc-table td.num{text-align:right;font-family:'Raleway',sans-serif;font-weight:700}
+.prop-doc-table td.tipo{font-size:10.5px;color:var(--txt2);font-weight:600;text-transform:uppercase;letter-spacing:.3px}
+.prop-doc-totais{background:linear-gradient(135deg,#fdf6e3 0%,#fefbf3 100%);border:1.5px solid var(--acc);border-radius:10px;padding:14px 18px;margin:18px 0}
+.prop-doc-totais-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.prop-doc-totais-item{text-align:center}
+.prop-doc-totais-lbl{font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--txt2);margin-bottom:4px}
+.prop-doc-totais-val{font-size:18px;font-weight:800;color:var(--sb);font-family:'Playfair Display',serif;letter-spacing:-.3px;line-height:1}
+.prop-doc-totais-sub{font-size:10px;color:var(--txt2);margin-top:3px;font-weight:500}
+.prop-doc-nota{background:#fff;border:1px solid var(--bdr);border-left:3px solid var(--acc);border-radius:7px;padding:10px 13px;font-size:12px;color:var(--txt2);line-height:1.5;font-style:italic}
+.prop-doc-footer{margin-top:22px;padding-top:14px;border-top:1px solid var(--bdr);text-align:center;font-size:10px;color:var(--txt2);font-style:italic;letter-spacing:.3px}
+
+@media print{
+  body *{visibility:hidden}
+  #modal-prop-view,#modal-prop-view *{visibility:visible}
+  .prop-noprint{display:none!important}
+  #modal-prop-view{position:absolute!important;left:0;top:0;background:none;padding:0}
+  #modal-prop-view .modal{box-shadow:none;border:none;margin:0;width:100%;max-width:100%}
+  .prop-mh{border-radius:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .prop-doc-totais{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .prop-doc-meta-status{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  @page{margin:1.4cm}
+}
+
 @media (min-width:1700px){.pipe-col{width:208px}}
 @media (max-width:900px){.pipe-col{width:168px}.pipe-card-avatar{width:24px;height:24px;font-size:10px}.pipe-card-name{font-size:11.5px}.crm-kpis{grid-template-columns:repeat(auto-fit,minmax(120px,1fr))}}
 
@@ -3350,10 +3424,31 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
 </div>
 
 <!-- MODAL LEAD -->
+<!-- MODAL VER PROPOSTA (read-only + print) -->
+<div class="moverlay" id="modal-prop-view">
+  <div class="modal modal-prop">
+    <div class="mh prop-mh">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="font-size:22px">📋</span>
+        <span class="mt">Proposta Comercial</span>
+      </div>
+      <div style="display:flex;gap:6px">
+        <button class="btn btn-out btn-sm prop-noprint" onclick="propPrint()" title="Imprimir / Salvar PDF">🖨 Imprimir</button>
+        <button class="btn btn-pri btn-sm prop-noprint" id="prop-edit-btn" onclick="propEditFromView()" title="Voltar e editar parâmetros">✏ Editar</button>
+        <button class="mc prop-noprint" onclick="closeModal('modal-prop-view')">✕</button>
+      </div>
+    </div>
+    <div class="mb prop-body" id="prop-view-body">
+      <!-- preenchido via JS por renderPropView -->
+    </div>
+  </div>
+</div>
+
 <div class="moverlay" id="modal-lead">
   <div class="modal">
     <div class="mh"><span class="mt" id="ml-title">Novo Lead</span><button class="mc" onclick="closeModal('modal-lead')">✕</button></div>
     <div class="mb">
+      <div id="ml-prop-slot"></div>
       <div class="ml-section-hdr">📇 Contato</div>
       <div class="g2" style="margin-bottom:0">
         <div class="form-g"><label class="form-l">Nome <span class="form-req">*</span></label><input class="form-i" id="ml-nome" placeholder="Nome completo"></div>
@@ -5917,10 +6012,27 @@ async function dragDropLead(e,stage){
   e.preventDefault();
   if(!dragLead)return;
   const lead=LEADS.find(l=>l.id===dragLead);
-  if(!lead||lead.status===stage){dragLead=null;return;}
-  const res=await upsertLead({id:dragLead,status:stage,updated_at:new Date().toISOString()});
-  if(res){Object.assign(lead,res);toast(`${lead.nome} → ${stage}`);filterCRM();}
+  const droppedId=dragLead;
   dragLead=null;
+  if(!lead||lead.status===stage)return;
+  // Caso especial: arrastando pra "Ganho" e há proposta pendente → oferece lançar cotas direto
+  const obs=lead.observacao||'';
+  const hasSimPendente=obs.startsWith('SIM:');
+  if(stage==='Ganho'&&hasSimPendente){
+    const sim=leadCreditoNegociado(lead);
+    const cotas=sim?sim.cotas:0;
+    const ok=confirm(`Marcar ${lead.nome} como GANHO e lançar ${cotas} cota${cotas!==1?'s':''} no sistema agora?
+
+Clique OK para lançar (recomendado).
+Clique Cancelar para mover sem lançar (lança depois).`);
+    if(ok){
+      // simFecharNegocio já move pra Ganho e cria as cotas
+      await simFecharNegocio(droppedId);
+      return;
+    }
+  }
+  const res=await upsertLead({id:droppedId,status:stage,updated_at:new Date().toISOString()});
+  if(res){Object.assign(lead,res);toast(`${lead.nome} → ${stage}`);filterCRM();}
 }
 function crmClearFilters(){
   const s=document.getElementById('crm-search');if(s)s.value='';
@@ -6014,8 +6126,205 @@ function leadCreditoNegociado(l){
     if(!rows.length)return null;
     const credTot=rows.reduce((s,r)=>s+(r.credito||0)*(r.qtd||0),0);
     const cotas=rows.reduce((s,r)=>s+(r.qtd||0),0);
-    return{credTot,cotas,done:isDone};
+    const lanceTot=rows.reduce((s,r)=>s+(r.credito||0)*((r.lancePerc||0)/100)*(r.qtd||0),0);
+    const parcTot=rows.reduce((s,r)=>{
+      const lpct=(r.lancePerc||0)/100;
+      const liq=(r.credito||0)*(1-lpct);
+      const fr=(r.fr||0)/100;
+      const tx=(r.taxaAdm||0)/100;
+      const prazo=r.prazo||192;
+      return s+(liq/prazo*(1+tx+fr))*(r.qtd||0);
+    },0);
+    const status=d.status||(isDone?'executada':'rascunho');
+    return{credTot,cotas,done:isDone,lanceTot,parcTot,status,rows,nota:d.nota||'',caso:d.caso||'',ts:d.ts||l.updated_at};
   }catch(e){return null;}
+}
+// Status visíveis da proposta (separados do status do lead).
+const PROP_STATUS_LIST=[
+  {key:'rascunho',label:'📝 Rascunho',color:'#94a3b8',bg:'#f1f5f9'},
+  {key:'enviada',label:'📤 Enviada',color:'#8b5cf6',bg:'#ede9fe'},
+  {key:'aceita',label:'✅ Aceita',color:'#10b981',bg:'#d1fae5'},
+  {key:'recusada',label:'❌ Recusada',color:'#ef4444',bg:'#fee2e2'},
+  {key:'executada',label:'🏠 Executada',color:'#059669',bg:'#a7f3d0'}
+];
+function propStatusInfo(key){return PROP_STATUS_LIST.find(s=>s.key===key)||PROP_STATUS_LIST[0];}
+// Renderiza a proposta no modal de visualização (read-only, com print).
+let propViewLeadId=null;
+function viewProposta(leadId){
+  const lead=LEADS.find(l=>l.id===leadId);if(!lead){toast('Lead não encontrado','err');return;}
+  const sim=leadCreditoNegociado(lead);
+  if(!sim){toast('Sem proposta neste lead','err');return;}
+  propViewLeadId=leadId;
+  const stInfo=propStatusInfo(sim.status);
+  const dt=sim.ts?new Date(sim.ts):new Date();
+  const dtStr=dt.toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'});
+  const ass=lead.assessor||'—';
+  const cidUf=[lead.cidade,lead.estado].filter(Boolean).join(' / ');
+  const linhas=sim.rows.map((r,i)=>{
+    const lpct=(r.lancePerc||0)/100;
+    const liq=(r.credito||0)*(1-lpct);
+    const fr=(r.fr||0)/100;
+    const tx=(r.taxaAdm||0)/100;
+    const prazo=r.prazo||192;
+    const parc=liq/prazo*(1+tx+fr);
+    const lanceR=(r.credito||0)*lpct;
+    const tipoLbl=(r.tipo||'').replace('IMÓVEIS','🏠 Imóvel').replace('IMÓVEL','🏠 Imóvel').replace('VEÍCULOS LEVES','🚗 Veículo').replace('VEÍCULOS PESADOS','🚛 Pesado').replace('MOTOS','🏍 Moto');
+    return`<tr>
+      <td><strong>${r.grupo||'—'}</strong></td>
+      <td class="tipo">${tipoLbl}</td>
+      <td class="num">${brl(r.credito||0,0)}</td>
+      <td class="num">${r.qtd||1}</td>
+      <td class="num">${(lpct*100).toFixed(1)}% <span style="font-weight:500;color:var(--txt2);font-size:10.5px">(${brl(lanceR,0)})</span></td>
+      <td class="num">${prazo}m</td>
+      <td class="num" style="color:var(--sb);font-weight:800">${brl(parc)}</td>
+    </tr>`;
+  }).join('');
+  const html=`
+    <div class="prop-doc-hdr">
+      <div class="prop-doc-cli">
+        <div class="prop-doc-cli-name">${pn(lead.nome)||'Cliente'}</div>
+        <div class="prop-doc-cli-info">
+          ${lead.telefone?`📞 ${lead.telefone}`:''}${lead.email?` · ✉ ${lead.email}`:''}
+          ${cidUf?`<br>📍 ${cidUf}`:''}
+          ${lead.cpf?`<br>CPF: ${lead.cpf}`:''}
+          <br><strong>Assessor:</strong> ${ass}
+          ${lead.indicado_por?` · <strong>Indicação:</strong> ${lead.indicado_por}`:''}
+        </div>
+      </div>
+      <div class="prop-doc-meta">
+        <div class="prop-doc-meta-status" style="background:${stInfo.bg};color:${stInfo.color}">${stInfo.label}</div>
+        <div class="prop-doc-meta-date">📅 ${dtStr}</div>
+      </div>
+    </div>
+
+    <div class="prop-doc-section-title">Composição da Proposta</div>
+    <table class="prop-doc-table">
+      <thead><tr>
+        <th>Grupo</th><th>Bem</th><th style="text-align:right">Crédito</th>
+        <th style="text-align:right">Cotas</th><th style="text-align:right">Lance</th>
+        <th style="text-align:right">Prazo</th><th style="text-align:right">Parcela</th>
+      </tr></thead>
+      <tbody>${linhas}</tbody>
+    </table>
+
+    <div class="prop-doc-totais">
+      <div class="prop-doc-totais-grid">
+        <div class="prop-doc-totais-item">
+          <div class="prop-doc-totais-lbl">Crédito Total</div>
+          <div class="prop-doc-totais-val">${brl(sim.credTot,0)}</div>
+          <div class="prop-doc-totais-sub">soma das cartas</div>
+        </div>
+        <div class="prop-doc-totais-item">
+          <div class="prop-doc-totais-lbl">Cotas</div>
+          <div class="prop-doc-totais-val">${sim.cotas}</div>
+          <div class="prop-doc-totais-sub">${sim.rows.length} grupo${sim.rows.length!==1?'s':''}</div>
+        </div>
+        <div class="prop-doc-totais-item">
+          <div class="prop-doc-totais-lbl">Lance Total</div>
+          <div class="prop-doc-totais-val">${brl(sim.lanceTot,0)}</div>
+          <div class="prop-doc-totais-sub">${sim.credTot>0?(sim.lanceTot/sim.credTot*100).toFixed(1):0}% médio</div>
+        </div>
+        <div class="prop-doc-totais-item">
+          <div class="prop-doc-totais-lbl">Parcela Total</div>
+          <div class="prop-doc-totais-val">${brl(sim.parcTot,0)}</div>
+          <div class="prop-doc-totais-sub">soma estimada/mês</div>
+        </div>
+      </div>
+    </div>
+
+    ${sim.nota?`<div class="prop-doc-section-title">Observações</div><div class="prop-doc-nota">${sim.nota.replace(/</g,'&lt;')}</div>`:''}
+
+    <div class="prop-doc-footer">
+      Proposta gerada por <strong>HC360 Consórcio</strong> · ${dtStr}
+      <br>Os valores são estimativas baseadas nas tabelas vigentes do administrador. Sujeitos à aprovação.
+    </div>`;
+  document.getElementById('prop-view-body').innerHTML=html;
+  // Editar só faz sentido se proposta ainda não foi executada
+  document.getElementById('prop-edit-btn').style.display=sim.done?'none':'';
+  document.getElementById('modal-prop-view').classList.add('open');
+}
+function propPrint(){window.print();}
+function propEditFromView(){
+  const id=propViewLeadId;
+  closeModal('modal-prop-view');
+  if(id)setTimeout(()=>openModalSim(id),200);
+}
+
+// Renderiza o card "Proposta" dentro do modal do Lead.
+function mlRenderProposta(lead){
+  const slot=document.getElementById('ml-prop-slot');if(!slot)return;
+  const sim=leadCreditoNegociado(lead);
+  if(!sim){
+    slot.innerHTML=`<div class="ml-prop-empty">
+      <div class="ml-prop-empty-ico">📋</div>
+      <div class="ml-prop-empty-txt">Nenhuma proposta criada para este lead</div>
+      <button class="btn btn-acc btn-sm" onclick="closeModal('modal-lead');setTimeout(()=>openModalSim('${lead.id}'),150)">📊 Criar Proposta</button>
+    </div>`;
+    return;
+  }
+  const st=propStatusInfo(sim.status);
+  const optsHtml=PROP_STATUS_LIST.filter(s=>s.key!=='executada').map(s=>{
+    const act=s.key===sim.status?' act':'';
+    return`<div class="ml-prop-status-opt${act}" onclick="event.stopPropagation();propSetStatus('${lead.id}','${s.key}');mlPropStatusToggle(false)" style="color:${s.color}">${s.label}</div>`;
+  }).join('');
+  const statusReadOnly=sim.done; // executada não muda
+  const statusBtnAttrs=statusReadOnly?'disabled style="opacity:.7;cursor:not-allowed;color:'+st.color+'"':'onclick="event.stopPropagation();mlPropStatusToggle()" style="color:'+st.color+'"';
+  const dtStr=sim.ts?new Date(sim.ts).toLocaleDateString('pt-BR'):'';
+  slot.innerHTML=`<div class="ml-prop-card">
+    <div class="ml-prop-hdr">
+      <div class="ml-prop-title">📋 Proposta ${dtStr?`<span style="color:var(--txt2);font-weight:500;font-size:10px;letter-spacing:0;text-transform:none">· ${dtStr}</span>`:''}</div>
+      <div class="ml-prop-status" id="ml-prop-status-wrap">
+        <button type="button" class="ml-prop-status-btn" ${statusBtnAttrs}>${st.label}${statusReadOnly?'':' ▾'}</button>
+        ${statusReadOnly?'':`<div class="ml-prop-status-pop">${optsHtml}</div>`}
+      </div>
+    </div>
+    <div class="ml-prop-kpis">
+      <div class="ml-prop-kpi">
+        <div class="ml-prop-kpi-lbl">Crédito Total</div>
+        <div class="ml-prop-kpi-val">${brl(sim.credTot,0)}</div>
+        <div class="ml-prop-kpi-sub">${sim.cotas} cota${sim.cotas!==1?'s':''}</div>
+      </div>
+      <div class="ml-prop-kpi">
+        <div class="ml-prop-kpi-lbl">Lance Médio</div>
+        <div class="ml-prop-kpi-val">${sim.credTot>0?(sim.lanceTot/sim.credTot*100).toFixed(0):0}%</div>
+        <div class="ml-prop-kpi-sub">${brl(sim.lanceTot,0)}</div>
+      </div>
+      <div class="ml-prop-kpi">
+        <div class="ml-prop-kpi-lbl">Parcela/mês</div>
+        <div class="ml-prop-kpi-val">${brl(sim.parcTot,0)}</div>
+        <div class="ml-prop-kpi-sub">estimada</div>
+      </div>
+    </div>
+    <div class="ml-prop-actions">
+      <button class="btn btn-pri btn-sm" onclick="closeModal('modal-lead');setTimeout(()=>viewProposta('${lead.id}'),150)">👁 Ver Proposta</button>
+      ${sim.done?'':`<button class="btn btn-out btn-sm" onclick="closeModal('modal-lead');setTimeout(()=>openModalSim('${lead.id}'),150)">✏ Editar</button>`}
+      <button class="btn btn-out btn-sm" onclick="closeModal('modal-lead');setTimeout(()=>{viewProposta('${lead.id}');setTimeout(propPrint,300);},150)">🖨 Imprimir</button>
+      ${sim.done?'':`<button class="btn btn-ok btn-sm" onclick="closeModal('modal-lead');setTimeout(()=>simFecharNegocio('${lead.id}'),150)" style="margin-left:auto">🏠 Lançar ${sim.cotas} Cota${sim.cotas!==1?'s':''}</button>`}
+    </div>
+  </div>`;
+}
+function mlPropStatusToggle(force){
+  const wrap=document.getElementById('ml-prop-status-wrap');if(!wrap)return;
+  if(force===false){wrap.classList.remove('open');return;}
+  wrap.classList.toggle('open');
+  // fecha ao clicar fora
+  if(wrap.classList.contains('open')){
+    setTimeout(()=>{
+      const close=e=>{if(!wrap.contains(e.target)){wrap.classList.remove('open');document.removeEventListener('click',close);}};
+      document.addEventListener('click',close);
+    },10);
+  }
+}
+async function propSetStatus(leadId,newStatus){
+  const lead=LEADS.find(l=>l.id===leadId);if(!lead)return;
+  const obs=lead.observacao||'';
+  if(!obs.startsWith('SIM:')&&!obs.startsWith('SIM_DONE:')){toast('Sem proposta neste lead','err');return;}
+  if(obs.startsWith('SIM_DONE:')){toast('Proposta executada — não pode mudar status','warn');return;}
+  let payload;
+  try{payload=JSON.parse(obs.slice(4));}catch(e){toast('Erro ao ler proposta','err');return;}
+  payload.status=newStatus;
+  const res=await upsertLead({id:leadId,observacao:'SIM:'+JSON.stringify(payload),updated_at:new Date().toISOString()});
+  if(res){Object.assign(lead,res);toast('Status da proposta: '+propStatusInfo(newStatus).label);if(typeof renderCRM==='function')renderCRM();mlRenderProposta(lead);}
 }
 function pipeCardHtml(l,stage,idx){
   const obs=l.observacao||'';
@@ -6068,6 +6377,11 @@ function pipeCardHtml(l,stage,idx){
       ${l.indicado_por?`<div class="pc-line pc-ind">👥 via ${l.indicado_por}</div>`:''}
       ${isReuniao&&dtRStr?`<div class="pc-line pc-reuniao">📅 ${dtRStr}</div>`:''}
     </div>
+    ${sim?(()=>{const st=propStatusInfo(sim.status);return`<div class="pipe-card-propstrip" onclick="event.stopPropagation();viewProposta('${l.id}')" title="Ver proposta completa">
+      <span class="pipe-card-propstrip-ico">${lSimDone?'✅':'📋'}</span>
+      <span class="pipe-card-propstrip-txt">Proposta · <span style="color:${st.color};font-weight:800">${st.label.split(' ').slice(1).join(' ')}</span></span>
+      <span class="pipe-card-propstrip-arrow">→</span>
+    </div>`;})():''}
     ${btnFinal}
   </div>`;
 }
@@ -6418,6 +6732,12 @@ function openModalLead(id){
   document.getElementById('ml-reuniao').value=l.data_reuniao?l.data_reuniao.slice(0,16):'';
   mlToggleReuniao();
   mlAtualizaReceita();
+  // Card de Proposta (só pra leads existentes)
+  const propSlot=document.getElementById('ml-prop-slot');
+  if(propSlot){
+    if(isNew){propSlot.innerHTML='';}
+    else{mlRenderProposta(l);}
+  }
   document.getElementById('modal-lead').classList.add('open');
 }
 function mlAtualizaReceita(){
