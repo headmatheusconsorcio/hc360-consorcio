@@ -2146,7 +2146,7 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
           </div>
           <div class="form-g">
             <label class="form-l">Redução Pré-Contempl.</label>
-            <select class="form-i" id="p-red" onchange="calcProp()">
+            <select class="form-i" id="p-red" onchange="renderPropGrupos();calcProp()">
               <option value="0">Sem redução</option>
               <option value="30">30% de redução</option>
               <option value="50">50% de redução</option>
@@ -8845,7 +8845,13 @@ function renderPropGrupos(){
       '<span class="pgrp-chip">Prazo <strong>'+g.prazo+'m</strong></span>'
       +'<span class="pgrp-chip">Restante <strong style="color:var(--info)">'+(prazoRest!=null?prazoRest+'m':'—')+'</strong></span>'
       +'<span class="pgrp-chip">FR <strong>'+g.fr+'%</strong></span>'
-      +'<span class="pgrp-chip">Adm <strong>'+g.taxaadm+'%</strong></span>'
+      +(()=>{
+        const r=parseFloat((document.getElementById('p-red')||{}).value)||0;
+        let taEf=g.taxaadm;
+        if(g.pr_red){taEf=(r===30?20:23);}
+        const showOrig=g.pr_red && taEf!==g.taxaadm;
+        return '<span class="pgrp-chip">Adm <strong>'+taEf+'%</strong>'+(showOrig?' <span style="opacity:.55;font-weight:400;text-decoration:line-through">'+g.taxaadm+'%</span>':'')+'</span>';
+      })()
       +'<span class="pgrp-chip">Faixa <strong>'+brl(g.credMin,0)+'–'+brl(g.credMax,0)+'</strong></span>'
       +(g.pr_red?'<span class="pgrp-chip" style="background:#dbeafe;border-color:#bfdbfe;color:#1e40af">PR <strong>30%/50%</strong></span>':'')
     ):'';
@@ -9116,7 +9122,13 @@ function calcProp(){
   let totCred=0,totCotas=0,totSD=0,totLRP=0,totLLC=0,totLTot=0,totLiq=0,totPi=0,totPp=0,totSP=0,totTa=0,totFr=0;
   let prazoRef=propGrupos[0]?propGrupos[0].prazo:192;
   propGrupos.forEach(g=>{
-    const nc=g.qtd||1,cred=g.credito||0,ta=g.taxaadm||0,pr=g.prazo||1,fr=g.fr||0;
+    const nc=g.qtd||1,cred=g.credito||0,pr=g.prazo||1,fr=g.fr||0;
+    let ta=g.taxaadm||0;
+    if(g.pr_red){
+      if(red===30) ta=20;
+      else if(red===50) ta=23;
+      else ta=23; // grupo PR sem redução selecionada → padrão Itaú
+    }
     const ct=cred*nc,lRP=ct*rp/100,lLC=ct*lc/100,lTot=lRP+lLC,liq=ct-lLC;
     const sd=ct*(1+ta/100+fr/100);
     const amM=sd/pr;
@@ -9191,7 +9203,13 @@ function calcProp(){
     const p=strat.p;
     let tPi=0,tPp=0,tLiq=0,tLtot=0;
     propGrupos.forEach(g=>{
-      const nc=g.qtd||1,cred=g.credito||0,ta=g.taxaadm||0,pr=g.prazo||1,fr=g.fr||0;
+      const nc=g.qtd||1,cred=g.credito||0,pr=g.prazo||1,fr=g.fr||0;
+    let ta=g.taxaadm||0;
+    if(g.pr_red){
+      if(red===30) ta=20;
+      else if(red===50) ta=23;
+      else ta=23; // grupo PR sem redução selecionada → padrão Itaú
+    }
       const ct=cred*nc,llc2=ct*Math.max(0,p-rp)/100,liq2=ct-llc2,ltot2=ct*rp/100+llc2;
       const sd2=ct*(1+ta/100+fr/100),amM2=sd2/pr,pi2=amM2+ct*seg/100;
       const mr2=Math.min(mes,pr-1),sp2=Math.max(0,sd2-mr2*amM2-ltot2),pr3=pr-mr2;
