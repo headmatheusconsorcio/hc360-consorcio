@@ -8774,7 +8774,7 @@ function propGoStep(n){
     }
   }
 }
-let propGrupos=[{grupo:'',prazo:192,fr:3,taxaadm:23,credMin:0,credMax:0,credito:340000,qtd:1,mesAtual:0}];
+let propGrupos=[{grupo:'',prazo:192,fr:3,taxaadm:23,credMin:0,credMax:0,credito:340000,qtd:1,mesAtual:0,pr_red:false}];
 function updLance(){
   const slider=document.getElementById('p-lance');
   const embEl=document.getElementById('p-emb-on');
@@ -8798,7 +8798,7 @@ function updLance(){
   document.getElementById('p-lance-lbl').textContent=t.toFixed(0)+'%';
 }
 function syncCredAlvo(val){const v=parseFloat(val)||0;propGrupos.forEach(g=>{if(v>0)g.credito=v;});renderPropGrupos();calcProp();}
-function addPropGrupo(){propGrupos.push({grupo:'',prazo:192,fr:3,taxaadm:23,credMin:0,credMax:0,credito:340000,qtd:1,mesAtual:0});renderPropGrupos();}
+function addPropGrupo(){propGrupos.push({grupo:'',prazo:192,fr:3,taxaadm:23,credMin:0,credMax:0,credito:340000,qtd:1,mesAtual:0,pr_red:false});renderPropGrupos();}
 function removePropGrupo(i){if(propGrupos.length===1)return;propGrupos.splice(i,1);renderPropGrupos();calcProp();}
 function lookupGrupo(i,val){
   propGrupos[i].grupo=val.trim();
@@ -8809,8 +8809,14 @@ function lookupGrupo(i,val){
     if(d.ta!=null)propGrupos[i].taxaadm=parseFloat((d.ta*100).toFixed(2));
     if(d.vmax){propGrupos[i].credito=d.vmax;propGrupos[i].credMax=d.vmax;}
     if(d.vmin!=null)propGrupos[i].credMin=d.vmin;
+    propGrupos[i].pr_red=(d.pr_red==='S');
+    // Auto-aplica PR 30% se o grupo aceita parcela reduzida e o usuário ainda está em "sem redução"
+    if(d.pr_red==='S'){
+      const redEl=document.getElementById('p-red');
+      if(redEl && (parseFloat(redEl.value)||0)===0){redEl.value='30';}
+    }
   }else{
-    propGrupos[i].credMax=0;propGrupos[i].credMin=0;
+    propGrupos[i].credMax=0;propGrupos[i].credMin=0;propGrupos[i].pr_red=false;
   }
   renderPropGrupos();
   // foca no input de grupo recém-editado pra manter UX (re-render perde foco)
@@ -8841,6 +8847,7 @@ function renderPropGrupos(){
       +'<span class="pgrp-chip">FR <strong>'+g.fr+'%</strong></span>'
       +'<span class="pgrp-chip">Adm <strong>'+g.taxaadm+'%</strong></span>'
       +'<span class="pgrp-chip">Faixa <strong>'+brl(g.credMin,0)+'–'+brl(g.credMax,0)+'</strong></span>'
+      +(g.pr_red?'<span class="pgrp-chip" style="background:#dbeafe;border-color:#bfdbfe;color:#1e40af">PR <strong>30%/50%</strong></span>':'')
     ):'';
     const status=hasD?'<span class="pgrp-status">✓ Carregado</span>':'';
     const hint=!hasD?'<div class="pgrp-empty-hint">→ Digite o nº do grupo (ex: 040010) para puxar prazo, taxa e faixa de crédito</div>':'';
@@ -9079,7 +9086,7 @@ function usarGrupoSugerido(g){
     if(propGrupos.length===1&&!propGrupos[0].grupo){
       lookupGrupo(0,g);
     }else{
-      propGrupos.push({grupo:'',prazo:192,fr:3,taxaadm:23,credMin:0,credMax:0,credito:340000,qtd:1,mesAtual:0});
+      propGrupos.push({grupo:'',prazo:192,fr:3,taxaadm:23,credMin:0,credMax:0,credito:340000,qtd:1,mesAtual:0,pr_red:false});
       lookupGrupo(propGrupos.length-1,g);
     }
   }
