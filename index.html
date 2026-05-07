@@ -1647,7 +1647,7 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
           <th onclick="sortCRM('assessor')" style="cursor:pointer">Assessor <span id="lsort-assessor" class="sort-ico">⇅</span></th>
           <th onclick="sortCRM('interesse')" style="cursor:pointer">Interesse <span id="lsort-interesse" class="sort-ico">⇅</span></th>
           <th onclick="sortCRM('valor_potencial')" style="cursor:pointer">Crédito <span id="lsort-valor_potencial" class="sort-ico">⇅</span></th>
-          <th title="Receita líquida do assessor: 4% sobre carta − 17,5% imposto, depois % padrão do assessor designado no lead">Sua Receita</th>
+          <th title="Receita líquida do assessor: 4% × carta − 17,5% imposto. Do líquido aplica (% padrão − 10) — head Coyote leva 10. Filiais Sorocaba/Mogi descontam mais 10 pro head de filial.">Sua Receita</th>
           <th>Proposta</th>
           <th onclick="sortCRM('status')" style="cursor:pointer">Status <span id="lsort-status" class="sort-ico">⇅</span></th>
           <th onclick="sortCRM('created_at')" style="cursor:pointer">Idade <span id="lsort-created_at" class="sort-ico">⇅</span></th>
@@ -4364,7 +4364,7 @@ function _renderFiliais(rows){
     <div style="background:var(--card);border:1px solid var(--bdr);border-radius:14px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.04)">
       <div style="padding:16px 20px;background:linear-gradient(135deg,var(--cream),var(--card));border-bottom:1px solid var(--bdr)">
         <div style="font-weight:700;font-size:15px">💰 Repasse por Filial</div>
-        <div style="font-size:11.5px;color:var(--txt2);margin-top:2px">Bruta − 17,5% imposto = líquida. Sem head de filial: assessor pct% · Coyote 10% · HC360 (90−pct)%. <b>Com head de filial</b> (Sorocaba: Aranha · Mogi Guaçu: Carvalho): assessor (pct−10)% · Head Filial 10% · Coyote 10% · HC360 (90−pct)%. Sardinha vendendo: Coyote = 0.</div>
+        <div style="font-size:11.5px;color:var(--txt2);margin-top:2px">Bruta − 17,5% imposto = líquida. <b>HC360 sempre fica com (100−pct)%</b> (mín 30%). Sem head de filial: assessor (pct−10)% · Coyote 10%. <b>Com head de filial</b> (Sorocaba: Aranha · Mogi Guaçu: Carvalho): assessor (pct−20)% · Head Filial 10% · Coyote 10%. Sardinha vendendo: assessor pct% · Coyote = 0.</div>
       </div>
       <div class="tw" style="overflow-x:auto"><table style="width:100%;font-size:12.5px;min-width:1100px;border-collapse:collapse">
         <thead><tr style="background:var(--card2)">
@@ -6444,13 +6444,16 @@ let PERFIS_BY_APELIDO={};
 let HEADS_POR_FILIAL={};
 
 // === Estimativa de receita do assessor a partir de um lead ===
-// Regra:
+// REGRA OFICIAL:
+// pct_padrao (cadastrado em Usuários) = total que sai da HC360 pra remunerar o lado do assessor (ele + heads).
+// HC360 SEMPRE fica com (100−pct)%. Mínimo da empresa = 30%, então pct_padrao máx = 70.
+//
 // 1. Bruta = 4% × valor da carta
 // 2. Imposto = 17,5% × bruta → Líquida
 // 3. Divisão da líquida:
-//    Sem head de filial: Assessor pct%, Coyote 10%, HC360 (90−pct)%
-//    Com head de filial (e o assessor não é o head): Assessor (pct−10)%, Head Filial 10%, Coyote 10%, HC360 (90−pct)%
-//    Sardinha vendendo: Coyote = 0, HC360 (100−pct)%
+//    Sem head de filial: Assessor (pct−10)%, Coyote (head produto) 10%, HC360 (100−pct)%
+//    Com head de filial (Sorocaba/Mogi, e assessor não é o próprio head): Assessor (pct−20)%, Head Filial 10%, Coyote 10%, HC360 (100−pct)%
+//    Sardinha vendendo: Assessor pct%, Coyote 0%, Head Filial 0%, HC360 (100−pct)%
 function _estimarReceitaLead(l){
   const valor=Number((l&&(l.sim?l.sim.credTot:l.valor_potencial))||0);
   if(!valor||valor<=0)return null;
@@ -6468,20 +6471,31 @@ function _estimarReceitaLead(l){
     ehSardinha=(CURRENT_USER.assessorName==='MATHEUS SARDINHA');
   }
   if(pct==null)return {valor,bruta,imposto,liquida,repasse:null,pct:null,head:null,headFilial:null,hc360:null,perfilAss:perfilAss?perfilAss.assessor_name:null};
-  // Head de filial: se a filial do assessor tem um head e o assessor não é o próprio head
-  let headFilialNome=null, headFilialVal=0, descontoHF=0;
-  if(perfilAss&&perfilAss.filial&&HEADS_POR_FILIAL[perfilAss.filial]){
+  // Head de filial: aplica só se filial tem head, assessor NÃO é o próprio head, e NÃO é Sardinha
+  let headFilialNome=null, temHF=false;
+  if(!ehSardinha && perfilAss && perfilAss.filial && HEADS_POR_FILIAL[perfilAss.filial]){
     const hf=HEADS_POR_FILIAL[perfilAss.filial];
     if(hf.assessor_name!==perfilAss.assessor_name){
       headFilialNome=hf.assessor_name;
-      headFilialVal=liquida*0.10;
-      descontoHF=10;
+      temHF=true;
     }
   }
-  const repasse=liquida*Math.max(pct-descontoHF,0)/100;
-  const head=ehSardinha?0:liquida*0.10;
-  const hc360=ehSardinha?(liquida*(100-pct)/100):(liquida*(90-pct)/100);
-  return {valor,bruta,imposto,liquida,repasse,head,headFilial:headFilialVal,headFilialNome,hc360,pct,ehSardinha,perfilAss:perfilAss?perfilAss.assessor_name:null};
+  let repasse, head, headFilial, hc360;
+  if(ehSardinha){
+    repasse=liquida*pct/100; head=0; headFilial=0;
+    hc360=liquida*(100-pct)/100;
+  }else if(temHF){
+    repasse=liquida*Math.max(pct-20,0)/100;
+    head=liquida*0.10;
+    headFilial=liquida*0.10;
+    hc360=liquida*(100-pct)/100;
+  }else{
+    repasse=liquida*Math.max(pct-10,0)/100;
+    head=liquida*0.10;
+    headFilial=0;
+    hc360=liquida*(100-pct)/100;
+  }
+  return {valor,bruta,imposto,liquida,repasse,head,headFilial,headFilialNome,hc360,pct,ehSardinha,temHF,perfilAss:perfilAss?perfilAss.assessor_name:null};
 }
 function _fmtBRLcurto(n){
   if(n==null||isNaN(n))return '—';
@@ -6575,7 +6589,7 @@ function crmRowHtml(l){
     <td style="font-size:11.5px">${atag(l.assessor)}</td>
     <td><span class="pc-tag pc-tag-int">${l.interesse||'—'}</span></td>
     <td style="font-weight:700;color:var(--sb);white-space:nowrap">${credLabel}</td>
-    <td style="white-space:nowrap">${(()=>{const r=_estimarReceitaLead({...l,sim});if(!r)return '<span style="color:var(--txt3)">—</span>';if(r.repasse==null)return '<span style="color:var(--txt3);font-size:11px" title="Sem perfil de % padrão">—</span>';return '<span style="font-weight:700;color:#0F766E">'+_fmtBRLcurto(r.repasse)+'</span><div style="font-size:10px;color:var(--txt3);margin-top:1px">'+r.pct+'% líq.</div>';})()}</td>
+    <td style="white-space:nowrap">${(()=>{const r=_estimarReceitaLead({...l,sim});if(!r)return '<span style="color:var(--txt3)">—</span>';if(r.repasse==null)return '<span style="color:var(--txt3);font-size:11px" title="Sem perfil de % padrão">—</span>';const pctReal=r.ehSardinha?r.pct:(r.temHF?Math.max(r.pct-20,0):Math.max(r.pct-10,0));return '<span style="font-weight:700;color:#0F766E">'+_fmtBRLcurto(r.repasse)+'</span><div style="font-size:10px;color:var(--txt3);margin-top:1px">'+pctReal+'% líq.</div>';})()}</td>
     <td onclick="event.stopPropagation()">${(()=>{
       if(!sim){return `<button class="crm-act-btn" style="border-color:var(--acc);color:var(--acc);font-size:11px;padding:4px 9px" onclick="openModalSim('${l.id}')" title="Criar proposta">📊 Criar</button>`;}
       const st=propStatusInfo(sim.status);
@@ -6767,10 +6781,10 @@ function mlAtualizaReceita(){
     det.innerHTML=`<div style="color:var(--err);font-size:12px">Assessor sem perfil cadastrado em Usuários. Configure o % padrão pra ver a receita.</div>
       <div style="font-size:11.5px;color:var(--txt2);margin-top:4px">Bruta: <b>${fmt(r.bruta)}</b> · Imposto (17,5%): <b>${fmt(r.imposto)}</b> · Líquida: <b>${fmt(r.liquida)}</b></div>`;
   }else{
-    const temHF=r.headFilial>0;
-    const pctAss=temHF?Math.max(r.pct-10,0):r.pct;
+    const temHF=!!r.temHF;
+    const pctAss=r.ehSardinha?r.pct:(temHF?Math.max(r.pct-20,0):Math.max(r.pct-10,0));
     const headPct=r.ehSardinha?0:10;
-    const hcPct=r.ehSardinha?(100-r.pct):(90-r.pct);
+    const hcPct=100-r.pct;
     const hfBlock=temHF?`<div style="background:#fff;padding:9px 11px;border-radius:7px;border:1px solid var(--bdr)">
           <div style="font-size:10px;color:#7C2D12;text-transform:uppercase;letter-spacing:.4px">Head Filial (10%)</div>
           <div style="font-weight:700;font-size:13px;color:#7C2D12">${fmt(r.headFilial)}</div>
