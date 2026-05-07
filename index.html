@@ -1275,11 +1275,7 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
             <button class="toggle-btn act" data-val="linear" onclick="dashSetEvoScale(this,'linear')" style="padding:4px 10px;font-size:11px;border-radius:5px;flex:none" title="Escala linear (proporcional)">Linear</button>
             <button class="toggle-btn" data-val="suave" onclick="dashSetEvoScale(this,'suave')" style="padding:4px 10px;font-size:11px;border-radius:5px;flex:none" title="Escala suave — linear até 10M, comprime acima para evitar picos achatarem outros meses">Suave</button>
           </div>
-          <select class="form-i" id="dash-evo-period" style="padding:4px 8px;font-size:11px;width:auto;margin:0" onchange="dashRenderEvo()">
-            <option value="3">3 meses</option>
-            <option value="6">6 meses</option>
-            <option value="12">12 meses</option>
-            <option value="24">24 meses</option>
+          <select class="form-i" id="dash-evo-year" style="padding:4px 8px;font-size:11px;width:auto;margin:0" onchange="dashRenderEvo()" title="Filtra ano específico — mostra Jan a Dez. 'Tudo' agrega todo o histórico.">
             <option value="all" selected>Tudo</option>
           </select>
         </div>
@@ -4927,8 +4923,8 @@ function dashRenderEvo(){
     if(dashEvoMode==='faturado') return r.data_faturamento||null;
     return null;
   };
-  const periodEl=document.getElementById('dash-evo-period');
-  const period=periodEl?periodEl.value:'12';
+  const yearEl=document.getElementById('dash-evo-year');
+  const yearVal=yearEl?yearEl.value:'all';
   const buckets={};
   let semDataCount=0, semDataVol=0;
   ativas.forEach(r=>{
@@ -4945,16 +4941,26 @@ function dashRenderEvo(){
     if(!buckets[k].assessores[an]) buckets[k].assessores[an]=0;
     buckets[k].assessores[an]++;
   });
-  let keys=Object.keys(buckets).sort();
-  if(period!=='all'){
-    const N=parseInt(period,10);
-    const today=new Date();
-    const ks=[];
-    for(let i=N-1;i>=0;i--){
-      const d=new Date(today.getFullYear(),today.getMonth()-i,1);
-      ks.push(d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'));
+  // Popular dropdown de ano dinamicamente (anos que existem na data + ano corrente)
+  if(yearEl){
+    const yearsInData=new Set(Object.keys(buckets).map(k=>k.slice(0,4)));
+    yearsInData.add(String(new Date().getFullYear()));
+    const yearsSorted=Array.from(yearsInData).sort().reverse();
+    const expectedHTML='<option value="all">Tudo</option>'+yearsSorted.map(y=>'<option value="'+y+'">'+y+'</option>').join('');
+    if(yearEl.dataset.lastYears!==yearsSorted.join(',')){
+      const cur=yearEl.value;
+      yearEl.innerHTML=expectedHTML;
+      yearEl.value=yearsSorted.includes(cur)||cur==='all'?cur:'all';
+      yearEl.dataset.lastYears=yearsSorted.join(',');
     }
-    keys=ks;
+  }
+  let keys;
+  if(yearVal==='all'){
+    keys=Object.keys(buckets).sort();
+  }else{
+    // Mostra Jan-Dez do ano selecionado (12 barras, mesmo meses sem dados)
+    keys=[];
+    for(let m=1;m<=12;m++) keys.push(yearVal+'-'+String(m).padStart(2,'0'));
   }
   _dashEvoBuckets=buckets; _dashEvoKeys=keys;
   const labels=keys.map(dashFmtMonth);
@@ -4968,18 +4974,18 @@ function dashRenderEvo(){
   volData.forEach((v,i)=>{ if(v>pkVol){pkVol=v;pkIdx=i;} });
   const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
   const setHtml=(id,v)=>{const e=document.getElementById(id);if(e)e.innerHTML=v;};
-  // Cotas: período + total carteira (lado a lado, claro)
-  const periodLbl=period==='all'?'todo o histórico':'últimos '+period+'m';
-  const cotasOut=period==='all'?
+  // Cotas: ano + total carteira
+  const periodLbl=yearVal==='all'?'todo o histórico':'ano '+yearVal;
+  const cotasOut=yearVal==='all'?
     universeCount+' <span style="font-size:11px;color:var(--txt2);font-weight:500">total</span>':
     totCotas+' <span style="font-size:11px;color:var(--txt2);font-weight:500">/ '+universeCount+' carteira</span>';
   setHtml('evo-tot-cotas',cotasOut);
-  const volOut=period==='all'?
+  const volOut=yearVal==='all'?
     brl(universeVol,0):
     brl(totVol,0);
-  setHtml('evo-tot-vol',volOut+(period==='all'?'':'<span style="font-size:11px;color:var(--txt2);font-weight:500"> / '+brl(universeVol,0)+'</span>'));
+  setHtml('evo-tot-vol',volOut+(yearVal==='all'?'':'<span style="font-size:11px;color:var(--txt2);font-weight:500"> / '+brl(universeVol,0)+'</span>'));
   // Ticket sempre do que está visível no chart
-  const ticketBase=period==='all'?(universeCount?universeVol/universeCount:0):ticket;
+  const ticketBase=yearVal==='all'?(universeCount?universeVol/universeCount:0):ticket;
   set('evo-tot-tk',brl(ticketBase,0));
   set('evo-tot-pk',pkIdx>=0?(labels[pkIdx]+' · '+brl(pkVol,0)):'—');
   // YTD (Year-to-Date) — respeita filtros de modo + tipo de bem
