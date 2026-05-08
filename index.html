@@ -10964,7 +10964,8 @@ function gerarRelatorioCliente(name){
   const stBgMin={Contemplado:'transparent',CONTEMPLADO:'transparent',Faturado:'transparent','Em Andamento':'transparent','Lance Livre':'transparent','Lance Fixo':'transparent',LANCE:'transparent',Sorteio:'transparent','SORTEIO / LANCE':'transparent'};
   const stBdMin={Contemplado:'#059669',CONTEMPLADO:'#059669',Faturado:'#185b59','Em Andamento':'#D6AF5C','Lance Livre':'#3b82f6','Lance Fixo':'#D6AF5C',LANCE:'#D6AF5C',Sorteio:'#94a3b8','SORTEIO / LANCE':'#94a3b8'};
   const statusBoleto=r=>{
-    if(!r.ultima_parcela_paga)return{txt:'#92400e',label:'Pendente',sub:'sem registro'};
+    const venc=r.vencimento?'vence dia '+r.vencimento:'sem vencimento';
+    if(!r.ultima_parcela_paga)return{txt:'#92400e',label:'Pendente',sub:venc};
     const ult=new Date(r.ultima_parcela_paga+'T00:00:00');
     const inicioMes=new Date(today.getFullYear(),today.getMonth(),1);
     if(ult>=inicioMes)return{txt:'#059669',label:'Pago',sub:fmtDataBr(r.ultima_parcela_paga)};
@@ -11084,6 +11085,8 @@ function gerarRelatorioCliente(name){
     ${ftr()}
   </div>`;
   // PÁGINAS 3+: PORTFÓLIO DETALHADO (paginado)
+  // Próx. AGO só aparece se houver cotas não-contempladas (cliente com tudo contemplado não precisa)
+  const temAtivas=en.some(r=>!isC(r.status));
   const portPages=chunks.map((chunk,ci)=>{
     pgIdx++;
     const isFirst=ci===0;
@@ -11092,15 +11095,17 @@ function gerarRelatorioCliente(name){
       const pct=r.prazoTotal>0?Math.min(100,Math.round(r.meses/r.prazoTotal*100)):0;
       const bg=stBg[r.status]||'#f3f4f6';const tx=stTx[r.status]||'#374151';const pc=stPc[r.status]||'#94a3b8';
       const cl=credLibCota(r);
-      const proxA=calcProxAgo(r.grupo,r);
+      const proxA=temAtivas?calcProxAgo(r.grupo,r):null;
       const sb=statusBoleto(r);
       const stCol=stBdMin[r.status]||'#94a3b8';
+      const venc=r.vencimento?'Dia '+r.vencimento:'<span style="color:#ccc">—</span>';
       return`<tr>
         <td><b style="font-weight:600">${r.grupo||'—'}</b><div style="font-size:6.5pt;color:#999;margin-top:.5mm">Cota ${r.cota||'—'}</div></td>
         <td><span style="font-size:7pt;color:${stCol};font-weight:600;letter-spacing:.2px;border:1px solid ${stCol};padding:.5mm 1.5mm;border-radius:1mm;display:inline-block">${r.status}</span></td>
         <td style="text-align:right;font-weight:600">${ff(r.credito||0)}</td>
         <td style="text-align:right;color:#226866">${cl>0?ff(cl):'<span style="color:#ccc">—</span>'}</td>
-        <td style="text-align:center">${proxA?fmtDataBr(proxA):'—'}</td>
+        ${temAtivas?`<td style="text-align:center">${proxA?fmtDataBr(proxA):'<span style="color:#ccc">—</span>'}</td>`:''}
+        <td style="text-align:center;font-weight:500">${venc}</td>
         <td style="text-align:center"><span style="font-size:7pt;color:${sb.txt};font-weight:600;letter-spacing:.2px">${sb.label}</span><div style="font-size:6.5pt;color:#999;margin-top:.5mm">${sb.sub}</div></td>
         <td><div style="font-size:6.5pt;color:#999">${pct}% &middot; ${r.meses}/${r.prazoTotal}m</div><div class="rel-prog"><div class="rel-prog-fill" style="width:${pct}%;background:${pc}"></div></div></td>
         <td style="text-align:right;font-weight:600">${ff(parcEf(r))}</td>
@@ -11111,21 +11116,32 @@ function gerarRelatorioCliente(name){
       ${isFirst?'<div class="rel-page-title">Portfólio Detalhado</div><div class="rel-page-subtitle">Cotas ordenadas por status. Progresso medido a partir da data de adesão.</div>':'<div class="rel-port-section-h">Portfólio Detalhado · continuação</div>'}
       <table class="rel-port-tbl">
         <colgroup>
+          ${temAtivas?`
+          <col style="width:10%">
           <col style="width:11%">
-          <col style="width:14%">
           <col style="width:11%">
           <col style="width:11%">
-          <col style="width:11%">
-          <col style="width:14%">
+          <col style="width:9%">
+          <col style="width:7%">
+          <col style="width:13%">
           <col style="width:17%">
+          <col style="width:11%">`:`
           <col style="width:11%">
+          <col style="width:13%">
+          <col style="width:12%">
+          <col style="width:12%">
+          <col style="width:8%">
+          <col style="width:14%">
+          <col style="width:18%">
+          <col style="width:12%">`}
         </colgroup>
         <thead><tr>
           <th>Grupo / Cota</th>
           <th>Status</th>
           <th style="text-align:right">Crédito</th>
           <th style="text-align:right">Cred. Lib.</th>
-          <th style="text-align:center">Próx. AGO</th>
+          ${temAtivas?'<th style="text-align:center">Próx. AGO</th>':''}
+          <th style="text-align:center">Vencimento</th>
           <th style="text-align:center">Boleto Mês</th>
           <th>Progresso</th>
           <th style="text-align:right">Parcela</th>
@@ -11135,7 +11151,9 @@ function gerarRelatorioCliente(name){
           <td colspan="2">TOTAL · ${en.length} cota${en.length>1?'s':''}</td>
           <td style="text-align:right">${ff(totCr)}</td>
           <td style="text-align:right">${ff(credLib)}</td>
-          <td colspan="2"></td>
+          ${temAtivas?'<td></td>':''}
+          <td></td>
+          <td></td>
           <td style="text-align:right;font-size:7.5pt">prazo pond.: ${prazoPond}m</td>
           <td style="text-align:right">${ff(totParc)}/mês</td>
         </tr></tfoot>`:''}
