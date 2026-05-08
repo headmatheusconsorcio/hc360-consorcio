@@ -1178,7 +1178,9 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
   #rel-modal,.rel-modal.open{display:block!important;position:static!important;background:#fff!important;inset:auto!important}
   .rel-toolbar{display:none!important}
   .rel-pages{padding:0;gap:0;display:block!important}
-  .rel-page{width:auto;min-height:auto;box-shadow:none;margin:0;padding:14mm 12mm;display:block!important}
+  .rel-page{width:auto!important;min-height:auto!important;height:auto!important;box-shadow:none!important;margin:0!important;padding:14mm 12mm!important;display:block!important;overflow:visible!important;page-break-after:always;break-after:page}
+  .rel-page:last-child{page-break-after:auto;break-after:auto}
+  .rel-page *{overflow:visible!important}
   body{background:#fff!important;display:block!important;overflow:visible!important}
   html{overflow:visible!important}
   *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
