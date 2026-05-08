@@ -1186,54 +1186,55 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
   #rel-modal,.rel-modal.open{display:block!important;position:static!important;background:#fff!important;inset:auto!important}
   .rel-toolbar{display:none!important}
   .rel-pages{padding:0;gap:0;display:block!important}
-  .rel-page{width:auto!important;min-height:auto!important;height:auto!important;box-shadow:none!important;margin:0!important;padding:14mm 12mm!important;display:block!important;overflow:visible!important;page-break-after:always;break-after:page}
-  .rel-page:last-child{page-break-after:auto;break-after:auto}
+  .rel-page{width:auto!important;min-height:auto!important;height:auto!important;box-shadow:none!important;margin:0!important;padding:12mm 10mm!important;display:block!important;overflow:visible!important;page-break-after:auto;break-after:auto}
   .rel-page *{overflow:visible!important}
   body{background:#fff!important;display:block!important;overflow:visible!important}
   html{overflow:visible!important}
   *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
-  /* Aumentar fontes do relatório só na impressão (~25% maior pra ficar mais legível) */
-  .rel-cover-tag{font-size:11pt!important;letter-spacing:3.5px!important}
-  .rel-cover-cli{font-size:32pt!important}
-  .rel-cover-banco{font-size:12pt!important}
-  .rel-cover-data{font-size:12pt!important}
-  .rel-cover-stat-l{font-size:9pt!important}
-  .rel-cover-stat-v{font-size:18pt!important}
-  .rel-cover-foot-l{font-size:10.5pt!important}
-  .rel-cover-foot-l b{font-size:10.5pt!important}
-  .rel-cover-foot-l small{font-size:9pt!important}
-  .rel-cover-foot-r{font-size:11pt!important}
-  .rel-page-header-l{font-size:12pt!important}
-  .rel-page-header-r{font-size:9.5pt!important}
-  .rel-page-header-r b{font-size:10pt!important}
-  .rel-page-title{font-size:18pt!important}
-  .rel-page-subtitle{font-size:10.5pt!important}
-  .rel-kpi-l{font-size:9pt!important}
-  .rel-kpi-v{font-size:20pt!important}
-  .rel-kpi-s{font-size:9.5pt!important}
-  .rel-stat-card{font-size:11pt!important}
-  .rel-stat-n{font-size:22pt!important}
-  .rel-stat-l{font-size:10pt!important}
-  .rel-stat-v{font-size:13pt!important}
-  .rel-leg-row{font-size:10pt!important}
-  .rel-page-footer{font-size:8pt!important}
-  .rel-page-footer-r{font-size:8.5pt!important}
-  .rel-note{font-size:9pt!important;line-height:1.65!important}
-  /* Tabela do portfolio detalhado - mantem compacta pra caber 22 cotas/pagina */
-  .rel-port-tbl{font-size:7.5pt!important}
+  /* Quebra de pagina: SOMENTE depois da capa e do resumo. Portfolio flui livre. */
+  .rel-cover{padding:0!important;page-break-after:always!important;break-after:page!important}
+  .rel-page-resumo{page-break-after:always!important;break-after:page!important}
+  .rel-page:last-child{page-break-after:auto!important;break-after:auto!important}
+  /* Fontes ajustadas pra caber em A4 e ficar elegantes */
+  .rel-cover-tag{font-size:10pt!important;letter-spacing:3px!important}
+  .rel-cover-cli{font-size:24pt!important}
+  .rel-cover-data{font-size:11pt!important}
+  .rel-cover-stat-l{font-size:8pt!important}
+  .rel-cover-stat-v{font-size:15pt!important}
+  .rel-cover-foot-l{font-size:9pt!important}
+  .rel-cover-foot-l b{font-size:9pt!important}
+  .rel-cover-foot-l small{font-size:8pt!important}
+  .rel-cover-foot-r{font-size:10pt!important}
+  .rel-page-header-l{font-size:11pt!important}
+  .rel-page-header-r{font-size:8.5pt!important}
+  .rel-page-header-r b{font-size:9pt!important}
+  .rel-page-title{font-size:15pt!important;margin-bottom:1mm!important}
+  .rel-page-subtitle{font-size:9pt!important;margin-bottom:5mm!important}
+  .rel-kpi-grid{margin-bottom:5mm!important}
+  .rel-kpi-card{padding:4mm 4mm!important}
+  .rel-kpi-l{font-size:7.5pt!important;margin-bottom:2mm!important}
+  .rel-kpi-v{font-size:15pt!important;margin-bottom:1mm!important}
+  .rel-kpi-s{font-size:8pt!important}
+  .rel-stats-grid{margin-bottom:5mm!important;gap:3mm!important}
+  .rel-stat-card{padding:3mm 4mm!important}
+  .rel-stat-n{font-size:16pt!important}
+  .rel-stat-l{font-size:8pt!important;margin:1.5mm 0 .5mm!important}
+  .rel-stat-v{font-size:9pt!important}
+  .rel-chart-row{margin-bottom:0!important;gap:4mm!important}
+  .rel-chart-wrap{padding:3mm 4mm!important;margin:0!important}
+  .rel-chart-canvas{height:38mm!important}
+  .rel-chart-title{font-size:9pt!important;margin-bottom:0!important}
+  .rel-chart-sub{font-size:7.5pt!important;margin-bottom:2mm!important}
+  .rel-leg-row{font-size:8pt!important;padding:.8mm 0!important}
+  .rel-page-footer{font-size:7pt!important;padding-top:3mm!important}
+  .rel-page-footer-r{font-size:7.5pt!important}
+  .rel-note{font-size:8pt!important;line-height:1.5!important;margin-top:3mm!important;padding:2mm 3mm!important}
+  /* Tabela do portfolio detalhado - compacta pra caber 22 cotas/pagina */
+  .rel-port-tbl{font-size:7.5pt!important;page-break-inside:auto!important}
   .rel-port-tbl thead th{font-size:6.8pt!important;padding:1.5mm 1mm!important;letter-spacing:.4px!important}
   .rel-port-tbl tbody td{font-size:7.5pt!important;padding:1.4mm 1mm!important;line-height:1.25!important}
   .rel-port-tbl tfoot td{font-size:7.8pt!important;padding:2mm 1mm!important}
-  .rel-port-section-h{font-size:11pt!important;margin:5mm 0 2mm!important}
-  /* Layout das paginas - sem altura forcada, evita pagina vazia */
-  .rel-page{min-height:auto!important;padding:12mm 10mm!important}
-  .rel-page.rel-cover{min-height:auto!important;padding:0!important}
-  /* Quebra de pagina: SOMENTE depois da capa e do resumo. Portfolio flui livre. */
-  .rel-cover{page-break-after:always!important;break-after:page!important}
-  .rel-page-resumo{page-break-after:always!important;break-after:page!important}
-  .rel-page:last-child{page-break-after:auto!important;break-after:auto!important}
-  /* Tabela do portfolio quebra naturalmente entre as paginas */
-  .rel-port-tbl{page-break-inside:auto!important}
+  .rel-port-section-h{font-size:10pt!important;margin:4mm 0 2mm!important}
   .rel-port-tbl thead{display:table-header-group!important}
   .rel-port-tbl tfoot{display:table-row-group!important}
   .rel-port-tbl tbody tr{page-break-inside:avoid!important;break-inside:avoid!important}
