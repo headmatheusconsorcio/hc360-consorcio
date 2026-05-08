@@ -10057,7 +10057,7 @@ function renderProjDash(name){
   const totRend=en.reduce((s,r)=>s+rendimentoCota(r),0);
   const taxaAtual=taxaCdiAtual();
   const nC=en.filter(r=>isC(r.status)&&!isFat(r.status)).length;
-  const crC=en.filter(r=>isC(r.status)&&!isFat(r.status)).reduce((s,r)=>s+(r.credito_liberado||r.credito||0),0);
+  const crC=en.filter(r=>isC(r.status)&&!isFat(r.status)).reduce((s,r)=>s+(r.credito||0),0);
   const nFat=en.filter(r=>isFat(r.status)).length;
   const crFat=en.filter(r=>isFat(r.status)).reduce((s,r)=>s+(r.credito||0),0);
   const nAtivo=en.filter(r=>isAtivo(r.status)).length;
@@ -10929,7 +10929,7 @@ function gerarRelatorioCliente(name){
   const totRend=en.reduce((s,r)=>s+rendimentoCota(r),0);
   const taxaA=taxaCdiAtual();
   const nC=en.filter(r=>isC(r.status)&&!isFat(r.status)).length;
-  const crC=en.filter(r=>isC(r.status)&&!isFat(r.status)).reduce((s,r)=>s+(r.credito_liberado||r.credito||0),0);
+  const crC=en.filter(r=>isC(r.status)&&!isFat(r.status)).reduce((s,r)=>s+(r.credito||0),0);
   const nFat=en.filter(r=>isFat(r.status)).length;
   const crFat=en.filter(r=>isFat(r.status)).reduce((s,r)=>s+(r.credito||0),0);
   const nAtivo=en.filter(r=>isAtivo(r.status)).length;
@@ -11012,9 +11012,8 @@ function gerarRelatorioCliente(name){
     <div class="rel-cover-band"></div>
     <div class="rel-cover-body">
       <div class="rel-cover-logo">${logoSrc?`<img src="${logoSrc}" alt="HC360">`:`<div style="font-family:'Quicksand',sans-serif;font-size:32pt;font-weight:600;color:#2C3E50;letter-spacing:2px">HC<span style="color:#D6AF5C">360</span></div>`}</div>
-      <div class="rel-cover-tag">Relatório Consórcio Santander</div>
+      <div class="rel-cover-tag">${bancoPrin?'Relatório '+subtTitulo:'Relatório Patrimonial'}</div>
       <div class="rel-cover-cli">${name}</div>
-      ${bancoPrin?`<div class="rel-cover-banco">${subtTitulo}</div>`:''}
       <div class="rel-cover-data">${mesAno}</div>
       <div class="rel-cover-stats">
         <div class="rel-cover-stat"><div class="rel-cover-stat-l">Crédito Total</div><div class="rel-cover-stat-v">${fb(totCr)}</div></div>
@@ -11138,7 +11137,7 @@ function gerarRelatorioCliente(name){
   // Montar modal
   const html=`<div class="rel-modal open" id="rel-modal">
     <div class="rel-toolbar">
-      <div class="rel-toolbar-title">Relatório Consórcio Santander<small>${name} &middot; ${subtTitulo} &middot; ${mesAno}</small></div>
+      <div class="rel-toolbar-title">${bancoPrin?'Relatório '+subtTitulo:'Relatório Patrimonial'}<small>${name} &middot; ${mesAno}</small></div>
       <button onclick="imprimirRelatorio()" class="primary">🖨 Imprimir / Salvar PDF</button>
       <button onclick="fecharRelatorio()">✕ Fechar</button>
     </div>
