@@ -3236,6 +3236,7 @@ main.main:has(#page-ajuda.active) .content{
           <option>Itaú</option><option>Santander</option><option>Safra</option><option>Bradesco</option><option>Banco do Brasil</option><option>Caixa</option><option>Porto Seguro</option><option>Embracon</option><option>Outro</option>
         </select>
         <label style="display:flex;align-items:center;gap:5px;font-size:11.5px;color:var(--txt2);cursor:pointer;padding:0 4px;border:1px solid var(--bdr);border-radius:6px;height:34px"><input type="checkbox" id="pf-incl-cancel" onchange="filterProjList()" style="margin:0">Canceladas</label>
+        <label style="display:flex;align-items:center;gap:5px;font-size:11.5px;color:#92400e;cursor:pointer;padding:0 6px;border:1px solid #d97706;background:#fef3c7;border-radius:6px;height:34px;font-weight:600" title="Mostra só cotas Em Andamento / Lance Livre / Lance Fixo / Sorteio — esconde Contempladas, Faturadas e Canceladas"><input type="checkbox" id="pf-so-lance" onchange="filterProjList()" style="margin:0">⚡ Só passíveis de lance</label>
         <button class="btn btn-out btn-sm" onclick="clearProjList()">✕</button>
         <button class="btn btn-ok btn-sm" onclick="openModalCota(-1)">+ Nova Cota</button>
         <button class="btn btn-pri btn-sm" onclick="projSaveAllDirty()" title="Salvar todas as cotas alteradas">💾 Salvar todas</button>
@@ -11721,11 +11722,15 @@ function filterProjList(){
   const as=(document.getElementById('pf-assessor')?.value||'');
   const bc=(document.getElementById('pf-banco')?.value||'');
   const inclCancel=(document.getElementById('pf-incl-cancel')?.checked||false);
+  const soLance=(document.getElementById('pf-so-lance')?.checked||false);
   const na=a=>a==='Gil'?'GIL':a;
   const isCancel=v=>v==='Cancelado'||v==='CANCELADO';
+  const isContempOuFat=v=>v==='Contemplado'||v==='CONTEMPLADO'||v==='Faturado'||v==='FATURADO';
   const normSt2=x=>{const u=(x||'').toUpperCase();if(u==='CONTEMPLADO')return'Contemplado';if(u==='CANCELADO')return'Cancelado';if(u==='LANCE'||u==='SUPLENCIA - 2 NA FRENTE'||u==='SORTEIO / LANCE'||u==='SORTEIO')return'Em Andamento';return x;};
   plistFiltered=COTAS.filter(r=>{
     if(!inclCancel&&st!=='Cancelado'&&isCancel(r.status))return false;
+    // "Só passíveis de lance": esconde Contempladas/Faturadas (Canceladas já são ocultas pela regra acima)
+    if(soLance&&(isContempOuFat(r.status)||isCancel(r.status)))return false;
     return (!s||(r.nome||'').toLowerCase().includes(s)||(r.grupo||'').toString().includes(s)||(r.cota||'').toString().includes(s)||(r.cpf||'').includes(s))
       &&(!st||normSt2(r.status)===st)
       &&(!as||na(r.assessor)===as)
@@ -11733,7 +11738,7 @@ function filterProjList(){
   });
   plistPage=1;renderProjList();
 }
-function clearProjList(){['pf-search','pf-status','pf-assessor','pf-banco'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});const c=document.getElementById('pf-incl-cancel');if(c)c.checked=false;filterProjList();}
+function clearProjList(){['pf-search','pf-status','pf-assessor','pf-banco'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});const c=document.getElementById('pf-incl-cancel');if(c)c.checked=false;const sl=document.getElementById('pf-so-lance');if(sl)sl.checked=false;filterProjList();}
 function sortProjList(col){plistSort.dir=plistSort.col===col?-plistSort.dir:1;plistSort.col=col;plistPage=1;renderProjList();}
 function plistGo(p){plistPage=p;renderProjList();}
 function renderProjList(){
