@@ -5318,19 +5318,40 @@ function estadoOferta(cotaId){
 async function toggleLanceOfertado(id){
   const r=COTAS.find(c=>String(c.id)===String(id));if(!r)return;
   const est=estadoOferta(id);
-  showLoad();
   if(est.tipo==='sem'){
+    // Lê o input Lance% (pode ter sido editado mas ainda não salvo no banco)
+    const inpEl=document.getElementById('pl1-'+id);
+    const inpVal=inpEl?parseFloat(inpEl.value):NaN;
+    let lancePct=null;
+    if(!isNaN(inpVal)&&inpVal>0){
+      lancePct=inpVal;
+      // Se o input tem valor diferente do banco, salva o lance1 também (anti-perda)
+      const lance1Dec=+(inpVal/100).toFixed(4);
+      if(r.lance1==null||Math.abs((r.lance1||0)-lance1Dec)>0.0001){
+        showLoad();
+        const {error:e0}=await sb.from('cotas').update({lance1:lance1Dec,updated_at:new Date().toISOString()}).eq('id',id);
+        hideLoad();
+        if(!e0)r.lance1=lance1Dec;
+      }
+    }else if(r.lance1){
+      lancePct=+(r.lance1*100).toFixed(2);
+    }
+    // Aviso antes de marcar SEM % definido (evita marcar à toa)
+    if(!lancePct||lancePct===0){
+      if(!confirm(`⚠️ Marcar oferta SEM % de lance definido?\n\nCota ${r.grupo||'—'}/${r.cota||'—'} — ${r.nome}\n\nDica: preencha o campo "Lance %" antes de marcar pra registrar o valor exato.`))return;
+    }
+    showLoad();
     const proxAgo=calcProxAgo(r.grupo,r);
     if(!proxAgo){hideLoad();toast('Grupo sem AGO cadastrada no GUIA','err');return;}
-    const lancePct=r.lance1?+(r.lance1*100).toFixed(2):null;
     const {data:nova,error}=await sb.from('ofertas_lance').insert({cota_id:id,data_assembleia:proxAgo,lance_pct:lancePct}).select().single();
     hideLoad();
     if(error){toast('Erro: '+error.message,'err');return;}
     if(!OFERTAS[id])OFERTAS[id]=[];
     OFERTAS[id].unshift(nova);
-    toast(`Lance marcado para AGO ${fmtDataBr(proxAgo)}`);
+    toast(`Lance ${lancePct?lancePct.toFixed(2).replace(/\.?0+$/,'')+'%':'SEM %'} marcado para AGO ${fmtDataBr(proxAgo)}`);
     refreshCotaViews();return;
   }
+  showLoad();
   if(est.tipo==='futura'){
     const {error}=await sb.from('ofertas_lance').delete().eq('id',est.oferta.id);
     hideLoad();
@@ -5419,16 +5440,23 @@ async function reabrirOferta(ofertaId,cotaId){
 function renderToggleOferta(cotaId){
   const est=estadoOferta(cotaId);
   const onClick=`onclick="toggleLanceOfertado('${cotaId}')"`;
-  const baseStyle='padding:3px 10px;font-size:11px;font-weight:600;border-radius:6px;cursor:pointer';
+  const baseStyle='padding:3px 10px;font-size:11px;font-weight:600;border-radius:6px;cursor:pointer;white-space:nowrap';
   if(est.tipo==='sem'){
     return `<button class="btn btn-sm" ${onClick} style="background:#fef3c7;color:#92400e;border:1px solid #d97706;${baseStyle}" title="Marcar como ofertado na próxima AGO">✗ Marcar</button>`;
   }
   const dt=fmtDataBr(est.oferta.data_assembleia);
+  const pctNum=est.oferta.lance_pct!=null?+est.oferta.lance_pct:null;
+  const pctTxt=pctNum!=null?pctNum.toFixed(2).replace(/\.?0+$/,'')+'%':'sem %';
+  const semPct=pctNum==null||pctNum===0;
   if(est.tipo==='futura'){
-    return `<button class="btn btn-sm" ${onClick} style="background:#d1fae5;color:#065f46;border:1px solid #10b981;${baseStyle}" title="Lance marcado para AGO ${dt} — clique para desmarcar">✓ ${dt}</button>`;
+    const bg=semPct?'#fef3c7':'#d1fae5';
+    const tx=semPct?'#92400e':'#065f46';
+    const bd=semPct?'#d97706':'#10b981';
+    const aviso=semPct?'⚠️ ':'';
+    return `<button class="btn btn-sm" ${onClick} style="background:${bg};color:${tx};border:1px solid ${bd};${baseStyle}" title="${semPct?'ATENÇÃO: oferta marcada SEM % de lance — preencha o campo Lance % e remarque. ':''}Lance ${pctTxt} marcado para AGO ${dt} — clique para desmarcar">${aviso}✓ ${pctTxt} · ${dt}</button>`;
   }
   // est.tipo === 'passada'
-  return `<button class="btn btn-sm" ${onClick} style="background:#e5e7eb;color:#374151;border:1px solid #9ca3af;${baseStyle}" title="AGO ${dt} passou — clique para fechar como Não contemplado e marcar próxima">↻ ${dt} (passou)</button>`;
+  return `<button class="btn btn-sm" ${onClick} style="background:#e5e7eb;color:#374151;border:1px solid #9ca3af;${baseStyle}" title="AGO ${dt} (${pctTxt}) passou — clique para fechar como Não contemplado e marcar próxima">↻ ${pctTxt} · ${dt} (passou)</button>`;
 }
 function openModalTaxasCdi(){
   renderTaxasCdi();
