@@ -5241,25 +5241,20 @@ function calcRendimento(base,dataInicio,dataFim,taxas){
   }
   return valor-base;
 }
-// Rendimento da Carta = correção REAL pelo INCC desde a contemplação (mesma lógica Itaú).
-// Não é CDI virtual — é o valor que o crédito efetivamente cresceu na carta.
-// Fórmula: credito_liberado HOJE - credito_liberado na CONTEMPLAÇÃO
-//        = credito_liberado_atual - (credito - lance_embutido)
+// Rendimento da Carta = CDI aplicado ao crédito liberado desde a contemplação.
+// Regra Itaú: PRÉ-contemplação a carta corrige pelo INCC, PÓS-contemplação rende CDI.
+// Como o sistema só calcula rendimento pra cotas Contempladas/Faturadas, usamos CDI.
+// Base: credito_liberado (fallback carta_atualizada → credito).
+// Lance embutido sai da própria carta e NÃO rende separado.
 function rendimentoCota(r){
   const isCp=r.status==='Contemplado'||r.status==='CONTEMPLADO'||r.status==='Faturado';
-  if(!isCp)return 0;
-  // Faturado: usa credito_liberado congelado (Itaú já fixa quando entrega)
-  // Crédito Liberado HOJE — corrigido pelo INCC
-  let clHoje=0;
-  if(r.credito_liberado!=null&&r.credito_liberado>0)clHoje=r.credito_liberado;
-  else if(r.lance_embutido!=null&&r.lance_embutido>0)clHoje=Math.max(0,(r.carta_atualizada||r.credito||0)-r.lance_embutido);
-  else clHoje=r.carta_atualizada||r.credito||0;
-  // Crédito Liberado ORIGINAL (na contemplação, sem correção INCC)
-  // = carta contratada − lance embutido (se houve embutido); senão = carta contratada
-  const clOriginal=r.lance_embutido!=null&&r.lance_embutido>0
-    ?Math.max(0,(r.credito||0)-r.lance_embutido)
-    :(r.credito||0);
-  return Math.max(0,clHoje-clOriginal);
+  if(!isCp||!r.data_contemplada)return 0;
+  // Se já foi faturado, congela na data de faturamento (depois disso a carta sai e não rende mais)
+  const dataFim=r.status==='Faturado'?(r.data_faturamento||null):null;
+  // Faturado SEM data_faturamento = não calcula (evita rendimento até hoje em carta já entregue)
+  if(r.status==='Faturado'&&!r.data_faturamento)return 0;
+  const base=r.credito_liberado||r.carta_atualizada||r.credito||0;
+  return calcRendimento(base,r.data_contemplada,dataFim,TAXAS_CDI);
 }
 function taxaCdiAtual(){
   if(!TAXAS_CDI||!TAXAS_CDI.length)return null;
@@ -11489,7 +11484,7 @@ function renderProjDash(name){
       <div class="pd-kpi c-green"><div class="pd-kpi-ico">🏦</div><div class="pd-kpi-lbl">Valor Pago · Lances</div><div class="pd-kpi-val">${fb(totLancePago)}</div><div class="pd-kpi-sub">recurso próprio (excl. embutido)</div></div>
       <div class="pd-kpi c-info"><div class="pd-kpi-ico">📅</div><div class="pd-kpi-lbl">Prazo Ponderado</div><div class="pd-kpi-val">${prazoPonderado}<span style="font-size:14px;font-weight:600;color:var(--txt2)"> m</span></div><div class="pd-kpi-sub">ponderado por parcela &nbsp;·&nbsp; ${(prazoPonderado/12).toFixed(1)} anos</div></div>
       <div class="pd-kpi c-navy"><div class="pd-kpi-ico">⏳</div><div class="pd-kpi-lbl">Prazo Total (maior)</div><div class="pd-kpi-val">${prazoMax}<span style="font-size:14px;font-weight:600;color:var(--txt2)"> m</span></div><div class="pd-kpi-sub">maior prazo entre as cotas &nbsp;·&nbsp; ${(prazoMax/12).toFixed(1)} anos</div></div>
-      <div class="pd-kpi c-green" style="border-left:3px solid #059669"><div class="pd-kpi-ico">📈</div><div class="pd-kpi-lbl">Rendimento da Carta</div><div class="pd-kpi-val" style="color:#059669">${fb(totRend)}</div><div class="pd-kpi-sub">correção INCC desde a contemplação</div></div>
+      <div class="pd-kpi c-green" style="border-left:3px solid #059669"><div class="pd-kpi-ico">📈</div><div class="pd-kpi-lbl">Rendimento da Carta</div><div class="pd-kpi-val" style="color:#059669">${fb(totRend)}</div><div class="pd-kpi-sub">CDI pós-contemplação ${taxaAtual?'· '+taxaAtual.taxa_aa+'% a.a.':''}</div></div>
     </div>
     <div class="pd-st-grid">
       <div class="pd-st-card"><div class="pd-st-count" style="color:#059669">${nC}</div><div class="pd-st-lbl">Contempladas</div><div class="pd-st-cr">${fb(crC)}</div><div class="pd-st-bar" style="background:#d1fae5"><div style="height:100%;width:${totCr>0?Math.round(crC/totCr*100):0}%;background:#059669;border-radius:2px"></div></div></div>
@@ -11549,7 +11544,7 @@ function renderProjDash(name){
     </table></div>
     <div class="pd-print-info-box" style="font-size:10.5px;color:var(--txt2);margin-top:12px;padding:10px 14px;background:var(--card2);border-radius:8px;border:1px solid var(--bdr);line-height:1.6">
       ℹ️ <b>Crédito Liberado</b>: crédito líquido recebido pela contemplada (carta − embutido). <b>Progresso</b>: medido a partir da <i>data de adesão</i> da cota — 100% representa o prazo restante na adesão. <b>Boleto do Mês</b>: pago se houver registro de pagamento no mês corrente.<br>
-      📈 <b>Rendimento da Carta</b> (KPI acima): correção do crédito liberado pelo INCC desde a data de contemplação — mesma lógica do extrato Itaú. Mostra quanto a carta cresceu em valor real desde que foi contemplada.
+      📈 <b>Rendimento da Carta</b> (KPI acima): CDI aplicado ao crédito liberado desde a data de contemplação. Regra Itaú: pré-contemplação a carta corrige pelo INCC, pós-contemplação rende pelo CDI. Cálculo baseado no histórico real do CDI registrado em <a href="#" onclick="openModalTaxasCdi();return false" style="color:var(--sb2);text-decoration:underline">⚙ taxas</a>.
     </div>
     <div class="pd-print-footer">
       <div><b>HC360 Consórcio</b> · Posição em ${_hojeFmt}</div>
@@ -12341,7 +12336,7 @@ function gerarRelatorioCliente(name){
       <div class="rel-kpi-card"><div class="rel-kpi-l">Saldo Devedor</div><div class="rel-kpi-v">${fb(totSdDB)}</div><div class="rel-kpi-s">consolidado</div></div>
       <div class="rel-kpi-card"><div class="rel-kpi-l">Parcela Mensal</div><div class="rel-kpi-v">${fb(totParc)}</div><div class="rel-kpi-s">pré + pós contempl.</div></div>
       <div class="rel-kpi-card"><div class="rel-kpi-l">Lances Pagos</div><div class="rel-kpi-v">${fb(totLancePago)}</div><div class="rel-kpi-s">recurso próprio</div></div>
-      <div class="rel-kpi-card"><div class="rel-kpi-l">Rendimento da Carta</div><div class="rel-kpi-v">${fb(totRend)}</div><div class="rel-kpi-s">correção INCC pós-contemplação</div></div>
+      <div class="rel-kpi-card"><div class="rel-kpi-l">Rendimento da Carta</div><div class="rel-kpi-v">${fb(totRend)}</div><div class="rel-kpi-s">CDI pós-contemplação ${taxaA?'· '+taxaA.taxa_aa+'% a.a.':''}</div></div>
     </div>
     <div class="rel-stats-grid">
       <div class="rel-stat-card green"><div class="rel-stat-n">${nC}</div><div class="rel-stat-l">Contempladas</div><div class="rel-stat-v">${fb(crC)}</div></div>
@@ -12370,7 +12365,7 @@ function gerarRelatorioCliente(name){
       </div>
     </div>
     <div class="rel-note">
-      Posição registrada em ${hojeFmt}. <b>Crédito Liberado</b>: carta atualizada menos lance embutido (cotas contempladas). <b>Rendimento da Carta</b>: correção pelo INCC desde a contemplação — valor real que o crédito cresceu na carta (mesma lógica do extrato Itaú).
+      Posição registrada em ${hojeFmt}. <b>Crédito Liberado</b>: carta atualizada menos lance embutido (cotas contempladas). <b>Rendimento da Carta</b>: CDI aplicado sobre o crédito liberado desde a data de contemplação (regra Itaú — pré contempla pelo INCC, pós contempla pelo CDI).
     </div>
     ${ftr()}
   </div>`;
