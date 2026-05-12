@@ -2143,10 +2143,11 @@ main.main:has(#page-ajuda.active) .content{
         <th title="Variacao do lance medio: ultimo mes vs anterior">Tend.</th>
         <th title="Media de contemplados por mes (ultimos 6m)">Contempl./mês</th>
         <th id="os-chance-th" title="Em quantos % dos ultimos meses o lance ofertado bateu o minimo. Alta ≥70% · Media 40-69% · Baixa <40%">Chance c/ <span id="os-chance-lbl">40</span>% <span style="color:var(--acc);cursor:help">ℹ️</span></th>
+        <th title="Chance considerando Lance Fixo 40% (so para grupos com LF). Mesma escala: Alta ≥70% · Media 40-69% · Baixa <40%">Chance LF 40%</th>
         <th title="Lance Fixo disponivel" style="text-align:center">LF</th>
         <th title="Cota com Parcela Reduzida" style="text-align:center">PR</th>
         <th></th>
-      </tr></thead><tbody id="oport-sug-body"><tr><td colspan="13" style="text-align:center;color:var(--txt2);padding:14px">Carregando...</td></tr></tbody></table></div>
+      </tr></thead><tbody id="oport-sug-body"><tr><td colspan="14" style="text-align:center;color:var(--txt2);padding:14px">Carregando...</td></tr></tbody></table></div>
     </div>
   </div>
 
@@ -10540,7 +10541,8 @@ function renderOportSugestoes(){
     const avgCont=cont6.length?cont6.reduce((a,b)=>a+b,0)/cont6.length:0;
     const vagas=d.vagas||0;
     if(vagas<=0)return; // Descarta grupos sem vagas — não faz sentido sugerir
-    scored.push({g,d,avgMin,lanceMed,trend,success,successCount,successTotal,vagas,isIm:isImov,dist,prazo:d.pr,cred:d.vmax,atualPct,avgCont,hasLf,hasPr});
+    const successLf=hasLf&&mn.length?mn.filter(v=>40>=v).length/mn.length:null;const successLfCount=hasLf&&mn.length?mn.filter(v=>40>=v).length:0;
+    scored.push({g,d,avgMin,lanceMed,trend,success,successCount,successTotal,successLf,successLfCount,successLfTotal:mn.length,vagas,isIm:isImov,dist,prazo:d.pr,cred:d.vmax,atualPct,avgCont,hasLf,hasPr});
   });
   // Ordenacao
   const cmpFn={
@@ -10585,6 +10587,13 @@ function renderOportSugestoes(){
       const cat=pct>=70?{lbl:'Alta',bg:'#d1fae5',fg:'#065f46',icon:'🎯'}:pct>=40?{lbl:'Média',bg:'#fef3c7',fg:'#92400e',icon:'⚠️'}:{lbl:'Baixa',bg:'#fee2e2',fg:'#991b1b',icon:'⚡'};
       chTxt='<span style="background:'+cat.bg+';color:'+cat.fg+';padding:3px 9px;border-radius:8px;font-size:10.5px;font-weight:700;white-space:nowrap" title="'+o.successCount+'/'+o.successTotal+' meses ('+pct+'%) — seu lance teria batido o minimo">'+cat.icon+' '+cat.lbl+' <span style="opacity:.7;font-weight:600">'+o.successCount+'/'+o.successTotal+'</span></span>';
     }
+    // Chance LF 40% — so para grupos com LF
+    let chTxtLf='<span style="color:var(--txt2);font-size:10.5px">—</span>';
+    if(o.hasLf&&o.successLf!=null){
+      const pctLf=Math.round(o.successLf*100);
+      const catLf=pctLf>=70?{lbl:'Alta',bg:'#d1fae5',fg:'#065f46',icon:'🎯'}:pctLf>=40?{lbl:'Média',bg:'#fef3c7',fg:'#92400e',icon:'⚠️'}:{lbl:'Baixa',bg:'#fee2e2',fg:'#991b1b',icon:'⚡'};
+      chTxtLf='<span style="background:'+catLf.bg+';color:'+catLf.fg+';padding:3px 9px;border-radius:8px;font-size:10.5px;font-weight:700;white-space:nowrap" title="LF 40%: bateu o mínimo em '+o.successLfCount+'/'+o.successLfTotal+' meses ('+pctLf+'%)">'+catLf.icon+' '+catLf.lbl+' <span style="opacity:.7;font-weight:600">'+o.successLfCount+'/'+o.successLfTotal+'</span></span>';
+    }
     const lfBadge='<span style="background:'+(o.hasLf?'#d1fae5':'#fee2e2')+';color:'+(o.hasLf?'#065f46':'#991b1b')+';padding:2px 8px;border-radius:8px;font-size:10px;font-weight:700;white-space:nowrap">'+(o.hasLf?'✓':'✕')+'</span>';
     const prBadge='<span style="background:'+(o.hasPr?'#dbeafe':'#f3f4f6')+';color:'+(o.hasPr?'#1e40af':'#6b7280')+';padding:2px 8px;border-radius:8px;font-size:10px;font-weight:700;white-space:nowrap">'+(o.hasPr?'✓':'✕')+'</span>';
     const inList=propGrupos.some(pg=>pg.grupo===o.g);
@@ -10600,13 +10609,14 @@ function renderOportSugestoes(){
       '<td>'+trendTxt+'</td>'+
       '<td>'+contTxt+'</td>'+
       '<td>'+chTxt+'</td>'+
+      '<td>'+chTxtLf+'</td>'+
       '<td style="text-align:center">'+lfBadge+'</td>'+
       '<td style="text-align:center">'+prBadge+'</td>'+
       '<td>'+btn+'</td>'+
     '</tr>';
   }
   const top=scored.slice(0,40);
-  tbody.innerHTML=top.map(mkRow).join('')||'<tr><td colspan="13" style="text-align:center;color:var(--txt2);padding:14px">Nenhum grupo encontrado com os filtros atuais</td></tr>';
+  tbody.innerHTML=top.map(mkRow).join('')||'<tr><td colspan="14" style="text-align:center;color:var(--txt2);padding:14px">Nenhum grupo encontrado com os filtros atuais</td></tr>';
   const cntEl=document.getElementById('os-count');
   if(cntEl)cntEl.textContent=top.length+' grupos · '+scored.length+' total';
 }
