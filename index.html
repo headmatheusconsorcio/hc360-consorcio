@@ -2082,6 +2082,12 @@ main.main:has(#page-ajuda.active) .content{
       <div style="padding:10px 16px;background:var(--card2);border-bottom:1px solid var(--bdr);display:flex;gap:12px;flex-wrap:wrap;align-items:center;font-size:11.5px">
         <strong style="color:var(--txt2);text-transform:uppercase;letter-spacing:.5px;font-size:10px">Filtros:</strong>
         <div style="display:flex;align-items:center;gap:5px">
+          <label style="color:var(--txt2)">Tipo</label>
+          <select id="os-tipo" class="form-i" style="padding:4px 8px;font-size:11px;width:auto" onchange="ortSetTipoFromSelect(this.value)">
+            <option value="">Todos</option><option value="Im">🏠 Imóveis</option><option value="Ro">🚗 Veículos</option>
+          </select>
+        </div>
+        <div style="display:flex;align-items:center;gap:5px">
           <label style="color:var(--txt2)">LF</label>
           <select id="os-lf" class="form-i" style="padding:4px 8px;font-size:11px;width:auto" onchange="renderOportSugestoes()">
             <option value="">Todos</option><option value="sim">✓ Sim</option><option value="nao">✗ Não</option>
@@ -9925,9 +9931,13 @@ function sortBrowse(col){browseSort.dir=browseSort.col===col?-browseSort.dir:1;b
 let ortTipo='', ortData=[], carrIdx=0;
 function ortSetTipo(btn,val){
   ortTipo=val;
-  document.querySelectorAll('#oport-tipo-toggle .toggle-btn').forEach(b=>b.classList.toggle('act',b===btn));
+  document.querySelectorAll('#oport-tipo-toggle .toggle-btn').forEach(b=>b.classList.toggle('act',b.dataset.val===val));
+  const sel=document.getElementById('os-tipo');if(sel&&sel.value!==val)sel.value=val;
   renderOportunidades();
   renderOportSugestoes();
+}
+function ortSetTipoFromSelect(val){
+  ortSetTipo(null,val);
 }
 function buildOrtData(){
   const TAX_ADM=23,FR=3;
