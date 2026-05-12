@@ -11668,11 +11668,27 @@ function projMarkDirty(id){
   const btn=document.getElementById('psave-'+id);
   if(btn)btn.style.display='inline-flex';
 }
+// Sincroniza o lance_pct da oferta pendente (se houver) com o lance1 da cota.
+// Útil quando o lance é editado/salvo APÓS marcar a oferta (corrige cenário do bug
+// onde a oferta foi criada sem % e o usuário preencheu depois).
+async function propagaLanceParaOfertaPendente(cotaId,lance1Decimal){
+  const of=ultimaOfertaPendente(cotaId);
+  if(!of)return false;
+  const novoPct=lance1Decimal!=null?+(lance1Decimal*100).toFixed(2):null;
+  const atual=of.lance_pct!=null?+of.lance_pct:null;
+  if(atual===novoPct)return false;
+  const {error}=await sb.from('ofertas_lance').update({lance_pct:novoPct,atualizado_em:new Date().toISOString()}).eq('id',of.id);
+  if(error){console.warn('[HC360] propaga lance falhou',error);return false;}
+  const arr=OFERTAS[String(cotaId)]||[];
+  const o=arr.find(x=>x.id===of.id);if(o)o.lance_pct=novoPct;
+  return true;
+}
 async function projSaveAllDirty(name){
   const dirty=Array.from(document.querySelectorAll('button[id^="psave-"]')).filter(b=>b.style.display&&b.style.display!=='none');
   if(!dirty.length){toast('Nada pra salvar','err');return;}
   showLoad();
   const ids=dirty.map(b=>b.id.replace('psave-',''));
+  let ofertasAtualizadas=0;
   for(const id of ids){
     const r=COTAS.find(c=>String(c.id)===String(id));if(!r)continue;
     const ps=document.getElementById('ps-'+id);
@@ -11687,10 +11703,14 @@ async function projSaveAllDirty(name){
       document.getElementById('psave-'+id).style.display='none';
       // Auto-fechar oferta pendente como Contemplado quando status mudou para Contemplado/Faturado
       if(!statusEraContempl&&statusEhContempl)await fecharOfertaContemplada(id);
+      // Propaga o novo lance% pra oferta pendente (se houver) — corrige ofertas marcadas sem %
+      const ok=await propagaLanceParaOfertaPendente(id,patch.lance1);
+      if(ok)ofertasAtualizadas++;
     }
   }
   hideLoad();
-  toast(`${ids.length} cotas salvas em lote!`);
+  const extra=ofertasAtualizadas>0?` · ${ofertasAtualizadas} oferta(s) pendente(s) atualizada(s)`:'';
+  toast(`${ids.length} cotas salvas em lote!${extra}`);
   refreshCotaViews();
 }
 async function projSaveRow(id){
@@ -11705,7 +11725,9 @@ async function projSaveRow(id){
     Object.assign(r,patch);
     document.getElementById('psave-'+id).style.display='none';
     if(!statusEraContempl&&statusEhContempl)await fecharOfertaContemplada(id);
-    toast(`Cota ${r.grupo}/${r.cota} salva!`);
+    // Propaga o novo lance% pra oferta pendente (se houver) — corrige ofertas marcadas sem %
+    const ofertaOk=await propagaLanceParaOfertaPendente(id,patch.lance1);
+    toast(`Cota ${r.grupo}/${r.cota} salva!${ofertaOk?' · oferta pendente atualizada':''}`);
     refreshCotaViews();
   }
 }
