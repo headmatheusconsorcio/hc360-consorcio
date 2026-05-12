@@ -6741,11 +6741,11 @@ function renderCtrl(){
       <td style="text-align:right">${brl(r.credito,0)}</td>
       <td style="text-align:right">${brl(parcEf)}${isCp&&r.parcela_pos?'<small style="display:block;font-size:9px;color:var(--ok)">pós</small>':''}</td>
       <td>
-        <select class="form-i" style="padding:3px 6px;font-size:12px;min-width:140px" id="ps-${r.id}" onchange="projMarkDirty('${r.id}')">
+        <select class="form-i" style="padding:3px 6px;font-size:12px;min-width:140px;transition:background .2s,border-color .2s" id="ps-${r.id}" onchange="projScheduleAutoSave('${r.id}',400)" title="Auto-salva ao mudar">
           ${['Em Andamento','Lance Livre','Lance Fixo','Contemplado','Faturado','Cancelado'].map(s=>`<option${r.status===s||(s==='Contemplado'&&r.status==='CONTEMPLADO')||(s==='Em Andamento'&&['LANCE','SORTEIO / LANCE','Sorteio','SUPLENCIA - 2 NA FRENTE'].includes(r.status))||(s==='Cancelado'&&r.status==='CANCELADO')?' selected':''}>` +s+`</option>`).join('')}
         </select>
       </td>
-      <td><input class="form-i" style="padding:3px 6px;font-size:12px;width:70px" id="pl1-${r.id}" type="number" step="0.1" min="0" max="100" value="${r.lance1?+(r.lance1*100).toFixed(1):''}" placeholder="%" oninput="projMarkDirty('${r.id}')"></td>
+      <td><input class="form-i" style="padding:3px 6px;font-size:12px;width:70px;transition:background .2s,border-color .2s" id="pl1-${r.id}" type="number" step="0.1" min="0" max="100" value="${r.lance1?+(r.lance1*100).toFixed(1):''}" placeholder="%" oninput="projScheduleAutoSave('${r.id}',1500)" onblur="projAutoSaveImediato('${r.id}')" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" title="Auto-salva ao sair do campo (Tab/Enter)"></td>
       <td style="font-size:11.5px;text-align:center;white-space:nowrap;font-weight:600;color:var(--sb)">${fmtDataBr(proxAgo)}</td>
       <td style="text-align:center">${renderToggleOferta(r.id)}</td>
       <td style="white-space:nowrap;text-align:center">
@@ -11298,11 +11298,11 @@ function renderProjDetail(name){
       <td>${brl(r.credito,0)}</td>
       <td>${brl(parcEf)}${isCp&&r.parcela_pos?'<small style="display:block;font-size:9px;color:var(--ok)">pós</small>':''}</td>
       <td>
-        <select class="form-i" style="padding:3px 6px;font-size:12px;min-width:140px" id="ps-${r.id}" onchange="projMarkDirty('${r.id}')">
+        <select class="form-i" style="padding:3px 6px;font-size:12px;min-width:140px;transition:background .2s,border-color .2s" id="ps-${r.id}" onchange="projScheduleAutoSave('${r.id}',400)" title="Auto-salva ao mudar">
           ${['Em Andamento','Lance Livre','Lance Fixo','Contemplado','Faturado'].map(s=>`<option${r.status===s||(s==='Contemplado'&&r.status==='CONTEMPLADO')||(s==='Em Andamento'&&['LANCE','SORTEIO / LANCE','Sorteio','SUPLENCIA - 2 NA FRENTE'].includes(r.status))?' selected':''}>` +s+`</option>`).join('')}
         </select>
       </td>
-      <td><input class="form-i" style="padding:3px 6px;font-size:12px;width:70px" id="pl1-${r.id}" type="number" step="0.1" min="0" max="100" value="${r.lance1?+(r.lance1*100).toFixed(1):''}" placeholder="%" oninput="projMarkDirty('${r.id}')"></td>
+      <td><input class="form-i" style="padding:3px 6px;font-size:12px;width:70px;transition:background .2s,border-color .2s" id="pl1-${r.id}" type="number" step="0.1" min="0" max="100" value="${r.lance1?+(r.lance1*100).toFixed(1):''}" placeholder="%" oninput="projScheduleAutoSave('${r.id}',1500)" onblur="projAutoSaveImediato('${r.id}')" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" title="Auto-salva ao sair do campo (Tab/Enter)"></td>
       <td style="font-size:11.5px;text-align:center;white-space:nowrap;font-weight:600;color:var(--sb)">${fmtDataBr(calcProxAgo(r.grupo,r))}</td>
       <td style="text-align:center">${renderToggleOferta(r.id)}</td>
       <td style="white-space:nowrap;text-align:center">
@@ -11664,10 +11664,87 @@ function renderProjDash(name){
   },80);
 }
 
+// ═══ AUTO-SAVE PROTECTION ═══
+// Camada de proteção pra GARANTIR que mudanças no input Lance% e select Status
+// nunca se percam por esquecer de clicar em "Salvar". Pente fino aplicado após
+// incidente de perda de % de lance ofertado (ver historico de commits).
+const _projAutoSaveTimers={};
+const _projPendingSaves=new Set();
+function _projMarkDirtyVisual(id,dirty){
+  const inp=document.getElementById('pl1-'+id);
+  const sel=document.getElementById('ps-'+id);
+  const corDirty='#fef3c7';
+  const corOk='#d1fae5';
+  if(inp){inp.style.background=dirty?corDirty:'';inp.style.borderColor=dirty?'#d97706':'';}
+  if(sel){sel.style.background=dirty?corDirty:'';sel.style.borderColor=dirty?'#d97706':'';}
+  if(dirty)_projPendingSaves.add(String(id));
+  else _projPendingSaves.delete(String(id));
+}
+function _projFlashSaved(id){
+  const inp=document.getElementById('pl1-'+id);
+  const sel=document.getElementById('ps-'+id);
+  const corOk='#d1fae5';
+  if(inp){inp.style.background=corOk;inp.style.borderColor='#10b981';setTimeout(()=>{inp.style.background='';inp.style.borderColor='';},900);}
+  if(sel){sel.style.background=corOk;sel.style.borderColor='#10b981';setTimeout(()=>{sel.style.background='';sel.style.borderColor='';},900);}
+}
 function projMarkDirty(id){
   const btn=document.getElementById('psave-'+id);
   if(btn)btn.style.display='inline-flex';
+  _projMarkDirtyVisual(id,true);
 }
+// Auto-salva ao sair do campo (onblur) ou após 1.5s sem digitar (debounce)
+async function projAutoSaveRow(id){
+  if(!_projPendingSaves.has(String(id)))return;
+  const r=COTAS.find(c=>String(c.id)===String(id));if(!r)return;
+  const ps=document.getElementById('ps-'+id);
+  const pl=document.getElementById('pl1-'+id);
+  if(!ps&&!pl)return;
+  const novoStatus=ps?ps.value:r.status;
+  const l1v=pl?pl.value:null;
+  const novoLance1=l1v?parseFloat(l1v)/100:null;
+  // Skip se nada mudou
+  const statusIgual=novoStatus===r.status;
+  const lanceIgual=(novoLance1==null&&r.lance1==null)||(novoLance1!=null&&r.lance1!=null&&Math.abs(novoLance1-r.lance1)<0.0001);
+  if(statusIgual&&lanceIgual){_projMarkDirtyVisual(id,false);const btn=document.getElementById('psave-'+id);if(btn)btn.style.display='none';return;}
+  const statusEraContempl=r.status==='Contemplado'||r.status==='CONTEMPLADO'||r.status==='Faturado';
+  const statusEhContempl=novoStatus==='Contemplado'||novoStatus==='Faturado';
+  const patch={id,status:novoStatus,lance1:novoLance1};
+  const res=await upsertCota(patch);
+  if(res){
+    Object.assign(r,patch);
+    const btn=document.getElementById('psave-'+id);if(btn)btn.style.display='none';
+    if(!statusEraContempl&&statusEhContempl)await fecharOfertaContemplada(id);
+    await propagaLanceParaOfertaPendente(id,patch.lance1);
+    _projMarkDirtyVisual(id,false);
+    _projFlashSaved(id);
+    // Atualiza só o toggle de oferta (sem re-renderizar tudo, pra não perder foco)
+    const cell=document.getElementById('plist-row-'+id)?.querySelector('td:nth-child(9)')||document.querySelector(`#plist-row-${id} td`);
+    // Re-render leve do toggle visual após salvar lance
+    refreshCotaViews();
+  }else{
+    // Falhou: mantém visual dirty
+    toast('Erro ao salvar cota '+(r.grupo||'')+' — tente novamente','err');
+  }
+}
+// Debounce: agenda auto-save após X ms (cancela se mais digitação chegar)
+function projScheduleAutoSave(id,delayMs){
+  projMarkDirty(id);
+  if(_projAutoSaveTimers[id])clearTimeout(_projAutoSaveTimers[id]);
+  _projAutoSaveTimers[id]=setTimeout(()=>{delete _projAutoSaveTimers[id];projAutoSaveRow(id);},delayMs||1500);
+}
+// Salva imediato (ao sair do campo) cancelando debounce
+function projAutoSaveImediato(id){
+  if(_projAutoSaveTimers[id]){clearTimeout(_projAutoSaveTimers[id]);delete _projAutoSaveTimers[id];}
+  projAutoSaveRow(id);
+}
+// Guard: avisa antes de fechar/recarregar se há cotas com mudanças não salvas
+window.addEventListener('beforeunload',e=>{
+  if(_projPendingSaves.size>0){
+    e.preventDefault();
+    e.returnValue=`Você tem ${_projPendingSaves.size} cota(s) com mudanças não salvas. Tem certeza que quer sair?`;
+    return e.returnValue;
+  }
+});
 // Sincroniza o lance_pct da oferta pendente (se houver) com o lance1 da cota.
 // Útil quando o lance é editado/salvo APÓS marcar a oferta (corrige cenário do bug
 // onde a oferta foi criada sem % e o usuário preencheu depois).
@@ -11862,11 +11939,11 @@ function renderProjList(){
       <td style="text-align:right">${brl(r.credito,0)}</td>
       <td style="text-align:right">${brl(parcEf)}${isCp&&r.parcela_pos?'<small style="display:block;font-size:9px;color:var(--ok)">pós</small>':''}</td>
       <td>
-        <select class="form-i" style="padding:3px 6px;font-size:12px;min-width:140px" id="ps-${r.id}" onchange="projMarkDirty('${r.id}')">
+        <select class="form-i" style="padding:3px 6px;font-size:12px;min-width:140px;transition:background .2s,border-color .2s" id="ps-${r.id}" onchange="projScheduleAutoSave('${r.id}',400)" title="Auto-salva ao mudar">
           ${['Em Andamento','Lance Livre','Lance Fixo','Contemplado','Faturado','Cancelado'].map(s=>`<option${r.status===s||(s==='Contemplado'&&r.status==='CONTEMPLADO')||(s==='Em Andamento'&&['LANCE','SORTEIO / LANCE','Sorteio','SUPLENCIA - 2 NA FRENTE'].includes(r.status))||(s==='Cancelado'&&r.status==='CANCELADO')?' selected':''}>` +s+`</option>`).join('')}
         </select>
       </td>
-      <td><input class="form-i" style="padding:3px 6px;font-size:12px;width:70px" id="pl1-${r.id}" type="number" step="0.1" min="0" max="100" value="${r.lance1?+(r.lance1*100).toFixed(1):''}" placeholder="%" oninput="projMarkDirty('${r.id}')"></td>
+      <td><input class="form-i" style="padding:3px 6px;font-size:12px;width:70px;transition:background .2s,border-color .2s" id="pl1-${r.id}" type="number" step="0.1" min="0" max="100" value="${r.lance1?+(r.lance1*100).toFixed(1):''}" placeholder="%" oninput="projScheduleAutoSave('${r.id}',1500)" onblur="projAutoSaveImediato('${r.id}')" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" title="Auto-salva ao sair do campo (Tab/Enter)"></td>
       <td style="font-size:11.5px;text-align:center;white-space:nowrap;font-weight:600;color:var(--sb)">${fmtDataBr(proxAgo)}</td>
       <td style="text-align:center">${renderToggleOferta(r.id)}</td>
       <td style="white-space:nowrap;text-align:center">
