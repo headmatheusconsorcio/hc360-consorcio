@@ -6992,44 +6992,55 @@ async function confirmarPagamento(id){
     return;
   }
   const parcPaga=parcelaEfetiva(r);
+  const hasSaldo=r.saldo_devedor!=null;
+  const hasPrazo=r.prazo_restante!=null;
   const sd=r.saldo_devedor||0;
   const pr=r.prazo_restante||0;
   if(!parcPaga){toast('Parcela não preenchida — edite a cota primeiro.','warn');return;}
-  if(pr<=0){toast('Prazo restante = 0. Cota já quitada.','warn');return;}
-  // ── Modelo B validado contra contrato Itaú PJ (Grupo 040010) ────────────
-  // saldo_devedor = crédito × (1 + taxa_adm% + fundo_reserva%) - lance
-  // Cada parcela paga abate o saldo pelo valor INTEGRAL da parcela, pois a
-  // própria parcela já embute FC + taxa adm + fundo reserva. Soma de todas
-  // as parcelas = saldo inicial → saldo chega a zero na última parcela.
-  // Validado: Σ67 parcelas contrato = R$390.295,01 = crédito × 1,1426 ✓
-  const novoSaldo=Math.max(0,sd-parcPaga);
+  if(hasPrazo&&pr<=0){toast('Prazo restante = 0. Cota já quitada.','warn');return;}
+  // ── Modelo B (Itaú PJ Grupo 040010) — só aplica quando há dados financeiros completos.
+  // Cotas com saldo/prazo null ainda podem ser marcadas como pagas (controle de boleto).
+  const updates={ultima_parcela_paga:_hojeStr(),updated_at:new Date().toISOString()};
+  let resumo='';
+  if(hasSaldo){
+    const novoSaldo=Math.max(0,sd-parcPaga);
+    updates.saldo_devedor=novoSaldo;
+    resumo+=`
+Saldo Devedor: ${brl(sd,0)} → ${brl(novoSaldo,0)}`;
+  }
+  if(hasPrazo){
+    updates.prazo_restante=pr-1;
+    resumo+=`
+Prazo restante: ${pr} → ${pr-1} ${pr-1===1?'mês':'meses'}`;
+  }
+  if(!resumo)resumo='(apenas marcar como pago — sem dados de saldo/prazo)';
   const msg=`Confirmar pagamento de ${brl(parcPaga)} para ${r.nome}?
-
-` +
-    `Saldo Devedor: ${brl(sd,0)} → ${brl(novoSaldo,0)}
-` +
-    `Prazo restante: ${pr} → ${pr-1} ${pr-1===1?'mês':'meses'}`;
+${resumo}`;
   if(!confirm(msg))return;
-  const updates={saldo_devedor:novoSaldo,prazo_restante:pr-1,ultima_parcela_paga:_hojeStr(),updated_at:new Date().toISOString()};
   showLoad();const res=await upsertCota({id,...updates});hideLoad();
-  if(res){toast('Pagamento confirmado! Saldo e prazo atualizados.','ok');refreshCotaViews();}
+  if(res){toast('Pagamento confirmado!','ok');refreshCotaViews();}
 }
 async function desfazerPagamento(id){
   const r=COTAS.find(c=>String(c.id)===String(id));
   if(!r)return;
   if(!pagoHoje(r)){toast('Só é possível desfazer pagamento marcado hoje.','warn');return;}
   const parcPaga=parcelaEfetiva(r);
+  const hasSaldo=r.saldo_devedor!=null;
+  const hasPrazo=r.prazo_restante!=null;
   const sd=r.saldo_devedor||0;
   const pr=r.prazo_restante||0;
-  const novoSaldo=sd+parcPaga;
+  let resumo='';
+  if(hasSaldo)resumo+=`
+Saldo Devedor: ${brl(sd,0)} → ${brl(sd+parcPaga,0)}`;
+  if(hasPrazo)resumo+=`
+Prazo restante: ${pr} → ${pr+1} ${pr+1===1?'mês':'meses'}`;
+  if(!resumo)resumo='(apenas remover marcação — sem dados de saldo/prazo)';
   const msg=`Desfazer pagamento de ${brl(parcPaga)} para ${r.nome}?
-
-` +
-    `Saldo Devedor: ${brl(sd,0)} → ${brl(novoSaldo,0)}
-` +
-    `Prazo restante: ${pr} → ${pr+1} ${pr+1===1?'mês':'meses'}`;
+${resumo}`;
   if(!confirm(msg))return;
-  const updates={saldo_devedor:novoSaldo,prazo_restante:pr+1,ultima_parcela_paga:null,updated_at:new Date().toISOString()};
+  const updates={ultima_parcela_paga:null,updated_at:new Date().toISOString()};
+  if(hasSaldo)updates.saldo_devedor=sd+parcPaga;
+  if(hasPrazo)updates.prazo_restante=pr+1;
   showLoad();const res=await upsertCota({id,...updates});hideLoad();
   if(res){toast('Pagamento desfeito!','ok');refreshCotaViews();}
 }
@@ -7323,7 +7334,7 @@ async function pagarSelecionadasAgenda(safeId){
   if(ids.length===0)return;
   const cotas=ids.map(id=>COTAS.find(c=>String(c.id)===String(id))).filter(Boolean);
   // Filtra: só pagáveis (não pagas no mês, parcela > 0, prazo > 0)
-  const pagaveis=cotas.filter(r=>!jaPagoNoMes(r)&&parcelaEfetiva(r)>0&&(r.prazo_restante||0)>0);
+  const pagaveis=cotas.filter(r=>!jaPagoNoMes(r)&&parcelaEfetiva(r)>0&&(r.prazo_restante==null||r.prazo_restante>0));
   const total=pagaveis.reduce((s,r)=>s+parcelaEfetiva(r),0);
   const skipped=cotas.length-pagaveis.length;
   if(pagaveis.length===0){toast('Nenhuma cota pagável selecionada','warn');return;}
@@ -7342,8 +7353,9 @@ Total: ${brl(total)}`+
   const hojeStr=_hojeStr();
   for(const r of pagaveis){
     const parcPaga=parcelaEfetiva(r);
-    const novoSaldo=Math.max(0,(r.saldo_devedor||0)-parcPaga);
-    const updates={id:r.id,saldo_devedor:novoSaldo,prazo_restante:(r.prazo_restante||0)-1,ultima_parcela_paga:hojeStr,updated_at:new Date().toISOString()};
+    const updates={id:r.id,ultima_parcela_paga:hojeStr,updated_at:new Date().toISOString()};
+    if(r.saldo_devedor!=null){updates.saldo_devedor=Math.max(0,r.saldo_devedor-parcPaga);}
+    if(r.prazo_restante!=null&&r.prazo_restante>0){updates.prazo_restante=r.prazo_restante-1;}
     const res=await upsertCota(updates);
     if(res)ok++;else errors++;
   }
