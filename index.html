@@ -12919,6 +12919,12 @@ function renderGuardaChuva(){
 
   const lancePagoFat=fat.reduce((s,r)=>s+(r.lance_total||0),0);
   const recPropFat=fat.reduce((s,r)=>s+(r.recurso_proprio||0),0);
+  const recPropCont=cont.reduce((s,r)=>s+(r.recurso_proprio||0),0);
+  const recPropAcum=recPropFat+recPropCont;
+  const embutidoFat=fat.reduce((s,r)=>s+(r.lance_embutido||0),0);
+  const embutidoCont=cont.reduce((s,r)=>s+(r.lance_embutido||0),0);
+  const embutidoAcum=embutidoFat+embutidoCont;
+  const lanceTotalAcum=fat.reduce((s,r)=>s+(r.lance_total||0),0)+cont.reduce((s,r)=>s+(r.lance_total||0),0);
   const credLibFat=fat.reduce((s,r)=>s+(r.credito_liberado||0),0);
   const credLibCont=cont.reduce((s,r)=>s+(r.credito_liberado||0),0);
 
@@ -12951,7 +12957,7 @@ function renderGuardaChuva(){
       <div class="gc-kpi b"><div class="gc-kpi-lbl">Em Andamento</div><div class="gc-kpi-val">${em.length}</div><div class="gc-kpi-sub">${gcBRL(cartaEm)}</div></div>
       <div class="gc-kpi"><div class="gc-kpi-lbl">Saldo Devedor</div><div class="gc-kpi-val">${gcBRL(saldoTotal)}</div><div class="gc-kpi-sub">total da operação</div></div>
       <div class="gc-kpi r"><div class="gc-kpi-lbl">Parcela Mensal</div><div class="gc-kpi-val">${gcBRL(parcMensalTotal)}</div><div class="gc-kpi-sub">soma de todas cotas</div></div>
-      <div class="gc-kpi"><div class="gc-kpi-lbl">Recurso Próprio</div><div class="gc-kpi-val">${gcBRL(recPropFat)}</div><div class="gc-kpi-sub">já investido em lance</div></div>
+<div class="gc-kpi"><div class="gc-kpi-lbl">Recurso Próprio</div><div class="gc-kpi-val">${gcBRL(recPropAcum)}</div><div class="gc-kpi-sub">faturadas + contempladas</div></div>
       <div class="gc-kpi"><div class="gc-kpi-lbl">Crédito Liberado</div><div class="gc-kpi-val">${gcBRL(credLibFat+credLibCont)}</div><div class="gc-kpi-sub">Faturado + a faturar</div></div>
       <div class="gc-kpi y"><div class="gc-kpi-lbl">Falta Liberar</div><div class="gc-kpi-val">${gcBRL(faltaGilmar)}</div><div class="gc-kpi-sub">pro Gilmar</div></div>
     </div>`;
@@ -13169,10 +13175,12 @@ function renderGuardaChuva(){
         <div class="gc-fluxo-box">
           <div class="gc-fluxo-title">💸 Já investido em lances</div>
           <table class="gc-info-table">
-            <tr><td>Recurso próprio</td><td>${gcBRL(recPropFat,2)}</td></tr>
-            <tr><td>Embutido</td><td>${gcBRL(lancePagoFat-recPropFat,2)}</td></tr>
-            <tr><td>Total lance pago</td><td><b>${gcBRL(lancePagoFat,2)}</b></td></tr>
-            <tr><td>Rec. próprio em curso (maio)</td><td>${gcBRL(totRec,2)}</td></tr>
+            <tr><td>Rec. próprio Faturadas (19)</td><td>${gcBRL(recPropFat,2)}</td></tr>
+            <tr><td>Rec. próprio Contempladas (2)</td><td>${gcBRL(recPropCont,2)}</td></tr>
+            <tr><td><b>Total recurso próprio acumulado</b></td><td><b>${gcBRL(recPropAcum,2)}</b></td></tr>
+            <tr><td>Embutido total (faturadas + contempladas)</td><td>${gcBRL(embutidoAcum,2)}</td></tr>
+            <tr><td>Total lance pago acumulado</td><td><b>${gcBRL(lanceTotalAcum,2)}</b></td></tr>
+            <tr><td>Rec. próprio em curso (maio/26)</td><td>${gcBRL(totRec,2)}</td></tr>
           </table>
         </div>
         <div class="gc-fluxo-box">
