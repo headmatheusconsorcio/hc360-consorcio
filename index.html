@@ -13072,22 +13072,35 @@ function renderGuardaChuva(){
     </div>`;
 
   // ═════════ BLOCO 5: TRANCHE EM CURSO (62 LANCES MAIO/26) ═════════
+  // Cruzar cada lance com a cota real do Supabase pra pegar a carta TOTAL
+  // (PDF do Santander mostra apenas a carta LÍQUIDA — já com embutido descontado)
+  const cotaIdx={};
+  cotas.forEach(c=>{cotaIdx[c.grupo+'/'+c.cota]=c;});
+  const lancesEnriched=GC_DATA.lancesMaio.map(l=>{
+    const c=cotaIdx[l.grupo+'/'+l.cota];
+    const cartaTotal=c?(c.carta_atualizada||c.credito||0):0;
+    const embutido=Math.max(0,l.lance-l.rec);
+    return {...l,cartaTotal:cartaTotal,cartaLiq:l.carta,embutido:embutido};
+  });
+
   let chanceCount={ALTA:0,'MÉDIA':0,'ÂNCORA':0,BAIXA:0};
-  let chanceCarta={ALTA:0,'MÉDIA':0,'ÂNCORA':0,BAIXA:0};
+  let chanceCartaTotal={ALTA:0,'MÉDIA':0,'ÂNCORA':0,BAIXA:0};
   let chanceRec={ALTA:0,'MÉDIA':0,'ÂNCORA':0,BAIXA:0};
-  GC_DATA.lancesMaio.forEach(l=>{
+  lancesEnriched.forEach(l=>{
     const ch=gcChance(l.pct,l.grupo);
     chanceCount[ch.label]++;
-    chanceCarta[ch.label]+=l.carta;
+    chanceCartaTotal[ch.label]+=l.cartaTotal;
     chanceRec[ch.label]+=l.rec;
   });
-  const totLance=GC_DATA.lancesMaio.reduce((s,l)=>s+l.lance,0);
-  const totCarta=GC_DATA.lancesMaio.reduce((s,l)=>s+l.carta,0);
-  const totRec=GC_DATA.lancesMaio.reduce((s,l)=>s+l.rec,0);
+  const totLance=lancesEnriched.reduce((s,l)=>s+l.lance,0);
+  const totCartaTotal=lancesEnriched.reduce((s,l)=>s+l.cartaTotal,0);
+  const totCartaLiq=lancesEnriched.reduce((s,l)=>s+l.cartaLiq,0);
+  const totRec=lancesEnriched.reduce((s,l)=>s+l.rec,0);
+  const totEmbutido=lancesEnriched.reduce((s,l)=>s+l.embutido,0);
   const projContemp=Math.round(chanceCount.ALTA*0.95+chanceCount['MÉDIA']*0.6+chanceCount['ÂNCORA']*0.35+chanceCount.BAIXA*0.1);
-  const projCarta=chanceCarta.ALTA*0.95+chanceCarta['MÉDIA']*0.6+chanceCarta['ÂNCORA']*0.35+chanceCarta.BAIXA*0.1;
+  const projCartaTotal=chanceCartaTotal.ALTA*0.95+chanceCartaTotal['MÉDIA']*0.6+chanceCartaTotal['ÂNCORA']*0.35+chanceCartaTotal.BAIXA*0.1;
   let trLances='';
-  GC_DATA.lancesMaio.forEach(l=>{
+  lancesEnriched.forEach(l=>{
     const ch=gcChance(l.pct,l.grupo);
     const h=GC_DATA.histMar26[l.grupo]||{};
     trLances+=`<tr>
@@ -13095,7 +13108,9 @@ function renderGuardaChuva(){
       <td>${l.cota}</td>
       <td class="gc-money"><b>${l.pct.toFixed(2)}%</b></td>
       <td class="gc-money">${gcBRL(l.lance)}</td>
-      <td class="gc-money">${gcBRL(l.carta)}</td>
+      <td class="gc-money">${gcBRL(l.cartaTotal)}</td>
+      <td class="gc-money" style="color:#4a5568">${gcBRL(l.cartaLiq)}</td>
+      <td class="gc-money" style="color:#4a5568">${gcBRL(l.embutido)}</td>
       <td class="gc-money">${gcBRL(l.rec)}</td>
       <td><span class="gc-pill gc-pill-${ch.cor}">${ch.label}</span></td>
       <td style="color:#718096;font-size:10px">menor ${(h.menor||0).toFixed(2)}% · min 6m ${(h.min_6m||0).toFixed(2)}%</td>
@@ -13107,24 +13122,29 @@ function renderGuardaChuva(){
       <div class="gc-strat">
         <b>📌 Estratégia de escala:</b> 62 lances ofertados em diferentes percentuais (67,5% a 71,5%). Lances <b>altos</b> garantem contemplação imediata e movem a fila. Lances <b>baixos (âncoras)</b> ficam de reserva esperando oscilação em meses com pouca demanda — quando o grupo "esfria", a âncora pega barato. Recurso próprio só sai do caixa se a cota contemplar.
       </div>
+      <div class="gc-strat" style="background:#ebf8ff;border-left-color:#3182ce;color:#2a4365">
+        <b>🏦 Regra Santander:</b> o lance é calculado sobre o <b>saldo devedor</b> (carta atualizada + taxa de adm + fundo de reserva), não sobre a carta pura. Por isso o <b>recurso próprio fica proporcionalmente maior</b> que num cálculo Itaú. O comprovante do banco já mostra a <b>carta líquida</b> (após dedução do embutido) — que é o valor que o cliente efetivamente recebe quando contemplado.
+      </div>
       <div class="gc-kpis" style="margin-bottom:14px">
-        <div class="gc-kpi"><div class="gc-kpi-lbl">Cotas ofertadas</div><div class="gc-kpi-val">${GC_DATA.lancesMaio.length}</div></div>
-        <div class="gc-kpi"><div class="gc-kpi-lbl">Lance total</div><div class="gc-kpi-val">${gcBRL(totLance)}</div></div>
-        <div class="gc-kpi"><div class="gc-kpi-lbl">Carta em jogo</div><div class="gc-kpi-val">${gcBRL(totCarta)}</div></div>
-        <div class="gc-kpi r"><div class="gc-kpi-lbl">Recurso próprio</div><div class="gc-kpi-val">${gcBRL(totRec)}</div></div>
-        <div class="gc-kpi g"><div class="gc-kpi-lbl">Projeção contempladas</div><div class="gc-kpi-val">${projContemp}</div><div class="gc-kpi-sub">de ${GC_DATA.lancesMaio.length}</div></div>
-        <div class="gc-kpi g"><div class="gc-kpi-lbl">Carta projetada</div><div class="gc-kpi-val">${gcBRL(projCarta)}</div><div class="gc-kpi-sub">a liberar</div></div>
+        <div class="gc-kpi"><div class="gc-kpi-lbl">Cotas ofertadas</div><div class="gc-kpi-val">${lancesEnriched.length}</div></div>
+        <div class="gc-kpi"><div class="gc-kpi-lbl">Lance total</div><div class="gc-kpi-val">${gcBRL(totLance)}</div><div class="gc-kpi-sub">sobre saldo devedor</div></div>
+        <div class="gc-kpi b"><div class="gc-kpi-lbl">Carta total em jogo</div><div class="gc-kpi-val">${gcBRL(totCartaTotal)}</div><div class="gc-kpi-sub">soma cartas atualizadas</div></div>
+        <div class="gc-kpi"><div class="gc-kpi-lbl">Carta líquida</div><div class="gc-kpi-val">${gcBRL(totCartaLiq)}</div><div class="gc-kpi-sub">já com embutido descontado</div></div>
+        <div class="gc-kpi"><div class="gc-kpi-lbl">Embutido</div><div class="gc-kpi-val">${gcBRL(totEmbutido)}</div><div class="gc-kpi-sub">parte do lance</div></div>
+        <div class="gc-kpi r"><div class="gc-kpi-lbl">Recurso próprio</div><div class="gc-kpi-val">${gcBRL(totRec)}</div><div class="gc-kpi-sub">do bolso</div></div>
+        <div class="gc-kpi g"><div class="gc-kpi-lbl">Projeção contempladas</div><div class="gc-kpi-val">${projContemp}</div><div class="gc-kpi-sub">de ${lancesEnriched.length}</div></div>
+        <div class="gc-kpi g"><div class="gc-kpi-lbl">Carta total projetada</div><div class="gc-kpi-val">${gcBRL(projCartaTotal)}</div><div class="gc-kpi-sub">a liberar</div></div>
       </div>
       <div style="margin-bottom:12px">
-        <div class="gc-bar-row"><div class="gc-bar-row-lbl">🟢 Alta</div><div class="gc-bar-row-bar"><div class="gc-bar-row-fill" style="width:${(chanceCount.ALTA/62*100).toFixed(1)}%;background:#38a169">${chanceCount.ALTA} cotas · ${gcBRL(chanceCarta.ALTA)}</div></div></div>
-        <div class="gc-bar-row"><div class="gc-bar-row-lbl">🟡 Média</div><div class="gc-bar-row-bar"><div class="gc-bar-row-fill" style="width:${(chanceCount['MÉDIA']/62*100).toFixed(1)}%;background:#d69e2e">${chanceCount['MÉDIA']} cotas · ${gcBRL(chanceCarta['MÉDIA'])}</div></div></div>
-        <div class="gc-bar-row"><div class="gc-bar-row-lbl">🟠 Âncora</div><div class="gc-bar-row-bar"><div class="gc-bar-row-fill" style="width:${(chanceCount['ÂNCORA']/62*100).toFixed(1)}%;background:#dd6b20">${chanceCount['ÂNCORA']} cotas · ${gcBRL(chanceCarta['ÂNCORA'])}</div></div></div>
-        <div class="gc-bar-row"><div class="gc-bar-row-lbl">🔴 Baixa</div><div class="gc-bar-row-bar"><div class="gc-bar-row-fill" style="width:${(chanceCount.BAIXA/62*100).toFixed(1)}%;background:#c53030">${chanceCount.BAIXA} cotas · ${gcBRL(chanceCarta.BAIXA)}</div></div></div>
+        <div class="gc-bar-row"><div class="gc-bar-row-lbl">🟢 Alta</div><div class="gc-bar-row-bar"><div class="gc-bar-row-fill" style="width:${(chanceCount.ALTA/62*100).toFixed(1)}%;background:#38a169">${chanceCount.ALTA} cotas · ${gcBRL(chanceCartaTotal.ALTA)}</div></div></div>
+        <div class="gc-bar-row"><div class="gc-bar-row-lbl">🟡 Média</div><div class="gc-bar-row-bar"><div class="gc-bar-row-fill" style="width:${(chanceCount['MÉDIA']/62*100).toFixed(1)}%;background:#d69e2e">${chanceCount['MÉDIA']} cotas · ${gcBRL(chanceCartaTotal['MÉDIA'])}</div></div></div>
+        <div class="gc-bar-row"><div class="gc-bar-row-lbl">🟠 Âncora</div><div class="gc-bar-row-bar"><div class="gc-bar-row-fill" style="width:${(chanceCount['ÂNCORA']/62*100).toFixed(1)}%;background:#dd6b20">${chanceCount['ÂNCORA']} cotas · ${gcBRL(chanceCartaTotal['ÂNCORA'])}</div></div></div>
+        <div class="gc-bar-row"><div class="gc-bar-row-lbl">🔴 Baixa</div><div class="gc-bar-row-bar"><div class="gc-bar-row-fill" style="width:${(chanceCount.BAIXA/62*100).toFixed(1)}%;background:#c53030">${chanceCount.BAIXA} cotas · ${gcBRL(chanceCartaTotal.BAIXA)}</div></div></div>
       </div>
-      <div class="gc-note">🟠 Âncora = lance abaixo do menor de Mar/26 MAS dentro do histórico de 6 meses — esperando oscilação. NÃO é erro, é estratégia.</div>
+      <div class="gc-note">🟠 Âncora = lance abaixo do menor de Mar/26 MAS dentro do histórico de 6 meses — esperando oscilação. NÃO é erro, é estratégia. · Valores em barra são <b>carta total</b> (não líquida).</div>
       <div class="gc-table-wrap" style="margin-top:12px">
         <table class="gc-table">
-          <thead><tr><th>Grupo</th><th>Cota</th><th>Lance %</th><th>Lance R$</th><th>Carta</th><th>Rec.próprio</th><th>Chance</th><th>Histórico</th></tr></thead>
+          <thead><tr><th>Grupo</th><th>Cota</th><th>Lance %</th><th>Lance R$</th><th>Carta total</th><th>Carta líquida</th><th>Embutido</th><th>Rec.próprio</th><th>Chance</th><th>Histórico</th></tr></thead>
           <tbody>${trLances}</tbody>
         </table>
       </div>
