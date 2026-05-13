@@ -1640,6 +1640,7 @@ main.main:has(#page-ajuda.active) .content{
     <div class="nav-sec">Clientes</div>
     <div class="ni" onclick="nav('proj',this)"><span class="ico">👤</span> Projetos / Cotas</div>
     <div class="ni" onclick="nav('fat',this)"><span class="ico">📋</span> Pós-Contemplação</div>
+    <div class="ni" data-admin-only="1" onclick="nav('guarda',this)"><span class="ico">☂️</span> Guarda-Chuva Robson</div>
     <div class="ni" data-vendext="1" style="display:none" onclick="nav('vendext',this)"><span class="ico">📁</span> Vendas Externas</div>
     <div class="nav-sec">Receita</div>
     <div class="ni" onclick="nav('receb',this)"><span class="ico">💸</span> Meus Recebimentos</div>
@@ -3417,6 +3418,99 @@ main.main:has(#page-ajuda.active) .content{
       <div id="usu-filiais-container" style="margin-bottom:20px"></div>
       <div id="usu-v1-container"></div>
     </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <!-- ☂️ PROJETO GUARDA-CHUVA — FASEADO SANTANDER (caso ROBSON MOCELLIN)   -->
+  <!-- Aba exclusiva admin (mathe + Alan). NÃO compartilha código c/ Itaú. -->
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <div class="page" id="page-guarda">
+    <style>
+      .gc-hero{background:linear-gradient(135deg,#1a3a5c 0%,#2c5282 50%,#3182ce 100%);border-radius:14px;padding:22px 26px;color:#fff;margin-bottom:14px;position:relative;overflow:hidden;box-shadow:0 4px 18px rgba(0,0,0,.15)}
+      .gc-hero::after{content:'☂️';position:absolute;right:-12px;top:-18px;font-size:160px;opacity:.07;pointer-events:none}
+      .gc-hero h1{font-size:19px;font-weight:700;margin:0 0 4px;letter-spacing:.3px;font-family:'Quicksand',sans-serif}
+      .gc-hero .gc-sub{font-size:12.5px;opacity:.85;max-width:780px;line-height:1.5}
+      .gc-progress-wrap{margin-top:14px;background:rgba(255,255,255,.15);border-radius:10px;height:14px;overflow:hidden;position:relative}
+      .gc-progress-bar{height:100%;background:linear-gradient(90deg,#48bb78 0%,#38b2ac 100%);transition:width 1s ease;box-shadow:0 0 12px rgba(72,187,120,.5)}
+      .gc-progress-lbl{font-size:11px;margin-top:6px;display:flex;justify-content:space-between;opacity:.95;font-weight:600}
+      .gc-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-bottom:14px}
+      .gc-kpi{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:11px 13px;box-shadow:0 1px 3px rgba(0,0,0,.04);transition:transform .15s,box-shadow .15s}
+      .gc-kpi:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.08)}
+      .gc-kpi-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#718096;margin-bottom:4px}
+      .gc-kpi-val{font-size:17px;font-weight:700;color:#1a202c;font-variant-numeric:tabular-nums}
+      .gc-kpi-sub{font-size:10.5px;color:#a0aec0;margin-top:2px}
+      .gc-kpi.g{border-top:3px solid #38a169}
+      .gc-kpi.y{border-top:3px solid #d69e2e}
+      .gc-kpi.b{border-top:3px solid #3182ce}
+      .gc-kpi.r{border-top:3px solid #c53030}
+      .gc-block{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:16px 18px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+      .gc-block-title{font-size:13.5px;font-weight:700;color:#2d3748;margin-bottom:12px;display:flex;align-items:center;gap:8px;padding-bottom:10px;border-bottom:2px solid #edf2f7;font-family:'Quicksand',sans-serif;letter-spacing:.2px}
+      .gc-block-title .gc-ico{font-size:17px}
+      .gc-block-title .gc-tag{margin-left:auto;font-size:9.5px;font-weight:700;background:#e6fffa;color:#234e52;padding:3px 9px;border-radius:10px;text-transform:uppercase;letter-spacing:.5px}
+      .gc-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+      @media(max-width:900px){.gc-grid-2{grid-template-columns:1fr}}
+      .gc-table{width:100%;border-collapse:collapse;font-size:11.5px}
+      .gc-table th{background:#f7fafc;text-align:left;padding:7px 9px;font-size:10px;font-weight:700;color:#4a5568;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid #e2e8f0;white-space:nowrap}
+      .gc-table td{padding:7px 9px;border-bottom:1px solid #edf2f7;color:#2d3748;font-variant-numeric:tabular-nums}
+      .gc-table tr:hover td{background:#f7fafc}
+      .gc-table-wrap{max-height:480px;overflow-y:auto;border:1px solid #edf2f7;border-radius:8px}
+      .gc-pill{display:inline-block;padding:2px 8px;border-radius:10px;font-size:9.5px;font-weight:700;letter-spacing:.3px}
+      .gc-pill-green{background:#c6f6d5;color:#22543d}
+      .gc-pill-yellow{background:#fefcbf;color:#744210}
+      .gc-pill-orange{background:#feebc8;color:#7b341e}
+      .gc-pill-red{background:#fed7d7;color:#742a2a}
+      .gc-pill-blue{background:#bee3f8;color:#2a4365}
+      .gc-pill-gray{background:#e2e8f0;color:#2d3748}
+      .gc-tranche{border:1px solid #cbd5e0;border-radius:10px;padding:12px 14px;margin-bottom:8px;background:#f7fafc}
+      .gc-tranche.done{border-left:5px solid #38a169;background:#f0fff4}
+      .gc-tranche.active{border-left:5px solid #d69e2e;background:#fffbeb}
+      .gc-tranche.future{border-left:5px solid #a0aec0;opacity:.85;border-style:dashed}
+      .gc-tranche-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;flex-wrap:wrap;gap:6px}
+      .gc-tranche-name{font-size:13px;font-weight:700;color:#2d3748;font-family:'Quicksand',sans-serif}
+      .gc-tranche-body{font-size:11.5px;color:#4a5568;line-height:1.7}
+      .gc-tranche-stat{display:inline-block;margin-right:14px;white-space:nowrap}
+      .gc-tranche-stat b{color:#1a202c;font-weight:700}
+      .gc-dil-list{display:grid;grid-template-columns:1fr;gap:6px}
+      .gc-dil-item{padding:8px 11px;border-radius:7px;display:flex;align-items:center;gap:9px;font-size:11.5px;font-weight:600;background:#f0fff4;color:#22543d;border:1px solid #9ae6b4}
+      .gc-dil-item.warn{background:#fffaf0;color:#744210;border-color:#f6e05e}
+      .gc-dil-item.pend{background:#fff5f5;color:#742a2a;border-color:#feb2b2}
+      .gc-dil-ico{font-size:15px;flex-shrink:0}
+      .gc-info-table{width:100%;font-size:11.5px}
+      .gc-info-table td{padding:5px 0;border-bottom:1px dashed #edf2f7;vertical-align:top}
+      .gc-info-table td:first-child{color:#718096;font-weight:600;width:38%}
+      .gc-info-table td:last-child{color:#2d3748;font-weight:600;text-align:right}
+      .gc-roadmap{display:flex;gap:0;overflow-x:auto;padding:10px 0 16px}
+      .gc-rm-step{flex:1;min-width:165px;text-align:center;position:relative;padding:0 8px}
+      .gc-rm-step::after{content:'';position:absolute;top:18px;left:50%;width:100%;height:2px;background:#cbd5e0;z-index:0}
+      .gc-rm-step:last-child::after{display:none}
+      .gc-rm-step.done::after{background:#38a169}
+      .gc-rm-num{width:36px;height:36px;border-radius:50%;background:#cbd5e0;color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center;margin:0 auto 6px;position:relative;z-index:1;font-size:13px}
+      .gc-rm-step.done .gc-rm-num{background:#38a169}
+      .gc-rm-step.active .gc-rm-num{background:#d69e2e;box-shadow:0 0 0 5px rgba(214,158,46,.22)}
+      .gc-rm-lbl{font-size:11px;font-weight:700;color:#2d3748;line-height:1.3}
+      .gc-rm-sub{font-size:10px;color:#718096;margin-top:2px}
+      .gc-strat{background:#fffbeb;border-left:4px solid #d69e2e;padding:10px 14px;border-radius:6px;margin-bottom:12px;font-size:12px;color:#744210;line-height:1.55}
+      .gc-strat b{color:#5c3a0d}
+      .gc-bar-row{display:flex;align-items:center;gap:8px;font-size:11.5px;margin-bottom:5px}
+      .gc-bar-row-lbl{width:78px;font-weight:600;color:#4a5568;flex-shrink:0;font-size:10.5px}
+      .gc-bar-row-bar{flex:1;background:#edf2f7;border-radius:5px;overflow:hidden;height:18px;position:relative}
+      .gc-bar-row-fill{height:100%;display:flex;align-items:center;padding:0 6px;color:#fff;font-weight:700;font-size:10px;white-space:nowrap;font-variant-numeric:tabular-nums}
+      .gc-fluxo-box{background:#f7fafc;border-radius:8px;padding:12px 14px;margin-bottom:10px}
+      .gc-fluxo-title{font-size:11.5px;font-weight:700;color:#4a5568;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+      .gc-money{font-variant-numeric:tabular-nums}
+      .gc-note{font-size:10.5px;color:#718096;font-style:italic;margin-top:6px}
+    </style>
+    <div id="guarda-hero"></div>
+    <div id="guarda-kpis"></div>
+    <div class="gc-grid-2">
+      <div id="guarda-contrato"></div>
+      <div id="guarda-diligencia"></div>
+    </div>
+    <div id="guarda-cotas"></div>
+    <div id="guarda-tranches"></div>
+    <div id="guarda-em-curso"></div>
+    <div id="guarda-fluxo"></div>
+    <div id="guarda-roadmap"></div>
   </div>
 
   <!-- ════════════════════════════════════════════════════════════════════ -->
@@ -5987,10 +6081,10 @@ function hideLoad(){document.getElementById('loading').classList.remove('show');
 function setSync(ok){const d=document.getElementById('sync-dot'),s=document.getElementById('sync-status');d.className='sync-dot'+(ok?' ok':' err');s.textContent=ok?'Conectado ao Supabase':'Sem conexão';}
 
 // ═══ NAV ═══
-const PGT={'dash':'Dashboard','ctrl':'Controle de Cotas','agenda':'Agenda','crm':'CRM / Indicações','guia':'Guia de Oportunidades','oport':'Oportunidades','prop':'Gerar Proposta','proj':'Projetos / Cotas','fat':'Pós-Contemplação','usuarios':'Usuários','receb':'Meus Recebimentos','ajuda':'Central de Ajuda'};
+const PGT={'dash':'Dashboard','ctrl':'Controle de Cotas','agenda':'Agenda','crm':'CRM / Indicações','guia':'Guia de Oportunidades','oport':'Oportunidades','prop':'Gerar Proposta','proj':'Projetos / Cotas','fat':'Pós-Contemplação','guarda':'Projeto Guarda-Chuva — Faseado Santander','usuarios':'Usuários','receb':'Meus Recebimentos','ajuda':'Central de Ajuda'};
 function toggleSidebar(){const sb=document.getElementById('sidebar');const ov=document.getElementById('sb-overlay');sb.classList.toggle('mob-open');ov.classList.toggle('open');}
 function nav(id,el){if(window.innerWidth<=700){const sb=document.getElementById('sidebar');const ov=document.getElementById('sb-overlay');sb.classList.remove('mob-open');ov.classList.remove('open');}
-document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));document.getElementById('page-'+id).classList.add('active');if(el)el.classList.add('active');document.getElementById('pg-title').textContent=PGT[id]||id;if(id==='ctrl')filterCtrl();if(id==='agenda')renderAgenda();if(id==='crm')renderCRM();if(id==='guia'){browseData=Object.entries(GUIA);renderBrowse(browseData,1);}if(id==='oport'){ortData=buildOrtData();renderOportunidades();renderOportSugestoes();}if(id==='prop'){renderPropGrupos();calcProp();updLance();}if(id==='proj')renderProj();if(id==='fat')renderFatPage();if(id==='usuarios')renderUsuariosPage();if(id==='receb')renderRecebPage();}
+document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));document.getElementById('page-'+id).classList.add('active');if(el)el.classList.add('active');document.getElementById('pg-title').textContent=PGT[id]||id;if(id==='ctrl')filterCtrl();if(id==='agenda')renderAgenda();if(id==='crm')renderCRM();if(id==='guia'){browseData=Object.entries(GUIA);renderBrowse(browseData,1);}if(id==='oport'){ortData=buildOrtData();renderOportunidades();renderOportSugestoes();}if(id==='prop'){renderPropGrupos();calcProp();updLance();}if(id==='proj')renderProj();if(id==='fat')renderFatPage();if(id==='guarda')renderGuardaChuva();if(id==='usuarios')renderUsuariosPage();if(id==='receb')renderRecebPage();}
 
 // ════════════════════════════════════════════════════════════════════════
 // 🚨 ÁREA PROTEGIDA — FUNÇÕES DA CENTRAL DE AJUDA — NÃO REMOVER 🚨
@@ -12675,6 +12769,418 @@ function gerarRelatorioCliente(name){
       });
     }
   },120);
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// ☂️ GUARDA-CHUVA ROBSON — RENDER COMPLETO (8 BLOCOS)
+// Dados específicos do caso. NÃO generalizar.
+// ═══════════════════════════════════════════════════════════════════════
+const GC_DATA={
+  cpf:'987.067.301-59',
+  nome:'ROBSON FERNANDO MOCELLIN',
+  contrato:{
+    comprador:'Robson Fernando Mocellin',
+    cpf_comprador:'987.067.301-59',
+    vendedor:'Gilmar Domingos Mocellin (pai) + Vilma Acco Mocellin (mãe)',
+    anuente:'Graciele Mocellin Pinzon (irmã) + Alejandro Pinzon Marquez (cônjuge)',
+    credora:'Santander Brasil Adm. Consórcio',
+    imovel:'Apto 302 + Vagas 03 e 37 · Continental Exclusive Residence',
+    endereco:'Av. Beira Mar, nº 10, Meia Praia — Itapema/SC',
+    matriculas:'25.977 (apto) · 26.002 (vaga 03) · 26.039 (vaga 37)',
+    preco_total:10005665.00,
+    avaliacao_leilao:9477000.00,
+    data_contrato:'26/02/2026',
+    pago_gilmar_total:10005665.00,
+    pago_gilmar_ja:1933327.94
+  },
+  histMar26:{
+    '3129':{menor:69.01,medio:70.36,maior:72.38,qtd:5,min_6m:53.80},
+    '3131':{menor:69.52,medio:69.67,maior:69.72,qtd:5,min_6m:58.20},
+    '3135':{menor:69.48,medio:69.66,maior:69.80,qtd:17,min_6m:66.16},
+    '3138':{menor:69.94,medio:69.97,maior:69.99,qtd:6,min_6m:66.29},
+    '3142':{menor:69.88,medio:69.92,maior:69.96,qtd:9,min_6m:56.30},
+    '3145':{menor:69.95,medio:69.97,maior:70.00,qtd:8,min_6m:67.92},
+    '3153':{menor:69.95,medio:70.25,maior:72.00,qtd:12,min_6m:54.80},
+    '3154':{menor:70.01,medio:70.70,maior:71.45,qtd:4,min_6m:67.70},
+    '3156':{menor:68.12,medio:69.57,maior:70.00,qtd:5,min_6m:45.00},
+    '3160':{menor:69.93,medio:71.21,maior:75.00,qtd:4,min_6m:60.10},
+    '3162':{menor:69.94,medio:70.02,maior:70.05,qtd:4,min_6m:62.00},
+    '3164':{menor:68.61,medio:68.64,maior:68.66,qtd:6,min_6m:60.00},
+    '3167':{menor:69.79,medio:69.99,maior:71.00,qtd:11,min_6m:68.32},
+    '3168':{menor:70.00,medio:70.00,maior:70.00,qtd:1,min_6m:60.00},
+    '3174':{menor:70.60,medio:70.99,maior:71.43,qtd:6,min_6m:66.85},
+    '3178':{menor:69.77,medio:69.88,maior:69.99,qtd:6,min_6m:61.00},
+    '3179':{menor:67.25,medio:67.96,maior:70.00,qtd:8,min_6m:65.78},
+    '3181':{menor:69.84,medio:70.19,maior:75.00,qtd:18,min_6m:64.66},
+    '3182':{menor:69.59,medio:70.67,maior:83.10,qtd:25,min_6m:65.00},
+    '3184':{menor:70.00,medio:70.26,maior:71.10,qtd:20,min_6m:62.45}
+  },
+  lancesMaio:[
+    {grupo:'3129',cota:'25',pct:69.9999,lance:113649.41,carta:88045.9,rec:64930.58},
+    {grupo:'3129',cota:'44',pct:70.5,lance:114461.2,carta:88045.9,rec:65742.37},
+    {grupo:'3129',cota:'138',pct:70.25,lance:114055.39,carta:88045.9,rec:65336.56},
+    {grupo:'3129',cota:'279',pct:70.0,lance:113649.56,carta:88045.9,rec:64930.73},
+    {grupo:'3131',cota:'1',pct:69.9999,lance:110966.27,carta:83748.39,rec:63405.79},
+    {grupo:'3131',cota:'175',pct:69.99,lance:110950.58,carta:83748.39,rec:63390.1},
+    {grupo:'3135',cota:'208',pct:69.9999,lance:111004.71,carta:83770.21,rec:63424.03},
+    {grupo:'3135',cota:'211',pct:69.2,lance:109736.38,carta:83770.21,rec:62155.7},
+    {grupo:'3138',cota:'118',pct:70.0,lance:111131.42,carta:83874.83,rec:63501.24},
+    {grupo:'3138',cota:'181',pct:70.7,lance:112242.69,carta:83874.83,rec:64612.51},
+    {grupo:'3138',cota:'213',pct:69.9999,lance:111131.25,carta:83874.83,rec:63501.07},
+    {grupo:'3142',cota:'30',pct:69.9999,lance:111731.44,carta:84320.07,rec:63840.2},
+    {grupo:'3142',cota:'47',pct:68.7,lance:109656.79,carta:84320.07,rec:61765.55},
+    {grupo:'3142',cota:'157',pct:69.9999,lance:111731.44,carta:84320.07,rec:63840.2},
+    {grupo:'3142',cota:'165',pct:70.25,lance:112130.6,carta:84320.07,rec:64239.36},
+    {grupo:'3145',cota:'46',pct:69.99,lance:109331.99,carta:84730.04,rec:62466.71},
+    {grupo:'3145',cota:'61',pct:70.7,lance:110441.06,carta:84730.04,rec:63575.78},
+    {grupo:'3145',cota:'62',pct:70.5,lance:110128.65,carta:84730.04,rec:63263.37},
+    {grupo:'3153',cota:'393',pct:70.0,lance:105233.88,carta:81522.74,rec:60120.62},
+    {grupo:'3153',cota:'425',pct:70.0,lance:105233.88,carta:81522.74,rec:60120.62},
+    {grupo:'3153',cota:'428',pct:69.55,lance:104557.52,carta:81522.74,rec:59444.26},
+    {grupo:'3153',cota:'432',pct:70.0,lance:105233.88,carta:81522.74,rec:60120.62},
+    {grupo:'3154',cota:'231',pct:70.5,lance:105985.38,carta:81522.74,rec:60872.12},
+    {grupo:'3154',cota:'232',pct:68.5,lance:102979.36,carta:81522.74,rec:57866.1},
+    {grupo:'3154',cota:'235',pct:68.3,lance:102678.75,carta:81522.74,rec:57565.49},
+    {grupo:'3154',cota:'240',pct:70.33,lance:105729.87,carta:81522.74,rec:60616.61},
+    {grupo:'3156',cota:'159',pct:70.5,lance:107377.38,carta:80452.24,rec:61673.62},
+    {grupo:'3156',cota:'160',pct:69.5,lance:105854.59,carta:80452.24,rec:60150.83},
+    {grupo:'3156',cota:'165',pct:69.0,lance:105093.18,carta:80452.24,rec:59389.42},
+    {grupo:'3160',cota:'248',pct:69.9999,lance:106654.11,carta:80489.58,rec:60939.69},
+    {grupo:'3160',cota:'305',pct:69.9999,lance:106654.11,carta:80489.58,rec:60939.69},
+    {grupo:'3160',cota:'306',pct:70.5,lance:107416.02,carta:80489.58,rec:61701.6},
+    {grupo:'3160',cota:'307',pct:68.5,lance:104369.02,carta:80489.58,rec:58654.6},
+    {grupo:'3160',cota:'311',pct:68.5,lance:104369.02,carta:80489.58,rec:58654.6},
+    {grupo:'3162',cota:'340',pct:70.1,lance:104316.75,carta:80694.21,rec:59658.96},
+    {grupo:'3162',cota:'363',pct:69.8,lance:103870.42,carta:80694.21,rec:59212.63},
+    {grupo:'3164',cota:'281',pct:70.5,lance:105120.76,carta:80890.15,rec:60394.91},
+    {grupo:'3167',cota:'151',pct:69.75,lance:166080.78,carta:128551.54,rec:94632.32},
+    {grupo:'3168',cota:'110',pct:68.5,lance:237836.88,carta:195829.97,rec:133666.85},
+    {grupo:'3168',cota:'135',pct:70.5,lance:244780.62,carta:195829.97,rec:140610.59},
+    {grupo:'3168',cota:'180',pct:69.99,lance:243009.96,carta:195829.97,rec:138839.93},
+    {grupo:'3168',cota:'182',pct:69.0,lance:239572.82,carta:195829.97,rec:135402.79},
+    {grupo:'3174',cota:'263',pct:69.0,lance:104225.8,carta:79781.78,rec:58895.58},
+    {grupo:'3174',cota:'318',pct:71.0,lance:107246.09,carta:79781.78,rec:61915.87},
+    {grupo:'3174',cota:'409',pct:70.5,lance:106491.02,carta:79781.78,rec:61160.8},
+    {grupo:'3178',cota:'428',pct:68.5,lance:103640.27,carta:79938.77,rec:58251.04},
+    {grupo:'3179',cota:'26',pct:68.98,lance:104065.98,carta:79710.83,rec:58808.81},
+    {grupo:'3179',cota:'46',pct:67.89,lance:102421.5,carta:79710.83,rec:57164.33},
+    {grupo:'3179',cota:'207',pct:67.5,lance:101833.11,carta:79710.83,rec:56575.94},
+    {grupo:'3179',cota:'210',pct:68.5,lance:103341.81,carta:79710.83,rec:58084.64},
+    {grupo:'3181',cota:'169',pct:68.68,lance:102797.69,carta:80062.72,rec:57892.41},
+    {grupo:'3181',cota:'297',pct:69.0,lance:103276.63,carta:80062.72,rec:58371.35},
+    {grupo:'3181',cota:'312',pct:69.98,lance:104743.41,carta:80062.72,rec:59838.13},
+    {grupo:'3181',cota:'313',pct:70.5,lance:105521.69,carta:80062.72,rec:60616.41},
+    {grupo:'3182',cota:'1711',pct:68.5,lance:369214.49,carta:318269.41,rec:207483.9},
+    {grupo:'3182',cota:'1720',pct:71.5,lance:385382.07,carta:480000.0,rec:385382.07},
+    {grupo:'3182',cota:'1778',pct:69.98,lance:377190.49,carta:480000.0,rec:377190.49},
+    {grupo:'3182',cota:'1790',pct:70.0,lance:377298.28,carta:480000.0,rec:377298.28},
+    {grupo:'3184',cota:'726',pct:70.5,lance:101325.46,carta:76884.84,rec:58210.3},
+    {grupo:'3184',cota:'988',pct:70.0,lance:100606.81,carta:76884.84,rec:57491.65},
+    {grupo:'3184',cota:'1302',pct:70.0,lance:100606.81,carta:76884.84,rec:57491.65},
+    {grupo:'3184',cota:'1791',pct:69.5,lance:99888.16,carta:76884.84,rec:56773.0}
+  ]
+};
+
+function gcBRL(v,d){d=(d==null?0:d);if(!v&&v!==0)return 'R$ 0';if(Math.abs(v)>=1e6)return 'R$ '+(v/1e6).toFixed(2).replace('.',',')+'M';if(Math.abs(v)>=1e3&&d===0)return 'R$ '+Math.round(v).toLocaleString('pt-BR');return 'R$ '+v.toLocaleString('pt-BR',{minimumFractionDigits:d,maximumFractionDigits:d});}
+function gcChance(lancePct,grupo){
+  const h=GC_DATA.histMar26[grupo];
+  if(!h)return {label:'?',cor:'gray',score:0};
+  const gap=lancePct-h.menor;
+  const min6=h.min_6m;
+  if(gap>=0.3)return {label:'ALTA',cor:'green',score:90};
+  if(gap>=0)return {label:'MÉDIA',cor:'yellow',score:60};
+  if(lancePct>=min6)return {label:'ÂNCORA',cor:'orange',score:35};
+  return {label:'BAIXA',cor:'red',score:10};
+}
+
+function renderGuardaChuva(){
+  // Filtra cotas do Robson
+  const cotas=COTAS.filter(r=>r.cpf===GC_DATA.cpf||((r.nome||'').toUpperCase().indexOf('ROBSON')>=0&&(r.nome||'').toUpperCase().indexOf('MOCELLIN')>=0));
+  if(!cotas.length){
+    document.getElementById('guarda-hero').innerHTML='<div class="gc-block" style="text-align:center;color:#742a2a;padding:30px">Nenhuma cota do Robson encontrada no Supabase. Verifique cadastro.</div>';
+    return;
+  }
+  const fat=cotas.filter(r=>r.status==='Faturado');
+  const cont=cotas.filter(r=>r.status==='Contemplado');
+  const em=cotas.filter(r=>r.status==='Em Andamento');
+  const totalCotas=cotas.length;
+  const contempladasTotal=fat.length+cont.length;
+  const pctConcluido=Math.round((contempladasTotal/totalCotas)*100);
+
+  const cartaFat=fat.reduce((s,r)=>s+(r.carta_atualizada||r.credito||0),0);
+  const cartaCont=cont.reduce((s,r)=>s+(r.carta_atualizada||r.credito||0),0);
+  const cartaEm=em.reduce((s,r)=>s+(r.carta_atualizada||r.credito||0),0);
+  const cartaTotal=cartaFat+cartaCont+cartaEm;
+
+  const saldoFat=fat.reduce((s,r)=>s+(r.saldo_devedor||0),0);
+  const saldoCont=cont.reduce((s,r)=>s+(r.saldo_devedor||0),0);
+  const saldoEm=em.reduce((s,r)=>s+(r.saldo_devedor||0),0);
+  const saldoTotal=saldoFat+saldoCont+saldoEm;
+
+  const lancePagoFat=fat.reduce((s,r)=>s+(r.lance_total||0),0);
+  const recPropFat=fat.reduce((s,r)=>s+(r.recurso_proprio||0),0);
+  const credLibFat=fat.reduce((s,r)=>s+(r.credito_liberado||0),0);
+  const credLibCont=cont.reduce((s,r)=>s+(r.credito_liberado||0),0);
+
+  const parcMensalTotal=cotas.reduce((s,r)=>s+(((r.status==='Contemplado'||r.status==='Faturado')&&r.parcela_pos)?r.parcela_pos:(r.parcela||0)),0);
+
+  const pagoGilmar=GC_DATA.contrato.pago_gilmar_ja;
+  const totalGilmar=GC_DATA.contrato.pago_gilmar_total;
+  const faltaGilmar=totalGilmar-pagoGilmar;
+  const pctGilmar=Math.round((pagoGilmar/totalGilmar)*100);
+
+  // ═════════ BLOCO 1: HERO ═════════
+  document.getElementById('guarda-hero').innerHTML=`
+    <div class="gc-hero">
+      <h1>☂️ Projeto Guarda-Chuva — Robson Fernando Mocellin · Santander</h1>
+      <div class="gc-sub">Operação faseada de alavancagem patrimonial via consórcio. Imóvel adquirido do pai (Continental Exclusive Residence · Itapema/SC) usado como garantia fiduciária. Contemplação em tranches sucessivas — recurso retorna como moeda pra próximos lances. <b>${totalCotas} cotas Santander Imóveis</b> · contrato R$ ${(GC_DATA.contrato.preco_total/1e6).toFixed(2).replace('.',',')}M.</div>
+      <div class="gc-progress-wrap">
+        <div class="gc-progress-bar" style="width:${pctConcluido}%"></div>
+      </div>
+      <div class="gc-progress-lbl">
+        <span>${contempladasTotal} de ${totalCotas} cotas concluídas (${pctConcluido}%)</span>
+        <span>Pago ao Gilmar: ${gcBRL(pagoGilmar)} de ${gcBRL(totalGilmar)} (${pctGilmar}%)</span>
+      </div>
+    </div>`;
+
+  // ═════════ BLOCO 1B: KPIs ═════════
+  document.getElementById('guarda-kpis').innerHTML=`
+    <div class="gc-kpis">
+      <div class="gc-kpi g"><div class="gc-kpi-lbl">Faturadas</div><div class="gc-kpi-val">${fat.length}</div><div class="gc-kpi-sub">${gcBRL(cartaFat)}</div></div>
+      <div class="gc-kpi y"><div class="gc-kpi-lbl">Contempladas</div><div class="gc-kpi-val">${cont.length}</div><div class="gc-kpi-sub">${gcBRL(cartaCont)} rendendo CDI</div></div>
+      <div class="gc-kpi b"><div class="gc-kpi-lbl">Em Andamento</div><div class="gc-kpi-val">${em.length}</div><div class="gc-kpi-sub">${gcBRL(cartaEm)}</div></div>
+      <div class="gc-kpi"><div class="gc-kpi-lbl">Saldo Devedor</div><div class="gc-kpi-val">${gcBRL(saldoTotal)}</div><div class="gc-kpi-sub">total da operação</div></div>
+      <div class="gc-kpi r"><div class="gc-kpi-lbl">Parcela Mensal</div><div class="gc-kpi-val">${gcBRL(parcMensalTotal)}</div><div class="gc-kpi-sub">soma de todas cotas</div></div>
+      <div class="gc-kpi"><div class="gc-kpi-lbl">Recurso Próprio</div><div class="gc-kpi-val">${gcBRL(recPropFat)}</div><div class="gc-kpi-sub">já investido em lance</div></div>
+      <div class="gc-kpi"><div class="gc-kpi-lbl">Crédito Liberado</div><div class="gc-kpi-val">${gcBRL(credLibFat+credLibCont)}</div><div class="gc-kpi-sub">Faturado + a faturar</div></div>
+      <div class="gc-kpi y"><div class="gc-kpi-lbl">Falta Liberar</div><div class="gc-kpi-val">${gcBRL(faltaGilmar)}</div><div class="gc-kpi-sub">pro Gilmar</div></div>
+    </div>`;
+
+  // ═════════ BLOCO 2: CONTRATO ═════════
+  const c=GC_DATA.contrato;
+  document.getElementById('guarda-contrato').innerHTML=`
+    <div class="gc-block">
+      <div class="gc-block-title"><span class="gc-ico">📜</span> Contrato — Compra com Alienação Fiduciária<span class="gc-tag">26/02/2026</span></div>
+      <table class="gc-info-table">
+        <tr><td>Comprador (Fiduciante)</td><td>${c.comprador}<br><span style="font-weight:400;color:#a0aec0">CPF ${c.cpf_comprador}</span></td></tr>
+        <tr><td>Vendedores</td><td>${c.vendedor}</td></tr>
+        <tr><td>Anuentes</td><td>${c.anuente}</td></tr>
+        <tr><td>Credora Fiduciária</td><td>${c.credora}</td></tr>
+        <tr><td>Imóvel</td><td>${c.imovel}</td></tr>
+        <tr><td>Endereço</td><td>${c.endereco}</td></tr>
+        <tr><td>Matrículas (RGI Itapema)</td><td>${c.matriculas}</td></tr>
+        <tr><td>Preço de venda</td><td class="gc-money">${gcBRL(c.preco_total,2)}</td></tr>
+        <tr><td>Avaliação para leilão</td><td class="gc-money">${gcBRL(c.avaliacao_leilao,2)}</td></tr>
+      </table>
+    </div>`;
+
+  // ═════════ BLOCO 8: DILIGÊNCIA ═════════
+  document.getElementById('guarda-diligencia').innerHTML=`
+    <div class="gc-block">
+      <div class="gc-block-title"><span class="gc-ico">🛡️</span> Régua de Diligência<span class="gc-tag" style="background:#c6f6d5;color:#22543d">100% Verde</span></div>
+      <div class="gc-dil-list">
+        <div class="gc-dil-item"><span class="gc-dil-ico">✅</span>Contrato registrado em Itapema/SC</div>
+        <div class="gc-dil-item"><span class="gc-dil-ico">✅</span>Alienação fiduciária averbada nas 3 matrículas</div>
+        <div class="gc-dil-item"><span class="gc-dil-ico">✅</span>ITBI + emolumentos cartoriais pagos</div>
+        <div class="gc-dil-item"><span class="gc-dil-ico">✅</span>Anuentes (irmã + cônjuge colombiano) documentados</div>
+        <div class="gc-dil-item"><span class="gc-dil-ico">✅</span>Operação alinhada com Santander em vídeo prévio</div>
+        <div class="gc-dil-item"><span class="gc-dil-ico">✅</span>Tranche 1 faturada com sucesso (R$ 1,87M)</div>
+        <div class="gc-dil-item"><span class="gc-dil-ico">✅</span>Estratégia faseada documentada nesta aba</div>
+        <div class="gc-dil-item warn"><span class="gc-dil-ico">⏳</span>Tranche 2 em curso · assembleia 15/05/2026</div>
+      </div>
+    </div>`;
+
+  // ═════════ BLOCO 3: COTAS POR GRUPO ═════════
+  const grupos={};
+  cotas.forEach(r=>{
+    const g=r.grupo;
+    if(!grupos[g])grupos[g]={fat:0,cont:0,em:0,cartaT:0,parcT:0,tx:r.taxa_adm||0,fr:r.fundo_reserva||0};
+    if(r.status==='Faturado')grupos[g].fat++;
+    else if(r.status==='Contemplado')grupos[g].cont++;
+    else if(r.status==='Em Andamento')grupos[g].em++;
+    grupos[g].cartaT+=(r.carta_atualizada||r.credito||0);
+    grupos[g].parcT+=((r.status==='Contemplado'||r.status==='Faturado')&&r.parcela_pos?r.parcela_pos:(r.parcela||0));
+  });
+  const gruposArr=Object.entries(grupos).sort((a,b)=>a[0].localeCompare(b[0]));
+  let trGrupos='';
+  gruposArr.forEach(([g,d])=>{
+    const totG=d.fat+d.cont+d.em;
+    trGrupos+=`<tr>
+      <td><b>${g}</b></td>
+      <td>${totG}</td>
+      <td style="text-align:center">${d.em?'<span class="gc-pill gc-pill-blue">'+d.em+'</span>':'—'}</td>
+      <td style="text-align:center">${d.cont?'<span class="gc-pill gc-pill-yellow">'+d.cont+'</span>':'—'}</td>
+      <td style="text-align:center">${d.fat?'<span class="gc-pill gc-pill-green">'+d.fat+'</span>':'—'}</td>
+      <td class="gc-money">${gcBRL(d.cartaT)}</td>
+      <td>${d.tx.toFixed(2)}%</td>
+      <td class="gc-money">${gcBRL(d.parcT)}</td>
+    </tr>`;
+  });
+  document.getElementById('guarda-cotas').innerHTML=`
+    <div class="gc-block">
+      <div class="gc-block-title"><span class="gc-ico">📊</span> Distribuição das ${totalCotas} cotas por grupo<span class="gc-tag">20 grupos</span></div>
+      <div class="gc-table-wrap">
+        <table class="gc-table">
+          <thead><tr><th>Grupo</th><th>Total</th><th>Em Andam.</th><th>Contemp.</th><th>Faturado</th><th>Carta total</th><th>Taxa adm</th><th>Parc. mensal</th></tr></thead>
+          <tbody>${trGrupos}</tbody>
+          <tfoot><tr style="background:#1a3a5c;color:#fff;font-weight:700">
+            <td>TOTAL</td><td>${totalCotas}</td><td>${em.length}</td><td>${cont.length}</td><td>${fat.length}</td>
+            <td class="gc-money">${gcBRL(cartaTotal)}</td><td>—</td><td class="gc-money">${gcBRL(parcMensalTotal)}</td>
+          </tr></tfoot>
+        </table>
+      </div>
+    </div>`;
+
+  // ═════════ BLOCO 4: TRANCHES CONCLUÍDAS ═════════
+  const tranches=[];
+  // Agrupa por data_contemplada
+  const grouped={};
+  [...fat,...cont].forEach(r=>{
+    if(!r.data_contemplada)return;
+    const k=r.data_contemplada;
+    if(!grouped[k])grouped[k]={qtd:0,lance:0,rec:0,emb:0,credLib:0,faturadas:0,faturadasEm:null};
+    grouped[k].qtd++;
+    grouped[k].lance+=(r.lance_total||0);
+    grouped[k].rec+=(r.recurso_proprio||0);
+    grouped[k].emb+=(r.lance_embutido||0);
+    grouped[k].credLib+=(r.credito_liberado||0);
+    if(r.data_faturamento){grouped[k].faturadas++;grouped[k].faturadasEm=r.data_faturamento;}
+  });
+  const trCards=Object.entries(grouped).sort((a,b)=>a[0].localeCompare(b[0])).map(([dc,t],i)=>{
+    const todasFat=t.faturadas===t.qtd;
+    const dt=new Date(dc+'T00:00:00').toLocaleDateString('pt-BR');
+    const dtFat=t.faturadasEm?new Date(t.faturadasEm+'T00:00:00').toLocaleDateString('pt-BR'):'—';
+    return `<div class="gc-tranche done">
+      <div class="gc-tranche-head">
+        <div class="gc-tranche-name">🎯 Tranche ${i+1} · Assembleia ${dt}</div>
+        <span class="gc-pill ${todasFat?'gc-pill-green':'gc-pill-yellow'}">${todasFat?'✅ Faturada':'⏳ '+t.faturadas+'/'+t.qtd+' faturadas'}</span>
+      </div>
+      <div class="gc-tranche-body">
+        <span class="gc-tranche-stat">Cotas: <b>${t.qtd}</b></span>
+        <span class="gc-tranche-stat">Lance pago: <b>${gcBRL(t.lance)}</b></span>
+        <span class="gc-tranche-stat">Recurso próprio: <b>${gcBRL(t.rec)}</b></span>
+        <span class="gc-tranche-stat">Embutido: <b>${gcBRL(t.emb)}</b></span>
+        <span class="gc-tranche-stat">Crédito liberado: <b>${gcBRL(t.credLib)}</b></span>
+        <span class="gc-tranche-stat">Faturamento: <b>${dtFat}</b></span>
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('guarda-tranches').innerHTML=`
+    <div class="gc-block">
+      <div class="gc-block-title"><span class="gc-ico">🚀</span> Tranches concluídas — histórico<span class="gc-tag">${Object.keys(grouped).length} ciclos</span></div>
+      ${trCards}
+    </div>`;
+
+  // ═════════ BLOCO 5: TRANCHE EM CURSO (62 LANCES MAIO/26) ═════════
+  let chanceCount={ALTA:0,'MÉDIA':0,'ÂNCORA':0,BAIXA:0};
+  let chanceCarta={ALTA:0,'MÉDIA':0,'ÂNCORA':0,BAIXA:0};
+  let chanceRec={ALTA:0,'MÉDIA':0,'ÂNCORA':0,BAIXA:0};
+  GC_DATA.lancesMaio.forEach(l=>{
+    const ch=gcChance(l.pct,l.grupo);
+    chanceCount[ch.label]++;
+    chanceCarta[ch.label]+=l.carta;
+    chanceRec[ch.label]+=l.rec;
+  });
+  const totLance=GC_DATA.lancesMaio.reduce((s,l)=>s+l.lance,0);
+  const totCarta=GC_DATA.lancesMaio.reduce((s,l)=>s+l.carta,0);
+  const totRec=GC_DATA.lancesMaio.reduce((s,l)=>s+l.rec,0);
+  const projContemp=Math.round(chanceCount.ALTA*0.95+chanceCount['MÉDIA']*0.6+chanceCount['ÂNCORA']*0.35+chanceCount.BAIXA*0.1);
+  const projCarta=chanceCarta.ALTA*0.95+chanceCarta['MÉDIA']*0.6+chanceCarta['ÂNCORA']*0.35+chanceCarta.BAIXA*0.1;
+  let trLances='';
+  GC_DATA.lancesMaio.forEach(l=>{
+    const ch=gcChance(l.pct,l.grupo);
+    const h=GC_DATA.histMar26[l.grupo]||{};
+    trLances+=`<tr>
+      <td><b>${l.grupo}</b></td>
+      <td>${l.cota}</td>
+      <td class="gc-money"><b>${l.pct.toFixed(2)}%</b></td>
+      <td class="gc-money">${gcBRL(l.lance)}</td>
+      <td class="gc-money">${gcBRL(l.carta)}</td>
+      <td class="gc-money">${gcBRL(l.rec)}</td>
+      <td><span class="gc-pill gc-pill-${ch.cor}">${ch.label}</span></td>
+      <td style="color:#718096;font-size:10px">menor ${(h.menor||0).toFixed(2)}% · min 6m ${(h.min_6m||0).toFixed(2)}%</td>
+    </tr>`;
+  });
+  document.getElementById('guarda-em-curso').innerHTML=`
+    <div class="gc-block" style="border:2px solid #d69e2e">
+      <div class="gc-block-title"><span class="gc-ico">🎯</span> Tranche em curso — Assembleia 15/05/2026<span class="gc-tag" style="background:#fefcbf;color:#744210">EM CURSO</span></div>
+      <div class="gc-strat">
+        <b>📌 Estratégia de escala:</b> 62 lances ofertados em diferentes percentuais (67,5% a 71,5%). Lances <b>altos</b> garantem contemplação imediata e movem a fila. Lances <b>baixos (âncoras)</b> ficam de reserva esperando oscilação em meses com pouca demanda — quando o grupo "esfria", a âncora pega barato. Recurso próprio só sai do caixa se a cota contemplar.
+      </div>
+      <div class="gc-kpis" style="margin-bottom:14px">
+        <div class="gc-kpi"><div class="gc-kpi-lbl">Cotas ofertadas</div><div class="gc-kpi-val">${GC_DATA.lancesMaio.length}</div></div>
+        <div class="gc-kpi"><div class="gc-kpi-lbl">Lance total</div><div class="gc-kpi-val">${gcBRL(totLance)}</div></div>
+        <div class="gc-kpi"><div class="gc-kpi-lbl">Carta em jogo</div><div class="gc-kpi-val">${gcBRL(totCarta)}</div></div>
+        <div class="gc-kpi r"><div class="gc-kpi-lbl">Recurso próprio</div><div class="gc-kpi-val">${gcBRL(totRec)}</div></div>
+        <div class="gc-kpi g"><div class="gc-kpi-lbl">Projeção contempladas</div><div class="gc-kpi-val">${projContemp}</div><div class="gc-kpi-sub">de ${GC_DATA.lancesMaio.length}</div></div>
+        <div class="gc-kpi g"><div class="gc-kpi-lbl">Carta projetada</div><div class="gc-kpi-val">${gcBRL(projCarta)}</div><div class="gc-kpi-sub">a liberar</div></div>
+      </div>
+      <div style="margin-bottom:12px">
+        <div class="gc-bar-row"><div class="gc-bar-row-lbl">🟢 Alta</div><div class="gc-bar-row-bar"><div class="gc-bar-row-fill" style="width:${(chanceCount.ALTA/62*100).toFixed(1)}%;background:#38a169">${chanceCount.ALTA} cotas · ${gcBRL(chanceCarta.ALTA)}</div></div></div>
+        <div class="gc-bar-row"><div class="gc-bar-row-lbl">🟡 Média</div><div class="gc-bar-row-bar"><div class="gc-bar-row-fill" style="width:${(chanceCount['MÉDIA']/62*100).toFixed(1)}%;background:#d69e2e">${chanceCount['MÉDIA']} cotas · ${gcBRL(chanceCarta['MÉDIA'])}</div></div></div>
+        <div class="gc-bar-row"><div class="gc-bar-row-lbl">🟠 Âncora</div><div class="gc-bar-row-bar"><div class="gc-bar-row-fill" style="width:${(chanceCount['ÂNCORA']/62*100).toFixed(1)}%;background:#dd6b20">${chanceCount['ÂNCORA']} cotas · ${gcBRL(chanceCarta['ÂNCORA'])}</div></div></div>
+        <div class="gc-bar-row"><div class="gc-bar-row-lbl">🔴 Baixa</div><div class="gc-bar-row-bar"><div class="gc-bar-row-fill" style="width:${(chanceCount.BAIXA/62*100).toFixed(1)}%;background:#c53030">${chanceCount.BAIXA} cotas · ${gcBRL(chanceCarta.BAIXA)}</div></div></div>
+      </div>
+      <div class="gc-note">🟠 Âncora = lance abaixo do menor de Mar/26 MAS dentro do histórico de 6 meses — esperando oscilação. NÃO é erro, é estratégia.</div>
+      <div class="gc-table-wrap" style="margin-top:12px">
+        <table class="gc-table">
+          <thead><tr><th>Grupo</th><th>Cota</th><th>Lance %</th><th>Lance R$</th><th>Carta</th><th>Rec.próprio</th><th>Chance</th><th>Histórico</th></tr></thead>
+          <tbody>${trLances}</tbody>
+        </table>
+      </div>
+    </div>`;
+
+  // ═════════ BLOCO 6: FLUXO FINANCEIRO ═════════
+  document.getElementById('guarda-fluxo').innerHTML=`
+    <div class="gc-block">
+      <div class="gc-block-title"><span class="gc-ico">💰</span> Fluxo financeiro — Pagamento ao Gilmar</div>
+      <div class="gc-fluxo-box">
+        <div class="gc-fluxo-title">Progresso do pagamento</div>
+        <div style="background:#e2e8f0;border-radius:8px;height:30px;overflow:hidden;position:relative;margin-bottom:8px">
+          <div style="height:100%;width:${pctGilmar}%;background:linear-gradient(90deg,#38a169 0%,#48bb78 100%);display:flex;align-items:center;justify-content:flex-end;padding-right:10px;color:#fff;font-weight:700;font-size:12px">${pctGilmar}%</div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:11.5px;color:#4a5568">
+          <span>Pago: <b>${gcBRL(pagoGilmar,2)}</b></span>
+          <span>Falta: <b>${gcBRL(faltaGilmar,2)}</b></span>
+          <span>Total: <b>${gcBRL(totalGilmar,2)}</b></span>
+        </div>
+      </div>
+      <div class="gc-grid-2">
+        <div class="gc-fluxo-box">
+          <div class="gc-fluxo-title">💸 Já investido em lances</div>
+          <table class="gc-info-table">
+            <tr><td>Recurso próprio</td><td>${gcBRL(recPropFat,2)}</td></tr>
+            <tr><td>Embutido</td><td>${gcBRL(lancePagoFat-recPropFat,2)}</td></tr>
+            <tr><td>Total lance pago</td><td><b>${gcBRL(lancePagoFat,2)}</b></td></tr>
+            <tr><td>Rec. próprio em curso (maio)</td><td>${gcBRL(totRec,2)}</td></tr>
+          </table>
+        </div>
+        <div class="gc-fluxo-box">
+          <div class="gc-fluxo-title">📈 Crédito liberado</div>
+          <table class="gc-info-table">
+            <tr><td>Faturado (já pago Gilmar)</td><td>${gcBRL(credLibFat,2)}</td></tr>
+            <tr><td>A faturar (Contempladas)</td><td>${gcBRL(credLibCont,2)}</td></tr>
+            <tr><td>Projetado tranche maio</td><td>${gcBRL(projCarta,0)}</td></tr>
+            <tr><td>Falta liberar pro Gilmar</td><td><b style="color:#c05621">${gcBRL(faltaGilmar,2)}</b></td></tr>
+          </table>
+        </div>
+      </div>
+      <div class="gc-note">📌 Após a primeira tranche, o crédito liberado das próximas contemplações vira "moeda" pra dar lance na rodada seguinte. Operação se auto-financia a partir da Tranche 2.</div>
+    </div>`;
+
+  // ═════════ BLOCO 7: ROADMAP ═════════
+  document.getElementById('guarda-roadmap').innerHTML=`
+    <div class="gc-block">
+      <div class="gc-block-title"><span class="gc-ico">📅</span> Roadmap — próximos passos</div>
+      <div class="gc-roadmap">
+        <div class="gc-rm-step done"><div class="gc-rm-num">✓</div><div class="gc-rm-lbl">Tranche 1 faturada</div><div class="gc-rm-sub">25/03/2026</div></div>
+        <div class="gc-rm-step active"><div class="gc-rm-num">2</div><div class="gc-rm-lbl">Tranche em curso</div><div class="gc-rm-sub">Assembleia 15/05</div></div>
+        <div class="gc-rm-step"><div class="gc-rm-num">3</div><div class="gc-rm-lbl">Rendimento CDI</div><div class="gc-rm-sub">~128 dias</div></div>
+        <div class="gc-rm-step"><div class="gc-rm-num">4</div><div class="gc-rm-lbl">Faturamento T2</div><div class="gc-rm-sub">~set/2026</div></div>
+        <div class="gc-rm-step"><div class="gc-rm-num">5</div><div class="gc-rm-lbl">Tranches finais</div><div class="gc-rm-sub">~out-dez/2026</div></div>
+        <div class="gc-rm-step"><div class="gc-rm-num">6</div><div class="gc-rm-lbl">Gilmar quitado</div><div class="gc-rm-sub">previsão dez/2026</div></div>
+      </div>
+    </div>`;
 }
 </script>
 </body>
