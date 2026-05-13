@@ -12925,6 +12925,32 @@ function renderGuardaChuva(){
   const embutidoCont=cont.reduce((s,r)=>s+(r.lance_embutido||0),0);
   const embutidoAcum=embutidoFat+embutidoCont;
   const lanceTotalAcum=fat.reduce((s,r)=>s+(r.lance_total||0),0)+cont.reduce((s,r)=>s+(r.lance_total||0),0);
+
+  // Estimativa de parcelas pagas pelo Robson desde a adesão até hoje
+  // Em Andamento: meses_desde_adesão × parcela
+  // Contempladas/Faturadas: meses_pré × parcela + meses_pós × parcela_pos
+  const hojeMs=new Date().getTime();
+  function gcParcPagas(r){
+    if(!r.adesao)return 0;
+    const adMs=new Date(r.adesao+'T00:00:00').getTime();
+    const MES=1000*60*60*24*30.44;
+    if(r.status==='Em Andamento'){
+      const m=Math.max(0,Math.floor((hojeMs-adMs)/MES));
+      return m*(r.parcela||0);
+    }
+    if(r.status==='Contemplado'||r.status==='Faturado'){
+      const dcMs=r.data_contemplada?new Date(r.data_contemplada+'T00:00:00').getTime():adMs;
+      const mPre=Math.max(0,Math.floor((dcMs-adMs)/MES));
+      const mPos=Math.max(0,Math.floor((hojeMs-dcMs)/MES));
+      return mPre*(r.parcela||0)+mPos*(r.parcela_pos||r.parcela||0);
+    }
+    return 0;
+  }
+  const parcPagasEm=em.reduce((s,r)=>s+gcParcPagas(r),0);
+  const parcPagasCont=cont.reduce((s,r)=>s+gcParcPagas(r),0);
+  const parcPagasFat=fat.reduce((s,r)=>s+gcParcPagas(r),0);
+  const parcPagasTotal=parcPagasEm+parcPagasCont+parcPagasFat;
+  const investidoTotal=recPropAcum+parcPagasTotal;
   const credLibFat=fat.reduce((s,r)=>s+(r.credito_liberado||0),0);
   const credLibCont=cont.reduce((s,r)=>s+(r.credito_liberado||0),0);
 
@@ -12957,7 +12983,7 @@ function renderGuardaChuva(){
       <div class="gc-kpi b"><div class="gc-kpi-lbl">Em Andamento</div><div class="gc-kpi-val">${em.length}</div><div class="gc-kpi-sub">${gcBRL(cartaEm)}</div></div>
       <div class="gc-kpi"><div class="gc-kpi-lbl">Saldo Devedor</div><div class="gc-kpi-val">${gcBRL(saldoTotal)}</div><div class="gc-kpi-sub">total da operação</div></div>
       <div class="gc-kpi r"><div class="gc-kpi-lbl">Parcela Mensal</div><div class="gc-kpi-val">${gcBRL(parcMensalTotal)}</div><div class="gc-kpi-sub">soma de todas cotas</div></div>
-<div class="gc-kpi"><div class="gc-kpi-lbl">Recurso Próprio</div><div class="gc-kpi-val">${gcBRL(recPropAcum)}</div><div class="gc-kpi-sub">faturadas + contempladas</div></div>
+<div class="gc-kpi"><div class="gc-kpi-lbl">Investido na operação</div><div class="gc-kpi-val">${gcBRL(investidoTotal)}</div><div class="gc-kpi-sub">lances + parcelas pagas</div></div>
       <div class="gc-kpi"><div class="gc-kpi-lbl">Crédito Liberado</div><div class="gc-kpi-val">${gcBRL(credLibFat+credLibCont)}</div><div class="gc-kpi-sub">Faturado + a faturar</div></div>
       <div class="gc-kpi y"><div class="gc-kpi-lbl">Falta Liberar</div><div class="gc-kpi-val">${gcBRL(faltaGilmar)}</div><div class="gc-kpi-sub">pro Gilmar</div></div>
     </div>`;
@@ -13173,15 +13199,23 @@ function renderGuardaChuva(){
       </div>
       <div class="gc-grid-2">
         <div class="gc-fluxo-box">
-          <div class="gc-fluxo-title">💸 Já investido em lances</div>
+          <div class="gc-fluxo-title">💸 Investimento total do Robson na operação</div>
           <table class="gc-info-table">
-            <tr><td>Rec. próprio Faturadas (19)</td><td>${gcBRL(recPropFat,2)}</td></tr>
-            <tr><td>Rec. próprio Contempladas (2)</td><td>${gcBRL(recPropCont,2)}</td></tr>
-            <tr><td><b>Total recurso próprio acumulado</b></td><td><b>${gcBRL(recPropAcum,2)}</b></td></tr>
-            <tr><td>Embutido total (faturadas + contempladas)</td><td>${gcBRL(embutidoAcum,2)}</td></tr>
-            <tr><td>Total lance pago acumulado</td><td><b>${gcBRL(lanceTotalAcum,2)}</b></td></tr>
-            <tr><td>Rec. próprio em curso (maio/26)</td><td>${gcBRL(totRec,2)}</td></tr>
+            <tr><td colspan="2" style="padding-top:4px;font-size:10.5px;color:#a0aec0;text-transform:uppercase;letter-spacing:.5px;font-weight:700">▸ Lances</td></tr>
+            <tr><td>Rec. próprio Faturadas (${fat.length})</td><td>${gcBRL(recPropFat,2)}</td></tr>
+            <tr><td>Rec. próprio Contempladas (${cont.length})</td><td>${gcBRL(recPropCont,2)}</td></tr>
+            <tr><td><b>Subtotal lances</b></td><td><b>${gcBRL(recPropAcum,2)}</b></td></tr>
+            <tr><td colspan="2" style="padding-top:8px;font-size:10.5px;color:#a0aec0;text-transform:uppercase;letter-spacing:.5px;font-weight:700">▸ Parcelas mensais pagas (estimado · adesão a hoje)</td></tr>
+            <tr><td>Em Andamento (${em.length})</td><td>${gcBRL(parcPagasEm,2)}</td></tr>
+            <tr><td>Contempladas (${cont.length})</td><td>${gcBRL(parcPagasCont,2)}</td></tr>
+            <tr><td>Faturadas (${fat.length})</td><td>${gcBRL(parcPagasFat,2)}</td></tr>
+            <tr><td><b>Subtotal parcelas</b></td><td><b>${gcBRL(parcPagasTotal,2)}</b></td></tr>
+            <tr style="background:#fffbeb"><td><b>💰 TOTAL INVESTIDO</b></td><td><b style="color:#c05621;font-size:13px">${gcBRL(investidoTotal,2)}</b></td></tr>
+            <tr><td colspan="2" style="padding-top:8px;font-size:10.5px;color:#a0aec0;text-transform:uppercase;letter-spacing:.5px;font-weight:700">▸ Lance em curso (maio/26)</td></tr>
+            <tr><td>Rec. próprio ofertado</td><td>${gcBRL(totRec,2)}</td></tr>
+            <tr><td>Embutido (acompanha o lance)</td><td>${gcBRL(totEmbutido,2)}</td></tr>
           </table>
+          <div class="gc-note" style="margin-top:8px">Parcelas pagas estimadas: meses desde adesão × parcela atual (pré/pós conforme status).</div>
         </div>
         <div class="gc-fluxo-box">
           <div class="gc-fluxo-title">📈 Crédito liberado</div>
