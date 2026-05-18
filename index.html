@@ -13381,18 +13381,33 @@ function gcBRLfmt(v){return 'R$ '+(v||0).toLocaleString('pt-BR',{minimumFraction
 
 function gcImprimirRel(modo){
   // modo: 'individual' (1 cota/página com TODOS detalhes) ou 'consolidado' (tabela única)
-  const t2 = COTAS.filter(r=>r.cpf==='987.067.301-59' && r.data_contemplada==='2026-05-15');
-  t2.forEach(c=>{
+  const todasT2 = COTAS.filter(r=>r.cpf==='987.067.301-59' && r.data_contemplada==='2026-05-15');
+  todasT2.forEach(c=>{
     const cred = c.credito_liberado||0; const rec = c.recurso_proprio||0;
     c._roi = rec>0 ? cred/rec : 0;
   });
-  // Ordena: marcadas primeiro, depois ROI desc
-  t2.sort((a,b)=>{
-    const am = a.decisao_cliente==='a_pagar'?0:1;
-    const bm = b.decisao_cliente==='a_pagar'?0:1;
-    if(am!==bm) return am-bm;
-    return b._roi-a._roi;
-  });
+  // Aplica os MESMOS filtros que estão ativos na tela
+  let t2 = [...todasT2];
+  if(gcDecFiltro==='topROI') t2 = t2.filter(c=>c._roi>=1.40);
+  if(gcDecFiltro==='aPagar') t2 = t2.filter(c=>c.decisao_cliente==='a_pagar');
+  if(gcDecFiltro==='pendente') t2 = t2.filter(c=>!c.decisao_cliente);
+  if(gcDecGrupo) t2 = t2.filter(c=>c.grupo===gcDecGrupo);
+  // Ordenação atual da tela
+  if(gcDecOrd==='roi') t2.sort((a,b)=>b._roi-a._roi);
+  else if(gcDecOrd==='carta') t2.sort((a,b)=>(b.carta_atualizada||0)-(a.carta_atualizada||0));
+  else if(gcDecOrd==='cred') t2.sort((a,b)=>(b.credito_liberado||0)-(a.credito_liberado||0));
+  else if(gcDecOrd==='rec') t2.sort((a,b)=>(a.recurso_proprio||0)-(b.recurso_proprio||0));
+  else if(gcDecOrd==='pct') t2.sort((a,b)=>(a.lance_pct||0)-(b.lance_pct||0));
+  else if(gcDecOrd==='grupo') t2.sort((a,b)=>a.grupo.localeCompare(b.grupo)||a.cota.localeCompare(b.cota));
+  // Descrever o filtro ativo (pra mostrar no cabeçalho do PDF)
+  const filtros = [];
+  if(gcDecFiltro==='topROI') filtros.push('Top ROI (≥1,40x)');
+  else if(gcDecFiltro==='aPagar') filtros.push('Marcadas A Pagar');
+  else if(gcDecFiltro==='pendente') filtros.push('Pendentes');
+  if(gcDecGrupo) filtros.push('Grupo '+gcDecGrupo);
+  const ordLabels={roi:'ROI maior',carta:'Carta maior',cred:'Crédito maior',rec:'Recurso menor',pct:'Lance % menor',grupo:'Grupo/Cota'};
+  filtros.push('ordenado por '+(ordLabels[gcDecOrd]||gcDecOrd));
+  const filtroStr = filtros.length ? filtros.join(' · ') : 'todas as cotas';
   const pagar = t2.filter(c=>c.decisao_cliente==='a_pagar');
   // Totais das MARCADAS a pagar
   const totRec = pagar.reduce((s,c)=>s+(c.recurso_proprio||0),0);
@@ -13418,9 +13433,10 @@ function gcImprimirRel(modo){
       <section class="page">
         <div class="hdr">
           <div class="hdr-l"><div class="brand">HC<span style="font-weight:300">360</span></div><div class="sub">Consórcio · Operação Guarda-Chuva</div></div>
-          <div class="hdr-r"><div class="meta">Tranche 2 · Assembleia 15/05/2026</div><div class="meta">Emitido em ${dataHj}</div><div class="meta">Cota ${i+1} de ${t2.length}</div></div>
+          <div class="hdr-r"><div class="meta">Tranche 2 · Assembleia 15/05/2026</div><div class="meta">Emitido em ${dataHj}</div><div class="meta">Cota ${i+1} de ${t2.length}${t2.length<todasT2.length?' (filtrado)':''}</div></div>
         </div>
         <h1>Detalhamento da Cota Contemplada</h1>
+        ${filtros.length>1?'<div class="filtro-tag">🔍 Relatório filtrado: <b>'+filtroStr+'</b></div>':''}
         <div class="badge ${pagarFlag?'badge-g':'badge-y'}">${pagarFlag?'✓ MARCADA PARA PAGAMENTO':'⏳ AGUARDANDO DECISÃO'}</div>
         <div class="cliente">
           <div><b>Cliente:</b> ROBSON FERNANDO MOCELLIN</div>
@@ -13472,12 +13488,13 @@ function gcImprimirRel(modo){
           <div><b>Cliente:</b> ROBSON FERNANDO MOCELLIN · CPF 987.067.301-59</div>
           <div><b>Data da assembleia:</b> 15/05/2026 · <b>Cotas contempladas:</b> ${t2.length}</div>
         </div>
-        <div class="sec-title">📊 Tranche completa (${t2.length} cotas contempladas)</div>
+        <div class="filtro-tag">🔍 Filtro aplicado: <b>${filtroStr}</b> · ${t2.length} de ${todasT2.length} cotas</div>
+        <div class="sec-title">📊 ${filtros.length>1?'Cotas filtradas':'Tranche completa'} (${t2.length} cotas)</div>
         <div class="kpis">
-          <div class="kpi"><div class="kpi-l">Cotas contempladas</div><div class="kpi-v">${t2.length}</div></div>
+          <div class="kpi"><div class="kpi-l">Cotas</div><div class="kpi-v">${t2.length}</div></div>
           <div class="kpi"><div class="kpi-l">Carta total</div><div class="kpi-v">${gcBRLfmt(trCarta)}</div></div>
           <div class="kpi"><div class="kpi-l">Desembolso total</div><div class="kpi-v r">${gcBRLfmt(trRec)}</div></div>
-          <div class="kpi"><div class="kpi-l">Crédito total a liberar</div><div class="kpi-v g">${gcBRLfmt(trCred)}</div></div>
+          <div class="kpi"><div class="kpi-l">Crédito total</div><div class="kpi-v g">${gcBRLfmt(trCred)}</div></div>
           <div class="kpi"><div class="kpi-l">ROI médio</div><div class="kpi-v">${roiTr.toFixed(2)}x</div></div>
         </div>
         <div class="sec-title">✅ Decisão do cliente — marcadas A Pagar</div>
@@ -13495,7 +13512,7 @@ function gcImprimirRel(modo){
           <tbody>${rows}</tbody>
           <tfoot>
             <tr class="ftr-tr">
-              <td colspan="2"><b>TOTAL TRANCHE (${t2.length} cotas)</b></td>
+              <td colspan="2"><b>${filtros.length>1?'TOTAL FILTRADO':'TOTAL TRANCHE'} (${t2.length} cotas)</b></td>
               <td><b>${gcBRLfmt(trCarta)}</b></td>
               <td>—</td>
               <td><b>${gcBRLfmt(trLance)}</b></td>
@@ -13561,6 +13578,7 @@ function gcImprimirRel(modo){
       .tbl tfoot tr.ftr-tr td{background:#4a5568;color:#fff;font-weight:700;padding:9px 6px;border:none}
       .tbl tfoot tr.ftr-pg td{background:#22543d;color:#fff;font-weight:700;padding:9px 6px;border-top:2px solid #fff}
       .sec-title{font-size:12px;font-weight:700;color:#4a5568;text-transform:uppercase;letter-spacing:.6px;margin:14px 0 6px;padding-bottom:5px;border-bottom:2px solid #edf2f7}
+      .filtro-tag{display:inline-block;background:#ebf8ff;border-left:3px solid #3182ce;padding:6px 12px;border-radius:4px;font-size:11.5px;color:#2a4365;margin-bottom:8px}
       .pill-g{background:#c6f6d5;color:#22543d;font-weight:700;padding:2px 8px;border-radius:10px;font-size:9.5px}
       .pill-y{background:#fefcbf;color:#744210;font-weight:700;padding:2px 8px;border-radius:10px;font-size:9.5px}
       .rodape{margin-top:24px;padding-top:10px;border-top:1px dashed #cbd5e0;font-size:10.5px;color:#718096;text-align:center;font-style:italic}
@@ -13573,7 +13591,7 @@ function gcImprimirRel(modo){
         .topbar{display:none}
       }
     </style></head><body>
-    <div class="topbar"><span>📄 Relatório · ${modo==='individual'?'Individual ('+t2.length+' páginas)':'Consolidado'}</span><button onclick="window.print()">🖨️ Imprimir / Salvar PDF</button></div>
+    <div class="topbar"><span>📄 ${modo==='individual'?'Individual ('+t2.length+' páginas)':'Consolidado'} · ${filtroStr}</span><button onclick="window.print()">🖨️ Imprimir / Salvar PDF</button></div>
     ${body}
     </body></html>`);
   w.document.close();
