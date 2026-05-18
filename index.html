@@ -3499,6 +3499,46 @@ main.main:has(#page-ajuda.active) .content{
       .gc-fluxo-title{font-size:11.5px;font-weight:700;color:#4a5568;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
       .gc-money{font-variant-numeric:tabular-nums}
       .gc-note{font-size:10.5px;color:#718096;font-style:italic;margin-top:6px}
+      /* === DECISÃO DE PAGAMENTO === */
+      .gc-dec-bar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;padding:10px;background:#f7fafc;border-radius:8px;align-items:center}
+      .gc-dec-bar select,.gc-dec-bar button{padding:5px 12px;border-radius:14px;background:#fff;border:1.5px solid #cbd5e0;font-size:11.5px;font-weight:600;color:#4a5568;cursor:pointer;font-family:inherit}
+      .gc-dec-bar button.act{background:#2c5282;border-color:#2c5282;color:#fff}
+      .gc-dec-bar select{padding:5px 10px}
+      .gc-cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;margin-bottom:12px}
+      .gc-card{border:2px solid #e2e8f0;border-radius:10px;padding:12px 14px;background:#fff;transition:all .2s;position:relative;display:flex;flex-direction:column;gap:6px}
+      .gc-card.high{border-left:5px solid #38a169}
+      .gc-card.mid{border-left:5px solid #d69e2e}
+      .gc-card.low{border-left:5px solid #a0aec0}
+      .gc-card.pagar{background:#f0fff4;border-color:#38a169;box-shadow:0 0 0 3px rgba(56,161,105,.15)}
+      .gc-card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+      .gc-card-grp{font-size:13px;font-weight:700;color:#2d3748;font-family:'Quicksand',sans-serif}
+      .gc-card-roi{font-size:13px;font-weight:700;padding:2px 8px;border-radius:10px;background:#edf2f7;color:#4a5568;flex-shrink:0}
+      .gc-card-roi.high{background:#c6f6d5;color:#22543d}
+      .gc-card-roi.mid{background:#fefcbf;color:#744210}
+      .gc-card-roi.low{background:#e2e8f0;color:#4a5568}
+      .gc-card-line{display:flex;justify-content:space-between;font-size:11.5px;color:#4a5568;font-variant-numeric:tabular-nums}
+      .gc-card-line b{color:#1a202c;font-weight:700}
+      .gc-card-line.hl{padding-top:5px;border-top:1px dashed #edf2f7;font-size:12px}
+      .gc-card-line.hl b{color:#22543d;font-size:13.5px}
+      .gc-card-btn{margin-top:6px;padding:8px;border:none;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;transition:all .15s;font-family:inherit;letter-spacing:.3px}
+      .gc-card-btn.toPay{background:#38a169;color:#fff}
+      .gc-card-btn.toPay:hover{background:#2f855a}
+      .gc-card-btn.paid{background:#c6f6d5;color:#22543d;cursor:pointer;border:2px solid #38a169}
+      .gc-card-btn.paid:hover{background:#9ae6b4}
+      .gc-card-tag{position:absolute;top:8px;right:8px;font-size:9.5px;font-weight:700;padding:2px 6px;border-radius:5px;background:#38a169;color:#fff;letter-spacing:.5px;display:none}
+      .gc-card.pagar .gc-card-tag{display:inline-block}
+      /* Resumo fixo */
+      .gc-resumo{position:sticky;top:8px;background:#1a3a5c;color:#fff;border-radius:10px;padding:14px 18px;margin-bottom:14px;box-shadow:0 4px 12px rgba(26,58,92,.3);z-index:20}
+      .gc-resumo-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px}
+      .gc-resumo-item{display:flex;flex-direction:column}
+      .gc-resumo-lbl{font-size:9.5px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;opacity:.7;margin-bottom:2px}
+      .gc-resumo-val{font-size:16px;font-weight:700;font-variant-numeric:tabular-nums}
+      .gc-resumo-val.g{color:#9ae6b4}
+      .gc-resumo-val.y{color:#fbd38d}
+      .gc-resumo-acts{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+      .gc-resumo-acts button{padding:6px 14px;border-radius:6px;font-size:11.5px;font-weight:700;border:none;cursor:pointer;background:rgba(255,255,255,.15);color:#fff;transition:background .15s}
+      .gc-resumo-acts button:hover{background:rgba(255,255,255,.25)}
+      .gc-resumo-acts button.danger{background:rgba(229,62,62,.3)}
     </style>
     <div id="guarda-hero"></div>
     <div id="guarda-kpis"></div>
@@ -3509,6 +3549,7 @@ main.main:has(#page-ajuda.active) .content{
     <div id="guarda-cotas"></div>
     <div id="guarda-tranches"></div>
     <div id="guarda-em-curso"></div>
+    <div id="guarda-decisao"></div>
     <div id="guarda-fluxo"></div>
     <div id="guarda-roadmap"></div>
   </div>
@@ -13182,6 +13223,9 @@ function renderGuardaChuva(){
       </div>
     </div>`;
 
+  // ═════════ BLOCO 5B: DECISÃO DE PAGAMENTO (45 contempladas em 15/05/2026) ═════════
+  renderGuardaDecisao(cotas);
+
   // ═════════ BLOCO 6: FLUXO FINANCEIRO ═════════
   document.getElementById('guarda-fluxo').innerHTML=`
     <div class="gc-block">
@@ -13242,6 +13286,189 @@ function renderGuardaChuva(){
         <div class="gc-rm-step"><div class="gc-rm-num">5</div><div class="gc-rm-lbl">Tranches finais</div><div class="gc-rm-sub">~out-dez/2026</div></div>
         <div class="gc-rm-step"><div class="gc-rm-num">6</div><div class="gc-rm-lbl">Gilmar quitado</div><div class="gc-rm-sub">previsão dez/2026</div></div>
       </div>
+    </div>`;
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// BLOCO DECISÃO DE PAGAMENTO — apenas Tranche 2 (45 contempladas em 15/05)
+// ═══════════════════════════════════════════════════════════════════════
+let gcDecFiltro='todas', gcDecOrd='roi', gcDecGrupo='';
+async function gcSalvarDecisao(grupo, cota, decisao){
+  try{
+    const dt = decisao==='a_pagar' ? new Date().toISOString() : null;
+    const { error } = await sb.from('cotas').update({decisao_cliente: decisao, decisao_at: dt})
+      .eq('cpf','987.067.301-59').eq('grupo',grupo).eq('cota',cota);
+    if(error){toast('Erro ao salvar: '+error.message);return false;}
+    // Atualizar localmente no COTAS
+    const idx = COTAS.findIndex(r=>r.cpf==='987.067.301-59' && r.grupo===grupo && r.cota===cota);
+    if(idx>=0){COTAS[idx].decisao_cliente=decisao; COTAS[idx].decisao_at=dt;}
+    return true;
+  }catch(e){toast('Erro: '+e.message);return false;}
+}
+async function gcToggleDecisao(grupo, cota){
+  const c = COTAS.find(r=>r.cpf==='987.067.301-59' && r.grupo===grupo && r.cota===cota);
+  if(!c) return;
+  const nova = c.decisao_cliente==='a_pagar' ? null : 'a_pagar';
+  const ok = await gcSalvarDecisao(grupo, cota, nova);
+  if(ok){
+    toast(nova==='a_pagar' ? '✅ Marcada como A PAGAR' : '↩️ Decisão removida');
+    renderGuardaDecisao(COTAS.filter(r=>r.cpf==='987.067.301-59'));
+  }
+}
+async function gcResetDecisoes(){
+  if(!confirm('Limpar TODAS as decisões da Tranche 2? Isso desmarca tudo.')) return;
+  const { error } = await sb.from('cotas').update({decisao_cliente: null, decisao_at: null})
+    .eq('cpf','987.067.301-59').eq('data_contemplada','2026-05-15');
+  if(error){toast('Erro: '+error.message);return;}
+  COTAS.filter(r=>r.cpf==='987.067.301-59' && r.data_contemplada==='2026-05-15').forEach(c=>{c.decisao_cliente=null;c.decisao_at=null;});
+  toast('Decisões resetadas');
+  renderGuardaDecisao(COTAS.filter(r=>r.cpf==='987.067.301-59'));
+}
+function gcDecFilterSet(f, val){
+  if(f==='ord') gcDecOrd=val;
+  else if(f==='grupo') gcDecGrupo=val;
+  else gcDecFiltro=val;
+  renderGuardaDecisao(COTAS.filter(r=>r.cpf==='987.067.301-59'));
+}
+function gcExportarDecisao(){
+  const t2 = COTAS.filter(r=>r.cpf==='987.067.301-59' && r.data_contemplada==='2026-05-15');
+  const pagar = t2.filter(r=>r.decisao_cliente==='a_pagar');
+  let txt = `RELATÓRIO DE DECISÃO - TRANCHE 2 (Assembleia 15/05/2026)
+`;
+  txt += `Cliente: Robson Fernando Mocellin · CPF 987.067.301-59
+`;
+  txt += `Data do relatório: ${new Date().toLocaleDateString('pt-BR')}
+
+`;
+  txt += `=== COTAS MARCADAS PARA PAGAMENTO (${pagar.length} de ${t2.length}) ===
+
+`;
+  let totRec=0, totCred=0, totCarta=0;
+  pagar.forEach(c=>{
+    totRec+=(c.recurso_proprio||0); totCred+=(c.credito_liberado||0); totCarta+=(c.carta_atualizada||0);
+    txt += `Grupo ${c.grupo} / Cota ${c.cota}
+`;
+    txt += `  Carta: R$ ${(c.carta_atualizada||0).toLocaleString('pt-BR',{minimumFractionDigits:2})}
+`;
+    txt += `  Lance pago: R$ ${(c.lance_total||0).toLocaleString('pt-BR',{minimumFractionDigits:2})}
+`;
+    txt += `  Recurso próprio: R$ ${(c.recurso_proprio||0).toLocaleString('pt-BR',{minimumFractionDigits:2})}
+`;
+    txt += `  Embutido: R$ ${(c.lance_embutido||0).toLocaleString('pt-BR',{minimumFractionDigits:2})}
+`;
+    txt += `  Crédito líquido: R$ ${(c.credito_liberado||0).toLocaleString('pt-BR',{minimumFractionDigits:2})}
+
+`;
+  });
+  txt += `
+=== TOTAIS ===
+`;
+  txt += `Carta total a usar:      R$ ${totCarta.toLocaleString('pt-BR',{minimumFractionDigits:2})}
+`;
+  txt += `Desembolso (rec.próprio): R$ ${totRec.toLocaleString('pt-BR',{minimumFractionDigits:2})}
+`;
+  txt += `Crédito a liberar:        R$ ${totCred.toLocaleString('pt-BR',{minimumFractionDigits:2})}
+`;
+  const blob = new Blob([txt], {type:'text/plain;charset=utf-8'});
+  const u = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href=u; a.download=`Robson_Tranche2_Decisao_${new Date().toISOString().slice(0,10)}.txt`;
+  a.click(); URL.revokeObjectURL(u);
+}
+
+function renderGuardaDecisao(cotas){
+  // Pega só as 45 contempladas em 15/05/2026 (Tranche 2)
+  const t2 = cotas.filter(r=>r.data_contemplada==='2026-05-15');
+  if(!t2.length){document.getElementById('guarda-decisao').innerHTML='';return;}
+  // Enriquece com ROI
+  t2.forEach(c=>{
+    const cred = c.credito_liberado||0;
+    const rec = c.recurso_proprio||0;
+    c._roi = rec>0 ? cred/rec : 0;
+    c._roiCls = c._roi>=1.45?'high':(c._roi>=1.33?'mid':'low');
+  });
+  // Filtros
+  const grupos = [...new Set(t2.map(c=>c.grupo))].sort();
+  let lista = [...t2];
+  if(gcDecFiltro==='topROI') lista = lista.filter(c=>c._roi>=1.40);
+  if(gcDecFiltro==='aPagar') lista = lista.filter(c=>c.decisao_cliente==='a_pagar');
+  if(gcDecFiltro==='pendente') lista = lista.filter(c=>!c.decisao_cliente);
+  if(gcDecGrupo) lista = lista.filter(c=>c.grupo===gcDecGrupo);
+  // Ordenação
+  if(gcDecOrd==='roi') lista.sort((a,b)=>b._roi-a._roi);
+  else if(gcDecOrd==='carta') lista.sort((a,b)=>(b.carta_atualizada||0)-(a.carta_atualizada||0));
+  else if(gcDecOrd==='cred') lista.sort((a,b)=>(b.credito_liberado||0)-(a.credito_liberado||0));
+  else if(gcDecOrd==='rec') lista.sort((a,b)=>(a.recurso_proprio||0)-(b.recurso_proprio||0));
+  else if(gcDecOrd==='grupo') lista.sort((a,b)=>a.grupo.localeCompare(b.grupo)||a.cota.localeCompare(b.cota));
+
+  // Totais da decisão
+  const aPagar = t2.filter(c=>c.decisao_cliente==='a_pagar');
+  const pend = t2.filter(c=>!c.decisao_cliente);
+  const totRec = aPagar.reduce((s,c)=>s+(c.recurso_proprio||0),0);
+  const totCred = aPagar.reduce((s,c)=>s+(c.credito_liberado||0),0);
+  const totCarta = aPagar.reduce((s,c)=>s+(c.carta_atualizada||0),0);
+  const roiMedio = totRec>0 ? totCred/totRec : 0;
+
+  let cards = '';
+  lista.forEach(c=>{
+    const pagar = c.decisao_cliente==='a_pagar';
+    const cls = c._roiCls;
+    cards += `
+      <div class="gc-card ${cls} ${pagar?'pagar':''}">
+        <div class="gc-card-tag">✓ A PAGAR</div>
+        <div class="gc-card-head">
+          <div class="gc-card-grp">G${c.grupo} · Cota ${c.cota}</div>
+          <div class="gc-card-roi ${cls}">${c._roi.toFixed(2)}x</div>
+        </div>
+        <div class="gc-card-line"><span>Carta</span><b>${gcBRL(c.carta_atualizada||0,0)}</b></div>
+        <div class="gc-card-line"><span>Lance pago</span><span>${gcBRL(c.lance_total||0,0)}</span></div>
+        <div class="gc-card-line"><span>Rec. próprio</span><b style="color:#c53030">${gcBRL(c.recurso_proprio||0,0)}</b></div>
+        <div class="gc-card-line"><span>Embutido</span><span>${gcBRL(c.lance_embutido||0,0)}</span></div>
+        <div class="gc-card-line hl"><span>💰 Crédito líquido</span><b>${gcBRL(c.credito_liberado||0,0)}</b></div>
+        <button class="gc-card-btn ${pagar?'paid':'toPay'}" onclick="gcToggleDecisao('${c.grupo}','${c.cota}')">${pagar?'✓ MARCADA · clique p/ desmarcar':'✅ MARCAR COMO A PAGAR'}</button>
+      </div>`;
+  });
+
+  document.getElementById('guarda-decisao').innerHTML = `
+    <div class="gc-block">
+      <div class="gc-block-title"><span class="gc-ico">💳</span> Decisão de Pagamento — Tranche 2<span class="gc-tag" style="background:#fefcbf;color:#744210">DECISÃO DO CLIENTE</span></div>
+      <div class="gc-strat" style="background:#ebf8ff;border-left-color:#3182ce;color:#2a4365">
+        <b>📌 Como funciona:</b> 45 cartas foram contempladas em 15/05/2026. Para cada uma, o Robson decide se vai pagar o lance (R$ recurso próprio sai do bolso) e receber o crédito líquido, ou não pagar agora. Clique em <b>"Marcar como A Pagar"</b> em cada cota que faz sentido. O resumo no topo atualiza em tempo real.
+      </div>
+      <div class="gc-resumo">
+        <div class="gc-resumo-grid">
+          <div class="gc-resumo-item"><span class="gc-resumo-lbl">✅ Marcadas A Pagar</span><span class="gc-resumo-val g">${aPagar.length}<span style="font-size:11px;opacity:.7"> / ${t2.length}</span></span></div>
+          <div class="gc-resumo-item"><span class="gc-resumo-lbl">💸 Vai desembolsar</span><span class="gc-resumo-val y">${gcBRL(totRec)}</span></div>
+          <div class="gc-resumo-item"><span class="gc-resumo-lbl">💰 Vai liberar de crédito</span><span class="gc-resumo-val g">${gcBRL(totCred)}</span></div>
+          <div class="gc-resumo-item"><span class="gc-resumo-lbl">🏠 Carta a usar</span><span class="gc-resumo-val">${gcBRL(totCarta)}</span></div>
+          <div class="gc-resumo-item"><span class="gc-resumo-lbl">📈 ROI médio</span><span class="gc-resumo-val">${roiMedio.toFixed(2)}x</span></div>
+          <div class="gc-resumo-item"><span class="gc-resumo-lbl">⏳ Pendente decisão</span><span class="gc-resumo-val">${pend.length}</span></div>
+        </div>
+        <div class="gc-resumo-acts">
+          <button onclick="gcExportarDecisao()">📋 Exportar relatório (.txt)</button>
+          <button class="danger" onclick="gcResetDecisoes()">🔄 Resetar decisões</button>
+        </div>
+      </div>
+      <div class="gc-dec-bar">
+        <span style="font-size:11px;font-weight:700;color:#4a5568;margin-right:6px">FILTRAR:</span>
+        <button class="${gcDecFiltro==='todas'?'act':''}" onclick="gcDecFilterSet('filtro','todas')">Todas (${t2.length})</button>
+        <button class="${gcDecFiltro==='topROI'?'act':''}" onclick="gcDecFilterSet('filtro','topROI')">🏆 Top ROI (≥1,40x)</button>
+        <button class="${gcDecFiltro==='aPagar'?'act':''}" onclick="gcDecFilterSet('filtro','aPagar')">✅ Marcadas (${aPagar.length})</button>
+        <button class="${gcDecFiltro==='pendente'?'act':''}" onclick="gcDecFilterSet('filtro','pendente')">⏳ Pendentes (${pend.length})</button>
+        <span style="font-size:11px;font-weight:700;color:#4a5568;margin:0 4px 0 12px">GRUPO:</span>
+        <select onchange="gcDecFilterSet('grupo',this.value)">
+          <option value="">Todos</option>
+          ${grupos.map(g=>`<option value="${g}" ${gcDecGrupo===g?'selected':''}>${g}</option>`).join('')}
+        </select>
+        <span style="font-size:11px;font-weight:700;color:#4a5568;margin:0 4px 0 12px">ORDENAR:</span>
+        <select onchange="gcDecFilterSet('ord',this.value)">
+          <option value="roi" ${gcDecOrd==='roi'?'selected':''}>ROI (maior)</option>
+          <option value="carta" ${gcDecOrd==='carta'?'selected':''}>Carta (maior)</option>
+          <option value="cred" ${gcDecOrd==='cred'?'selected':''}>Crédito líquido (maior)</option>
+          <option value="rec" ${gcDecOrd==='rec'?'selected':''}>Recurso próprio (menor)</option>
+          <option value="grupo" ${gcDecOrd==='grupo'?'selected':''}>Grupo/Cota</option>
+        </select>
+      </div>
+      <div class="gc-cards-grid">${cards}</div>
     </div>`;
 }
 </script>
