@@ -13377,6 +13377,176 @@ function gcExportarDecisao(){
   a.click(); URL.revokeObjectURL(u);
 }
 
+function gcBRLfmt(v){return 'R$ '+(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});}
+
+function gcImprimirRel(modo){
+  // modo: 'individual' (1 cota/página com TODOS detalhes) ou 'consolidado' (tabela única)
+  const t2 = COTAS.filter(r=>r.cpf==='987.067.301-59' && r.data_contemplada==='2026-05-15');
+  t2.forEach(c=>{
+    const cred = c.credito_liberado||0; const rec = c.recurso_proprio||0;
+    c._roi = rec>0 ? cred/rec : 0;
+  });
+  // Ordena: marcadas primeiro, depois ROI desc
+  t2.sort((a,b)=>{
+    const am = a.decisao_cliente==='a_pagar'?0:1;
+    const bm = b.decisao_cliente==='a_pagar'?0:1;
+    if(am!==bm) return am-bm;
+    return b._roi-a._roi;
+  });
+  const pagar = t2.filter(c=>c.decisao_cliente==='a_pagar');
+  const totRec = pagar.reduce((s,c)=>s+(c.recurso_proprio||0),0);
+  const totCred = pagar.reduce((s,c)=>s+(c.credito_liberado||0),0);
+  const totCarta = pagar.reduce((s,c)=>s+(c.carta_atualizada||0),0);
+  const totLance = pagar.reduce((s,c)=>s+(c.lance_total||0),0);
+  const totEmb = pagar.reduce((s,c)=>s+(c.lance_embutido||0),0);
+  const roiMedio = totRec>0?totCred/totRec:0;
+  const dataHj = new Date().toLocaleDateString('pt-BR');
+
+  let body = '';
+  if(modo==='individual'){
+    body = t2.map((c,i)=>{
+      const pagarFlag = c.decisao_cliente==='a_pagar';
+      return `
+      <section class="page">
+        <div class="hdr">
+          <div class="hdr-l"><div class="brand">HC<span style="font-weight:300">360</span></div><div class="sub">Consórcio · Operação Guarda-Chuva</div></div>
+          <div class="hdr-r"><div class="meta">Tranche 2 · Assembleia 15/05/2026</div><div class="meta">Emitido em ${dataHj}</div><div class="meta">Cota ${i+1} de ${t2.length}</div></div>
+        </div>
+        <h1>Detalhamento da Cota Contemplada</h1>
+        <div class="badge ${pagarFlag?'badge-g':'badge-y'}">${pagarFlag?'✓ MARCADA PARA PAGAMENTO':'⏳ AGUARDANDO DECISÃO'}</div>
+        <div class="cliente">
+          <div><b>Cliente:</b> ROBSON FERNANDO MOCELLIN</div>
+          <div><b>CPF:</b> 987.067.301-59</div>
+        </div>
+        <div class="grp-cota">Grupo ${c.grupo} · Cota ${c.cota}</div>
+        <table class="dt">
+          <tr><td>Tipo de bem</td><td>Imóvel</td></tr>
+          <tr><td>Carta atualizada</td><td><b>${gcBRLfmt(c.carta_atualizada)}</b></td></tr>
+          <tr><td>Data da contemplação</td><td>15/05/2026</td></tr>
+          <tr><td>Tipo de contemplação</td><td>Lance ${c.lance_pct?Number(c.lance_pct).toFixed(2)+'%':''}</td></tr>
+          <tr><td>Lance total ofertado</td><td>${gcBRLfmt(c.lance_total)}</td></tr>
+          <tr><td>· Recurso próprio (sai do caixa)</td><td style="color:#c53030"><b>${gcBRLfmt(c.recurso_proprio)}</b></td></tr>
+          <tr><td>· Embutido (deduzido da carta)</td><td>${gcBRLfmt(c.lance_embutido)}</td></tr>
+          <tr class="hl"><td>💰 Crédito líquido a receber</td><td><b>${gcBRLfmt(c.credito_liberado)}</b></td></tr>
+          <tr><td>ROI (crédito ÷ recurso próprio)</td><td><b>${c._roi.toFixed(2)}x</b></td></tr>
+          <tr><td>Taxa de administração</td><td>${(c.taxa_adm||0).toFixed(2)}%</td></tr>
+          <tr><td>Fundo de reserva</td><td>${(c.fundo_reserva||0).toFixed(2)}%</td></tr>
+        </table>
+        <div class="rodape">Robson Fernando Mocellin · Operação Guarda-Chuva Santander · HC360</div>
+      </section>`;
+    }).join('');
+  } else {
+    // CONSOLIDADO
+    let rows='';
+    t2.forEach((c,i)=>{
+      const pagarFlag = c.decisao_cliente==='a_pagar';
+      rows += `<tr class="${pagarFlag?'r-pagar':''}">
+        <td>${i+1}</td>
+        <td><b>${c.grupo}/${c.cota}</b></td>
+        <td>${gcBRLfmt(c.carta_atualizada)}</td>
+        <td>${c.lance_pct?Number(c.lance_pct).toFixed(2)+'%':'—'}</td>
+        <td>${gcBRLfmt(c.lance_total)}</td>
+        <td style="color:#c53030"><b>${gcBRLfmt(c.recurso_proprio)}</b></td>
+        <td>${gcBRLfmt(c.lance_embutido)}</td>
+        <td><b>${gcBRLfmt(c.credito_liberado)}</b></td>
+        <td><b>${c._roi.toFixed(2)}x</b></td>
+        <td>${pagarFlag?'<span class="pill-g">✓ A PAGAR</span>':'<span class="pill-y">⏳</span>'}</td>
+      </tr>`;
+    });
+    body = `
+      <section class="page">
+        <div class="hdr">
+          <div class="hdr-l"><div class="brand">HC<span style="font-weight:300">360</span></div><div class="sub">Consórcio · Operação Guarda-Chuva</div></div>
+          <div class="hdr-r"><div class="meta">Tranche 2 · Assembleia 15/05/2026</div><div class="meta">Emitido em ${dataHj}</div></div>
+        </div>
+        <h1>Decisão de Pagamento — Relatório Consolidado</h1>
+        <div class="cliente">
+          <div><b>Cliente:</b> ROBSON FERNANDO MOCELLIN · CPF 987.067.301-59</div>
+          <div><b>Data da assembleia:</b> 15/05/2026 · <b>Cotas contempladas:</b> ${t2.length}</div>
+        </div>
+        <div class="kpis">
+          <div class="kpi"><div class="kpi-l">Marcadas A Pagar</div><div class="kpi-v g">${pagar.length} / ${t2.length}</div></div>
+          <div class="kpi"><div class="kpi-l">Carta a usar</div><div class="kpi-v">${gcBRLfmt(totCarta)}</div></div>
+          <div class="kpi"><div class="kpi-l">Desembolso (rec.próprio)</div><div class="kpi-v r">${gcBRLfmt(totRec)}</div></div>
+          <div class="kpi"><div class="kpi-l">Crédito a liberar</div><div class="kpi-v g">${gcBRLfmt(totCred)}</div></div>
+          <div class="kpi"><div class="kpi-l">ROI médio</div><div class="kpi-v">${roiMedio.toFixed(2)}x</div></div>
+        </div>
+        <table class="tbl">
+          <thead><tr>
+            <th>#</th><th>Cota</th><th>Carta</th><th>%</th><th>Lance R$</th><th>Rec.Próprio</th><th>Embutido</th><th>Cred.Líq</th><th>ROI</th><th>Decisão</th>
+          </tr></thead>
+          <tbody>${rows}</tbody>
+          <tfoot><tr>
+            <td colspan="2"><b>TOTAIS (marcadas A Pagar)</b></td>
+            <td><b>${gcBRLfmt(totCarta)}</b></td>
+            <td>—</td>
+            <td><b>${gcBRLfmt(totLance)}</b></td>
+            <td style="color:#c53030"><b>${gcBRLfmt(totRec)}</b></td>
+            <td><b>${gcBRLfmt(totEmb)}</b></td>
+            <td><b>${gcBRLfmt(totCred)}</b></td>
+            <td><b>${roiMedio.toFixed(2)}x</b></td>
+            <td><b>${pagar.length}</b></td>
+          </tr></tfoot>
+        </table>
+        <div class="rodape">Robson Fernando Mocellin · Operação Guarda-Chuva Santander · HC360</div>
+      </section>`;
+  }
+
+  // Janela nova com layout otimizado
+  const w = window.open('','_blank','width=900,height=700');
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Robson · Tranche 2 · ${modo==='individual'?'Individual':'Consolidado'}</title>
+    <style>
+      *{box-sizing:border-box;margin:0;padding:0}
+      body{font-family:Arial,'Segoe UI',sans-serif;color:#1a202c;background:#f7fafc;padding:20px}
+      .page{background:#fff;padding:32px 40px;max-width:${modo==='consolidado'?'1100':'900'}px;margin:0 auto 20px;box-shadow:0 2px 8px rgba(0,0,0,.08);page-break-after:always}
+      .page:last-child{page-break-after:auto}
+      .hdr{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #1a3a5c;padding-bottom:10px;margin-bottom:18px}
+      .hdr-l .brand{font-size:26px;font-weight:700;color:#1a3a5c;font-family:Arial}
+      .hdr-l .sub{font-size:11px;color:#718096;font-weight:600;letter-spacing:.5px;text-transform:uppercase;margin-top:2px}
+      .hdr-r{text-align:right}
+      .hdr-r .meta{font-size:11px;color:#4a5568;font-weight:600}
+      h1{font-size:18px;color:#1a3a5c;margin-bottom:10px;font-weight:700}
+      .badge{display:inline-block;padding:6px 14px;border-radius:18px;font-size:11px;font-weight:700;letter-spacing:.5px;margin-bottom:12px;text-transform:uppercase}
+      .badge-g{background:#c6f6d5;color:#22543d}
+      .badge-y{background:#fefcbf;color:#744210}
+      .cliente{background:#f7fafc;border-left:4px solid #1a3a5c;padding:10px 14px;border-radius:4px;font-size:12.5px;line-height:1.7;margin-bottom:14px}
+      .grp-cota{font-size:22px;font-weight:700;color:#1a3a5c;text-align:center;padding:14px;background:#edf2f7;border-radius:8px;margin-bottom:14px;font-family:Arial}
+      .dt{width:100%;border-collapse:collapse;font-size:12.5px}
+      .dt td{padding:9px 12px;border-bottom:1px solid #edf2f7}
+      .dt td:first-child{color:#4a5568;font-weight:600;width:55%}
+      .dt td:last-child{text-align:right;color:#1a202c;font-variant-numeric:tabular-nums}
+      .dt tr.hl{background:#f0fff4}
+      .dt tr.hl td:first-child{color:#22543d;font-weight:700;font-size:13px}
+      .dt tr.hl td:last-child{color:#22543d;font-weight:700;font-size:14px}
+      .kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:14px}
+      .kpi{background:#f7fafc;border-top:3px solid #1a3a5c;padding:10px 12px;border-radius:4px}
+      .kpi-l{font-size:9.5px;font-weight:700;color:#718096;text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px}
+      .kpi-v{font-size:14px;font-weight:700;color:#1a202c;font-variant-numeric:tabular-nums}
+      .kpi-v.g{color:#22543d}
+      .kpi-v.r{color:#c53030}
+      .tbl{width:100%;border-collapse:collapse;font-size:10.5px}
+      .tbl th{background:#1a3a5c;color:#fff;padding:8px 6px;text-align:left;font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:.3px}
+      .tbl td{padding:6px;border-bottom:1px solid #edf2f7;font-variant-numeric:tabular-nums}
+      .tbl tr.r-pagar{background:#f0fff4}
+      .tbl tfoot td{background:#1a3a5c;color:#fff;font-weight:700;padding:9px 6px;border:none}
+      .pill-g{background:#c6f6d5;color:#22543d;font-weight:700;padding:2px 8px;border-radius:10px;font-size:9.5px}
+      .pill-y{background:#fefcbf;color:#744210;font-weight:700;padding:2px 8px;border-radius:10px;font-size:9.5px}
+      .rodape{margin-top:24px;padding-top:10px;border-top:1px dashed #cbd5e0;font-size:10.5px;color:#718096;text-align:center;font-style:italic}
+      .topbar{position:fixed;top:10px;right:10px;background:#1a3a5c;color:#fff;padding:8px 14px;border-radius:6px;display:flex;gap:8px;align-items:center;z-index:99;font-size:12px;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+      .topbar button{background:rgba(255,255,255,.18);border:none;color:#fff;padding:6px 14px;border-radius:5px;font-weight:700;cursor:pointer;font-size:11.5px}
+      .topbar button:hover{background:rgba(255,255,255,.30)}
+      @media print{
+        body{background:#fff;padding:0}
+        .page{box-shadow:none;margin:0;max-width:none;padding:18mm 16mm}
+        .topbar{display:none}
+      }
+    </style></head><body>
+    <div class="topbar"><span>📄 Relatório · ${modo==='individual'?'Individual ('+t2.length+' páginas)':'Consolidado'}</span><button onclick="window.print()">🖨️ Imprimir / Salvar PDF</button></div>
+    ${body}
+    </body></html>`);
+  w.document.close();
+}
+
 function renderGuardaDecisao(cotas){
   // Pega só as 45 contempladas em 15/05/2026 (Tranche 2)
   const t2 = cotas.filter(r=>r.data_contemplada==='2026-05-15');
@@ -13448,8 +13618,10 @@ function renderGuardaDecisao(cotas){
           <div class="gc-resumo-item"><span class="gc-resumo-lbl">⏳ Pendente decisão</span><span class="gc-resumo-val">${pend.length}</span></div>
         </div>
         <div class="gc-resumo-acts">
-          <button onclick="gcExportarDecisao()">📋 Exportar relatório (.txt)</button>
-          <button class="danger" onclick="gcResetDecisoes()">🔄 Resetar decisões</button>
+          <button onclick="gcImprimirRel('consolidado')">📊 PDF Consolidado</button>
+          <button onclick="gcImprimirRel('individual')">📄 PDF Individual (1 cota/página)</button>
+          <button onclick="gcExportarDecisao()">📋 Exportar .txt</button>
+          <button class="danger" onclick="gcResetDecisoes()">🔄 Resetar</button>
         </div>
       </div>
       <div class="gc-dec-bar">
