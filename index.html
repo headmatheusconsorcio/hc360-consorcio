@@ -13350,6 +13350,8 @@ function gcExportarDecisao(){
 `;
     txt += `  Carta: R$ ${(c.carta_atualizada||0).toLocaleString('pt-BR',{minimumFractionDigits:2})}
 `;
+    txt += `  Lance: ${c.lance_pct?Number(c.lance_pct).toFixed(2)+'%':'—'}
+`;
     txt += `  Lance pago: R$ ${(c.lance_total||0).toLocaleString('pt-BR',{minimumFractionDigits:2})}
 `;
     txt += `  Recurso próprio: R$ ${(c.recurso_proprio||0).toLocaleString('pt-BR',{minimumFractionDigits:2})}
@@ -13398,6 +13400,7 @@ function renderGuardaDecisao(cotas){
   else if(gcDecOrd==='carta') lista.sort((a,b)=>(b.carta_atualizada||0)-(a.carta_atualizada||0));
   else if(gcDecOrd==='cred') lista.sort((a,b)=>(b.credito_liberado||0)-(a.credito_liberado||0));
   else if(gcDecOrd==='rec') lista.sort((a,b)=>(a.recurso_proprio||0)-(b.recurso_proprio||0));
+  else if(gcDecOrd==='pct') lista.sort((a,b)=>(a.lance_pct||0)-(b.lance_pct||0));
   else if(gcDecOrd==='grupo') lista.sort((a,b)=>a.grupo.localeCompare(b.grupo)||a.cota.localeCompare(b.cota));
 
   // Totais da decisão
@@ -13420,6 +13423,7 @@ function renderGuardaDecisao(cotas){
           <div class="gc-card-roi ${cls}">${c._roi.toFixed(2)}x</div>
         </div>
         <div class="gc-card-line"><span>Carta</span><b>${gcBRL(c.carta_atualizada||0,0)}</b></div>
+        <div class="gc-card-line"><span>Lance %</span><b style="color:#2c5282">${c.lance_pct?Number(c.lance_pct).toFixed(2)+'%':'—'}</b></div>
         <div class="gc-card-line"><span>Lance pago</span><span>${gcBRL(c.lance_total||0,0)}</span></div>
         <div class="gc-card-line"><span>Rec. próprio</span><b style="color:#c53030">${gcBRL(c.recurso_proprio||0,0)}</b></div>
         <div class="gc-card-line"><span>Embutido</span><span>${gcBRL(c.lance_embutido||0,0)}</span></div>
@@ -13465,6 +13469,7 @@ function renderGuardaDecisao(cotas){
           <option value="carta" ${gcDecOrd==='carta'?'selected':''}>Carta (maior)</option>
           <option value="cred" ${gcDecOrd==='cred'?'selected':''}>Crédito líquido (maior)</option>
           <option value="rec" ${gcDecOrd==='rec'?'selected':''}>Recurso próprio (menor)</option>
+          <option value="pct" ${gcDecOrd==='pct'?'selected':''}>Lance % (menor)</option>
           <option value="grupo" ${gcDecOrd==='grupo'?'selected':''}>Grupo/Cota</option>
         </select>
       </div>
