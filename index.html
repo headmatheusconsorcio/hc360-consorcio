@@ -10532,7 +10532,7 @@ function printPropDoc(){
 function exportPropPdf(){
   window.print();
 }
-// Export PNG — usa html2canvas sob demanda
+// Export PNG — usa html2canvas sob demanda, em alta resolução
 function exportPropPng(){
   const propDoc=document.querySelector('.prop-doc');
   if(!propDoc){toast&&toast('Proposta não encontrada','err');return;}
@@ -10540,27 +10540,66 @@ function exportPropPng(){
   const origTxt=btn?btn.textContent:'';
   if(btn){btn.textContent='Gerando...';btn.disabled=true;}
   const fileName='proposta_'+((propGrupos[0]&&propGrupos[0].grupo)||'sem-grupo')+'_'+new Date().toISOString().slice(0,10)+'.png';
+  // Resolução: scale 3 é ótimo equilíbrio nitidez vs tamanho; em telas Retina (DPR≥2) usa 3, senão 4 pra compensar
+  const targetScale=(window.devicePixelRatio||1)>=2?3:4;
+  // Largura fixa desktop pra render consistente (proposta sempre com layout pleno, mesmo se usuário estiver em mobile)
+  const targetWidth=1024;
   const doExport=()=>{
-    // Esconde os botões de ação no momento da captura
-    const actions=document.querySelector('.pcom-hdr-actions');
-    const prevDisp=actions?actions.style.display:null;
-    if(actions) actions.style.display='none';
-    html2canvas(propDoc,{scale:2,useCORS:true,backgroundColor:'#FAF7F0',logging:false,allowTaint:true}).then(canvas=>{
-      if(actions) actions.style.display=prevDisp||'';
-      canvas.toBlob(blob=>{
-        const url=URL.createObjectURL(blob);
-        const a=document.createElement('a');
-        a.href=url;a.download=fileName;
-        document.body.appendChild(a);a.click();a.remove();
-        setTimeout(()=>URL.revokeObjectURL(url),1000);
+    // Espera fontes carregarem (Fraunces + Inter) pra não capturar com fallback
+    const fontsReady=(document.fonts&&document.fonts.ready)?document.fonts.ready:Promise.resolve();
+    fontsReady.then(()=>{
+      // Esconde os botões de ação no momento da captura
+      const actions=document.querySelector('.pcom-hdr-actions');
+      const prevDisp=actions?actions.style.display:null;
+      if(actions) actions.style.display='none';
+      // Força largura fixa durante a captura pra evitar layout responsivo encolhendo
+      const prevWidth=propDoc.style.width;
+      const prevMaxW=propDoc.style.maxWidth;
+      propDoc.style.width=targetWidth+'px';
+      propDoc.style.maxWidth=targetWidth+'px';
+      html2canvas(propDoc,{
+        scale:targetScale,
+        useCORS:true,
+        allowTaint:true,
+        backgroundColor:'#FAF7F0',
+        logging:false,
+        letterRendering:true,
+        imageTimeout:0,
+        windowWidth:targetWidth,
+        windowHeight:propDoc.scrollHeight,
+        width:targetWidth,
+        height:propDoc.scrollHeight,
+        // onclone garante fontes/estilos no documento clonado
+        onclone:(clonedDoc)=>{
+          const clonedPropDoc=clonedDoc.querySelector('.prop-doc');
+          if(clonedPropDoc){
+            clonedPropDoc.style.width=targetWidth+'px';
+            clonedPropDoc.style.maxWidth=targetWidth+'px';
+            clonedPropDoc.style.transform='none';
+          }
+        }
+      }).then(canvas=>{
+        // Restaura estilos originais
+        if(actions) actions.style.display=prevDisp||'';
+        propDoc.style.width=prevWidth||'';
+        propDoc.style.maxWidth=prevMaxW||'';
+        canvas.toBlob(blob=>{
+          const url=URL.createObjectURL(blob);
+          const a=document.createElement('a');
+          a.href=url;a.download=fileName;
+          document.body.appendChild(a);a.click();a.remove();
+          setTimeout(()=>URL.revokeObjectURL(url),1000);
+          if(btn){btn.textContent=origTxt;btn.disabled=false;}
+          if(typeof toast==='function') toast('PNG exportado em alta resolução ('+canvas.width+'×'+canvas.height+')','ok');
+        },'image/png');
+      }).catch(err=>{
+        if(actions) actions.style.display=prevDisp||'';
+        propDoc.style.width=prevWidth||'';
+        propDoc.style.maxWidth=prevMaxW||'';
         if(btn){btn.textContent=origTxt;btn.disabled=false;}
-        if(typeof toast==='function') toast('PNG exportado: '+fileName,'ok');
-      },'image/png');
-    }).catch(err=>{
-      if(actions) actions.style.display=prevDisp||'';
-      if(btn){btn.textContent=origTxt;btn.disabled=false;}
-      console.error('PNG export error',err);
-      if(typeof toast==='function') toast('Erro ao gerar PNG: '+err.message,'err');
+        console.error('PNG export error',err);
+        if(typeof toast==='function') toast('Erro ao gerar PNG: '+err.message,'err');
+      });
     });
   };
   if(typeof html2canvas==='undefined'){
