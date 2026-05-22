@@ -10104,17 +10104,29 @@ function renderOportunidades(){
     return mn.length?mn.filter(v=>lt>=v).length/mn.length:null;
   }
   function rankSeg(predicate){
-    // Filtro mínimo de prazo: Imóvel ≥ 50m, Auto/Moto ≥ 24m (descarta grupos prestes a encerrar)
-    // Filtro de vagas: descarta grupos sem vaga
+    // Top so com chance Media+ (>=40%), grupo maduro (ocupacao >=30%), prazo viavel, com vagas
     const prazoMin=o=>o.isIm?50:24;
-    return ortData.filter(predicate).filter(o=>(o.prazo||0)>=prazoMin(o)&&(o.d.vagas||0)>0).map(o=>({...o,ch:chance(o)})).filter(o=>o.ch!=null).sort((a,b)=>(b.ch-a.ch)||(b.vagas-a.vagas)).slice(0,5);
+    return ortData.filter(predicate).filter(o=>(o.prazo||0)>=prazoMin(o)&&(o.d.vagas||0)>0).map(o=>{
+      const cap=parseFloat(o.d.cap)||0;
+      const vagas=parseFloat(o.d.vagas)||0;
+      const ocup=cap>0?1-(vagas/cap):0.5;
+      return {...o,ch:chance(o),ocup};
+    }).filter(o=>o.ch!=null&&o.ch>=0.40&&o.ocup>=0.30).sort((a,b)=>{
+      // chance desc -> contemplados/mes desc -> vagas desc
+      const dc=b.ch-a.ch;if(Math.abs(dc)>0.05)return dc;
+      const da=(b.avgCont||0)-(a.avgCont||0);if(Math.abs(da)>0.3)return da;
+      return (b.vagas||0)-(a.vagas||0);
+    }).slice(0,5);
   }
   const top3Im=rankSeg(o=>o.isIm);
   const top3Ro=rankSeg(o=>o.isRo);
   function renderCard(label,emoji,bg,items,segKey){
     const visible=ortTipo===''||ortTipo===segKey;
     if(!visible)return '';
-    if(!items.length)return '<div class="card" style="padding:32px;text-align:center;color:var(--txt2);font-size:13px">'+emoji+' Sem dados de '+label+'</div>';
+    if(!items.length){
+      const lt=parseFloat(document.getElementById('os-lance')?.value)||40;
+      return '<div class="card" style="padding:28px 24px;text-align:center;color:var(--txt2);font-size:13px"><div style="font-size:32px;margin-bottom:10px">'+emoji+'</div><div style="font-weight:700;color:var(--txt);margin-bottom:6px">Sem oportunidades fortes em '+label.toLowerCase()+'</div><div style="font-size:11.5px;line-height:1.5">Com lance de <strong>'+lt.toFixed(0)+'%</strong>, nenhum grupo bate ao menos Media (≥40% historicamente).<br>Tente aumentar o lance ofertado ou veja a tabela abaixo.</div></div>';
+    }
     const head='<div style="background:linear-gradient(135deg,var(--sb) 0%,var(--sb2) 100%);padding:14px 18px;color:#fff;display:flex;align-items:center;justify-content:space-between"><div style="font-family:Quicksand,sans-serif;font-size:16px;font-weight:600;letter-spacing:.5px">'+emoji+' Top 5 '+label+'</div><div style="font-size:10.5px;color:rgba(255,243,221,.7);text-transform:uppercase;letter-spacing:1.5px">Maior chance</div></div>';
     const rows=items.map((o,i)=>{
       const ch=Math.round(o.ch*100);
