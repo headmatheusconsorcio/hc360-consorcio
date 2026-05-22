@@ -2566,7 +2566,8 @@ main.main:has(#page-ajuda.active) .content{
             </div>
             <div class="pcom-hdr-actions">
               <button class="pcom-btn" onclick="propGoStep(1)">← Editar</button>
-              <button class="pcom-btn" onclick="printPropDoc()">⎙ Imprimir</button>
+              <button class="pcom-btn" onclick="exportPropPdf()" title="Imprimir / Salvar como PDF">⎙ PDF</button>
+              <button class="pcom-btn" onclick="exportPropPng()" title="Salvar como imagem PNG">🖼 PNG</button>
             </div>
           </div>
         </div>
@@ -10526,6 +10527,54 @@ document.addEventListener('keydown',function(e){
 // ═══ PROPOSTA ═══
 function printPropDoc(){
   window.print();
+}
+// Export PDF — mesmo comportamento do printPropDoc (usa diálogo nativo do navegador)
+function exportPropPdf(){
+  window.print();
+}
+// Export PNG — usa html2canvas sob demanda
+function exportPropPng(){
+  const propDoc=document.querySelector('.prop-doc');
+  if(!propDoc){toast&&toast('Proposta não encontrada','err');return;}
+  const btn=event&&event.target;
+  const origTxt=btn?btn.textContent:'';
+  if(btn){btn.textContent='Gerando...';btn.disabled=true;}
+  const fileName='proposta_'+((propGrupos[0]&&propGrupos[0].grupo)||'sem-grupo')+'_'+new Date().toISOString().slice(0,10)+'.png';
+  const doExport=()=>{
+    // Esconde os botões de ação no momento da captura
+    const actions=document.querySelector('.pcom-hdr-actions');
+    const prevDisp=actions?actions.style.display:null;
+    if(actions) actions.style.display='none';
+    html2canvas(propDoc,{scale:2,useCORS:true,backgroundColor:'#FAF7F0',logging:false,allowTaint:true}).then(canvas=>{
+      if(actions) actions.style.display=prevDisp||'';
+      canvas.toBlob(blob=>{
+        const url=URL.createObjectURL(blob);
+        const a=document.createElement('a');
+        a.href=url;a.download=fileName;
+        document.body.appendChild(a);a.click();a.remove();
+        setTimeout(()=>URL.revokeObjectURL(url),1000);
+        if(btn){btn.textContent=origTxt;btn.disabled=false;}
+        if(typeof toast==='function') toast('PNG exportado: '+fileName,'ok');
+      },'image/png');
+    }).catch(err=>{
+      if(actions) actions.style.display=prevDisp||'';
+      if(btn){btn.textContent=origTxt;btn.disabled=false;}
+      console.error('PNG export error',err);
+      if(typeof toast==='function') toast('Erro ao gerar PNG: '+err.message,'err');
+    });
+  };
+  if(typeof html2canvas==='undefined'){
+    const s=document.createElement('script');
+    s.src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+    s.onload=doExport;
+    s.onerror=()=>{
+      if(btn){btn.textContent=origTxt;btn.disabled=false;}
+      if(typeof toast==='function') toast('Falha ao carregar biblioteca','err');
+    };
+    document.head.appendChild(s);
+  } else {
+    doExport();
+  }
 }
 // Print da proposta: move .prop-doc pra ser filho direto do body durante o print,
 // e restaura depois. Isolamento total — bypass de regras conflitantes na árvore.
