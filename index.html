@@ -11078,7 +11078,9 @@ function calcProp(){
     const h0 = (g0 && window.HIST && HIST.groups) ? (HIST.groups[g0.grupo]||HIST.groups[parseInt(g0.grupo)]||{}) : {};
     const prazoMedio = totCotas ? Math.round(propGrupos.reduce((s,g)=>s+((g.prazo||0)*(g.qtd||1)),0)/totCotas) : 0;
     const prazoRest = g0 ? Math.max(0,(g0.prazo||0)-(g0.mesAtual||0)) : 0;
-    const parcReduzida = red>0 ? piRed : totPi;
+    // Fase 3 (pós-contemplação) usa totPp — parcela PÓS (saldo devedor menos lance, dividido pelo prazo restante)
+    // Se houver PR (red>0), aplica também a redução sobre a parcela pós
+    const parcPos = red>0 ? totPp*(1-red/100) : totPp;
     // Header meta
     const docDt=document.getElementById('prop-doc-data');
     if(docDt) docDt.textContent = new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'}) + ' · Grupo ' + (g0&&g0.grupo?g0.grupo:'—') + ' · ' + totCotas + ' cota' + (totCotas>1?'s':'');
@@ -11098,8 +11100,8 @@ function calcProp(){
     const f2d=document.getElementById('r-fase2-desc'); if(f2d) f2d.textContent = 'Aporte de ' + brl(totLRP,0) + ' (recurso próprio) + lance aceito → crédito líquido liberado.';
     // Fase 3
     const f3p=document.getElementById('r-fase3-prazo'); if(f3p) f3p.textContent = 'Meses 2 a ' + prazoRest;
-    const f3v=document.getElementById('r-fase3-val'); if(f3v) f3v.textContent = brl(parcReduzida);
-    const f3d=document.getElementById('r-fase3-desc'); if(f3d) f3d.textContent = (red>0 ? 'Parcela reduzida em '+red+'% até o encerramento do contrato.' : 'Parcela até o encerramento do contrato.');
+    const f3v=document.getElementById('r-fase3-val'); if(f3v) f3v.textContent = brl(parcPos);
+    const f3d=document.getElementById('r-fase3-desc'); if(f3d) f3d.textContent = (red>0 ? 'Nova parcela pós-contemplação, com redução de '+red+'% aplicada até o fim do contrato.' : 'Nova parcela pós-contemplação até o encerramento do contrato.');
     // REASONS — gera 4 motivos
     const lanceMedHist = h0.avgMin ? h0.avgMin : (d0.at_min ? d0.at_min*100 : null);
     const cont6 = (h0.cont||[]).filter(v=>v>0);
