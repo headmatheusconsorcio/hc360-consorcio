@@ -876,6 +876,20 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
 .pcom-it-val.dour{color:var(--p-dour)}
 .pcom-sec-title{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--p-cinza-cl);font-weight:700;margin:32px 0 16px;display:flex;align-items:center;gap:12px;font-family:'Inter',sans-serif}
 .pcom-sec-title::after{content:'';flex:1;height:1px;background:var(--p-borda)}
+/* Tabela de Composição dos Grupos */
+.pcom-grupos{background:#fff;border-radius:8px;border:1px solid var(--p-borda);border-left:4px solid var(--p-dour);overflow:hidden}
+.pcom-grupos table{width:100%;border-collapse:collapse;font-family:'Inter',sans-serif}
+.pcom-grupos thead th{background:var(--p-creme-card);color:var(--p-cinza);font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:11px 14px;text-align:left;border-bottom:1px solid var(--p-borda)}
+.pcom-grupos thead th.r{text-align:right}
+.pcom-grupos tbody td{padding:12px 14px;font-size:13px;color:var(--p-azul);border-bottom:1px solid var(--p-borda);vertical-align:middle}
+.pcom-grupos tbody tr:last-child td{border-bottom:none}
+.pcom-grupos tbody td.r{text-align:right;font-weight:600}
+.pcom-grupos tbody td.v{font-family:'Fraunces',serif;font-size:15px;font-weight:500;color:var(--p-azul);text-align:right;letter-spacing:-.01em}
+.pcom-grupos .pcom-grupo-tag{display:inline-flex;align-items:center;padding:3px 9px;border-radius:99px;font-size:10.5px;font-weight:700;letter-spacing:.2px;margin-right:6px}
+.pcom-grupos .pcom-grupo-tag.im{background:#dbeafe;color:#1e40af}
+.pcom-grupos .pcom-grupo-tag.au{background:#fef3c7;color:#92400e}
+.pcom-grupos tfoot td{background:var(--p-creme-card);font-size:12px;font-weight:700;color:var(--p-azul);padding:11px 14px;border-top:2px solid var(--p-dour)}
+.pcom-grupos tfoot td.v{font-family:'Fraunces',serif;font-size:15px;font-weight:500;text-align:right;letter-spacing:-.01em}
 .pcom-flow{background:var(--p-azul);color:var(--p-creme);border-radius:8px;overflow:hidden;border-left:4px solid var(--p-dour)}
 .pcom-flow-hdr{padding:20px 28px;border-bottom:1px solid rgba(255,243,221,.12);display:flex;align-items:center;gap:10px}
 .pcom-flow-icon{color:var(--p-dour);font-size:18px}
@@ -1401,6 +1415,7 @@ main.main:has(#page-ajuda.active) .content{
   body.printing-prop > .prop-doc *{visibility:visible!important}
   /* Esconde elementos auxiliares dentro da proposta */
   body.printing-prop > .prop-doc .prop-doc-actions,
+  body.printing-prop > .prop-doc .pcom-hdr-actions,
   body.printing-prop > .prop-doc #prop-breakdown,
   body.printing-prop > .prop-doc .prop-cet-foot,
   body.printing-prop > .prop-doc .pcom-audit-wrap,
@@ -2653,6 +2668,25 @@ main.main:has(#page-ajuda.active) .content{
           </div>
 
           <!-- FLOW DA OPERAÇÃO -->
+          <!-- COMPOSIÇÃO DA PROPOSTA — tabela detalhada dos grupos -->
+          <div class="pcom-sec-title">Composição da Proposta</div>
+          <div class="pcom-grupos">
+            <table>
+              <thead>
+                <tr>
+                  <th>Grupo / Tipo</th>
+                  <th class="r">Crédito por cota</th>
+                  <th class="r">Qtd</th>
+                  <th class="r">Crédito total</th>
+                  <th class="r">Prazo</th>
+                  <th class="r">Adm + FR</th>
+                </tr>
+              </thead>
+              <tbody id="r-grupos-tbody"></tbody>
+              <tfoot id="r-grupos-tfoot"></tfoot>
+            </table>
+          </div>
+
           <div class="pcom-sec-title">Como funciona a operação</div>
           <div class="pcom-flow">
             <div class="pcom-flow-hdr">
@@ -11149,6 +11183,44 @@ function calcProp(){
     // Custo Adm + FR label (somados — regra Itaú)
     const cetLbl=document.getElementById('r-cet-lbl');
     if(cetLbl) cetLbl.textContent = 'Custo Adm + FR' + (totCotas?(' ('+(avgTa+avgFr).toFixed(2)+'%)'):'');
+    // ── COMPOSIÇÃO DA PROPOSTA — tabela de grupos ──
+    const tbody=document.getElementById('r-grupos-tbody');
+    const tfoot=document.getElementById('r-grupos-tfoot');
+    if(tbody){
+      const grupos = propGrupos.filter(g=>g.grupo);
+      if(grupos.length===0){
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--p-cinza-cl);font-style:italic;padding:18px">Nenhum grupo configurado</td></tr>';
+        if(tfoot) tfoot.innerHTML='';
+      } else {
+        tbody.innerHTML = grupos.map(g=>{
+          const d = (typeof GUIA!=='undefined' && GUIA[g.grupo]) || {};
+          const isIm = d.tp && /IM|RES/i.test(d.tp);
+          const tagCls = isIm?'im':'au';
+          const tagLbl = isIm?'🏠 Imóvel':'🚗 Veículo';
+          // taxa efetiva (com override manual / PR)
+          let taEf;
+          if(g.taxaadm_user!=null) taEf = g.taxaadm_user;
+          else if(g.pr_red) taEf = (red===30?20:23);
+          else taEf = g.taxaadm;
+          const totG = (g.credito||0)*(g.qtd||1);
+          return '<tr>'
+            +'<td><span class="pcom-grupo-tag '+tagCls+'">'+tagLbl+'</span><strong>'+g.grupo+'</strong></td>'
+            +'<td class="r">'+brl(g.credito,0)+'</td>'
+            +'<td class="r">'+(g.qtd||1)+'</td>'
+            +'<td class="v">'+brl(totG,0)+'</td>'
+            +'<td class="r">'+(g.prazo||'—')+'m</td>'
+            +'<td class="r">'+taEf.toFixed(2)+'% + '+g.fr+'%</td>'
+            +'</tr>';
+        }).join('');
+        if(tfoot){
+          tfoot.innerHTML = '<tr>'
+            +'<td colspan="3">Total · '+totCotas+' cota'+(totCotas>1?'s':'')+'</td>'
+            +'<td class="v">'+brl(totCred,0)+'</td>'
+            +'<td colspan="2"></td>'
+            +'</tr>';
+        }
+      }
+    }
     // FLOW header
     const flowHt=document.getElementById('r-flow-htext');
     if(flowHt) flowHt.textContent = 'Linha do Tempo · ' + prazoRest + ' meses';
