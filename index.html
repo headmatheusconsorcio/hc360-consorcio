@@ -2607,7 +2607,7 @@ main.main:has(#page-ajuda.active) .content{
               </div>
               <div class="pcom-card-row">
                 <div><div class="pcom-it-lbl">Saldo Devedor</div><div class="pcom-it-val" id="r-sd">—</div></div>
-                <div><div class="pcom-it-lbl" id="r-cet-lbl">Custo Adm + FR</div><div class="pcom-it-val" id="r-cet">—</div></div>
+                <div><div class="pcom-it-lbl" id="r-cet-lbl">Custo Adm <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--p-cinza-cl);font-size:9.5px">(já inclui FR)</span></div><div class="pcom-it-val" id="r-cet">—</div></div>
               </div>
             </div>
             <!-- Pós-contemplação -->
@@ -11044,7 +11044,8 @@ function calcProp(){
       ta=g.taxaadm||0;
     }
     const ct=cred*nc,lRP=ct*rp/100,lLC=ct*lc/100,lTot=lRP+lLC,liq=ct-lLC;
-    const sd=ct*(1+ta/100+fr/100);
+    // Saldo devedor — Itaú: a taxa adm já inclui o fundo de reserva (não somar 2x)
+    const sd=ct*(1+ta/100);
     const amM=sd/pr;
     const pi=amM+ct*seg/100;
     const mr=Math.min(mes,pr-1);
@@ -11086,9 +11087,9 @@ function calcProp(){
     if(docDt) docDt.textContent = new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'}) + ' · Grupo ' + (g0&&g0.grupo?g0.grupo:'—') + ' · ' + totCotas + ' cota' + (totCotas>1?'s':'');
     const docCli=document.getElementById('prop-doc-cliente');
     if(docCli) docCli.textContent = cliente && cliente!=='—' ? cliente : '';
-    // Custo Adm+FR label (mostra % avg quando há cotas)
+    // Custo Adm label (% já inclui FR — regra Itaú)
     const cetLbl=document.getElementById('r-cet-lbl');
-    if(cetLbl) cetLbl.textContent = 'Custo Adm + FR' + (totCotas?(' ('+(avgTa+avgFr).toFixed(1)+'%)'):'');
+    if(cetLbl) cetLbl.innerHTML = 'Custo Adm <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--p-cinza-cl);font-size:9.5px">(já inclui FR)</span>' + (totCotas?'<span style="font-size:10px;color:var(--p-cinza-cl);margin-left:6px">'+avgTa.toFixed(1)+'%</span>':'');
     // FLOW header
     const flowHt=document.getElementById('r-flow-htext');
     if(flowHt) flowHt.textContent = 'Linha do Tempo · ' + prazoRest + ' meses';
@@ -11147,7 +11148,7 @@ function calcProp(){
     if(ctaTxt) ctaTxt.textContent = 'A HC360 formaliza a entrada ' + (totCotas>1?'nas '+totCotas+' cotas':'na cota') + ' a tempo da próxima assembleia e conduz a estratégia de lance até a contemplação e liberação dos ' + brl(totLiq,0) + (d0.tp && /IM/i.test(d0.tp)?' para a aquisição do imóvel':' para a aquisição do veículo') + '.';
   } catch(e) { console.warn('[calcProp newProp]',e); }
   set('r-mes',mesReal+'º mês');set('r-saldo-pos',brl(totSP,0));set('r-pp',brl(totPp));
-  set('r-cet',(avgTa+avgFr).toFixed(1)+'% ≈ '+brl(totSD-totCred,0));
+  set('r-cet',avgTa.toFixed(2)+'% ≈ '+brl(totSD-totCred,0));
   // ── CET real (fórmula da planilha Itaú) ──
   const prazoAvgCet=totCotas?propGrupos.reduce((a,g)=>a+(g.prazo||192)*(g.qtd||1),0)/totCotas:192;
   const cetVP=totLiq-totLRP;                    // Crédito Líquido − Rec.Próprios
