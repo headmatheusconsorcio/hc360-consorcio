@@ -11119,8 +11119,13 @@ function calcProp(){
   set('r-cred',brl(totCred,0));set('r-cotas',totCotas);set('r-percota',totCotas?brl(totCred/totCotas,0):'—');
   set('r-lperc',lt.toFixed(2)+'%');set('r-lrp',brl(totLRP,0));set('r-llc',brl(totLLC,0));set('r-ltot',brl(totLTot,0));
   set('r-liq',brl(totLiq,0));set('r-sd',brl(totSD,0));
-  set('r-pi',brl(totPi));set('r-pi-red',brl(piRed));
-  const prRow=document.getElementById('r-pi-red-row');if(prRow)prRow.textContent=red>0?'Com redução: '+brl(piRed):'—';
+  // KPI "Parcela Pré-Contempl.": destaque é o valor que o cliente paga de fato
+  // - Se há redução PR (30/50): destaque = parcela reduzida; sub = parcela cheia (referência)
+  // - Sem redução: destaque = parcela cheia; sub vazio
+  set('r-pi', red>0 ? brl(piRed) : brl(totPi));
+  set('r-pi-red', brl(piRed));
+  const prRow=document.getElementById('r-pi-red-row');
+  if(prRow) prRow.textContent = red>0 ? 'Cheia: '+brl(totPi)+' · PR '+red+'%' : '—';
   // ── Preenche novos elementos do layout comercial (flow + reasons + cta) ──
   try {
     const g0 = propGrupos.find(g=>g.grupo) || propGrupos[0];
@@ -11142,9 +11147,11 @@ function calcProp(){
     // FLOW header
     const flowHt=document.getElementById('r-flow-htext');
     if(flowHt) flowHt.textContent = 'Linha do Tempo · ' + prazoRest + ' meses';
-    // Fase 1
-    const f1v=document.getElementById('r-fase1-val'); if(f1v) f1v.textContent = brl(totPi);
-    const f1d=document.getElementById('r-fase1-desc'); if(f1d) f1d.textContent = 'Parcela cheia ' + (totCotas>1?'das '+totCotas+' cotas':'da cota') + ', paga até a próxima assembleia.';
+    // Fase 1 — mostra o valor que o cliente paga (com PR se ativa)
+    const f1v=document.getElementById('r-fase1-val');
+    if(f1v) f1v.textContent = red>0 ? brl(piRed) : brl(totPi);
+    const f1d=document.getElementById('r-fase1-desc');
+    if(f1d) f1d.textContent = (red>0 ? 'Parcela com redução de '+red+'% (PR) ' : 'Parcela cheia ') + (totCotas>1?'das '+totCotas+' cotas':'da cota') + ', paga até a próxima assembleia.' + (red>0?' Cheia: '+brl(totPi)+'.':'');
     // Fase 2
     const f2v=document.getElementById('r-fase2-val'); if(f2v) f2v.textContent = brl(totLiq);
     const f2d=document.getElementById('r-fase2-desc'); if(f2d) f2d.textContent = 'Aporte de ' + brl(totLRP,0) + ' (recurso próprio) + lance aceito → crédito líquido liberado.';
