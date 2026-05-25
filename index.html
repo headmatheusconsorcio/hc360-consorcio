@@ -904,6 +904,26 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
 .pcom-cta-text{font-size:14px;line-height:1.55;color:rgba(255,243,221,.82);max-width:580px;margin:0 auto 20px;font-family:'Inter',sans-serif}
 .pcom-footnote{background:var(--p-creme-card);border-radius:6px;padding:14px 20px;margin-top:16px;font-size:11.5px;color:var(--p-cinza);line-height:1.55;font-family:'Inter',sans-serif}
 .pcom-footnote strong{color:var(--p-azul)}
+/* SANITY BANNER · alerta vermelho quando inconsistência detectada */
+.pcom-sanity-banner{background:#fef2f2;border:2px solid #fca5a5;border-left:6px solid #dc2626;border-radius:8px;padding:14px 18px;margin:0 32px;color:#7f1d1d;font-family:'Inter',sans-serif;font-size:13px;line-height:1.5}
+.pcom-sanity-title{font-weight:700;color:#991b1b;font-size:13.5px;margin-bottom:6px;letter-spacing:.2px}
+.pcom-sanity-banner ul{margin:0;padding-left:18px}
+.pcom-sanity-banner li{margin-bottom:3px}
+/* PAINEL DE AUDITORIA · detalhamento dos cálculos */
+.pcom-audit-wrap{margin-top:24px;border:1px solid var(--p-borda);border-radius:8px;background:#fff;overflow:hidden}
+.pcom-audit-toggle{width:100%;padding:14px 20px;background:#fff;border:none;text-align:left;cursor:pointer;font-family:'Inter',sans-serif;font-size:12px;font-weight:700;color:var(--p-azul);letter-spacing:.1em;text-transform:uppercase;display:flex;align-items:center;justify-content:space-between}
+.pcom-audit-toggle::after{content:'▾';font-size:14px;transition:transform .2s;color:var(--p-cinza-cl)}
+.pcom-audit-wrap.open .pcom-audit-toggle::after{transform:rotate(180deg)}
+.pcom-audit-toggle:hover{background:var(--p-creme-card)}
+.pcom-audit-body{display:none;border-top:1px solid var(--p-borda);background:var(--p-creme-bg)}
+.pcom-audit-wrap.open .pcom-audit-body{display:block}
+.pcom-audit-body table{width:100%;border-collapse:collapse;font-family:'Inter',sans-serif;font-size:12px}
+.pcom-audit-body td{padding:7px 12px;border-bottom:1px solid var(--p-borda);vertical-align:top}
+.pcom-audit-body td:first-child{font-weight:600;color:var(--p-azul);width:30%}
+.pcom-audit-body td.f{color:var(--p-cinza);font-size:11px;font-style:italic;width:30%}
+.pcom-audit-body td.v{font-family:'Fraunces',serif;font-size:13.5px;color:var(--p-verde);font-weight:500;width:25%;white-space:nowrap}
+.pcom-audit-body td.n{font-size:10.5px;color:var(--p-cinza-cl);width:15%;font-style:italic}
+.pcom-audit-body tr.pcom-audit-sec td{background:var(--p-azul);color:var(--p-dour);font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.15em;padding:8px 12px;border-bottom:none}
 @media (max-width:720px){
   .pcom-kpis,.pcom-row.c2,.pcom-reasons,.pcom-phases{grid-template-columns:1fr}
   .pcom-kpi{border-right:none;border-bottom:1px solid var(--p-borda)}
@@ -1382,7 +1402,9 @@ main.main:has(#page-ajuda.active) .content{
   /* Esconde elementos auxiliares dentro da proposta */
   body.printing-prop > .prop-doc .prop-doc-actions,
   body.printing-prop > .prop-doc #prop-breakdown,
-  body.printing-prop > .prop-doc .prop-cet-foot{display:none!important}
+  body.printing-prop > .prop-doc .prop-cet-foot,
+  body.printing-prop > .prop-doc .pcom-audit-wrap,
+  body.printing-prop > .prop-doc #prop-sanity-banner{display:none!important}
   /* Tipografia A4 */
   body.printing-prop > .prop-doc .prop-doc-hdr{padding:14px 18px!important;break-inside:avoid;page-break-inside:avoid}
   body.printing-prop > .prop-doc .prop-doc-title{font-size:18pt!important}
@@ -2573,6 +2595,8 @@ main.main:has(#page-ajuda.active) .content{
         </div>
         <!-- STRIPE + KPIs -->
         <div class="pcom-stripe"><div></div><div></div><div></div><div></div></div>
+        <!-- SANITY BANNER · só aparece se calcProp detectar inconsistência -->
+        <div id="prop-sanity-banner" style="display:none;padding:14px 32px 0"></div>
         <div class="pcom-kpis">
           <div class="pcom-kpi">
             <div class="pcom-kpi-lbl">Crédito Total</div>
@@ -2673,6 +2697,12 @@ main.main:has(#page-ajuda.active) .content{
               <h2 class="pcom-cta-title">Próximo passo: <em>formalizar a entrada.</em></h2>
               <p class="pcom-cta-text" id="r-cta-text">A HC360 formaliza a entrada na cota a tempo da próxima assembleia e conduz a estratégia de lance até a contemplação e liberação do crédito.</p>
             </div>
+          </div>
+
+          <!-- PAINEL DE AUDITORIA · clique pra ver todas as fórmulas -->
+          <div class="pcom-audit-wrap">
+            <button type="button" class="pcom-audit-toggle" onclick="this.parentElement.classList.toggle('open')">🔍 Auditoria de Cálculos · clique para conferir fórmulas e valores</button>
+            <div class="pcom-audit-body"><table id="prop-audit-table"></table></div>
           </div>
 
           <!-- FOOTNOTE -->
@@ -10528,12 +10558,26 @@ document.addEventListener('keydown',function(e){
 function printPropDoc(){
   window.print();
 }
-// Export PDF — mesmo comportamento do printPropDoc (usa diálogo nativo do navegador)
+// Export PDF — bloqueia se sanity check falhou
 function exportPropPdf(){
+  const errs = window.__propSanityErrors || [];
+  if (errs.length > 0) {
+    if (typeof toast==='function') toast('Corrija as '+errs.length+' inconsistência'+(errs.length>1?'s':'')+' antes de exportar','err');
+    const banner = document.getElementById('prop-sanity-banner');
+    if (banner) banner.scrollIntoView({behavior:'smooth',block:'center'});
+    return;
+  }
   window.print();
 }
 // Export PNG — usa html2canvas sob demanda, em alta resolução
 function exportPropPng(){
+  const errs = window.__propSanityErrors || [];
+  if (errs.length > 0) {
+    if (typeof toast==='function') toast('Corrija as '+errs.length+' inconsistência'+(errs.length>1?'s':'')+' antes de exportar','err');
+    const banner = document.getElementById('prop-sanity-banner');
+    if (banner) banner.scrollIntoView({behavior:'smooth',block:'center'});
+    return;
+  }
   const propDoc=document.querySelector('.prop-doc');
   if(!propDoc){toast&&toast('Proposta não encontrada','err');return;}
   const btn=event&&event.target;
@@ -10548,10 +10592,15 @@ function exportPropPng(){
     // Espera fontes carregarem (Fraunces + Inter) pra não capturar com fallback
     const fontsReady=(document.fonts&&document.fonts.ready)?document.fonts.ready:Promise.resolve();
     fontsReady.then(()=>{
-      // Esconde os botões de ação no momento da captura
-      const actions=document.querySelector('.pcom-hdr-actions');
-      const prevDisp=actions?actions.style.display:null;
-      if(actions) actions.style.display='none';
+      // Esconde botões + painel auditoria + banner sanity no momento da captura
+      const hideEls=[
+        document.querySelector('.pcom-hdr-actions'),
+        document.querySelector('.pcom-audit-wrap'),
+        document.getElementById('prop-sanity-banner')
+      ].filter(Boolean);
+      const prevDisps=hideEls.map(el=>el.style.display);
+      hideEls.forEach(el=>el.style.display='none');
+      const actions=hideEls[0]; const prevDisp=prevDisps[0];
       // Força largura fixa durante a captura pra evitar layout responsivo encolhendo
       const prevWidth=propDoc.style.width;
       const prevMaxW=propDoc.style.maxWidth;
@@ -10580,7 +10629,7 @@ function exportPropPng(){
         }
       }).then(canvas=>{
         // Restaura estilos originais
-        if(actions) actions.style.display=prevDisp||'';
+        hideEls.forEach(function(el,i){el.style.display=prevDisps[i]||'';});
         propDoc.style.width=prevWidth||'';
         propDoc.style.maxWidth=prevMaxW||'';
         canvas.toBlob(blob=>{
@@ -10593,7 +10642,7 @@ function exportPropPng(){
           if(typeof toast==='function') toast('PNG exportado em alta resolução ('+canvas.width+'×'+canvas.height+')','ok');
         },'image/png');
       }).catch(err=>{
-        if(actions) actions.style.display=prevDisp||'';
+        hideEls.forEach(function(el,i){el.style.display=prevDisps[i]||'';});
         propDoc.style.width=prevWidth||'';
         propDoc.style.maxWidth=prevMaxW||'';
         if(btn){btn.textContent=origTxt;btn.disabled=false;}
@@ -11147,6 +11196,93 @@ function calcProp(){
     const ctaTxt=document.getElementById('r-cta-text');
     if(ctaTxt) ctaTxt.textContent = 'A HC360 formaliza a entrada ' + (totCotas>1?'nas '+totCotas+' cotas':'na cota') + ' a tempo da próxima assembleia e conduz a estratégia de lance até a contemplação e liberação dos ' + brl(totLiq,0) + (d0.tp && /IM/i.test(d0.tp)?' para a aquisição do imóvel':' para a aquisição do veículo') + '.';
   } catch(e) { console.warn('[calcProp newProp]',e); }
+
+  // ─── SANITY CHECKS · proteção contra erros de cálculo ───
+  try {
+    const _checks = [];
+    const _g0 = propGrupos.find(g=>g.grupo) || propGrupos[0];
+    const _prazoR = _g0 ? Math.max(1,(_g0.prazo||1)-(_g0.mesAtual||0)) : 1;
+    // 1. Parcela pós ≤ parcela pré (depois da contemplação a parcela DEVE cair)
+    if (totPp > totPi + 0.5) _checks.push({k:'parcela_pos',msg:'Parcela pós-contempl. ('+brl(totPp)+') maior que a pré-contempl. ('+brl(totPi)+') — verifique lance, prazo restante e mês de contempl.'});
+    // 2. Lance Total = RP + Embutido (consistência interna)
+    const _diff_lance = Math.abs((totLRP + totLLC) - totLTot);
+    if (_diff_lance > 1) _checks.push({k:'lance_soma',msg:'Lance Total ≠ Rec.Próprios + Embutido (diferença '+brl(_diff_lance,2)+')'});
+    // 3. Crédito Líquido = Carta - Embutido
+    const _diff_liq = Math.abs((totCred - totLLC) - totLiq);
+    if (_diff_liq > 1) _checks.push({k:'cred_liq',msg:'Crédito Líquido inconsistente (diferença '+brl(_diff_liq,2)+')'});
+    // 4. Custo Adm = Saldo Devedor - Carta
+    const _custoAdm = totSD - totCred;
+    if (_custoAdm < 0) _checks.push({k:'custo_neg',msg:'Custo de Administração negativo — taxa adm inválida'});
+    // 5. Taxa adm efetiva dentro de faixa razoável (5%-40%)
+    if (avgTa < 5) _checks.push({k:'adm_baixa',msg:'Taxa Adm ('+avgTa.toFixed(2)+'%) abaixo do mínimo esperado (5%) — confira se está em % e não em fração'});
+    if (avgTa > 40) _checks.push({k:'adm_alta',msg:'Taxa Adm ('+avgTa.toFixed(2)+'%) acima do máximo esperado (40%) — confira o valor digitado'});
+    // 6. CET ao ano razoável (0,5% a 25%)
+    const _vp = totLiq - totLRP;
+    const _cetAno = (_vp > 0 && _prazoR > 0) ? (_custoAdm / _vp / _prazoR * 12 * 100) : 0;
+    if (_cetAno > 25) _checks.push({k:'cet_alto',msg:'CET de '+_cetAno.toFixed(2)+'% a.a. está acima de 25% — confira taxa adm e prazo'});
+    if (_cetAno < 0) _checks.push({k:'cet_neg',msg:'CET negativo — valor presente ou prazo inválido'});
+    // 7. Crédito Líquido > 0
+    if (totLiq <= 0 && totCred > 0) _checks.push({k:'liq_neg',msg:'Crédito Líquido zero ou negativo — embutido maior que a carta'});
+    // 8. Lance % entre 0 e 100
+    if (lt < 0 || lt > 100) _checks.push({k:'lance_range',msg:'Lance Total ('+lt+'%) fora do intervalo 0-100%'});
+
+    window.__propSanityErrors = _checks;
+    const _banner = document.getElementById('prop-sanity-banner');
+    if (_banner) {
+      if (_checks.length === 0) {
+        _banner.style.display = 'none';
+        _banner.innerHTML = '';
+      } else {
+        _banner.style.display = 'block';
+        _banner.innerHTML = '<div class="pcom-sanity-title">⚠ '+_checks.length+' inconsistência'+(_checks.length>1?'s':'')+' detectada'+(_checks.length>1?'s':'')+' — exportar bloqueado</div><ul>'+_checks.map(c=>'<li>'+c.msg+'</li>').join('')+'</ul>';
+      }
+    }
+    // ─── PAINEL DE AUDITORIA — todas as variáveis com fórmulas ───
+    const _audit = document.getElementById('prop-audit-table');
+    if (_audit) {
+      const _rows = [
+        ['SEÇÃO','Entrada (configuração)','',''],
+        ['Crédito por cota','soma das cartas',brl(totCred,0),totCotas+' cota'+(totCotas>1?'s':'')],
+        ['Lance Total %','slider',lt.toFixed(2)+'%',''],
+        ['Recurso Próprio %','lance − embutido',rp.toFixed(2)+'%',''],
+        ['Parte da Carta (embutido) %','30% se ativo · 0% se off',lc.toFixed(2)+'%',''],
+        ['Taxa Adm média','de cada grupo, ponderada por qtd',avgTa.toFixed(2)+'%','já inclui FR (regra Itaú)'],
+        ['Fundo Reserva (info)','d.fr do GUIA — NÃO somar no saldo',avgFr.toFixed(2)+'%',''],
+        ['Seguro mensal','% × carta',seg.toFixed(4)+'%/mês',''],
+        ['Mês de contemplação','input',mes,'sobre prazo '+(_g0?_g0.prazo:'—')],
+        ['Redução PR','select 0 / 30 / 50',red+'%',''],
+        ['SEÇÃO','Saídas (cálculos)','',''],
+        ['Lance Total R$','carta × lance%',brl(totLTot,0),''],
+        ['  ↳ Recurso Próprio R$','carta × rp%',brl(totLRP,0),''],
+        ['  ↳ Embutido R$','carta × lc%',brl(totLLC,0),''],
+        ['Crédito Líquido','carta − embutido',brl(totLiq,0),''],
+        ['Saldo Devedor','carta × (1 + ta%)',brl(totSD,0),'antes do lance'],
+        ['Custo Adm R$','saldo − carta',brl(totSD-totCred,0),avgTa.toFixed(2)+'% da carta'],
+        ['Parcela Pré-Contempl.','saldo/prazo + seguro',brl(totPi),'cheia'],
+        ['Parcela Pré com PR','×(1 − red%)',brl(piRed),red>0?'aplicada':'sem redução'],
+        ['Saldo pós-lance','saldo − parcelas pagas − lance',brl(totSP),'na contempl.'],
+        ['Parcela Pós-Contempl.','saldo pós/prazo restante + seguro',brl(totPp),'nova'],
+        ['SEÇÃO','CET — Custo Efetivo Total','',''],
+        ['Valor Presente','crédito líq. − recurso próprio',brl(totLiq-totLRP,0),''],
+        ['Taxa Adm em R$','saldo − carta',brl(totSD-totCred,0),''],
+        ['CET ao mês','custo / VP / prazo',(_cetAno/12).toFixed(4)+'%',''],
+        ['CET ao ano','CET mês × 12',_cetAno.toFixed(2)+'%','']
+      ];
+      _audit.innerHTML = _rows.map(r=>{
+        if (r[0]==='SEÇÃO') return '<tr class="pcom-audit-sec"><td colspan="4">'+r[1]+'</td></tr>';
+        return '<tr><td>'+r[0]+'</td><td class="f">'+r[1]+'</td><td class="v">'+r[2]+'</td><td class="n">'+r[3]+'</td></tr>';
+      }).join('');
+    }
+    // Atualiza estado dos botões de exportar
+    const _bts = document.querySelectorAll('.pcom-hdr-actions .pcom-btn');
+    _bts.forEach(b=>{
+      const isExport = /PDF|PNG/i.test(b.textContent);
+      if (isExport) {
+        if (_checks.length > 0) { b.disabled = true; b.style.opacity = '0.45'; b.style.cursor = 'not-allowed'; b.title = 'Corrija as inconsistências antes de exportar'; }
+        else { b.disabled = false; b.style.opacity = ''; b.style.cursor = ''; b.title = ''; }
+      }
+    });
+  } catch(e) { console.error('[sanity check]',e); }
   set('r-mes',mesReal+'º mês');set('r-saldo-pos',brl(totSP,0));set('r-pp',brl(totPp));
   set('r-cet',avgTa.toFixed(2)+'% ≈ '+brl(totSD-totCred,0));
   // ── CET real (fórmula da planilha Itaú) ──
