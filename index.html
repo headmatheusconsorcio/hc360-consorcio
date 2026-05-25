@@ -257,7 +257,7 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
 .gfb-count{font-size:11.5px;color:var(--sb);font-weight:700;font-family:'Quicksand',sans-serif;letter-spacing:.3px}
 
 /* ── PROPOSTA ───────────────────────────────── */
-.prop-grid{display:grid;grid-template-columns:370px 1fr;gap:20px}
+.prop-grid{display:grid;grid-template-columns:440px 1fr;gap:20px}
 .form-g{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
 .form-l{font-size:10.5px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:.4px}
 .form-i{padding:var(--sp-3) 13px;border-radius:var(--r-md);border:1.5px solid var(--bdr);font-size:var(--fs-md);color:var(--txt);background:var(--card);outline:none;transition:border-color var(--t-base),box-shadow var(--t-base);width:100%;font-family:'Mulish',sans-serif}
@@ -789,7 +789,7 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
 .emb-toggle-lbl{font-family:'Raleway',sans-serif}
 
 /* taxa adm editável no card de grupo */
-.pgrp-taxa{display:flex;align-items:center;gap:8px;margin-top:10px;padding-top:10px;border-top:1px dashed var(--bdr)}
+.pgrp-taxa{display:flex;align-items:center;gap:10px;margin-top:12px;padding-top:12px;border-top:1px dashed var(--bdr);flex-wrap:wrap}
 .pgrp-taxa label{font-size:10px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:.4px;font-family:'Raleway',sans-serif}
 .pgrp-taxa input{padding:5px 8px;border-radius:6px;border:1.5px solid var(--bdr);font-size:12.5px;font-weight:700;color:var(--txt);width:75px;text-align:center;outline:none;transition:all .15s;font-family:'Inter',sans-serif;background:var(--card)}
 .pgrp-taxa input:focus{border-color:var(--sb2);box-shadow:0 0 0 3px rgba(34,104,102,.08)}
@@ -814,15 +814,15 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
 .pgrp-status{font-size:10.5px;color:var(--ok);font-weight:700;letter-spacing:.3px;display:inline-flex;align-items:center;gap:3px}
 .pgrp-rm{background:none;border:1.5px solid transparent;cursor:pointer;color:var(--txt2);font-size:18px;line-height:1;width:28px;height:28px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;transition:all .15s}
 .pgrp-rm:hover{background:#fee2e2;color:var(--err);border-color:#fecaca}
-.pgrp-grid{display:grid;grid-template-columns:90px 70px 1fr 70px;gap:9px;align-items:end}
+.pgrp-grid{display:grid;grid-template-columns:1fr 1fr 1fr 70px;gap:10px;align-items:end}
 .pgrp-fld{display:flex;flex-direction:column;gap:4px}
-.pgrp-fld label{font-size:9.5px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:.4px;font-family:'Raleway',sans-serif}
+.pgrp-fld label{font-size:9.5px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:.3px;font-family:'Raleway',sans-serif;line-height:1.25;min-height:24px;display:flex;align-items:flex-end}
 .pgrp-fld input{padding:7px 9px;border-radius:7px;border:1.5px solid var(--bdr);font-size:13px;color:var(--txt);outline:none;transition:all .15s;width:100%;font-family:'Inter',sans-serif;background:var(--card)}
 .pgrp-fld input:focus{border-color:var(--sb2);box-shadow:0 0 0 3px rgba(34,104,102,.08)}
 .pgrp-fld input:read-only{background:var(--card2);color:var(--txt2);font-weight:600;cursor:not-allowed}
 .pgrp-fld input.grp-num{font-weight:800;letter-spacing:.4px;color:var(--sb)}
 .pgrp.loaded .pgrp-fld input.grp-num{color:var(--ok)}
-.pgrp-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:11px}
+.pgrp-chips{display:flex;flex-wrap:wrap;gap:6px 8px;margin-top:12px}
 .pgrp-chip{font-size:10.5px;background:#fff;border:1px solid var(--bdr);padding:3px 9px;border-radius:99px;color:var(--txt2);font-weight:600;display:inline-flex;align-items:center;gap:4px}
 .pgrp.loaded .pgrp-chip{background:#fff;border-color:#bbf7d0}
 .pgrp-chip strong{color:var(--txt);font-weight:700}
@@ -1637,7 +1637,7 @@ main.main:has(#page-ajuda.active) .content{
   .sb-foot{padding:var(--sp-3)}
   .kpi-grid{grid-template-columns:repeat(auto-fill,minmax(154px,1fr))}
   .crm-kpis{grid-template-columns:repeat(auto-fit,minmax(130px,1fr))}
-  .prop-grid{grid-template-columns:340px 1fr}
+  .prop-grid{grid-template-columns:400px 1fr}
   .pd-chart-row{grid-template-columns:230px 1fr}
   .pcard-h-header,.pcard-h{grid-template-columns:48px minmax(200px,1.8fr) minmax(140px,1fr) 76px 84px 110px 120px;gap:14px}
   .pipeline{gap:var(--sp-3)}
@@ -11133,12 +11133,16 @@ function calcProp(){
     const h0 = (g0 && window.HIST && HIST.groups) ? (HIST.groups[g0.grupo]||HIST.groups[parseInt(g0.grupo)]||{}) : {};
     const prazoMedio = totCotas ? Math.round(propGrupos.reduce((s,g)=>s+((g.prazo||0)*(g.qtd||1)),0)/totCotas) : 0;
     const prazoRest = g0 ? Math.max(0,(g0.prazo||0)-(g0.mesAtual||0)) : 0;
-    // Fase 3 (pós-contemplação) usa totPp — parcela PÓS (saldo devedor menos lance, dividido pelo prazo restante)
-    // Se houver PR (red>0), aplica também a redução sobre a parcela pós
-    const parcPos = red>0 ? totPp*(1-red/100) : totPp;
+    // Fase 3 (pós-contemplação) usa totPp — mesmo valor do card central "Nova Parcela".
+    // PR (parcela reduzida) só vale ATÉ a contemplação no padrão Itaú; depois volta a parcela cheia.
+    const parcPos = totPp;
     // Header meta
     const docDt=document.getElementById('prop-doc-data');
-    if(docDt) docDt.textContent = new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'}) + ' · Grupo ' + (g0&&g0.grupo?g0.grupo:'—') + ' · ' + totCotas + ' cota' + (totCotas>1?'s':'');
+    if(docDt) {
+      const gruposList = propGrupos.filter(g=>g.grupo).map(g=>g.grupo);
+      const gruposStr = gruposList.length>1 ? 'Grupos '+gruposList.join(' + ') : (gruposList.length===1 ? 'Grupo '+gruposList[0] : '—');
+      docDt.textContent = new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'}) + ' · ' + gruposStr + ' · ' + totCotas + ' cota' + (totCotas>1?'s':'');
+    }
     const docCli=document.getElementById('prop-doc-cliente');
     if(docCli) docCli.textContent = cliente && cliente!=='—' ? cliente : '';
     // Custo Adm label (% já inclui FR — regra Itaú)
@@ -11158,7 +11162,7 @@ function calcProp(){
     // Fase 3
     const f3p=document.getElementById('r-fase3-prazo'); if(f3p) f3p.textContent = 'Meses 2 a ' + prazoRest;
     const f3v=document.getElementById('r-fase3-val'); if(f3v) f3v.textContent = brl(parcPos);
-    const f3d=document.getElementById('r-fase3-desc'); if(f3d) f3d.textContent = (red>0 ? 'Nova parcela pós-contemplação, com redução de '+red+'% aplicada até o fim do contrato.' : 'Nova parcela pós-contemplação até o encerramento do contrato.');
+    const f3d=document.getElementById('r-fase3-desc'); if(f3d) f3d.textContent = 'Nova parcela pós-contemplação (saldo devedor restante ÷ meses restantes) até o encerramento do contrato.';
     // REASONS — gera 4 motivos
     const lanceMedHist = h0.avgMin ? h0.avgMin : (d0.at_min ? d0.at_min*100 : null);
     const cont6 = (h0.cont||[]).filter(v=>v>0);
