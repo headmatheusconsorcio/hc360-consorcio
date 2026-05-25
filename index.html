@@ -876,7 +876,24 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
 .pcom-it-val.dour{color:var(--p-dour)}
 .pcom-sec-title{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--p-cinza-cl);font-weight:700;margin:32px 0 16px;display:flex;align-items:center;gap:12px;font-family:'Inter',sans-serif}
 .pcom-sec-title::after{content:'';flex:1;height:1px;background:var(--p-borda)}
-/* Tabela de Composição dos Grupos */
+/* Composição dos Grupos · cards detalhados */
+.pcom-grupos-cards{display:flex;flex-direction:column;gap:14px}
+.pcom-grupo-card{background:#fff;border-radius:8px;border:1px solid var(--p-borda);border-left:4px solid var(--p-dour);padding:18px 22px;page-break-inside:avoid;break-inside:avoid}
+.pcom-grupo-card-hdr{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;padding-bottom:14px;margin-bottom:16px;border-bottom:1px solid var(--p-borda)}
+.pcom-grupo-card-title{display:flex;align-items:center;gap:10px;font-size:15px;color:var(--p-azul);font-family:'Inter',sans-serif}
+.pcom-grupo-card-title strong{font-weight:600}
+.pcom-grupo-card-sub{font-size:12px;color:var(--p-cinza-cl);letter-spacing:.3px}
+.pcom-grupo-card-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px 22px}
+.pgcc-cell{display:flex;flex-direction:column;gap:3px}
+.pgcc-lbl{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--p-cinza-cl);font-family:'Inter',sans-serif}
+.pgcc-val{font-family:'Fraunces',serif;font-size:18px;font-weight:500;color:var(--p-azul);letter-spacing:-.01em;line-height:1.15}
+.pgcc-val.verde{color:var(--p-verde)}
+.pgcc-val.dour{color:var(--p-dour)}
+.pgcc-hint{font-size:10.5px;color:var(--p-cinza-cl);font-style:italic;line-height:1.35;margin-top:2px}
+@media (max-width:720px){
+  .pcom-grupo-card-grid{grid-template-columns:1fr 1fr}
+}
+/* Tabela legada (compat) */
 .pcom-grupos{background:#fff;border-radius:8px;border:1px solid var(--p-borda);border-left:4px solid var(--p-dour);overflow:hidden}
 .pcom-grupos table{width:100%;border-collapse:collapse;font-family:'Inter',sans-serif}
 .pcom-grupos thead th{background:var(--p-creme-card);color:var(--p-cinza);font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:11px 14px;text-align:left;border-bottom:1px solid var(--p-borda)}
@@ -1425,7 +1442,21 @@ main.main:has(#page-ajuda.active) .content{
   body.printing-prop > .prop-doc .prop-doc-title{font-size:18pt!important}
   body.printing-prop > .prop-doc .prop-doc-eyebrow{font-size:8pt!important}
   body.printing-prop > .prop-doc .prop-doc-sub{font-size:9pt!important}
-  body.printing-prop > .prop-doc .prop-kpis{break-inside:avoid;page-break-inside:avoid;grid-template-columns:repeat(4,1fr)!important}
+  body.printing-prop > .prop-doc .prop-kpis,
+  body.printing-prop > .prop-doc .pcom-hdr,
+  body.printing-prop > .prop-doc .pcom-stripe,
+  body.printing-prop > .prop-doc .pcom-kpis,
+  body.printing-prop > .prop-doc .pcom-card,
+  body.printing-prop > .prop-doc .pcom-grupo-card,
+  body.printing-prop > .prop-doc .pcom-flow,
+  body.printing-prop > .prop-doc .pcom-flow-phases,
+  body.printing-prop > .prop-doc .pcom-phase,
+  body.printing-prop > .prop-doc .pcom-reasons,
+  body.printing-prop > .prop-doc .pcom-reason,
+  body.printing-prop > .prop-doc .pcom-cta,
+  body.printing-prop > .prop-doc .pcom-footnote{break-inside:avoid!important;page-break-inside:avoid!important}
+  body.printing-prop > .prop-doc .prop-kpis{grid-template-columns:repeat(4,1fr)!important}
+  body.printing-prop > .prop-doc .pcom-sec-title{break-after:avoid!important;page-break-after:avoid!important}
   body.printing-prop > .prop-doc .prop-kpi{padding:10px 12px!important}
   body.printing-prop > .prop-doc .prop-kpi-val{font-size:13pt!important}
   body.printing-prop > .prop-doc .prop-kpi-lbl{font-size:7pt!important}
@@ -2668,24 +2699,9 @@ main.main:has(#page-ajuda.active) .content{
           </div>
 
           <!-- FLOW DA OPERAÇÃO -->
-          <!-- COMPOSIÇÃO DA PROPOSTA — tabela detalhada dos grupos -->
+          <!-- COMPOSIÇÃO DA PROPOSTA — cards detalhados por grupo -->
           <div class="pcom-sec-title">Composição da Proposta</div>
-          <div class="pcom-grupos">
-            <table>
-              <thead>
-                <tr>
-                  <th>Grupo / Tipo</th>
-                  <th class="r">Crédito por cota</th>
-                  <th class="r">Qtd</th>
-                  <th class="r">Crédito total</th>
-                  <th class="r">Prazo</th>
-                  <th class="r">Adm + FR</th>
-                </tr>
-              </thead>
-              <tbody id="r-grupos-tbody"></tbody>
-              <tfoot id="r-grupos-tfoot"></tfoot>
-            </table>
-          </div>
+          <div id="r-grupos-cards" class="pcom-grupos-cards"></div>
 
           <div class="pcom-sec-title">Como funciona a operação</div>
           <div class="pcom-flow">
@@ -11114,6 +11130,7 @@ function calcProp(){
   const cliente=document.getElementById('p-cliente').value||'—';
   let totCred=0,totCotas=0,totSD=0,totLRP=0,totLLC=0,totLTot=0,totLiq=0,totPi=0,totPp=0,totSP=0,totTa=0,totFr=0;
   let prazoRef=propGrupos[0]?propGrupos[0].prazo:192;
+  const _breakdown=[]; // detalhamento por grupo pra Composição da Proposta
   propGrupos.forEach(g=>{
     const nc=g.qtd||1,cred=g.credito||0,pr=g.prazo||1,fr=g.fr||0;
     let ta;
@@ -11136,6 +11153,16 @@ function calcProp(){
     const sp=Math.max(0,sd-mr*amM-lTot);
     const pr2=pr-mr;
     const pp=pr2>0?sp/pr2+liq*seg/100:0;
+    // Guarda valores individuais por grupo (pra Composição detalhada)
+    if(g.grupo){
+      _breakdown.push({
+        grupo:g.grupo, tipo:(typeof GUIA!=='undefined'&&GUIA[g.grupo]&&GUIA[g.grupo].tp)||'',
+        qtd:nc, cred:cred, ct:ct, liq:liq, lTot:lTot, lRP:lRP, lLC:lLC,
+        sd:sd, sp:sp, pi:pi, piRed:pi*(1-red/100), pp:pp,
+        prazo:pr, prazoRest:Math.max(0,pr-(g.mesAtual||0)),
+        ta:ta, fr:fr, taFr:ta+fr
+      });
+    }
     totCred+=ct;totCotas+=nc;totSD+=sd;totLRP+=lRP;totLLC+=lLC;totLTot+=lTot;totLiq+=liq;totPi+=pi;totPp+=pp;totSP+=sp;
     totTa+=ta*nc;totFr+=fr*nc;
   });
@@ -11183,42 +11210,36 @@ function calcProp(){
     // Custo Adm + FR label (somados — regra Itaú)
     const cetLbl=document.getElementById('r-cet-lbl');
     if(cetLbl) cetLbl.textContent = 'Custo Adm + FR' + (totCotas?(' ('+(avgTa+avgFr).toFixed(2)+'%)'):'');
-    // ── COMPOSIÇÃO DA PROPOSTA — tabela de grupos ──
-    const tbody=document.getElementById('r-grupos-tbody');
-    const tfoot=document.getElementById('r-grupos-tfoot');
-    if(tbody){
-      const grupos = propGrupos.filter(g=>g.grupo);
-      if(grupos.length===0){
-        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--p-cinza-cl);font-style:italic;padding:18px">Nenhum grupo configurado</td></tr>';
-        if(tfoot) tfoot.innerHTML='';
+    // ── COMPOSIÇÃO DA PROPOSTA — cards detalhados por grupo ──
+    const compWrap=document.getElementById('r-grupos-cards');
+    if(compWrap){
+      if(_breakdown.length===0){
+        compWrap.innerHTML = '<div style="text-align:center;color:var(--p-cinza-cl);font-style:italic;padding:24px">Nenhum grupo configurado</div>';
       } else {
-        tbody.innerHTML = grupos.map(g=>{
-          const d = (typeof GUIA!=='undefined' && GUIA[g.grupo]) || {};
-          const isIm = d.tp && /IM|RES/i.test(d.tp);
+        compWrap.innerHTML = _breakdown.map((b,idx)=>{
+          const isIm = b.tipo && /IM|RES/i.test(b.tipo);
           const tagCls = isIm?'im':'au';
           const tagLbl = isIm?'🏠 Imóvel':'🚗 Veículo';
-          // taxa efetiva (com override manual / PR)
-          let taEf;
-          if(g.taxaadm_user!=null) taEf = g.taxaadm_user;
-          else if(g.pr_red) taEf = (red===30?20:23);
-          else taEf = g.taxaadm;
-          const totG = (g.credito||0)*(g.qtd||1);
-          return '<tr>'
-            +'<td><span class="pcom-grupo-tag '+tagCls+'">'+tagLbl+'</span><strong>'+g.grupo+'</strong></td>'
-            +'<td class="r">'+brl(g.credito,0)+'</td>'
-            +'<td class="r">'+(g.qtd||1)+'</td>'
-            +'<td class="v">'+brl(totG,0)+'</td>'
-            +'<td class="r">'+(g.prazo||'—')+'m</td>'
-            +'<td class="r">'+taEf.toFixed(2)+'% + '+g.fr+'%</td>'
-            +'</tr>';
+          const lancePctG = b.ct>0 ? (b.lTot/b.ct*100) : 0;
+          const piShow = red>0 ? b.piRed : b.pi;
+          return '<div class="pcom-grupo-card">'
+            +'<div class="pcom-grupo-card-hdr">'
+            +'  <div class="pcom-grupo-card-title"><span class="pcom-grupo-tag '+tagCls+'">'+tagLbl+'</span><strong>Grupo '+b.grupo+'</strong></div>'
+            +'  <div class="pcom-grupo-card-sub">'+b.qtd+' cota'+(b.qtd>1?'s':'')+' · '+brl(b.cred,0)+'/cota</div>'
+            +'</div>'
+            +'<div class="pcom-grupo-card-grid">'
+            +'  <div class="pgcc-cell"><div class="pgcc-lbl">Crédito Total</div><div class="pgcc-val">'+brl(b.ct,0)+'</div></div>'
+            +'  <div class="pgcc-cell"><div class="pgcc-lbl">Crédito Liberado</div><div class="pgcc-val verde">'+brl(b.liq,0)+'</div><div class="pgcc-hint">após embutido</div></div>'
+            +'  <div class="pgcc-cell"><div class="pgcc-lbl">Prazo</div><div class="pgcc-val">'+b.prazo+'m</div><div class="pgcc-hint">restante: '+b.prazoRest+'m</div></div>'
+            +'  <div class="pgcc-cell"><div class="pgcc-lbl">Adm + FR</div><div class="pgcc-val">'+b.taFr.toFixed(2)+'%</div><div class="pgcc-hint">'+b.ta.toFixed(2)+'% + '+b.fr+'%</div></div>'
+            +'  <div class="pgcc-cell"><div class="pgcc-lbl">Lance Total</div><div class="pgcc-val dour">'+brl(b.lTot,0)+'</div><div class="pgcc-hint">'+lancePctG.toFixed(2)+'% · RP '+brl(b.lRP,0)+' + Embut. '+brl(b.lLC,0)+'</div></div>'
+            +'  <div class="pgcc-cell"><div class="pgcc-lbl">Saldo Devedor Pré</div><div class="pgcc-val">'+brl(b.sd,0)+'</div><div class="pgcc-hint">crédito × (1 + adm% + FR%)</div></div>'
+            +'  <div class="pgcc-cell"><div class="pgcc-lbl">Saldo Pós-Lance</div><div class="pgcc-val">'+brl(b.sp,0)+'</div><div class="pgcc-hint">após contemplação</div></div>'
+            +'  <div class="pgcc-cell"><div class="pgcc-lbl">Parcela Pré</div><div class="pgcc-val">'+brl(piShow)+'</div><div class="pgcc-hint">'+(red>0?'com PR '+red+'% · cheia: '+brl(b.pi):'até a contemplação')+'</div></div>'
+            +'  <div class="pgcc-cell"><div class="pgcc-lbl">Parcela Pós</div><div class="pgcc-val verde">'+brl(b.pp)+'</div><div class="pgcc-hint">saldo pós ÷ '+b.prazoRest+' meses</div></div>'
+            +'</div>'
+            +'</div>';
         }).join('');
-        if(tfoot){
-          tfoot.innerHTML = '<tr>'
-            +'<td colspan="3">Total · '+totCotas+' cota'+(totCotas>1?'s':'')+'</td>'
-            +'<td class="v">'+brl(totCred,0)+'</td>'
-            +'<td colspan="2"></td>'
-            +'</tr>';
-        }
       }
     }
     // FLOW header
