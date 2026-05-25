@@ -2631,7 +2631,7 @@ main.main:has(#page-ajuda.active) .content{
               </div>
               <div class="pcom-card-row">
                 <div><div class="pcom-it-lbl">Saldo Devedor</div><div class="pcom-it-val" id="r-sd">—</div></div>
-                <div><div class="pcom-it-lbl" id="r-cet-lbl">Custo Adm <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--p-cinza-cl);font-size:9.5px">(já inclui FR)</span></div><div class="pcom-it-val" id="r-cet">—</div></div>
+                <div><div class="pcom-it-lbl" id="r-cet-lbl">Custo Adm + FR</div><div class="pcom-it-val" id="r-cet">—</div></div>
               </div>
             </div>
             <!-- Pós-contemplação -->
@@ -11093,8 +11093,9 @@ function calcProp(){
       ta=g.taxaadm||0;
     }
     const ct=cred*nc,lRP=ct*rp/100,lLC=ct*lc/100,lTot=lRP+lLC,liq=ct-lLC;
-    // Saldo devedor — Itaú: a taxa adm já inclui o fundo de reserva (não somar 2x)
-    const sd=ct*(1+ta/100);
+    // Saldo devedor — regra Itaú (verificada na planilha oficial):
+    // saldo = crédito × (1 + taxa_adm% + fundo_reserva%) — ambas SOMADAS
+    const sd=ct*(1+ta/100+fr/100);
     const amM=sd/pr;
     const pi=amM+ct*seg/100;
     const mr=Math.min(mes,pr-1);
@@ -11145,9 +11146,9 @@ function calcProp(){
     }
     const docCli=document.getElementById('prop-doc-cliente');
     if(docCli) docCli.textContent = cliente && cliente!=='—' ? cliente : '';
-    // Custo Adm label (% já inclui FR — regra Itaú)
+    // Custo Adm + FR label (somados — regra Itaú)
     const cetLbl=document.getElementById('r-cet-lbl');
-    if(cetLbl) cetLbl.innerHTML = 'Custo Adm <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--p-cinza-cl);font-size:9.5px">(já inclui FR)</span>' + (totCotas?'<span style="font-size:10px;color:var(--p-cinza-cl);margin-left:6px">'+avgTa.toFixed(1)+'%</span>':'');
+    if(cetLbl) cetLbl.textContent = 'Custo Adm + FR' + (totCotas?(' ('+(avgTa+avgFr).toFixed(2)+'%)'):'');
     // FLOW header
     const flowHt=document.getElementById('r-flow-htext');
     if(flowHt) flowHt.textContent = 'Linha do Tempo · ' + prazoRest + ' meses';
@@ -11257,8 +11258,9 @@ function calcProp(){
         ['Lance Total %','slider',lt.toFixed(2)+'%',''],
         ['Recurso Próprio %','lance − embutido',rp.toFixed(2)+'%',''],
         ['Parte da Carta (embutido) %','30% se ativo · 0% se off',lc.toFixed(2)+'%',''],
-        ['Taxa Adm média','de cada grupo, ponderada por qtd',avgTa.toFixed(2)+'%','já inclui FR (regra Itaú)'],
-        ['Fundo Reserva (info)','d.fr do GUIA — NÃO somar no saldo',avgFr.toFixed(2)+'%',''],
+        ['Taxa Adm média','de cada grupo, ponderada por qtd',avgTa.toFixed(2)+'%','separada do FR'],
+        ['Fundo Reserva (FR)','de cada grupo, ponderada por qtd',avgFr.toFixed(2)+'%','SOMA no saldo (planilha Itaú)'],
+        ['Adm + FR total','soma das duas',(avgTa+avgFr).toFixed(2)+'%','aplicado no saldo'],
         ['Seguro mensal','% × carta',seg.toFixed(4)+'%/mês',''],
         ['Mês de contemplação','input',mes,'sobre prazo '+(_g0?_g0.prazo:'—')],
         ['Redução PR','select 0 / 30 / 50',red+'%',''],
@@ -11267,8 +11269,8 @@ function calcProp(){
         ['  ↳ Recurso Próprio R$','carta × rp%',brl(totLRP,0),''],
         ['  ↳ Embutido R$','carta × lc%',brl(totLLC,0),''],
         ['Crédito Líquido','carta − embutido',brl(totLiq,0),''],
-        ['Saldo Devedor','carta × (1 + ta%)',brl(totSD,0),'antes do lance'],
-        ['Custo Adm R$','saldo − carta',brl(totSD-totCred,0),avgTa.toFixed(2)+'% da carta'],
+        ['Saldo Devedor','carta × (1 + adm% + fr%)',brl(totSD,0),'antes do lance'],
+        ['Custo Adm + FR (R$)','saldo − carta',brl(totSD-totCred,0),(avgTa+avgFr).toFixed(2)+'% da carta'],
         ['Parcela Pré-Contempl.','saldo/prazo + seguro',brl(totPi),'cheia'],
         ['Parcela Pré com PR','×(1 − red%)',brl(piRed),red>0?'aplicada':'sem redução'],
         ['Saldo pós-lance','saldo − parcelas pagas − lance',brl(totSP),'na contempl.'],
@@ -11295,7 +11297,7 @@ function calcProp(){
     });
   } catch(e) { console.error('[sanity check]',e); }
   set('r-mes',mesReal+'º mês');set('r-saldo-pos',brl(totSP,0));set('r-pp',brl(totPp));
-  set('r-cet',avgTa.toFixed(2)+'% ≈ '+brl(totSD-totCred,0));
+  set('r-cet',(avgTa+avgFr).toFixed(2)+'% ≈ '+brl(totSD-totCred,0));
   // ── CET real (fórmula da planilha Itaú) ──
   const prazoAvgCet=totCotas?propGrupos.reduce((a,g)=>a+(g.prazo||192)*(g.qtd||1),0)/totCotas:192;
   const cetVP=totLiq-totLRP;                    // Crédito Líquido − Rec.Próprios
