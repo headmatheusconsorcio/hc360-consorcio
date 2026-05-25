@@ -893,6 +893,22 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
 @media (max-width:720px){
   .pcom-grupo-card-grid{grid-template-columns:1fr 1fr}
 }
+/* Histórico dos grupos · gráficos */
+.pcom-grupos-hist{display:flex;flex-direction:column;gap:14px}
+.pcom-hist-card{background:#fff;border-radius:8px;border:1px solid var(--p-borda);border-left:4px solid var(--p-verde);padding:18px 22px;page-break-inside:avoid;break-inside:avoid}
+.pcom-hist-hdr{display:flex;justify-content:space-between;align-items:center;gap:10px;padding-bottom:12px;margin-bottom:14px;border-bottom:1px solid var(--p-borda);flex-wrap:wrap}
+.pcom-hist-title{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--p-azul);font-family:'Inter',sans-serif;font-weight:600}
+.pcom-hist-sub{font-size:11px;color:var(--p-cinza-cl);font-style:italic}
+.pcom-hist-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.pcom-hist-block{display:flex;flex-direction:column;gap:8px}
+.pcom-hist-block-title{font-size:10.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--p-cinza-cl);font-family:'Inter',sans-serif}
+.pcom-hist-block-meta{font-size:10.5px;color:var(--p-azul);font-weight:600}
+.pcom-hist-block-meta strong{font-family:'Fraunces',serif;font-size:13.5px;font-weight:500;color:var(--p-dour);letter-spacing:-.01em}
+.pcom-hist-chart{position:relative;height:160px}
+.pcom-hist-empty{padding:24px;text-align:center;color:var(--p-cinza-cl);font-size:12px;font-style:italic}
+@media (max-width:720px){
+  .pcom-hist-grid{grid-template-columns:1fr}
+}
 /* Tabela legada (compat) */
 .pcom-grupos{background:#fff;border-radius:8px;border:1px solid var(--p-borda);border-left:4px solid var(--p-dour);overflow:hidden}
 .pcom-grupos table{width:100%;border-collapse:collapse;font-family:'Inter',sans-serif}
@@ -1448,6 +1464,7 @@ main.main:has(#page-ajuda.active) .content{
   body.printing-prop > .prop-doc .pcom-kpis,
   body.printing-prop > .prop-doc .pcom-card,
   body.printing-prop > .prop-doc .pcom-grupo-card,
+  body.printing-prop > .prop-doc .pcom-hist-card,
   body.printing-prop > .prop-doc .pcom-flow,
   body.printing-prop > .prop-doc .pcom-flow-phases,
   body.printing-prop > .prop-doc .pcom-phase,
@@ -2702,6 +2719,10 @@ main.main:has(#page-ajuda.active) .content{
           <!-- COMPOSIÇÃO DA PROPOSTA — cards detalhados por grupo -->
           <div class="pcom-sec-title">Composição da Proposta</div>
           <div id="r-grupos-cards" class="pcom-grupos-cards"></div>
+
+          <!-- HISTÓRICO DOS GRUPOS — gráficos de lance e contemplações -->
+          <div class="pcom-sec-title" id="r-hist-title" style="display:none">Histórico dos Últimos 12 Meses</div>
+          <div id="r-grupos-hist" class="pcom-grupos-hist"></div>
 
           <div class="pcom-sec-title">Como funciona a operação</div>
           <div class="pcom-flow">
@@ -11240,6 +11261,116 @@ function calcProp(){
             +'</div>'
             +'</div>';
         }).join('');
+      }
+    }
+    // ── HISTÓRICO DOS GRUPOS — gráficos de lance mín/máx e contemplações ──
+    const histWrap=document.getElementById('r-grupos-hist');
+    const histTitle=document.getElementById('r-hist-title');
+    if(histWrap && typeof HIST!=='undefined' && HIST.groups){
+      // Limpa instâncias antigas pra não vazar memória
+      if(window.__propHistCharts){
+        Object.values(window.__propHistCharts).forEach(c=>{try{c.destroy();}catch(e){}});
+      }
+      window.__propHistCharts={};
+      // Monta HTML
+      const monthsAll=(HIST.months||[]).slice(-12);
+      const monthsLbl=monthsAll.map(m=>{
+        if(!m||m.indexOf('/')<0) return m||'';
+        return m; // já vem "Mmm/YY"
+      });
+      const blocks=_breakdown.map((b,idx)=>{
+        const hg = HIST.groups[b.grupo] || HIST.groups[parseInt(b.grupo)] || {};
+        if(!hg.min || hg.min.length===0) return null; // grupo sem histórico
+        const isIm = b.tipo && /IM|RES/i.test(b.tipo);
+        const tagCls = isIm?'im':'au';
+        const tagLbl = isIm?'🏠 Imóvel':'🚗 Veículo';
+        const mn=(hg.min||[]).slice(-12).map(v=>v>0?v:null);
+        const mx=(hg.max||[]).slice(-12).map(v=>v>0?v:null);
+        const ct=(hg.cont||[]).slice(-12).map(v=>v||0);
+        // Defesa swap mn>mx
+        for(let i=0;i<mn.length;i++){if(mn[i]&&mx[i]&&mn[i]>mx[i]){const t=mn[i];mn[i]=mx[i];mx[i]=t;}}
+        // Estatísticas pro hint
+        const mnValidos=mn.filter(v=>v!=null);
+        const avgMin=mnValidos.length?(mnValidos.reduce((a,b)=>a+b,0)/mnValidos.length):null;
+        const totalCont=ct.reduce((a,b)=>a+b,0);
+        return {
+          idx, grupo:b.grupo, tagCls, tagLbl, mn, mx, ct, avgMin, totalCont
+        };
+      }).filter(Boolean);
+      if(blocks.length===0){
+        if(histTitle) histTitle.style.display='none';
+        histWrap.innerHTML='';
+      } else {
+        if(histTitle) histTitle.style.display='';
+        histWrap.innerHTML = blocks.map(blk=>{
+          return '<div class="pcom-hist-card">'
+            +'<div class="pcom-hist-hdr">'
+            +'  <div class="pcom-hist-title"><span class="pcom-grupo-tag '+blk.tagCls+'">'+blk.tagLbl+'</span><strong>Grupo '+blk.grupo+'</strong></div>'
+            +'  <div class="pcom-hist-sub">Histórico dos últimos 12 meses</div>'
+            +'</div>'
+            +'<div class="pcom-hist-grid">'
+            +'  <div class="pcom-hist-block">'
+            +'    <div class="pcom-hist-block-title">Lance Mín / Máx (%)</div>'
+            +'    <div class="pcom-hist-block-meta">Média mínima: <strong>'+(blk.avgMin!=null?blk.avgMin.toFixed(2)+"%":"—")+'</strong></div>'
+            +'    <div class="pcom-hist-chart"><canvas id="hist-lance-'+blk.idx+'"></canvas></div>'
+            +'  </div>'
+            +'  <div class="pcom-hist-block">'
+            +'    <div class="pcom-hist-block-title">Contemplações por mês</div>'
+            +'    <div class="pcom-hist-block-meta">Total no período: <strong>'+blk.totalCont+'</strong></div>'
+            +'    <div class="pcom-hist-chart"><canvas id="hist-cont-'+blk.idx+'"></canvas></div>'
+            +'  </div>'
+            +'</div>'
+            +'</div>';
+        }).join('');
+        // Inicializa os Charts (esperando o DOM montar o canvas)
+        setTimeout(()=>{
+          if(typeof Chart==='undefined') return;
+          blocks.forEach(blk=>{
+            const cvLance=document.getElementById('hist-lance-'+blk.idx);
+            const cvCont=document.getElementById('hist-cont-'+blk.idx);
+            if(cvLance){
+              window.__propHistCharts['lance_'+blk.idx]=new Chart(cvLance,{
+                type:'line',
+                data:{
+                  labels:monthsLbl,
+                  datasets:[
+                    {label:'Mín.',data:blk.mn,borderColor:'#226866',backgroundColor:'rgba(34,104,102,.06)',tension:.35,fill:true,pointRadius:2.5,pointHoverRadius:4.5,pointBackgroundColor:'#226866',borderWidth:1.6,spanGaps:true},
+                    {label:'Máx.',data:blk.mx,borderColor:'#D6AF5C',backgroundColor:'rgba(214,175,92,.04)',tension:.35,fill:false,pointRadius:2.5,pointHoverRadius:4.5,pointBackgroundColor:'#D6AF5C',borderWidth:1.4,spanGaps:true,borderDash:[3,2]}
+                  ]
+                },
+                options:{
+                  responsive:true,maintainAspectRatio:false,
+                  interaction:{mode:'index',intersect:false},
+                  plugins:{
+                    legend:{display:true,position:'bottom',align:'end',labels:{font:{size:10,family:'Inter',weight:'600'},usePointStyle:true,pointStyle:'line',boxWidth:14,padding:10,color:'#515151'}},
+                    tooltip:{backgroundColor:'rgba(44,62,80,.95)',padding:9,cornerRadius:6,titleFont:{size:11,family:'Inter',weight:'600'},bodyFont:{size:11,family:'Inter'},callbacks:{label:c=>' '+c.dataset.label+': '+(c.parsed.y!=null?c.parsed.y.toFixed(2)+'%':'—')}}
+                  },
+                  scales:{
+                    y:{beginAtZero:true,grid:{color:'rgba(232,226,212,.5)',lineWidth:.6},ticks:{callback:v=>v+'%',font:{size:10,family:'Inter'},color:'#8A8A8A',padding:4},border:{display:false}},
+                    x:{grid:{display:false},ticks:{font:{size:10,family:'Inter'},color:'#8A8A8A',maxRotation:0,autoSkipPadding:8},border:{color:'rgba(232,226,212,.8)'}}
+                  }
+                }
+              });
+            }
+            if(cvCont){
+              window.__propHistCharts['cont_'+blk.idx]=new Chart(cvCont,{
+                type:'bar',
+                data:{labels:monthsLbl,datasets:[{label:'Contemplados',data:blk.ct,backgroundColor:'rgba(214,175,92,.75)',borderColor:'rgba(214,175,92,1)',borderWidth:1,borderRadius:3,maxBarThickness:24}]},
+                options:{
+                  responsive:true,maintainAspectRatio:false,
+                  plugins:{
+                    legend:{display:false},
+                    tooltip:{backgroundColor:'rgba(44,62,80,.95)',padding:9,cornerRadius:6,titleFont:{size:11,family:'Inter',weight:'600'},bodyFont:{size:11,family:'Inter'}}
+                  },
+                  scales:{
+                    y:{beginAtZero:true,grid:{color:'rgba(232,226,212,.5)',lineWidth:.6},ticks:{stepSize:1,precision:0,font:{size:10,family:'Inter'},color:'#8A8A8A',padding:4},border:{display:false}},
+                    x:{grid:{display:false},ticks:{font:{size:10,family:'Inter'},color:'#8A8A8A',maxRotation:0,autoSkipPadding:8},border:{color:'rgba(232,226,212,.8)'}}
+                  }
+                }
+              });
+            }
+          });
+        },50);
       }
     }
     // FLOW header
