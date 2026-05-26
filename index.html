@@ -876,23 +876,17 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
 .pcom-it-val.dour{color:var(--p-dour)}
 .pcom-sec-title{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--p-cinza-cl);font-weight:700;margin:32px 0 16px;display:flex;align-items:center;gap:12px;font-family:'Inter',sans-serif}
 .pcom-sec-title::after{content:'';flex:1;height:1px;background:var(--p-borda)}
-/* Composição dos Grupos · cards detalhados */
-.pcom-grupos-cards{display:flex;flex-direction:column;gap:14px}
-.pcom-grupo-card{background:#fff;border-radius:8px;border:1px solid var(--p-borda);border-left:4px solid var(--p-dour);padding:18px 22px;page-break-inside:avoid;break-inside:avoid}
-.pcom-grupo-card-hdr{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;padding-bottom:14px;margin-bottom:16px;border-bottom:1px solid var(--p-borda)}
-.pcom-grupo-card-title{display:flex;align-items:center;gap:10px;font-size:15px;color:var(--p-azul);font-family:'Inter',sans-serif}
+/* Composição dos Grupos · cards compactos */
+.pcom-grupos-cards{display:flex;flex-direction:column;gap:10px}
+.pcom-grupo-card{background:#fff;border-radius:8px;border:1px solid var(--p-borda);border-left:4px solid var(--p-dour);padding:13px 18px;page-break-inside:avoid;break-inside:avoid}
+.pcom-grupo-card-hdr{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+.pcom-grupo-card-title{display:flex;align-items:center;gap:9px;font-size:14px;color:var(--p-azul);font-family:'Inter',sans-serif}
 .pcom-grupo-card-title strong{font-weight:600}
-.pcom-grupo-card-sub{font-size:12px;color:var(--p-cinza-cl);letter-spacing:.3px}
-.pcom-grupo-card-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px 22px}
-.pgcc-cell{display:flex;flex-direction:column;gap:3px}
-.pgcc-lbl{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--p-cinza-cl);font-family:'Inter',sans-serif}
-.pgcc-val{font-family:'Fraunces',serif;font-size:18px;font-weight:500;color:var(--p-azul);letter-spacing:-.01em;line-height:1.15}
-.pgcc-val.verde{color:var(--p-verde)}
-.pgcc-val.dour{color:var(--p-dour)}
-.pgcc-hint{font-size:10.5px;color:var(--p-cinza-cl);font-style:italic;line-height:1.35;margin-top:2px}
-@media (max-width:720px){
-  .pcom-grupo-card-grid{grid-template-columns:1fr 1fr}
-}
+.pcom-grupo-card-sub{font-size:11.5px;color:var(--p-cinza-cl);letter-spacing:.2px}
+.pcom-grupo-chips{display:flex;flex-wrap:wrap;gap:7px 10px;align-items:center}
+.pgc-chip{display:inline-flex;align-items:baseline;gap:5px;font-size:11.5px;color:var(--p-azul);font-family:'Inter',sans-serif;padding:4px 10px;background:var(--p-creme-bg);border:1px solid var(--p-borda);border-radius:99px}
+.pgc-chip-lbl{color:var(--p-cinza-cl);font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.pgc-chip strong{font-family:'Fraunces',serif;font-size:13px;font-weight:500;color:var(--p-azul);letter-spacing:-.01em}
 /* Histórico dos grupos · gráficos */
 .pcom-grupos-hist{display:flex;flex-direction:column;gap:14px}
 .pcom-hist-card{background:#fff;border-radius:8px;border:1px solid var(--p-borda);border-left:4px solid var(--p-verde);padding:18px 22px;page-break-inside:avoid;break-inside:avoid}
@@ -11231,34 +11225,37 @@ function calcProp(){
     // Custo Adm + FR label (somados — regra Itaú)
     const cetLbl=document.getElementById('r-cet-lbl');
     if(cetLbl) cetLbl.textContent = 'Custo Adm + FR' + (totCotas?(' ('+(avgTa+avgFr).toFixed(2)+'%)'):'');
-    // ── COMPOSIÇÃO DA PROPOSTA — cards detalhados por grupo ──
+    // ── COMPOSIÇÃO DA PROPOSTA — cards compactos por grupo ──
+    // Mostra só o que é ESPECÍFICO do grupo (nº, tipo, qtd, taxas, prazo).
+    // Cálculos derivados (crédito, lance, parcela, saldo) já aparecem nos KPIs/cards acima.
     const compWrap=document.getElementById('r-grupos-cards');
     if(compWrap){
       if(_breakdown.length===0){
         compWrap.innerHTML = '<div style="text-align:center;color:var(--p-cinza-cl);font-style:italic;padding:24px">Nenhum grupo configurado</div>';
       } else {
+        const showIndivVals = _breakdown.length > 1; // só mostra valores por-grupo se há múltiplos grupos
         compWrap.innerHTML = _breakdown.map((b,idx)=>{
           const isIm = b.tipo && /IM|RES/i.test(b.tipo);
           const tagCls = isIm?'im':'au';
           const tagLbl = isIm?'🏠 Imóvel':'🚗 Veículo';
-          const lancePctG = b.ct>0 ? (b.lTot/b.ct*100) : 0;
-          const piShow = red>0 ? b.piRed : b.pi;
+          // Chips de info do grupo (sempre)
+          const chips = []
+            .concat(['<span class="pgc-chip"><span class="pgc-chip-lbl">Prazo</span><strong>'+b.prazo+'m</strong>'+(b.prazoRest!==b.prazo?' · resta '+b.prazoRest+'m':'')+'</span>'])
+            .concat(['<span class="pgc-chip"><span class="pgc-chip-lbl">Adm + FR</span><strong>'+b.taFr.toFixed(2)+'%</strong> <span style="opacity:.6">('+b.ta.toFixed(2)+'% + '+b.fr+'%)</span></span>']);
+          // Quando há múltiplos grupos: adiciona valores individuais pra mostrar contribuição de cada grupo
+          if(showIndivVals){
+            const piShow = red>0 ? b.piRed : b.pi;
+            chips.push('<span class="pgc-chip"><span class="pgc-chip-lbl">Crédito total</span><strong>'+brl(b.ct,0)+'</strong></span>');
+            chips.push('<span class="pgc-chip"><span class="pgc-chip-lbl">Lance</span><strong>'+brl(b.lTot,0)+'</strong></span>');
+            chips.push('<span class="pgc-chip"><span class="pgc-chip-lbl">Parcela pré</span><strong>'+brl(piShow)+'</strong></span>');
+            chips.push('<span class="pgc-chip"><span class="pgc-chip-lbl">Parcela pós</span><strong>'+brl(b.pp)+'</strong></span>');
+          }
           return '<div class="pcom-grupo-card">'
             +'<div class="pcom-grupo-card-hdr">'
             +'  <div class="pcom-grupo-card-title"><span class="pcom-grupo-tag '+tagCls+'">'+tagLbl+'</span><strong>Grupo '+b.grupo+'</strong></div>'
             +'  <div class="pcom-grupo-card-sub">'+b.qtd+' cota'+(b.qtd>1?'s':'')+' · '+brl(b.cred,0)+'/cota</div>'
             +'</div>'
-            +'<div class="pcom-grupo-card-grid">'
-            +'  <div class="pgcc-cell"><div class="pgcc-lbl">Crédito Total</div><div class="pgcc-val">'+brl(b.ct,0)+'</div></div>'
-            +'  <div class="pgcc-cell"><div class="pgcc-lbl">Crédito Liberado</div><div class="pgcc-val verde">'+brl(b.liq,0)+'</div><div class="pgcc-hint">após embutido</div></div>'
-            +'  <div class="pgcc-cell"><div class="pgcc-lbl">Prazo</div><div class="pgcc-val">'+b.prazo+'m</div><div class="pgcc-hint">restante: '+b.prazoRest+'m</div></div>'
-            +'  <div class="pgcc-cell"><div class="pgcc-lbl">Adm + FR</div><div class="pgcc-val">'+b.taFr.toFixed(2)+'%</div><div class="pgcc-hint">'+b.ta.toFixed(2)+'% + '+b.fr+'%</div></div>'
-            +'  <div class="pgcc-cell"><div class="pgcc-lbl">Lance Total</div><div class="pgcc-val dour">'+brl(b.lTot,0)+'</div><div class="pgcc-hint">'+lancePctG.toFixed(2)+'% · RP '+brl(b.lRP,0)+' + Embut. '+brl(b.lLC,0)+'</div></div>'
-            +'  <div class="pgcc-cell"><div class="pgcc-lbl">Saldo Devedor Pré</div><div class="pgcc-val">'+brl(b.sd,0)+'</div><div class="pgcc-hint">crédito × (1 + adm% + FR%)</div></div>'
-            +'  <div class="pgcc-cell"><div class="pgcc-lbl">Saldo Pós-Lance</div><div class="pgcc-val">'+brl(b.sp,0)+'</div><div class="pgcc-hint">após contemplação</div></div>'
-            +'  <div class="pgcc-cell"><div class="pgcc-lbl">Parcela Pré</div><div class="pgcc-val">'+brl(piShow)+'</div><div class="pgcc-hint">'+(red>0?'com PR '+red+'% · cheia: '+brl(b.pi):'até a contemplação')+'</div></div>'
-            +'  <div class="pgcc-cell"><div class="pgcc-lbl">Parcela Pós</div><div class="pgcc-val verde">'+brl(b.pp)+'</div><div class="pgcc-hint">saldo pós ÷ '+b.prazoRest+' meses</div></div>'
-            +'</div>'
+            +'<div class="pcom-grupo-chips">'+chips.join('')+'</div>'
             +'</div>';
         }).join('');
       }
