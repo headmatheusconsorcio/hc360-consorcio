@@ -11507,59 +11507,32 @@ function calcProp(){
               });
             }
             if(cvCont){
-              // Datasets: LL sempre presente; LF só se hasLF (stacked)
+              // Datasets lado a lado (grouped) — LL e LF aparecem como barras separadas
               const contDatasets=[
-                {label:'Lance Livre',data:blk.ct,backgroundColor:'rgba(214,175,92,.85)',borderColor:'rgba(184,146,58,1)',borderWidth:1,borderRadius:{topLeft:0,topRight:0,bottomLeft:3,bottomRight:3},maxBarThickness:28,stack:'cont'}
+                {label:'Lance Livre',data:blk.ct,backgroundColor:'rgba(214,175,92,.9)',borderColor:'rgba(184,146,58,1)',borderWidth:1,borderRadius:3,categoryPercentage:0.82,barPercentage:0.92}
               ];
               if(blk.hasLF){
-                contDatasets.push({label:'Lance Fixo',data:blk.ctLf,backgroundColor:'rgba(34,104,102,.85)',borderColor:'rgba(34,104,102,1)',borderWidth:1,borderRadius:{topLeft:3,topRight:3,bottomLeft:0,bottomRight:0},maxBarThickness:28,stack:'cont'});
-                // se LL é a única e LF não está, LL tem cantos arredondados em cima também
-              } else {
-                contDatasets[0].borderRadius=3;
+                contDatasets.push({label:'Lance Fixo',data:blk.ctLf,backgroundColor:'rgba(34,104,102,.9)',borderColor:'rgba(34,104,102,1)',borderWidth:1,borderRadius:3,categoryPercentage:0.82,barPercentage:0.92});
               }
-              // Plugin pra labels: total no topo + valor DENTRO de cada segmento (LL/LF separados)
-              const stackedLabelsPlugin={
-                id:'propStackedLabels',
+              // Plugin pra label EM CIMA de cada barra individualmente
+              const groupedLabelsPlugin={
+                id:'propGroupedLabels',
                 afterDatasetsDraw(chart){
                   const {ctx}=chart;
-                  const datasets=chart.data.datasets;
-                  if(!datasets.length) return;
-                  // 1) Valores DENTRO de cada segmento (LL e LF)
-                  datasets.forEach((ds, di) => {
+                  chart.data.datasets.forEach((ds, di) => {
                     const meta=chart.getDatasetMeta(di);
                     if(!meta || meta.hidden) return;
                     meta.data.forEach((el, i) => {
                       const val=ds.data[i];
                       if(!val || val===0) return;
-                      // pega centro vertical do segmento
-                      const props=el.getProps(['x','y','base'], true);
-                      const segH=Math.abs(props.base - props.y);
-                      if(segH < 13) return; // segmento pequeno demais, não cabe label
-                      const cy=(props.y + props.base)/2;
                       ctx.save();
                       ctx.font='700 9px Inter,sans-serif';
-                      ctx.fillStyle='#ffffff';
+                      ctx.fillStyle = di===0 ? '#92400e' : '#226866';
                       ctx.textAlign='center';
-                      ctx.textBaseline='middle';
-                      ctx.fillText(String(val), props.x, cy);
+                      ctx.textBaseline='bottom';
+                      ctx.fillText(String(val), el.x, el.y - 3);
                       ctx.restore();
                     });
-                  });
-                  // 2) Total no topo da pilha
-                  const lastIdx=datasets.length-1;
-                  const lastMeta=chart.getDatasetMeta(lastIdx);
-                  if(!lastMeta) return;
-                  lastMeta.data.forEach((el, i) => {
-                    let total=0;
-                    datasets.forEach((ds) => { total += (ds.data[i]||0); });
-                    if(total===0) return;
-                    ctx.save();
-                    ctx.font='700 10px Inter,sans-serif';
-                    ctx.fillStyle='#92400e';
-                    ctx.textAlign='center';
-                    ctx.textBaseline='bottom';
-                    ctx.fillText(String(total), el.x, el.y - 4);
-                    ctx.restore();
                   });
                 }
               };
@@ -11568,17 +11541,17 @@ function calcProp(){
                 data:{labels:monthsLbl,datasets:contDatasets},
                 options:{
                   responsive:true,maintainAspectRatio:false,
-                  layout:{padding:{top:16,bottom:0,left:4,right:4}},
+                  layout:{padding:{top:18,bottom:0,left:4,right:4}},
                   plugins:{
                     legend:{display:blk.hasLF,position:'bottom',align:'end',labels:{font:{size:10,family:'Inter',weight:'600'},usePointStyle:true,pointStyle:'rect',boxWidth:10,boxHeight:10,padding:10,color:'#515151'}},
-                    tooltip:{backgroundColor:'rgba(44,62,80,.95)',padding:9,cornerRadius:6,titleFont:{size:11,family:'Inter',weight:'600'},bodyFont:{size:11,family:'Inter'},callbacks:{footer:items=>{const sum=items.reduce((a,b)=>a+b.parsed.y,0);return 'Total: '+sum;}}}
+                    tooltip:{mode:'index',intersect:false,backgroundColor:'rgba(44,62,80,.95)',padding:9,cornerRadius:6,titleFont:{size:11,family:'Inter',weight:'600'},bodyFont:{size:11,family:'Inter'},callbacks:{footer:items=>{const sum=items.reduce((a,b)=>a+b.parsed.y,0);return 'Total no mês: '+sum;}}}
                   },
                   scales:{
-                    y:{stacked:true,beginAtZero:true,grid:{color:'rgba(232,226,212,.5)',lineWidth:.6},ticks:{stepSize:1,precision:0,font:{size:10,family:'Inter'},color:'#8A8A8A',padding:4},border:{display:false}},
-                    x:{stacked:true,grid:{display:false},ticks:{font:{size:10,family:'Inter'},color:'#8A8A8A',maxRotation:0,autoSkipPadding:8},border:{color:'rgba(232,226,212,.8)'}}
+                    y:{beginAtZero:true,grace:'10%',grid:{color:'rgba(232,226,212,.5)',lineWidth:.6},ticks:{stepSize:1,precision:0,font:{size:10,family:'Inter'},color:'#8A8A8A',padding:4},border:{display:false}},
+                    x:{grid:{display:false},ticks:{font:{size:10,family:'Inter'},color:'#8A8A8A',maxRotation:0,autoSkipPadding:6},border:{color:'rgba(232,226,212,.8)'}}
                   }
                 },
-                plugins:[stackedLabelsPlugin]
+                plugins:[groupedLabelsPlugin]
               });
             }
           });
