@@ -2667,7 +2667,8 @@ main.main:has(#page-ajuda.active) .content{
             <div class="pcom-hdr-actions">
               <button class="pcom-btn" onclick="propGoStep(1)">← Editar</button>
               <button class="pcom-btn" onclick="exportPropPdf()" title="Imprimir / Salvar como PDF">⎙ PDF</button>
-              <button class="pcom-btn" onclick="exportPropPng()" title="Salvar como imagem PNG">🖼 PNG</button>
+              <button class="pcom-btn" onclick="exportPropPng('tall')" title="PNG vertical (uma coluna longa)">🖼 PNG ↕</button>
+              <button class="pcom-btn" onclick="exportPropPng('twocol')" title="PNG lado a lado (duas colunas) — ideal pra postar nas redes">🖼 PNG ↔</button>
             </div>
           </div>
         </div>
@@ -10666,8 +10667,37 @@ function exportPropPdf(){
   }
   window.print();
 }
+// Quebra o canvas vertical em 2 colunas lado a lado (ideal pra postar nas redes)
+// splitY tenta cair num section title pra não cortar bloco no meio
+function _propSplitTwoCol(canvas, splitYScaled){
+  const W=canvas.width, H=canvas.height;
+  // Se canvas baixo demais, não vale a pena dividir
+  if(H < W*0.8){ return canvas; }
+  const splitY = Math.min(H-100, Math.max(100, splitYScaled||Math.floor(H/2)));
+  const GAP = Math.round(W*0.025);   // gap entre colunas (2,5% da largura)
+  const PAD = Math.round(W*0.015);   // padding interno
+  const colW = W;
+  const leftH = splitY;
+  const rightH = H - splitY;
+  const finalH = Math.max(leftH, rightH);
+  const out = document.createElement('canvas');
+  out.width  = colW*2 + GAP + PAD*2;
+  out.height = finalH + PAD*2;
+  const ctx = out.getContext('2d');
+  // Fundo creme (mesmo bg do layout da proposta)
+  ctx.fillStyle = '#FAF7F0';
+  ctx.fillRect(0,0,out.width,out.height);
+  // Coluna esquerda: pixels 0 → splitY
+  ctx.drawImage(canvas, 0,0, W,leftH, PAD, PAD, colW, leftH);
+  // Coluna direita: pixels splitY → H
+  ctx.drawImage(canvas, 0,splitY, W,rightH, PAD + colW + GAP, PAD, colW, rightH);
+  return out;
+}
+
 // Export PNG — usa html2canvas sob demanda, em alta resolução
-function exportPropPng(){
+// layout: 'tall' (1 coluna vertical) | 'twocol' (2 colunas lado a lado)
+function exportPropPng(layout){
+  layout = layout || 'tall';
   const errs = window.__propSanityErrors || [];
   if (errs.length > 0) {
     if (typeof toast==='function') toast('Corrija as '+errs.length+' inconsistência'+(errs.length>1?'s':'')+' antes de exportar','err');
@@ -10725,18 +10755,37 @@ function exportPropPng(){
           }
         }
       }).then(canvas=>{
+        // Calcula splitY ideal pro layout 2 colunas — usa section title mais próximo da metade
+        let splitYScaled=null;
+        if(layout==='twocol'){
+          const docRect=propDoc.getBoundingClientRect();
+          const halfTotal=propDoc.scrollHeight/2;
+          let bestY=halfTotal, bestDist=Infinity;
+          propDoc.querySelectorAll('.pcom-sec-title').forEach(s=>{
+            const r=s.getBoundingClientRect();
+            const yRel=r.top-docRect.top;
+            // Só considera sec-titles que estão entre 25% e 75% da altura
+            if(yRel>propDoc.scrollHeight*0.25 && yRel<propDoc.scrollHeight*0.75){
+              const dist=Math.abs(yRel-halfTotal);
+              if(dist<bestDist){bestDist=dist;bestY=yRel;}
+            }
+          });
+          splitYScaled=Math.round(bestY*targetScale);
+        }
         // Restaura estilos originais
         hideEls.forEach(function(el,i){el.style.display=prevDisps[i]||'';});
         propDoc.style.width=prevWidth||'';
         propDoc.style.maxWidth=prevMaxW||'';
-        canvas.toBlob(blob=>{
+        // Aplica layout 2 colunas se solicitado
+        const finalCanvas = (layout==='twocol') ? _propSplitTwoCol(canvas, splitYScaled) : canvas;
+        finalCanvas.toBlob(blob=>{
           const url=URL.createObjectURL(blob);
           const a=document.createElement('a');
-          a.href=url;a.download=fileName;
+          a.href=url;a.download=fileName.replace('.png',(layout==='twocol'?'_lado-a-lado.png':'.png'));
           document.body.appendChild(a);a.click();a.remove();
           setTimeout(()=>URL.revokeObjectURL(url),1000);
           if(btn){btn.textContent=origTxt;btn.disabled=false;}
-          if(typeof toast==='function') toast('PNG exportado em alta resolução ('+canvas.width+'×'+canvas.height+')','ok');
+          if(typeof toast==='function') toast('PNG exportado ('+finalCanvas.width+'×'+finalCanvas.height+')','ok');
         },'image/png');
       }).catch(err=>{
         hideEls.forEach(function(el,i){el.style.display=prevDisps[i]||'';});
