@@ -2730,7 +2730,7 @@ main.main:has(#page-ajuda.active) .content{
               <div class="pcom-card-hdr">✓ Pós-contemplação</div>
               <div class="pcom-pos-tag">Contemplado no <strong id="r-mes">—</strong></div>
               <div class="pcom-pos-hero">
-                <div class="pcom-pos-hero-lbl">Nova Parcela</div>
+                <div class="pcom-pos-hero-lbl">Nova Parcela <span id="r-pp-prazo" class="pcom-lance-sub" style="color:var(--p-verde);opacity:.8">por X meses</span></div>
                 <div class="pcom-pos-hero-val" id="r-pp">—</div>
               </div>
               <div class="pcom-pos-divider"></div>
@@ -11250,7 +11250,15 @@ function calcProp(){
     if(docDt) {
       const gruposList = propGrupos.filter(g=>g.grupo).map(g=>g.grupo);
       const gruposStr = gruposList.length>1 ? 'Grupos '+gruposList.join(' + ') : (gruposList.length===1 ? 'Grupo '+gruposList[0] : '—');
-      docDt.textContent = new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'}) + ' · ' + gruposStr + ' · ' + totCotas + ' cota' + (totCotas>1?'s':'');
+      // Prazo: se todos os grupos têm o mesmo prazo, mostra direto; senão mostra range
+      const prazos = propGrupos.filter(g=>g.grupo).map(g=>g.prazo||0);
+      let prazoStr = '';
+      if(prazos.length>0){
+        const minP = Math.min.apply(null,prazos);
+        const maxP = Math.max.apply(null,prazos);
+        prazoStr = ' · ' + (minP===maxP ? minP+' meses' : minP+'–'+maxP+' meses');
+      }
+      docDt.textContent = new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'}) + ' · ' + gruposStr + ' · ' + totCotas + ' cota' + (totCotas>1?'s':'') + prazoStr;
     }
     const docCli=document.getElementById('prop-doc-cliente');
     if(docCli) docCli.textContent = cliente && cliente!=='—' ? cliente : '';
@@ -11550,6 +11558,13 @@ function calcProp(){
     });
   } catch(e) { console.error('[sanity check]',e); }
   set('r-mes',mesReal+'º mês');set('r-saldo-pos',brl(totSP,0));set('r-pp',brl(totPp));
+  // Sub do "Nova Parcela" mostra por quantos meses ela é paga (prazo restante)
+  const _ppPrazoEl=document.getElementById('r-pp-prazo');
+  if(_ppPrazoEl){
+    const _g0a=propGrupos.find(g=>g.grupo)||propGrupos[0];
+    const _prRest=_g0a?Math.max(0,(_g0a.prazo||0)-Math.min(mes,(_g0a.prazo||1)-1)):0;
+    _ppPrazoEl.textContent='por '+_prRest+' meses';
+  }
   // r-cet mostra só o R$ (o % já vai no label r-cet-lbl)
   set('r-cet',brl(totSD-totCred,0));
   // ── CET real (fórmula da planilha Itaú) ──
