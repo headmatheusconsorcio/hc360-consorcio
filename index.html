@@ -10341,10 +10341,16 @@ function renderOportunidades(){
     return mn.length?mn.filter(v=>lt>=v).length/mn.length:null;
   }
   function rankSeg(predicate){
-    // Top por SCORE PERCENTIL dentro do segmento (relativiza: melhor do segmento sempre fica alto)
+    // Criterios de "oportunidade vendavel" (alinhado com mesa de operacao):
+    //   Imovel: lance medio 45-62%, contempl >=4/mes
+    //   Veiculo: lance medio 35-60%, contempl >=6/mes
     const prazoMin=o=>o.isIm?50:24;
     const prazoMax=o=>o.isIm?200:84;
-    const segGroups=ortData.filter(predicate).filter(o=>{
+    const lanceMinAcc=o=>o.isIm?45:35;
+    const lanceMaxAcc=o=>o.isIm?62:60;
+    const contMinAcc=o=>o.isIm?4:6;
+
+    const segAll=ortData.filter(predicate).filter(o=>{
       const cap=parseFloat(o.d.cap)||0;
       const vagas=parseFloat(o.d.vagas)||0;
       const ocup=cap>0?1-(vagas/cap):0.5;
@@ -10355,30 +10361,39 @@ function renderOportunidades(){
         && o.lanceMed!=null
         && o.avgCont>0;
     });
-    if(!segGroups.length)return [];
-    const N=segGroups.length;
-    // rank: ordena por metrica e mapeia grupo -> percentil (0..1, 1=melhor)
+    if(!segAll.length)return [];
+
+    // Subset que atende criterios "vendaveis"
+    const vendaveis=segAll.filter(o=>
+      o.lanceMed>=lanceMinAcc(o)
+      && o.lanceMed<=lanceMaxAcc(o)
+      && o.avgCont>=contMinAcc(o)
+    );
+    const usingFallback=vendaveis.length===0;
+    const pool=usingFallback?segAll:vendaveis;
+    const N=pool.length;
+
+    // Score percentil DENTRO DO POOL (vendaveis ou fallback)
     function rankBy(getter){
-      const sorted=[...segGroups].sort((a,b)=>getter(a)-getter(b));
+      const sorted=[...pool].sort((a,b)=>getter(a)-getter(b));
       const map={};
       sorted.forEach((o,i)=>{ map[o.g]=N>1?i/(N-1):1; });
       return map;
     }
     const prazoMid=o=>o.isIm?125:54;
-    const rLance=rankBy(o=>-o.lanceMed);             // lance baixo = percentil alto
-    const rCont=rankBy(o=>o.avgCont);                 // contempl alto = percentil alto
-    const rPrazo=rankBy(o=>-Math.abs((o.prazo||0)-prazoMid(o))); // perto do ideal = alto
+    const rLance=rankBy(o=>-o.lanceMed);
+    const rCont=rankBy(o=>o.avgCont);
+    const rPrazo=rankBy(o=>-Math.abs((o.prazo||0)-prazoMid(o)));
     const rVagas=rankBy(o=>{
       const cap=parseFloat(o.d.cap)||0;
       const vagas=parseFloat(o.d.vagas)||0;
       const ocup=cap>0?1-(vagas/cap):0.5;
-      // Maturidade ideal: 50-85%. Penaliza extremos.
       return ocup>=0.50&&ocup<=0.85?1:ocup>=0.30&&ocup<=0.95?0.5:0;
     });
-    return segGroups.map(o=>{
+    return pool.map(o=>{
       const sL=rLance[o.g]||0,sC=rCont[o.g]||0,sP=rPrazo[o.g]||0,sV=rVagas[o.g]||0;
       const scoreComp=(sL*0.40+sC*0.30+sV*0.15+sP*0.15)*100;
-      return {...o,ch:chance(o),scoreComp};
+      return {...o,ch:chance(o),scoreComp,_fallback:usingFallback};
     }).sort((a,b)=>b.scoreComp-a.scoreComp).slice(0,5);
   }
   const top3Im=rankSeg(o=>o.isIm);
@@ -10391,6 +10406,8 @@ function renderOportunidades(){
       return '<div class="card" style="padding:28px 24px;text-align:center;color:var(--txt2);font-size:13px"><div style="font-size:32px;margin-bottom:10px">'+emoji+'</div><div style="font-weight:700;color:var(--txt);margin-bottom:6px">Sem oportunidades fortes em '+label.toLowerCase()+'</div><div style="font-size:11.5px;line-height:1.5">Com lance de <strong>'+lt.toFixed(0)+'%</strong>, nenhum grupo bate ao menos Media (≥40% historicamente).<br>Tente aumentar o lance ofertado ou veja a tabela abaixo.</div></div>';
     }
     const head='<div style="background:linear-gradient(135deg,var(--sb) 0%,var(--sb2) 100%);padding:14px 18px;color:#fff;display:flex;align-items:center;justify-content:space-between"><div style="font-family:Quicksand,sans-serif;font-size:16px;font-weight:600;letter-spacing:.5px">'+emoji+' Top 5 '+label+'</div><div style="font-size:10.5px;color:rgba(255,243,221,.7);text-transform:uppercase;letter-spacing:1.5px">Maior chance</div></div>';
+    const isFallback=items[0]&&items[0]._fallback;
+    const warningBanner=isFallback?'<div style="background:#fef3c7;color:#92400e;padding:10px 18px;font-size:11.5px;font-weight:600;border-bottom:1px solid #fcd34d;display:flex;align-items:flex-start;gap:8px"><span style="font-size:14px;line-height:1.3">⚠️</span><span style="line-height:1.5"><strong>Lance alto neste segmento.</strong> Nenhum grupo bate criterios ideais ('+(items[0].isIm?'Imóvel: lance 45-62%, contempl ≥4/mês':'Veículo: lance 35-60%, contempl ≥6/mês')+'). Mostrando melhores opcoes — cuidado na oferta.</span></div>':'';
     const rows=items.map((o,i)=>{
       const medal=i<3?['🥇','🥈','🥉'][i]:'<span style="font-family:Quicksand,sans-serif;font-size:14px;font-weight:700;color:var(--txt2)">'+(i+1)+'º</span>';
       const credFmt=o.cred>=1e6?(o.cred/1e6).toFixed(2)+'M':brl(o.cred,0);
@@ -10411,7 +10428,7 @@ function renderOportunidades(){
         '<span style="background:'+scoreBg+';color:'+scoreColor+';padding:6px 11px;border-radius:10px;font-size:10.5px;font-weight:700;white-space:nowrap;text-align:center;line-height:1.3" title="Score '+Math.round(sc)+'/100 — combina lance médio baixo, contemplações/mês, maturidade do grupo e prazo viável">'+stars+'<div style="font-size:9.5px;margin-top:2px;letter-spacing:.5px;text-transform:uppercase">'+scoreLbl+'</div></span>'+
       '</div>';
     }).join('');
-    return '<div class="card" style="overflow:hidden;padding:0">'+head+rows+'</div>';
+    return '<div class="card" style="overflow:hidden;padding:0">'+head+warningBanner+rows+'</div>';
   }
   const html=[renderCard('Imóveis','🏠','#1e40af',top3Im,'Im'),renderCard('Veículos','🚗','#92400e',top3Ro,'Ro')].filter(Boolean).join('');
   cont.style.gridTemplateColumns=ortTipo===''?'1fr 1fr':'1fr';
