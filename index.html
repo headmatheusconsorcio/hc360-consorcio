@@ -2729,7 +2729,6 @@ main.main:has(#page-ajuda.active) .content{
             <!-- Pós-contemplação -->
             <div class="pcom-card verde">
               <div class="pcom-card-hdr">✓ Pós-contemplação</div>
-              <div class="pcom-pos-tag">Contemplado no <strong id="r-mes">—</strong></div>
               <div class="pcom-pos-hero">
                 <div class="pcom-pos-hero-lbl">Nova Parcela <span id="r-pp-prazo" class="pcom-lance-sub" style="color:var(--p-verde);opacity:.8">por X meses</span></div>
                 <div class="pcom-pos-hero-val" id="r-pp">—</div>
@@ -2739,6 +2738,8 @@ main.main:has(#page-ajuda.active) .content{
                 <span class="pcom-pos-lbl">Saldo Pós-Lance</span>
                 <span class="pcom-pos-val" id="r-saldo-pos">—</span>
               </div>
+              <!-- r-mes mantido invisível pra não quebrar o set('r-mes',...) em calcProp -->
+              <span id="r-mes" style="display:none"></span>
             </div>
           </div>
 
@@ -2761,7 +2762,7 @@ main.main:has(#page-ajuda.active) .content{
               <div class="pcom-phase">
                 <div class="pcom-phase-num">Fase 1</div>
                 <div class="pcom-phase-title">Pré-contemplação</div>
-                <div class="pcom-phase-prazo">Mês 1</div>
+                <div class="pcom-phase-prazo">Antes da contemplação</div>
                 <div class="pcom-phase-val" id="r-fase1-val">—</div>
                 <div class="pcom-phase-desc" id="r-fase1-desc">Parcela cheia, paga até a próxima assembleia.</div>
               </div>
