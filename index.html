@@ -99,32 +99,6 @@ button,input,select,textarea{font-family:inherit}
 .topbar{background:var(--card);border-bottom:1px solid var(--bdr);padding:0 clamp(14px,2.2vw,28px);height:58px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;box-shadow:var(--sh-1);gap:var(--sp-3)}
 .pg-title{font-size:var(--fs-lg);font-weight:600;font-family:'Quicksand',sans-serif;color:var(--sb);letter-spacing:.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
 .tb-acts{display:flex;align-items:center;gap:var(--sp-2);flex-shrink:0}
-/* ── NOTIFICAÇÕES ───────────────────────── */
-.notif-wrap{position:relative}
-.notif-btn{position:relative;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.15);cursor:pointer;font-size:17px;padding:6px 10px;border-radius:8px;color:#fff;transition:all var(--t-fast);line-height:1}
-.notif-btn:hover{background:rgba(255,255,255,.22);border-color:rgba(255,255,255,.30)}
-.notif-badge{position:absolute;top:-4px;right:-4px;min-width:18px;height:18px;border-radius:10px;background:#dc2626;color:#fff;font-size:10px;display:flex;align-items:center;justify-content:center;font-weight:700;padding:0 5px;border:2px solid var(--sb);line-height:1}
-.notif-panel{position:absolute;top:calc(100% + 10px);right:0;width:380px;max-width:calc(100vw - 24px);background:#fff;border:1px solid #e5e7eb;border-radius:12px;box-shadow:0 12px 32px rgba(0,0,0,.18);z-index:1500;display:none;max-height:540px;flex-direction:column;overflow:hidden}
-.notif-panel.open{display:flex;animation:notifFade .18s ease-out}
-@keyframes notifFade{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
-.notif-head{padding:12px 16px;border-bottom:1px solid #e5e7eb;background:linear-gradient(135deg,#fafbfc,#fff);display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
-.notif-head>span:first-child{font-weight:700;font-size:14.5px;color:var(--sb);font-family:'Quicksand',sans-serif;letter-spacing:.3px}
-.notif-head button{background:transparent;border:none;color:var(--txt2);font-size:11.5px;cursor:pointer;text-decoration:underline;padding:2px 6px;border-radius:4px}
-.notif-head button:hover{color:var(--sb);background:#fdf6e3}
-.notif-list{overflow-y:auto;flex:1;max-height:400px}
-.notif-item{padding:12px 16px 12px 24px;border-bottom:1px solid #f3f4f6;cursor:pointer;transition:background var(--t-fast);position:relative}
-.notif-item:last-child{border-bottom:none}
-.notif-item:hover{background:#fdf6e3}
-.notif-item.nao-lida{background:#fffbeb}
-.notif-item.nao-lida::before{content:'';position:absolute;left:10px;top:18px;width:8px;height:8px;border-radius:50%;background:var(--acc);box-shadow:0 0 0 3px rgba(214,175,92,.2)}
-.notif-titulo{font-size:13.5px;font-weight:600;color:var(--sb);margin-bottom:4px;line-height:1.3}
-.notif-mensagem{font-size:12.5px;color:var(--txt2);line-height:1.5;margin-bottom:5px}
-.notif-tempo{font-size:10.5px;color:var(--txt3);font-style:italic}
-.notif-empty{padding:46px 20px;text-align:center;color:var(--txt3);font-size:13px}
-.notif-foot{padding:10px 16px;border-top:1px solid #e5e7eb;background:#fafbfc;font-size:11.5px;color:var(--txt2);flex-shrink:0}
-.notif-foot label{display:flex;align-items:center;gap:8px;cursor:pointer}
-.notif-foot input[type=checkbox]{cursor:pointer}
-@media(max-width:700px){.notif-panel{position:fixed;top:60px;right:8px;left:8px;width:auto;max-width:none}}
 .content{padding:var(--sp-6) clamp(14px,2.2vw,28px);flex:1;width:100%;max-width:1480px;margin:0 auto}
 .page{display:none}.page.active{display:block}
 
@@ -1807,32 +1781,6 @@ main.main:has(#page-ajuda.active) .content{
 </head>
 <body>
 
-<!-- Modal forçado de troca de senha (1º login) -->
-<div class="moverlay" id="modal-troca-senha" style="background:rgba(0,0,0,.88);z-index:99999">
-  <div class="modal" style="width:440px;max-width:94vw">
-    <div style="padding:28px 30px">
-      <div style="font-size:32px;text-align:center;margin-bottom:6px">🔐</div>
-      <h2 style="margin:0 0 8px;font-family:'Quicksand',sans-serif;color:var(--sb);text-align:center;font-size:20px">Defina sua senha pessoal</h2>
-      <p style="font-size:13.5px;color:var(--txt2);margin:0 0 22px;line-height:1.55;text-align:center">
-        Você está usando a senha temporária. Antes de continuar, escolha uma nova senha que só você sabe.
-      </p>
-      <div style="margin-bottom:14px">
-        <label style="font-size:11.5px;font-weight:600;color:var(--txt2);text-transform:uppercase;letter-spacing:.5px;display:block">Nova senha</label>
-        <input type="password" id="ts-pass1" class="inp" style="width:100%;margin-top:4px;padding:10px 12px" placeholder="Mínimo 8 caracteres" autocomplete="new-password">
-      </div>
-      <div style="margin-bottom:18px">
-        <label style="font-size:11.5px;font-weight:600;color:var(--txt2);text-transform:uppercase;letter-spacing:.5px;display:block">Confirmar senha</label>
-        <input type="password" id="ts-pass2" class="inp" style="width:100%;margin-top:4px;padding:10px 12px" placeholder="Repita a nova senha" autocomplete="new-password" onkeypress="if(event.key==='Enter')submitNovaSenha()">
-      </div>
-      <div id="ts-err" style="display:none;background:#fef2f2;color:#991b1b;font-size:12.5px;padding:8px 12px;border-radius:6px;margin-bottom:14px;border-left:3px solid #dc2626"></div>
-      <button class="btn btn-pri" id="ts-btn" onclick="submitNovaSenha()" style="width:100%;padding:11px;font-weight:700">Salvar nova senha</button>
-      <p style="font-size:11px;color:var(--txt3);text-align:center;margin:14px 0 0;line-height:1.4">
-        Esta tela só aparece uma vez. Depois, você usa sua senha pessoal pra entrar.
-      </p>
-    </div>
-  </div>
-</div>
-
 <div class="login-screen" id="login-screen">
   <div class="login-box">
     <div class="login-logo">
@@ -1905,25 +1853,6 @@ main.main:has(#page-ajuda.active) .content{
       <span id="dash-refresh-status" style="font-size:11px;color:var(--txt2);font-style:italic"></span>
       <button id="dash-refresh-btn" class="btn btn-out btn-sm" onclick="dashRefresh()" title="Atualizar carteira agora" style="font-size:13px;padding:4px 10px"><span id="dash-refresh-ico">🔄</span></button>
       <button id="priv-tb" class="priv-tb" onclick="togglePriv()" title="Ocultar nomes/CPFs em toda a página (apresentações)"><span id="priv-tb-ico">👁️</span><span id="priv-tb-lbl">Visível</span></button>
-      <!-- SINO DE NOTIFICAÇÕES -->
-      <div class="notif-wrap" id="notif-wrap">
-        <button class="notif-btn" onclick="notifToggle(event)" title="Notificações" aria-label="Notificações">
-          🔔
-          <span class="notif-badge" id="notif-badge" style="display:none">0</span>
-        </button>
-        <div class="notif-panel" id="notif-panel">
-          <div class="notif-head">
-            <span>Notificações</span>
-            <button onclick="notifMarcarTodasLidas()" id="notif-mark-all">Marcar todas como lidas</button>
-          </div>
-          <div class="notif-list" id="notif-list">
-            <div class="notif-empty">Carregando...</div>
-          </div>
-          <div class="notif-foot">
-            <label><input type="checkbox" id="notif-som" checked> 🔊 Som ao chegar nova</label>
-          </div>
-        </div>
-      </div>
       <button id="topbar-nova-cota" class="btn btn-out btn-sm" onclick="openModalCota(-1)">+ Nova Cota</button>
       <button class="btn btn-pri btn-sm" onclick="nav('crm',document.querySelectorAll('.ni')[3])">+ Novo Lead</button>
     </div>
@@ -5539,7 +5468,6 @@ async function loadProfile(user){
   const emailLower=(user.email||'').toLowerCase();
   const isAdminEmail=emailLower.startsWith('admin@');
   CURRENT_USER={
-    id:user.id,
     email:user.email,
     assessorName:meta.assessor_name||umeta.assessor_name||null,
     isAdmin:meta.is_admin===true||umeta.is_admin===true||isAdminEmail,
@@ -5556,7 +5484,6 @@ async function loadProfile(user){
       CURRENT_USER.perfilFilial=perfil.filial;
       CURRENT_USER.perfilApelidos=perfil.apelidos||[];
       if(!CURRENT_USER.assessorName)CURRENT_USER.assessorName=perfil.assessor_name;
-      if(perfil.senha_temporaria===true)setTimeout(abrirModalTrocaSenha,250);
     }
   }catch(e){console.warn('[HC360] perfil n/d',e);}
   console.info('[HC360] login:',CURRENT_USER.email,'isAdmin:',CURRENT_USER.isAdmin,'pct:',CURRENT_USER.pctPadrao);
@@ -5576,7 +5503,6 @@ async function doLogin(){
   await loadProfile(data.user);
   document.getElementById('login-screen').style.display='none';
   await loadData();
-  try{notifLoad();notifSubscribe();}catch(e){console.warn('notif init',e);}
 }
 
 async function doLogout(){
@@ -5585,133 +5511,6 @@ async function doLogout(){
   document.getElementById('login-screen').style.display='flex';
   document.getElementById('login-email').value='';
   document.getElementById('login-pass').value='';
-}
-
-// ═══ NOTIFICACOES ═══
-let _NOTIF_DATA=[]; let _NOTIF_CHANNEL=null;
-async function notifLoad(){
-  if(!CURRENT_USER)return;
-  try{
-    const {data,error}=await sb.from('notificacoes').select('*').order('created_at',{ascending:false}).limit(20);
-    if(error){console.warn('notif',error);return;}
-    _NOTIF_DATA=data||[];
-    notifRender();
-  }catch(e){console.warn('notif load',e);}
-}
-function notifRender(){
-  const list=document.getElementById('notif-list');
-  const badge=document.getElementById('notif-badge');
-  const markAll=document.getElementById('notif-mark-all');
-  if(!list)return;
-  const naoLidas=_NOTIF_DATA.filter(n=>!n.lida).length;
-  if(naoLidas>0){badge.textContent=naoLidas>99?'99+':naoLidas;badge.style.display='flex';}
-  else{badge.style.display='none';}
-  if(markAll)markAll.style.display=naoLidas>0?'':'none';
-  if(_NOTIF_DATA.length===0){list.innerHTML='<div class="notif-empty">Sem notificações</div>';return;}
-  list.innerHTML=_NOTIF_DATA.map(n=>{
-    const cls=n.lida?'':'nao-lida';
-    return '<div class="notif-item '+cls+'" onclick="notifClick(\''+n.id+'\',\''+(n.link_tela||'')+'\')">'+
-      '<div class="notif-titulo">'+_esc(n.titulo)+'</div>'+
-      '<div class="notif-mensagem">'+_esc(n.mensagem)+'</div>'+
-      '<div class="notif-tempo">'+notifTempo(n.created_at)+'</div>'+
-    '</div>';
-  }).join('');
-}
-function notifTempo(ts){
-  const d=new Date(ts),ms=Date.now()-d.getTime();
-  const min=Math.floor(ms/60000),h=Math.floor(min/60),dias=Math.floor(h/24);
-  if(ms<60000)return 'agora mesmo';
-  if(min<60)return 'há '+min+' min';
-  if(h<24)return 'há '+h+'h';
-  if(dias<7)return 'há '+dias+'d';
-  return d.toLocaleDateString('pt-BR');
-}
-function notifToggle(ev){
-  if(ev)ev.stopPropagation();
-  const p=document.getElementById('notif-panel');
-  if(!p)return;
-  p.classList.toggle('open');
-  if(p.classList.contains('open'))notifLoad();
-}
-async function notifClick(id,tela){
-  try{
-    await sb.from('notificacoes').update({lida:true}).eq('id',id);
-    const n=_NOTIF_DATA.find(x=>x.id===id);if(n)n.lida=true;
-    notifRender();
-  }catch(e){console.warn('mark read',e);}
-  if(tela){
-    const ni=document.querySelector('[onclick*="nav(\''+tela+'\'"]');
-    if(ni&&typeof nav==='function')nav(tela,ni);
-  }
-  document.getElementById('notif-panel').classList.remove('open');
-}
-async function notifMarcarTodasLidas(){
-  const ids=_NOTIF_DATA.filter(n=>!n.lida).map(n=>n.id);
-  if(ids.length===0)return;
-  try{
-    await sb.from('notificacoes').update({lida:true}).in('id',ids);
-    _NOTIF_DATA.forEach(n=>n.lida=true);
-    notifRender();
-  }catch(e){console.warn('mark all',e);}
-}
-function notifSubscribe(){
-  if(_NOTIF_CHANNEL||!CURRENT_USER)return;
-  _NOTIF_CHANNEL=sb.channel('notif-rt')
-    .on('postgres_changes',{event:'INSERT',schema:'public',table:'notificacoes',filter:'user_id=eq.'+CURRENT_USER.id},
-      payload=>{
-        _NOTIF_DATA.unshift(payload.new);
-        _NOTIF_DATA=_NOTIF_DATA.slice(0,20);
-        notifRender();
-        try{const som=document.getElementById('notif-som');if(som&&som.checked)notifSom();}catch(e){}
-        toast('🔔 '+payload.new.titulo);
-      })
-    .subscribe();
-}
-function notifSom(){
-  try{
-    const ctx=new (window.AudioContext||window.webkitAudioContext)();
-    const o=ctx.createOscillator(),g=ctx.createGain();
-    o.connect(g);g.connect(ctx.destination);
-    o.frequency.value=880;o.type='sine';
-    g.gain.setValueAtTime(0.08,ctx.currentTime);
-    g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.25);
-    o.start(ctx.currentTime);o.stop(ctx.currentTime+0.25);
-  }catch(e){}
-}
-document.addEventListener('click',e=>{
-  const w=document.getElementById('notif-wrap');
-  if(!w)return;
-  if(!w.contains(e.target)){
-    const p=document.getElementById('notif-panel');
-    if(p)p.classList.remove('open');
-  }
-});
-
-// ═══ TROCA DE SENHA FORÇADA NO 1º LOGIN ═══
-function abrirModalTrocaSenha(){
-  const m=document.getElementById('modal-troca-senha');
-  if(m){
-    m.classList.add('act');
-    setTimeout(()=>{const i=document.getElementById('ts-pass1');if(i)i.focus();},100);
-  }
-}
-async function submitNovaSenha(){
-  const p1=document.getElementById('ts-pass1').value;
-  const p2=document.getElementById('ts-pass2').value;
-  const err=document.getElementById('ts-err');
-  const btn=document.getElementById('ts-btn');
-  err.style.display='none';
-  if(p1.length<8){err.textContent='A senha precisa ter no mínimo 8 caracteres.';err.style.display='block';return;}
-  if(p1!==p2){err.textContent='As duas senhas não são iguais.';err.style.display='block';return;}
-  if(p1==='HC360@inicial'){err.textContent='A nova senha precisa ser diferente da temporária.';err.style.display='block';return;}
-  btn.disabled=true;btn.textContent='Salvando...';
-  const {error:e1}=await sb.auth.updateUser({password:p1});
-  if(e1){err.textContent='Erro ao salvar: '+e1.message;err.style.display='block';btn.disabled=false;btn.textContent='Salvar nova senha';return;}
-  try{await sb.rpc('marcar_senha_definida');}catch(e){console.warn('falha marcar perfil',e);}
-  document.getElementById('modal-troca-senha').classList.remove('act');
-  document.getElementById('ts-pass1').value='';document.getElementById('ts-pass2').value='';
-  btn.disabled=false;btn.textContent='Salvar nova senha';
-  toast('Senha atualizada! Já pode usar normalmente.');
 }
 
 async function assessorEnviarLead(){
@@ -10606,7 +10405,10 @@ function renderOportunidades(){
       const lt=parseFloat(document.getElementById('os-lance')?.value)||40;
       return '<div class="card" style="padding:28px 24px;text-align:center;color:var(--txt2);font-size:13px"><div style="font-size:32px;margin-bottom:10px">'+emoji+'</div><div style="font-weight:700;color:var(--txt);margin-bottom:6px">Sem oportunidades fortes em '+label.toLowerCase()+'</div><div style="font-size:11.5px;line-height:1.5">Com lance de <strong>'+lt.toFixed(0)+'%</strong>, nenhum grupo bate ao menos Media (≥40% historicamente).<br>Tente aumentar o lance ofertado ou veja a tabela abaixo.</div></div>';
     }
-    const head='<div style="background:linear-gradient(135deg,var(--sb) 0%,var(--sb2) 100%);padding:14px 18px;color:#fff;display:flex;align-items:center;justify-content:space-between"><div style="font-family:Quicksand,sans-serif;font-size:16px;font-weight:600;letter-spacing:.5px">'+emoji+' Top 5 '+label+'</div><div style="font-size:10.5px;color:rgba(255,243,221,.7);text-transform:uppercase;letter-spacing:1.5px">Maior chance</div></div>';
+    // Criterio aplicado (visivel sempre)
+    const isImSeg=segKey==='Im';
+    const critTxt=isImSeg?'Lance 45–62% · ≥4 contempl/mês':'Lance 35–60% · ≥6 contempl/mês';
+    const head='<div style="background:linear-gradient(135deg,var(--sb) 0%,var(--sb2) 100%);padding:14px 18px;color:#fff"><div style="display:flex;align-items:center;justify-content:space-between"><div style="font-family:Quicksand,sans-serif;font-size:16px;font-weight:600;letter-spacing:.5px">'+emoji+' Top 5 '+label+'</div><div style="font-size:10.5px;color:rgba(255,243,221,.7);text-transform:uppercase;letter-spacing:1.5px">Oportunidades vendáveis</div></div><div style="font-size:10.5px;color:rgba(255,243,221,.85);margin-top:6px;letter-spacing:.3px"><span style="color:#D6AF5C;font-weight:700;text-transform:uppercase;letter-spacing:1px;font-size:9.5px">Critério:</span> '+critTxt+'</div></div>';
     const isFallback=items[0]&&items[0]._fallback;
     const warningBanner=isFallback?'<div style="background:#fef3c7;color:#92400e;padding:10px 18px;font-size:11.5px;font-weight:600;border-bottom:1px solid #fcd34d;display:flex;align-items:flex-start;gap:8px"><span style="font-size:14px;line-height:1.3">⚠️</span><span style="line-height:1.5"><strong>Lance alto neste segmento.</strong> Nenhum grupo bate criterios ideais ('+(items[0].isIm?'Imóvel: lance 45-62%, contempl ≥4/mês':'Veículo: lance 35-60%, contempl ≥6/mês')+'). Mostrando melhores opcoes — cuidado na oferta.</span></div>':'';
     const rows=items.map((o,i)=>{
@@ -10614,17 +10416,22 @@ function renderOportunidades(){
       const credFmt=o.cred>=1e6?(o.cred/1e6).toFixed(2)+'M':brl(o.cred,0);
       const lmFmt=o.lanceMed>0?o.lanceMed.toFixed(1)+'%':'—';
       const sc=o.scoreComp||0;
-      const stars=sc>=75?'🌟🌟🌟':sc>=50?'🌟🌟':'🌟';
-      const scoreLbl=sc>=75?'Excelente':sc>=50?'Bom':'OK';
-      const scoreColor=sc>=75?'#065f46':sc>=50?'#92400e':'#515151';
-      const scoreBg=sc>=75?'#d1fae5':sc>=50?'#fef3c7':'#f3f4f6';
+      // Fallback (fora dos criterios da mesa) -> chip vermelho Atencao
+      const isFb=!!o._fallback;
+      const stars=isFb?'⚠️':sc>=75?'🌟🌟🌟':sc>=50?'🌟🌟':'🌟';
+      const scoreLbl=isFb?'Fora do crit.':sc>=75?'Excelente':sc>=50?'Bom':'OK';
+      const scoreColor=isFb?'#991b1b':sc>=75?'#065f46':sc>=50?'#92400e':'#515151';
+      const scoreBg=isFb?'#fee2e2':sc>=75?'#d1fae5':sc>=50?'#fef3c7':'#f3f4f6';
       const contFmt=o.avgCont>0?o.avgCont.toFixed(1)+'/mês contempl.':'sem contempl.';
       return '<div data-g="'+o.g+'" onclick="oportTopCardClick(this)" style="padding:12px 18px;border-bottom:1px solid var(--bdr);cursor:pointer;display:flex;align-items:center;gap:14px;transition:background .15s">'+
         '<span style="font-size:22px;width:28px;text-align:center">'+medal+'</span>'+
         '<div style="flex:1;min-width:0">'+
           '<div style="font-family:Quicksand,sans-serif;font-size:18px;font-weight:700;color:var(--sb);line-height:1.1">Grupo '+o.g+'</div>'+
           '<div style="font-size:11px;color:var(--txt2);margin-top:3px;line-height:1.4">'+credFmt+' · '+(o.d.pr||'?')+'m · <strong style="color:var(--ok)">'+(o.d.vagas??'—')+'</strong> vagas</div>'+
-          '<div style="font-size:11px;color:var(--txt2);margin-top:1px;line-height:1.4">Lance médio <strong style="color:var(--sb2)">'+lmFmt+'</strong> · <strong>'+contFmt+'</strong></div>'+
+          '<div style="font-size:11px;color:var(--txt2);margin-top:1px;line-height:1.4">'+
+            'Lance médio <strong style="color:'+(o.isIm?(o.lanceMed>=45&&o.lanceMed<=62?'#059669':'#dc2626'):(o.lanceMed>=35&&o.lanceMed<=60?'#059669':'#dc2626'))+'">'+lmFmt+'</strong> · '+
+            '<strong style="color:'+(o.isIm?(o.avgCont>=4?'#059669':'#dc2626'):(o.avgCont>=6?'#059669':'#dc2626'))+'">'+contFmt+'</strong>'+
+          '</div>'+
         '</div>'+
         '<span style="background:'+scoreBg+';color:'+scoreColor+';padding:6px 11px;border-radius:10px;font-size:10.5px;font-weight:700;white-space:nowrap;text-align:center;line-height:1.3" title="Score '+Math.round(sc)+'/100 — combina lance médio baixo, contemplações/mês, maturidade do grupo e prazo viável">'+stars+'<div style="font-size:9.5px;margin-top:2px;letter-spacing:.5px;text-transform:uppercase">'+scoreLbl+'</div></span>'+
       '</div>';
