@@ -10341,60 +10341,50 @@ function renderOportunidades(){
     return mn.length?mn.filter(v=>lt>=v).length/mn.length:null;
   }
   function rankSeg(predicate){
-    // Criterios de "oportunidade vendavel" (alinhado com mesa de operacao):
-    //   Imovel: lance medio 45-62%, contempl >=4/mes
-    //   Veiculo: lance medio 35-60%, contempl >=6/mes
+    // 5 categorias de "melhor em" — 1 vencedor por categoria
     const prazoMin=o=>o.isIm?50:24;
     const prazoMax=o=>o.isIm?200:84;
-    const lanceMinAcc=o=>o.isIm?45:35;
-    const lanceMaxAcc=o=>o.isIm?62:60;
-    const contMinAcc=o=>o.isIm?4:6;
-
-    const segAll=ortData.filter(predicate).filter(o=>{
+    const all=ortData.filter(predicate).filter(o=>{
       const cap=parseFloat(o.d.cap)||0;
       const vagas=parseFloat(o.d.vagas)||0;
       const ocup=cap>0?1-(vagas/cap):0.5;
-      return vagas>0
-        && (o.prazo||0)>=prazoMin(o)
-        && (o.prazo||0)<=prazoMax(o)
-        && ocup>=0.30
-        && o.lanceMed!=null
-        && o.avgCont>0;
+      return vagas>0&&(o.prazo||0)>=prazoMin(o)&&(o.prazo||0)<=prazoMax(o)&&ocup>=0.30&&o.lanceMed!=null&&o.avgCont>0;
     });
-    if(!segAll.length)return [];
-
-    // Subset que atende criterios "vendaveis"
-    const vendaveis=segAll.filter(o=>
-      o.lanceMed>=lanceMinAcc(o)
-      && o.lanceMed<=lanceMaxAcc(o)
-      && o.avgCont>=contMinAcc(o)
-    );
-    const usingFallback=vendaveis.length===0;
-    const pool=usingFallback?segAll:vendaveis;
-    const N=pool.length;
-
-    // Score percentil DENTRO DO POOL (vendaveis ou fallback)
-    function rankBy(getter){
-      const sorted=[...pool].sort((a,b)=>getter(a)-getter(b));
-      const map={};
-      sorted.forEach((o,i)=>{ map[o.g]=N>1?i/(N-1):1; });
-      return map;
+    if(!all.length)return [];
+    const isIm=all[0].isIm;
+    // Categoria 1: menor lance medio
+    const cat1=[...all].sort((a,b)=>a.lanceMed-b.lanceMed)[0];
+    // Categoria 2: lance + rotacao (combina lance baixo + contempl alto, peso 50/50)
+    const maxCont=Math.max(...all.map(o=>o.avgCont));
+    const lances=all.map(o=>o.lanceMed);
+    const minL=Math.min(...lances),maxL=Math.max(...lances);
+    const lanceRange=Math.max(0.01,maxL-minL);
+    const cat2=[...all].sort((a,b)=>{
+      const sA=((maxL-a.lanceMed)/lanceRange)*0.5+(a.avgCont/maxCont)*0.5;
+      const sB=((maxL-b.lanceMed)/lanceRange)*0.5+(b.avgCont/maxCont)*0.5;
+      return sB-sA;
+    })[0];
+    // Categorias por prazo: melhor (menor) lance dentro da faixa
+    const bands=isIm
+      ?[{lbl:'Prazo curto',min:50,max:100},{lbl:'Prazo médio',min:100,max:150},{lbl:'Prazo longo',min:150,max:200}]
+      :[{lbl:'Prazo curto',min:24,max:48},{lbl:'Prazo médio',min:48,max:60},{lbl:'Prazo longo',min:60,max:84}];
+    const catsPrazo=bands.map(b=>{
+      const f=all.filter(o=>(o.prazo||0)>=b.min&&(o.prazo||0)<b.max);
+      return f.length?{...[...f].sort((a,b2)=>a.lanceMed-b2.lanceMed)[0],_bandLbl:b.lbl}:null;
+    });
+    // Monta lista final evitando duplicatas (mesmo grupo nao aparece em 2 categorias)
+    const seen=new Set();
+    const result=[];
+    function addUnique(item,categoria){
+      if(!item)return;
+      if(seen.has(item.g))return;
+      seen.add(item.g);
+      result.push({...item,_categoria:categoria,ch:chance(item)});
     }
-    const prazoMid=o=>o.isIm?125:54;
-    const rLance=rankBy(o=>-o.lanceMed);
-    const rCont=rankBy(o=>o.avgCont);
-    const rPrazo=rankBy(o=>-Math.abs((o.prazo||0)-prazoMid(o)));
-    const rVagas=rankBy(o=>{
-      const cap=parseFloat(o.d.cap)||0;
-      const vagas=parseFloat(o.d.vagas)||0;
-      const ocup=cap>0?1-(vagas/cap):0.5;
-      return ocup>=0.50&&ocup<=0.85?1:ocup>=0.30&&ocup<=0.95?0.5:0;
-    });
-    return pool.map(o=>{
-      const sL=rLance[o.g]||0,sC=rCont[o.g]||0,sP=rPrazo[o.g]||0,sV=rVagas[o.g]||0;
-      const scoreComp=(sL*0.40+sC*0.30+sV*0.15+sP*0.15)*100;
-      return {...o,ch:chance(o),scoreComp,_fallback:usingFallback};
-    }).sort((a,b)=>b.scoreComp-a.scoreComp).slice(0,5);
+    addUnique(cat1,'Menor lance');
+    addUnique(cat2,'Lance + Rotação');
+    catsPrazo.forEach(c=>{if(c)addUnique(c,c._bandLbl);});
+    return result;
   }
   const top3Im=rankSeg(o=>o.isIm);
   const top3Ro=rankSeg(o=>o.isRo);
@@ -10405,35 +10395,35 @@ function renderOportunidades(){
       const lt=parseFloat(document.getElementById('os-lance')?.value)||40;
       return '<div class="card" style="padding:28px 24px;text-align:center;color:var(--txt2);font-size:13px"><div style="font-size:32px;margin-bottom:10px">'+emoji+'</div><div style="font-weight:700;color:var(--txt);margin-bottom:6px">Sem oportunidades fortes em '+label.toLowerCase()+'</div><div style="font-size:11.5px;line-height:1.5">Com lance de <strong>'+lt.toFixed(0)+'%</strong>, nenhum grupo bate ao menos Media (≥40% historicamente).<br>Tente aumentar o lance ofertado ou veja a tabela abaixo.</div></div>';
     }
-    // Criterio aplicado (visivel sempre)
-    const isImSeg=segKey==='Im';
-    const critTxt=isImSeg?'Lance 45–62% · ≥4 contempl/mês':'Lance 35–60% · ≥6 contempl/mês';
-    const head='<div style="background:linear-gradient(135deg,var(--sb) 0%,var(--sb2) 100%);padding:14px 18px;color:#fff"><div style="display:flex;align-items:center;justify-content:space-between"><div style="font-family:Quicksand,sans-serif;font-size:16px;font-weight:600;letter-spacing:.5px">'+emoji+' Top 5 '+label+'</div><div style="font-size:10.5px;color:rgba(255,243,221,.7);text-transform:uppercase;letter-spacing:1.5px">Oportunidades vendáveis</div></div><div style="font-size:10.5px;color:rgba(255,243,221,.85);margin-top:6px;letter-spacing:.3px"><span style="color:#D6AF5C;font-weight:700;text-transform:uppercase;letter-spacing:1px;font-size:9.5px">Critério:</span> '+critTxt+'</div></div>';
-    const isFallback=items[0]&&items[0]._fallback;
-    const warningBanner=isFallback?'<div style="background:#fef3c7;color:#92400e;padding:10px 18px;font-size:11.5px;font-weight:600;border-bottom:1px solid #fcd34d;display:flex;align-items:flex-start;gap:8px"><span style="font-size:14px;line-height:1.3">⚠️</span><span style="line-height:1.5"><strong>Lance alto neste segmento.</strong> Nenhum grupo bate criterios ideais ('+(items[0].isIm?'Imóvel: lance 45-62%, contempl ≥4/mês':'Veículo: lance 35-60%, contempl ≥6/mês')+'). Mostrando melhores opcoes — cuidado na oferta.</span></div>':'';
+    const head='<div style="background:linear-gradient(135deg,var(--sb) 0%,var(--sb2) 100%);padding:14px 18px;color:#fff"><div style="display:flex;align-items:center;justify-content:space-between"><div style="font-family:Quicksand,sans-serif;font-size:16px;font-weight:600;letter-spacing:.5px">'+emoji+' Os melhores em '+label+'</div><div style="font-size:10.5px;color:rgba(255,243,221,.7);text-transform:uppercase;letter-spacing:1.5px">5 categorias</div></div><div style="font-size:10.5px;color:rgba(255,243,221,.7);margin-top:6px;letter-spacing:.3px">Menor lance · Lance + rotação · Prazo curto · médio · longo</div></div>';
+    const warningBanner='';
     const rows=items.map((o,i)=>{
       const medal=i<3?['🥇','🥈','🥉'][i]:'<span style="font-family:Quicksand,sans-serif;font-size:14px;font-weight:700;color:var(--txt2)">'+(i+1)+'º</span>';
       const credFmt=o.cred>=1e6?(o.cred/1e6).toFixed(2)+'M':brl(o.cred,0);
       const lmFmt=o.lanceMed>0?o.lanceMed.toFixed(1)+'%':'—';
-      const sc=o.scoreComp||0;
-      // Fallback (fora dos criterios da mesa) -> chip vermelho Atencao
-      const isFb=!!o._fallback;
-      const stars=isFb?'⚠️':sc>=75?'🌟🌟🌟':sc>=50?'🌟🌟':'🌟';
-      const scoreLbl=isFb?'Fora do crit.':sc>=75?'Excelente':sc>=50?'Bom':'OK';
-      const scoreColor=isFb?'#991b1b':sc>=75?'#065f46':sc>=50?'#92400e':'#515151';
-      const scoreBg=isFb?'#fee2e2':sc>=75?'#d1fae5':sc>=50?'#fef3c7':'#f3f4f6';
+      // Chip mostra a CATEGORIA que esse grupo venceu
+      const cat=o._categoria||'Top';
+      const catStyles={
+        'Menor lance':{icon:'💰',bg:'#d1fae5',fg:'#065f46'},
+        'Lance + Rotação':{icon:'🔄',bg:'#dbeafe',fg:'#1e40af'},
+        'Prazo curto':{icon:'⚡',bg:'#fef3c7',fg:'#92400e'},
+        'Prazo médio':{icon:'⏱️',bg:'#fff7ed',fg:'#9a3412'},
+        'Prazo longo':{icon:'🕰️',bg:'#fce7f3',fg:'#9d174d'}
+      };
+      const catSty=catStyles[cat]||{icon:'⭐',bg:'#f3f4f6',fg:'#515151'};
+      const stars=catSty.icon;
+      const scoreLbl=cat;
+      const scoreColor=catSty.fg;
+      const scoreBg=catSty.bg;
       const contFmt=o.avgCont>0?o.avgCont.toFixed(1)+'/mês contempl.':'sem contempl.';
       return '<div data-g="'+o.g+'" onclick="oportTopCardClick(this)" style="padding:12px 18px;border-bottom:1px solid var(--bdr);cursor:pointer;display:flex;align-items:center;gap:14px;transition:background .15s">'+
         '<span style="font-size:22px;width:28px;text-align:center">'+medal+'</span>'+
         '<div style="flex:1;min-width:0">'+
           '<div style="font-family:Quicksand,sans-serif;font-size:18px;font-weight:700;color:var(--sb);line-height:1.1">Grupo '+o.g+'</div>'+
           '<div style="font-size:11px;color:var(--txt2);margin-top:3px;line-height:1.4">'+credFmt+' · '+(o.d.pr||'?')+'m · <strong style="color:var(--ok)">'+(o.d.vagas??'—')+'</strong> vagas</div>'+
-          '<div style="font-size:11px;color:var(--txt2);margin-top:1px;line-height:1.4">'+
-            'Lance médio <strong style="color:'+(o.isIm?(o.lanceMed>=45&&o.lanceMed<=62?'#059669':'#dc2626'):(o.lanceMed>=35&&o.lanceMed<=60?'#059669':'#dc2626'))+'">'+lmFmt+'</strong> · '+
-            '<strong style="color:'+(o.isIm?(o.avgCont>=4?'#059669':'#dc2626'):(o.avgCont>=6?'#059669':'#dc2626'))+'">'+contFmt+'</strong>'+
-          '</div>'+
+          '<div style="font-size:11px;color:var(--txt2);margin-top:1px;line-height:1.4">Lance médio <strong style="color:var(--sb2)">'+lmFmt+'</strong> · <strong>'+contFmt+'</strong></div>'+
         '</div>'+
-        '<span style="background:'+scoreBg+';color:'+scoreColor+';padding:6px 11px;border-radius:10px;font-size:10.5px;font-weight:700;white-space:nowrap;text-align:center;line-height:1.3" title="Score '+Math.round(sc)+'/100 — combina lance médio baixo, contemplações/mês, maturidade do grupo e prazo viável">'+stars+'<div style="font-size:9.5px;margin-top:2px;letter-spacing:.5px;text-transform:uppercase">'+scoreLbl+'</div></span>'+
+        '<span style="background:'+scoreBg+';color:'+scoreColor+';padding:6px 11px;border-radius:10px;font-size:10.5px;font-weight:700;white-space:nowrap;text-align:center;line-height:1.3" title="Categoria: '+cat+'">'+stars+'<div style="font-size:9.5px;margin-top:2px;letter-spacing:.5px;text-transform:uppercase">'+scoreLbl+'</div></span>'+
       '</div>';
     }).join('');
     return '<div class="card" style="overflow:hidden;padding:0">'+head+warningBanner+rows+'</div>';
