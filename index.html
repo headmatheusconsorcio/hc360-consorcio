@@ -11517,24 +11517,44 @@ function calcProp(){
               } else {
                 contDatasets[0].borderRadius=3;
               }
-              // Plugin pra label no topo de cada coluna (soma stacked)
+              // Plugin pra labels: total no topo + valor DENTRO de cada segmento (LL/LF separados)
               const stackedLabelsPlugin={
                 id:'propStackedLabels',
                 afterDatasetsDraw(chart){
                   const {ctx}=chart;
-                  // Pega meta do ÚLTIMO dataset (no topo da stack)
                   const datasets=chart.data.datasets;
                   if(!datasets.length) return;
+                  // 1) Valores DENTRO de cada segmento (LL e LF)
+                  datasets.forEach((ds, di) => {
+                    const meta=chart.getDatasetMeta(di);
+                    if(!meta || meta.hidden) return;
+                    meta.data.forEach((el, i) => {
+                      const val=ds.data[i];
+                      if(!val || val===0) return;
+                      // pega centro vertical do segmento
+                      const props=el.getProps(['x','y','base'], true);
+                      const segH=Math.abs(props.base - props.y);
+                      if(segH < 13) return; // segmento pequeno demais, não cabe label
+                      const cy=(props.y + props.base)/2;
+                      ctx.save();
+                      ctx.font='700 9px Inter,sans-serif';
+                      ctx.fillStyle='#ffffff';
+                      ctx.textAlign='center';
+                      ctx.textBaseline='middle';
+                      ctx.fillText(String(val), props.x, cy);
+                      ctx.restore();
+                    });
+                  });
+                  // 2) Total no topo da pilha
                   const lastIdx=datasets.length-1;
                   const lastMeta=chart.getDatasetMeta(lastIdx);
                   if(!lastMeta) return;
                   lastMeta.data.forEach((el, i) => {
-                    // Soma todos os valores nesse mês
                     let total=0;
-                    datasets.forEach((ds, di) => { total += (ds.data[i]||0); });
+                    datasets.forEach((ds) => { total += (ds.data[i]||0); });
                     if(total===0) return;
                     ctx.save();
-                    ctx.font='700 9.5px Inter,sans-serif';
+                    ctx.font='700 10px Inter,sans-serif';
                     ctx.fillStyle='#92400e';
                     ctx.textAlign='center';
                     ctx.textBaseline='bottom';
