@@ -11442,6 +11442,31 @@ function calcProp(){
               }
             };
             if(cvLance){
+              // Plugin específico pra chart de linha: Mín ABAIXO do ponto, Máx ACIMA do ponto.
+              // Evita sobreposição quando os valores estão próximos.
+              const lineLabelsPlugin={
+                id:'propLineLabels',
+                afterDatasetsDraw(chart){
+                  const {ctx}=chart;
+                  chart.data.datasets.forEach((ds, di) => {
+                    const meta=chart.getDatasetMeta(di);
+                    if(!meta || meta.hidden) return;
+                    const above = (di===1); // dataset 0 = Mín (abaixo), dataset 1 = Máx (acima)
+                    meta.data.forEach((el, i) => {
+                      const val=ds.data[i];
+                      if(val==null) return;
+                      ctx.save();
+                      ctx.font='700 9px Inter,sans-serif';
+                      ctx.fillStyle=ds.borderColor || '#515151';
+                      ctx.textAlign='center';
+                      ctx.textBaseline = above ? 'bottom' : 'top';
+                      const y = above ? el.y - 7 : el.y + 7;
+                      ctx.fillText(val.toFixed(0)+'%', el.x, y);
+                      ctx.restore();
+                    });
+                  });
+                }
+              };
               window.__propHistCharts['lance_'+blk.idx]=new Chart(cvLance,{
                 type:'line',
                 data:{
@@ -11453,19 +11478,18 @@ function calcProp(){
                 },
                 options:{
                   responsive:true,maintainAspectRatio:false,
-                  layout:{padding:{top:18,bottom:0,left:4,right:4}},
+                  layout:{padding:{top:18,bottom:14,left:4,right:4}},
                   interaction:{mode:'index',intersect:false},
                   plugins:{
                     legend:{display:true,position:'bottom',align:'end',labels:{font:{size:10,family:'Inter',weight:'600'},usePointStyle:true,pointStyle:'line',boxWidth:14,padding:10,color:'#515151'}},
-                    tooltip:{backgroundColor:'rgba(44,62,80,.95)',padding:9,cornerRadius:6,titleFont:{size:11,family:'Inter',weight:'600'},bodyFont:{size:11,family:'Inter'},callbacks:{label:c=>' '+c.dataset.label+': '+(c.parsed.y!=null?c.parsed.y.toFixed(2)+'%':'—')}},
-                    propDataLabels:{format:(v,di)=>v.toFixed(0)+'%',offset:7}
+                    tooltip:{backgroundColor:'rgba(44,62,80,.95)',padding:9,cornerRadius:6,titleFont:{size:11,family:'Inter',weight:'600'},bodyFont:{size:11,family:'Inter'},callbacks:{label:c=>' '+c.dataset.label+': '+(c.parsed.y!=null?c.parsed.y.toFixed(2)+'%':'—')}}
                   },
                   scales:{
-                    y:{beginAtZero:true,grid:{color:'rgba(232,226,212,.5)',lineWidth:.6},ticks:{callback:v=>v+'%',font:{size:10,family:'Inter'},color:'#8A8A8A',padding:4},border:{display:false}},
+                    y:{beginAtZero:true,grace:'12%',grid:{color:'rgba(232,226,212,.5)',lineWidth:.6},ticks:{callback:v=>v+'%',font:{size:10,family:'Inter'},color:'#8A8A8A',padding:4},border:{display:false}},
                     x:{grid:{display:false},ticks:{font:{size:10,family:'Inter'},color:'#8A8A8A',maxRotation:0,autoSkipPadding:8},border:{color:'rgba(232,226,212,.8)'}}
                   }
                 },
-                plugins:[dataLabelsPlugin]
+                plugins:[lineLabelsPlugin]
               });
             }
             if(cvCont){
