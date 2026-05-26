@@ -11388,15 +11388,14 @@ function calcProp(){
         const mn=(hg.min||[]).slice(-12).map(v=>v>0?v:null);
         const mx=(hg.max||[]).slice(-12).map(v=>v>0?v:null);
         const ct=(hg.cont||[]).slice(-12).map(v=>v||0);
-        // Defesa swap mn>mx
+        const ctLf=(hg.cont_lf||[]).slice(-12).map(v=>v||0);
         for(let i=0;i<mn.length;i++){if(mn[i]&&mx[i]&&mn[i]>mx[i]){const t=mn[i];mn[i]=mx[i];mx[i]=t;}}
-        // Estatísticas pro hint
         const mnValidos=mn.filter(v=>v!=null);
         const avgMin=mnValidos.length?(mnValidos.reduce((a,b)=>a+b,0)/mnValidos.length):null;
-        const totalCont=ct.reduce((a,b)=>a+b,0);
-        return {
-          idx, grupo:b.grupo, tagCls, tagLbl, mn, mx, ct, avgMin, totalCont
-        };
+        const totalLL=ct.reduce((a,b)=>a+b,0);
+        const totalLF=ctLf.reduce((a,b)=>a+b,0);
+        const hasLF=totalLF>0;
+        return { idx, grupo:b.grupo, tagCls, tagLbl, mn, mx, ct, ctLf, avgMin, totalLL, totalLF, hasLF, totalCont:totalLL+totalLF };
       }).filter(Boolean);
       if(blocks.length===0){
         if(histTitle) histTitle.style.display='none';
@@ -11416,8 +11415,8 @@ function calcProp(){
             +'    <div class="pcom-hist-chart"><canvas id="hist-lance-'+blk.idx+'"></canvas></div>'
             +'  </div>'
             +'  <div class="pcom-hist-block">'
-            +'    <div class="pcom-hist-block-title">Contemplações por mês</div>'
-            +'    <div class="pcom-hist-block-meta">Total no período: <strong>'+blk.totalCont+'</strong></div>'
+            +'    <div class="pcom-hist-block-title">Contemplações por mês'+(blk.hasLF?' <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--p-cinza-cl);font-size:9.5px">(LL + LF)</span>':'')+'</div>'
+            +'    <div class="pcom-hist-block-meta">Total: <strong>'+blk.totalCont+'</strong>'+(blk.hasLF?' <span style="font-weight:400;color:var(--p-cinza-cl);font-size:10.5px">· '+blk.totalLL+' Lance Livre · '+blk.totalLF+' Lance Fixo</span>':'')+'</div>'
             +'    <div class="pcom-hist-chart"><canvas id="hist-cont-'+blk.idx+'"></canvas></div>'
             +'  </div>'
             +'</div>'
@@ -11508,42 +11507,58 @@ function calcProp(){
               });
             }
             if(cvCont){
+              // Datasets: LL sempre presente; LF só se hasLF (stacked)
+              const contDatasets=[
+                {label:'Lance Livre',data:blk.ct,backgroundColor:'rgba(214,175,92,.85)',borderColor:'rgba(184,146,58,1)',borderWidth:1,borderRadius:{topLeft:0,topRight:0,bottomLeft:3,bottomRight:3},maxBarThickness:28,stack:'cont'}
+              ];
+              if(blk.hasLF){
+                contDatasets.push({label:'Lance Fixo',data:blk.ctLf,backgroundColor:'rgba(34,104,102,.85)',borderColor:'rgba(34,104,102,1)',borderWidth:1,borderRadius:{topLeft:3,topRight:3,bottomLeft:0,bottomRight:0},maxBarThickness:28,stack:'cont'});
+                // se LL é a única e LF não está, LL tem cantos arredondados em cima também
+              } else {
+                contDatasets[0].borderRadius=3;
+              }
+              // Plugin pra label no topo de cada coluna (soma stacked)
+              const stackedLabelsPlugin={
+                id:'propStackedLabels',
+                afterDatasetsDraw(chart){
+                  const {ctx}=chart;
+                  // Pega meta do ÚLTIMO dataset (no topo da stack)
+                  const datasets=chart.data.datasets;
+                  if(!datasets.length) return;
+                  const lastIdx=datasets.length-1;
+                  const lastMeta=chart.getDatasetMeta(lastIdx);
+                  if(!lastMeta) return;
+                  lastMeta.data.forEach((el, i) => {
+                    // Soma todos os valores nesse mês
+                    let total=0;
+                    datasets.forEach((ds, di) => { total += (ds.data[i]||0); });
+                    if(total===0) return;
+                    ctx.save();
+                    ctx.font='700 9.5px Inter,sans-serif';
+                    ctx.fillStyle='#92400e';
+                    ctx.textAlign='center';
+                    ctx.textBaseline='bottom';
+                    ctx.fillText(String(total), el.x, el.y - 4);
+                    ctx.restore();
+                  });
+                }
+              };
               window.__propHistCharts['cont_'+blk.idx]=new Chart(cvCont,{
                 type:'bar',
-                data:{labels:monthsLbl,datasets:[{label:'Contemplados',data:blk.ct,backgroundColor:'rgba(214,175,92,.75)',borderColor:'rgba(214,175,92,1)',borderWidth:1,borderRadius:3,maxBarThickness:24}]},
+                data:{labels:monthsLbl,datasets:contDatasets},
                 options:{
                   responsive:true,maintainAspectRatio:false,
                   layout:{padding:{top:16,bottom:0,left:4,right:4}},
                   plugins:{
-                    legend:{display:false},
-                    tooltip:{backgroundColor:'rgba(44,62,80,.95)',padding:9,cornerRadius:6,titleFont:{size:11,family:'Inter',weight:'600'},bodyFont:{size:11,family:'Inter'}},
-                    propDataLabels:{format:(v,di)=>String(Math.round(v)),offset:4}
+                    legend:{display:blk.hasLF,position:'bottom',align:'end',labels:{font:{size:10,family:'Inter',weight:'600'},usePointStyle:true,pointStyle:'rect',boxWidth:10,boxHeight:10,padding:10,color:'#515151'}},
+                    tooltip:{backgroundColor:'rgba(44,62,80,.95)',padding:9,cornerRadius:6,titleFont:{size:11,family:'Inter',weight:'600'},bodyFont:{size:11,family:'Inter'},callbacks:{footer:items=>{const sum=items.reduce((a,b)=>a+b.parsed.y,0);return 'Total: '+sum;}}}
                   },
                   scales:{
-                    y:{beginAtZero:true,grid:{color:'rgba(232,226,212,.5)',lineWidth:.6},ticks:{stepSize:1,precision:0,font:{size:10,family:'Inter'},color:'#8A8A8A',padding:4},border:{display:false}},
-                    x:{grid:{display:false},ticks:{font:{size:10,family:'Inter'},color:'#8A8A8A',maxRotation:0,autoSkipPadding:8},border:{color:'rgba(232,226,212,.8)'}}
+                    y:{stacked:true,beginAtZero:true,grid:{color:'rgba(232,226,212,.5)',lineWidth:.6},ticks:{stepSize:1,precision:0,font:{size:10,family:'Inter'},color:'#8A8A8A',padding:4},border:{display:false}},
+                    x:{stacked:true,grid:{display:false},ticks:{font:{size:10,family:'Inter'},color:'#8A8A8A',maxRotation:0,autoSkipPadding:8},border:{color:'rgba(232,226,212,.8)'}}
                   }
                 },
-                plugins:[Object.assign({},dataLabelsPlugin,{
-                  afterDatasetsDraw(chart, args, opts){
-                    const {ctx} = chart;
-                    chart.data.datasets.forEach((ds, di) => {
-                      const meta = chart.getDatasetMeta(di);
-                      if(!meta || meta.hidden) return;
-                      meta.data.forEach((el, i) => {
-                        const val = ds.data[i];
-                        if(val==null || val===0) return;
-                        ctx.save();
-                        ctx.font='700 9.5px Inter,sans-serif';
-                        ctx.fillStyle='#92400e';
-                        ctx.textAlign='center';
-                        ctx.textBaseline='bottom';
-                        ctx.fillText(String(Math.round(val)), el.x, el.y - 4);
-                        ctx.restore();
-                      });
-                    });
-                  }
-                })]
+                plugins:[stackedLabelsPlugin]
               });
             }
           });
