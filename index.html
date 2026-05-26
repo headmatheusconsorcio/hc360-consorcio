@@ -11365,6 +11365,33 @@ function calcProp(){
           blocks.forEach(blk=>{
             const cvLance=document.getElementById('hist-lance-'+blk.idx);
             const cvCont=document.getElementById('hist-cont-'+blk.idx);
+            // Plugin inline pra desenhar valores em cima de pontos/barras (essencial pro print)
+            const dataLabelsPlugin = {
+              id:'propDataLabels',
+              afterDatasetsDraw(chart, args, opts){
+                const {ctx} = chart;
+                const fmt = opts && opts.format || (v=>v);
+                const offset = opts && opts.offset!=null ? opts.offset : 6;
+                chart.data.datasets.forEach((ds, di) => {
+                  if(ds._skipLabel) return;
+                  const meta = chart.getDatasetMeta(di);
+                  if(!meta || meta.hidden) return;
+                  meta.data.forEach((el, i) => {
+                    const val = ds.data[i];
+                    if(val==null || val===0) return;
+                    ctx.save();
+                    ctx.font='700 9px Inter,sans-serif';
+                    ctx.fillStyle = ds.borderColor || ds.backgroundColor || '#515151';
+                    ctx.textAlign='center';
+                    ctx.textBaseline='bottom';
+                    const x = el.x;
+                    const y = el.y - offset;
+                    ctx.fillText(fmt(val, di), x, y);
+                    ctx.restore();
+                  });
+                });
+              }
+            };
             if(cvLance){
               window.__propHistCharts['lance_'+blk.idx]=new Chart(cvLance,{
                 type:'line',
@@ -11377,16 +11404,19 @@ function calcProp(){
                 },
                 options:{
                   responsive:true,maintainAspectRatio:false,
+                  layout:{padding:{top:18,bottom:0,left:4,right:4}},
                   interaction:{mode:'index',intersect:false},
                   plugins:{
                     legend:{display:true,position:'bottom',align:'end',labels:{font:{size:10,family:'Inter',weight:'600'},usePointStyle:true,pointStyle:'line',boxWidth:14,padding:10,color:'#515151'}},
-                    tooltip:{backgroundColor:'rgba(44,62,80,.95)',padding:9,cornerRadius:6,titleFont:{size:11,family:'Inter',weight:'600'},bodyFont:{size:11,family:'Inter'},callbacks:{label:c=>' '+c.dataset.label+': '+(c.parsed.y!=null?c.parsed.y.toFixed(2)+'%':'—')}}
+                    tooltip:{backgroundColor:'rgba(44,62,80,.95)',padding:9,cornerRadius:6,titleFont:{size:11,family:'Inter',weight:'600'},bodyFont:{size:11,family:'Inter'},callbacks:{label:c=>' '+c.dataset.label+': '+(c.parsed.y!=null?c.parsed.y.toFixed(2)+'%':'—')}},
+                    propDataLabels:{format:(v,di)=>v.toFixed(0)+'%',offset:7}
                   },
                   scales:{
                     y:{beginAtZero:true,grid:{color:'rgba(232,226,212,.5)',lineWidth:.6},ticks:{callback:v=>v+'%',font:{size:10,family:'Inter'},color:'#8A8A8A',padding:4},border:{display:false}},
                     x:{grid:{display:false},ticks:{font:{size:10,family:'Inter'},color:'#8A8A8A',maxRotation:0,autoSkipPadding:8},border:{color:'rgba(232,226,212,.8)'}}
                   }
-                }
+                },
+                plugins:[dataLabelsPlugin]
               });
             }
             if(cvCont){
@@ -11395,15 +11425,37 @@ function calcProp(){
                 data:{labels:monthsLbl,datasets:[{label:'Contemplados',data:blk.ct,backgroundColor:'rgba(214,175,92,.75)',borderColor:'rgba(214,175,92,1)',borderWidth:1,borderRadius:3,maxBarThickness:24}]},
                 options:{
                   responsive:true,maintainAspectRatio:false,
+                  layout:{padding:{top:16,bottom:0,left:4,right:4}},
                   plugins:{
                     legend:{display:false},
-                    tooltip:{backgroundColor:'rgba(44,62,80,.95)',padding:9,cornerRadius:6,titleFont:{size:11,family:'Inter',weight:'600'},bodyFont:{size:11,family:'Inter'}}
+                    tooltip:{backgroundColor:'rgba(44,62,80,.95)',padding:9,cornerRadius:6,titleFont:{size:11,family:'Inter',weight:'600'},bodyFont:{size:11,family:'Inter'}},
+                    propDataLabels:{format:(v,di)=>String(Math.round(v)),offset:4}
                   },
                   scales:{
                     y:{beginAtZero:true,grid:{color:'rgba(232,226,212,.5)',lineWidth:.6},ticks:{stepSize:1,precision:0,font:{size:10,family:'Inter'},color:'#8A8A8A',padding:4},border:{display:false}},
                     x:{grid:{display:false},ticks:{font:{size:10,family:'Inter'},color:'#8A8A8A',maxRotation:0,autoSkipPadding:8},border:{color:'rgba(232,226,212,.8)'}}
                   }
-                }
+                },
+                plugins:[Object.assign({},dataLabelsPlugin,{
+                  afterDatasetsDraw(chart, args, opts){
+                    const {ctx} = chart;
+                    chart.data.datasets.forEach((ds, di) => {
+                      const meta = chart.getDatasetMeta(di);
+                      if(!meta || meta.hidden) return;
+                      meta.data.forEach((el, i) => {
+                        const val = ds.data[i];
+                        if(val==null || val===0) return;
+                        ctx.save();
+                        ctx.font='700 9.5px Inter,sans-serif';
+                        ctx.fillStyle='#92400e';
+                        ctx.textAlign='center';
+                        ctx.textBaseline='bottom';
+                        ctx.fillText(String(Math.round(val)), el.x, el.y - 4);
+                        ctx.restore();
+                      });
+                    });
+                  }
+                })]
               });
             }
           });
