@@ -876,6 +876,27 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
 .pcom-it-val.dour{color:var(--p-dour)}
 .pcom-sec-title{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--p-cinza-cl);font-weight:700;margin:32px 0 16px;display:flex;align-items:center;gap:12px;font-family:'Inter',sans-serif}
 .pcom-sec-title::after{content:'';flex:1;height:1px;background:var(--p-borda)}
+/* Card Composição do Lance · refinado */
+.pcom-lance-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px 22px}
+.pcom-lance-cell{display:flex;flex-direction:column;gap:4px}
+.pcom-lance-lbl{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--p-cinza-cl);font-family:'Inter',sans-serif;line-height:1.3}
+.pcom-lance-sub{font-weight:500;text-transform:none;letter-spacing:0;font-size:10px;color:var(--p-cinza-cl);opacity:.75}
+.pcom-lance-val{font-family:'Fraunces',serif;font-size:19px;font-weight:500;color:var(--p-azul);letter-spacing:-.01em;line-height:1.1}
+.pcom-lance-val.muted{color:var(--p-cinza);opacity:.85;font-size:17px}
+.pcom-lance-val.dour{color:var(--p-dour);font-weight:600}
+.pcom-lance-divider{height:1px;background:linear-gradient(90deg,transparent,var(--p-borda) 20%,var(--p-borda) 80%,transparent);margin:14px 0}
+
+/* Card Pós-Contemplação · refinado */
+.pcom-pos-tag{display:inline-block;font-size:11px;color:var(--p-verde);background:rgba(34,104,102,.08);padding:5px 11px;border-radius:99px;margin-bottom:14px;font-family:'Inter',sans-serif;letter-spacing:.2px}
+.pcom-pos-tag strong{font-weight:700;color:var(--p-verde)}
+.pcom-pos-hero{text-align:left;margin-bottom:4px}
+.pcom-pos-hero-lbl{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--p-verde);font-family:'Inter',sans-serif;margin-bottom:2px;opacity:.85}
+.pcom-pos-hero-val{font-family:'Fraunces',serif;font-size:30px;font-weight:500;color:var(--p-verde);letter-spacing:-.02em;line-height:1.05}
+.pcom-pos-divider{height:1px;background:linear-gradient(90deg,transparent,var(--p-verde) 20%,var(--p-verde) 80%,transparent);opacity:.22;margin:14px 0 12px}
+.pcom-pos-row{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.pcom-pos-lbl{font-size:10.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--p-cinza-cl);font-family:'Inter',sans-serif}
+.pcom-pos-val{font-family:'Fraunces',serif;font-size:17px;font-weight:500;color:var(--p-verde);letter-spacing:-.01em}
+
 /* Composição dos Grupos · cards compactos */
 .pcom-grupos-cards{display:flex;flex-direction:column;gap:10px}
 .pcom-grupo-card{background:#fff;border-radius:8px;border:1px solid var(--p-borda);border-left:4px solid var(--p-dour);padding:13px 18px;page-break-inside:avoid;break-inside:avoid}
@@ -2679,32 +2700,43 @@ main.main:has(#page-ajuda.active) .content{
         <!-- BODY -->
         <div class="pcom-body">
           <div class="pcom-row c2">
-            <!-- Composição -->
+            <!-- Composição do Lance -->
             <div class="pcom-card creme">
               <div class="pcom-card-hdr">⚙ Composição do Lance</div>
-              <div class="pcom-card-row">
-                <div><div class="pcom-it-lbl">Recursos Próprios</div><div class="pcom-it-val" id="r-lrp">—</div></div>
-                <div><div class="pcom-it-lbl">Parte da Carta (embutido)</div><div class="pcom-it-val" id="r-llc">—</div></div>
+              <div class="pcom-lance-grid">
+                <div class="pcom-lance-cell">
+                  <div class="pcom-lance-lbl">Recursos Próprios</div>
+                  <div class="pcom-lance-val" id="r-lrp">—</div>
+                </div>
+                <div class="pcom-lance-cell">
+                  <div class="pcom-lance-lbl">Parte da Carta <span class="pcom-lance-sub">(embutido)</span></div>
+                  <div class="pcom-lance-val" id="r-llc">—</div>
+                </div>
               </div>
-              <div class="pcom-card-row">
-                <div><div class="pcom-it-lbl">Saldo Devedor</div><div class="pcom-it-val" id="r-sd">—</div></div>
-                <div><div class="pcom-it-lbl" id="r-cet-lbl">Custo Adm + FR</div><div class="pcom-it-val" id="r-cet">—</div></div>
+              <div class="pcom-lance-divider"></div>
+              <div class="pcom-lance-grid">
+                <div class="pcom-lance-cell">
+                  <div class="pcom-lance-lbl">Saldo Devedor</div>
+                  <div class="pcom-lance-val muted" id="r-sd">—</div>
+                </div>
+                <div class="pcom-lance-cell">
+                  <div class="pcom-lance-lbl" id="r-cet-lbl">Custo Adm + FR</div>
+                  <div class="pcom-lance-val dour" id="r-cet">—</div>
+                </div>
               </div>
             </div>
             <!-- Pós-contemplação -->
             <div class="pcom-card verde">
               <div class="pcom-card-hdr">✓ Pós-contemplação</div>
-              <div style="margin-bottom:14px">
-                <div class="pcom-it-lbl">Contemplado no mês</div>
-                <div class="pcom-it-val" style="font-size:14px"><span id="r-mes">—</span></div>
+              <div class="pcom-pos-tag">Contemplado no <strong id="r-mes">—</strong></div>
+              <div class="pcom-pos-hero">
+                <div class="pcom-pos-hero-lbl">Nova Parcela</div>
+                <div class="pcom-pos-hero-val" id="r-pp">—</div>
               </div>
-              <div style="margin-bottom:14px">
-                <div class="pcom-it-lbl">Nova Parcela</div>
-                <div class="pcom-it-val big verde" id="r-pp">—</div>
-              </div>
-              <div>
-                <div class="pcom-it-lbl">Saldo Pós-Lance</div>
-                <div class="pcom-it-val verde" style="font-size:18px" id="r-saldo-pos">—</div>
+              <div class="pcom-pos-divider"></div>
+              <div class="pcom-pos-row">
+                <span class="pcom-pos-lbl">Saldo Pós-Lance</span>
+                <span class="pcom-pos-val" id="r-saldo-pos">—</span>
               </div>
             </div>
           </div>
@@ -11222,9 +11254,9 @@ function calcProp(){
     }
     const docCli=document.getElementById('prop-doc-cliente');
     if(docCli) docCli.textContent = cliente && cliente!=='—' ? cliente : '';
-    // Custo Adm + FR label (somados — regra Itaú)
+    // Custo Adm + FR label — mostra "% × R$" abaixo
     const cetLbl=document.getElementById('r-cet-lbl');
-    if(cetLbl) cetLbl.textContent = 'Custo Adm + FR' + (totCotas?(' ('+(avgTa+avgFr).toFixed(2)+'%)'):'');
+    if(cetLbl) cetLbl.innerHTML = 'Custo Adm + FR'+(totCotas?' <span class="pcom-lance-sub">('+(avgTa+avgFr).toFixed(2)+'%)</span>':'');
     // ── COMPOSIÇÃO DA PROPOSTA — cards compactos por grupo ──
     // Mostra só o que é ESPECÍFICO do grupo (nº, tipo, qtd, taxas, prazo).
     // Cálculos derivados (crédito, lance, parcela, saldo) já aparecem nos KPIs/cards acima.
@@ -11518,7 +11550,8 @@ function calcProp(){
     });
   } catch(e) { console.error('[sanity check]',e); }
   set('r-mes',mesReal+'º mês');set('r-saldo-pos',brl(totSP,0));set('r-pp',brl(totPp));
-  set('r-cet',(avgTa+avgFr).toFixed(2)+'% ≈ '+brl(totSD-totCred,0));
+  // r-cet mostra só o R$ (o % já vai no label r-cet-lbl)
+  set('r-cet',brl(totSD-totCred,0));
   // ── CET real (fórmula da planilha Itaú) ──
   const prazoAvgCet=totCotas?propGrupos.reduce((a,g)=>a+(g.prazo||192)*(g.qtd||1),0)/totCotas:192;
   const cetVP=totLiq-totLRP;                    // Crédito Líquido − Rec.Próprios
