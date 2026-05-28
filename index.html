@@ -11417,40 +11417,48 @@ function calcProp(){
         Object.values(window.__propHistCharts).forEach(c=>{try{c.destroy();}catch(e){}});
       }
       window.__propHistCharts={};
-      // Monta HTML
-      const monthsAll=(HIST.months||[]).slice(-12);
-      const monthsLbl=monthsAll.map(m=>{
-        if(!m||m.indexOf('/')<0) return m||'';
-        return m; // já vem "Mmm/YY"
-      });
+      // Quantos meses mostrar: até 12, mas nunca mais do que o histórico realmente tem
+      const _allMonths = HIST.months||[];
+      const nShow = Math.min(12, _allMonths.length);
+      const _startIdx = Math.max(0, _allMonths.length - nShow); // mesmo ponto de corte pra months e dados
+      const monthsLbl=_allMonths.slice(_startIdx).map(m=>(m&&m.indexOf('/')>=0)?m:(m||''));
+      // Período real (pro título/sub)
+      const periodoStr = monthsLbl.length ? (monthsLbl[0]+' a '+monthsLbl[monthsLbl.length-1]) : '';
+      window.__propHistN = nShow;
+      window.__propHistPeriodo = periodoStr;
       const blocks=_breakdown.map((b,idx)=>{
         const hg = HIST.groups[b.grupo] || HIST.groups[parseInt(b.grupo)] || {};
         if(!hg.min || hg.min.length===0) return null; // grupo sem histórico
         const isIm = b.tipo && /IM|RES/i.test(b.tipo);
         const tagCls = isIm?'im':'au';
         const tagLbl = isIm?'🏠 Imóvel':'🚗 Veículo';
-        const mn=(hg.min||[]).slice(-12).map(v=>v>0?v:null);
-        const mx=(hg.max||[]).slice(-12).map(v=>v>0?v:null);
-        const ct=(hg.cont||[]).slice(-12).map(v=>v||0);
-        const ctLf=(hg.cont_lf||[]).slice(-12).map(v=>v||0);
+        // Slice pelo MESMO índice dos meses (alinhamento garantido)
+        const mn=(hg.min||[]).slice(_startIdx).map(v=>v>0?v:null);
+        const mx=(hg.max||[]).slice(_startIdx).map(v=>v>0?v:null);
+        const ct=(hg.cont||[]).slice(_startIdx).map(v=>v||0);
+        const ctLf=(hg.cont_lf||[]).slice(_startIdx).map(v=>v||0);
         for(let i=0;i<mn.length;i++){if(mn[i]&&mx[i]&&mn[i]>mx[i]){const t=mn[i];mn[i]=mx[i];mx[i]=t;}}
         const mnValidos=mn.filter(v=>v!=null);
         const avgMin=mnValidos.length?(mnValidos.reduce((a,b)=>a+b,0)/mnValidos.length):null;
         const totalLL=ct.reduce((a,b)=>a+b,0);
         const totalLF=ctLf.reduce((a,b)=>a+b,0);
         const hasLF=totalLF>0;
-        return { idx, grupo:b.grupo, tagCls, tagLbl, mn, mx, ct, ctLf, avgMin, totalLL, totalLF, hasLF, totalCont:totalLL+totalLF };
+        // Meses com pelo menos um dado (lance ou contemplação) — pra honestidade no sub
+        let mesesComDado=0;
+        for(let i=0;i<mn.length;i++){if((mn[i]!=null)||(ct[i]>0)||(ctLf[i]>0))mesesComDado++;}
+        return { idx, grupo:b.grupo, tagCls, tagLbl, mn, mx, ct, ctLf, avgMin, totalLL, totalLF, hasLF, totalCont:totalLL+totalLF, mesesComDado };
       }).filter(Boolean);
       if(blocks.length===0){
         if(histTitle) histTitle.style.display='none';
         histWrap.innerHTML='';
       } else {
-        if(histTitle) histTitle.style.display='';
+        // Título dinâmico baseado no período REAL dos dados
+        if(histTitle){ histTitle.style.display=''; histTitle.textContent='Histórico — '+(periodoStr||'últimos '+nShow+' meses'); }
         histWrap.innerHTML = blocks.map(blk=>{
           return '<div class="pcom-hist-card">'
             +'<div class="pcom-hist-hdr">'
             +'  <div class="pcom-hist-title"><span class="pcom-grupo-tag '+blk.tagCls+'">'+blk.tagLbl+'</span><strong>Grupo '+blk.grupo+'</strong></div>'
-            +'  <div class="pcom-hist-sub">Histórico dos últimos 12 meses</div>'
+            +'  <div class="pcom-hist-sub">'+(periodoStr||(nShow+' meses'))+' · '+blk.mesesComDado+' com movimento</div>'
             +'</div>'
             +'<div class="pcom-hist-grid">'
             +'  <div class="pcom-hist-block">'
