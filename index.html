@@ -921,7 +921,7 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
 .pcom-hist-block-title{font-size:10.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--p-cinza-cl);font-family:'Inter',sans-serif}
 .pcom-hist-block-meta{font-size:10.5px;color:var(--p-azul);font-weight:600}
 .pcom-hist-block-meta strong{font-family:'Fraunces',serif;font-size:13.5px;font-weight:500;color:var(--p-dour);letter-spacing:-.01em}
-.pcom-hist-chart{position:relative;height:160px}
+.pcom-hist-chart{position:relative;height:185px}
 .pcom-hist-empty{padding:24px;text-align:center;color:var(--p-cinza-cl);font-size:12px;font-style:italic}
 @media (max-width:720px){
   .pcom-hist-grid{grid-template-columns:1fr}
@@ -11552,7 +11552,7 @@ function calcProp(){
                   },
                   scales:{
                     y:{beginAtZero:true,grace:'12%',grid:{color:'rgba(232,226,212,.5)',lineWidth:.6},ticks:{callback:v=>v+'%',font:{size:10,family:'Inter'},color:'#8A8A8A',padding:4},border:{display:false}},
-                    x:{grid:{display:false},ticks:{font:{size:10,family:'Inter'},color:'#8A8A8A',maxRotation:0,autoSkipPadding:8},border:{color:'rgba(232,226,212,.8)'}}
+                    x:{grid:{display:false},ticks:{font:{size:9,family:'Inter'},color:'#8A8A8A',autoSkip:false,maxRotation:60,minRotation:60},border:{color:'rgba(232,226,212,.8)'}}
                   }
                 },
                 plugins:[lineLabelsPlugin]
@@ -11600,7 +11600,7 @@ function calcProp(){
                   },
                   scales:{
                     y:{beginAtZero:true,grace:'10%',grid:{color:'rgba(232,226,212,.5)',lineWidth:.6},ticks:{stepSize:1,precision:0,font:{size:10,family:'Inter'},color:'#8A8A8A',padding:4},border:{display:false}},
-                    x:{grid:{display:false},ticks:{font:{size:10,family:'Inter'},color:'#8A8A8A',maxRotation:0,autoSkipPadding:6},border:{color:'rgba(232,226,212,.8)'}}
+                    x:{grid:{display:false},ticks:{font:{size:9,family:'Inter'},color:'#8A8A8A',autoSkip:false,maxRotation:60,minRotation:60},border:{color:'rgba(232,226,212,.8)'}}
                   }
                 },
                 plugins:[groupedLabelsPlugin]
