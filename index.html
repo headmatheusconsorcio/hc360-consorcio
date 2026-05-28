@@ -11386,15 +11386,21 @@ function calcProp(){
           const isIm = b.tipo && /IM|RES/i.test(b.tipo);
           const tagCls = isIm?'im':'au';
           const tagLbl = isIm?'🏠 Imóvel':'🚗 Veículo';
+          // Lance ofertado do grupo (% e composição próprio/embutido)
+          const lancePctG = b.ct>0 ? (b.lTot/b.ct*100) : 0;
+          const rpPctG = b.ct>0 ? (b.lRP/b.ct*100) : 0;
+          const embPctG = b.ct>0 ? (b.lLC/b.ct*100) : 0;
           // Chips de info do grupo (sempre)
           const chips = []
             .concat(['<span class="pgc-chip"><span class="pgc-chip-lbl">Prazo</span><strong>'+b.prazo+'m</strong>'+(b.prazoRest!==b.prazo?' · resta '+b.prazoRest+'m':'')+'</span>'])
-            .concat(['<span class="pgc-chip"><span class="pgc-chip-lbl">Adm + FR</span><strong>'+b.taFr.toFixed(2)+'%</strong> <span style="opacity:.6">('+b.ta.toFixed(2)+'% + '+b.fr+'%)</span></span>']);
+            .concat(['<span class="pgc-chip"><span class="pgc-chip-lbl">Adm + FR</span><strong>'+b.taFr.toFixed(2)+'%</strong> <span style="opacity:.6">('+b.ta.toFixed(2)+'% + '+b.fr+'%)</span></span>'])
+            // Lance ofertado — aparece SEMPRE (é estratégia do grupo)
+            .concat(['<span class="pgc-chip" style="background:#fdf6e3;border-color:#e8d09a"><span class="pgc-chip-lbl" style="color:var(--p-dour)">Lance ofertado</span><strong style="color:var(--p-dour)">'+lancePctG.toFixed(0)+'%</strong> <span style="opacity:.65;font-size:10px">('+rpPctG.toFixed(0)+'% próprio + '+embPctG.toFixed(0)+'% embut.)</span></span>']);
           // Quando há múltiplos grupos: adiciona valores individuais pra mostrar contribuição de cada grupo
           if(showIndivVals){
             const piShow = red>0 ? b.piRed : b.pi;
             chips.push('<span class="pgc-chip"><span class="pgc-chip-lbl">Crédito total</span><strong>'+brl(b.ct,0)+'</strong></span>');
-            chips.push('<span class="pgc-chip"><span class="pgc-chip-lbl">Lance</span><strong>'+brl(b.lTot,0)+'</strong></span>');
+            chips.push('<span class="pgc-chip"><span class="pgc-chip-lbl">Lance R$</span><strong>'+brl(b.lTot,0)+'</strong></span>');
             chips.push('<span class="pgc-chip"><span class="pgc-chip-lbl">Parcela pré</span><strong>'+brl(piShow)+'</strong></span>');
             chips.push('<span class="pgc-chip"><span class="pgc-chip-lbl">Parcela pós</span><strong>'+brl(b.pp)+'</strong></span>');
           }
