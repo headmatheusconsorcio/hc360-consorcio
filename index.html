@@ -10203,7 +10203,7 @@ function usarNaProposta(){
   if(selGrupo){
     if(!propGrupos.some(pg=>pg.grupo===selGrupo)){
       if(propGrupos.length===1&&!propGrupos[0].grupo)lookupGrupo(0,selGrupo);
-      else{propGrupos.push({grupo:'',prazo:192,fr:3,taxaadm:23,credMin:0,credMax:0,credito:340000,qtd:1,mesAtual:0,pr_red:false,taxaadm_user:null,rpPct:10,embPct:30});lookupGrupo(propGrupos.length-1,selGrupo);}
+      else{propGrupos.push({grupo:'',prazo:192,fr:3,taxaadm:null,credMin:0,credMax:0,credito:340000,qtd:1,mesAtual:0,pr_red:false,taxaadm_user:null,rpPct:10,embPct:30});lookupGrupo(propGrupos.length-1,selGrupo);}
     }
   }
   nav('prop',document.querySelectorAll('.ni')[6]);
@@ -10873,7 +10873,7 @@ function propGoStep(n){
     }
   }
 }
-let propGrupos=[{grupo:'',prazo:192,fr:3,taxaadm:23,credMin:0,credMax:0,credito:340000,qtd:1,mesAtual:0,pr_red:false,taxaadm_user:null,rpPct:10,embPct:30}];
+let propGrupos=[{grupo:'',prazo:192,fr:3,taxaadm:null,credMin:0,credMax:0,credito:340000,qtd:1,mesAtual:0,pr_red:false,taxaadm_user:null,rpPct:10,embPct:30}];
 // Calcula o lance padrão global (a partir do slider + toggle embutido)
 function _lanceGlobalDefault(){
   const slider=document.getElementById('p-lance');
@@ -10918,7 +10918,7 @@ function syncCredAlvo(val){const v=parseFloat(val)||0;propGrupos.forEach(g=>{if(
 function addPropGrupo(){
   // novo grupo herda o lance padrão global atual
   const _gd=_lanceGlobalDefault();
-  propGrupos.push({grupo:'',prazo:192,fr:3,taxaadm:23,credMin:0,credMax:0,credito:340000,qtd:1,mesAtual:0,pr_red:false,taxaadm_user:null,rpPct:_gd.rp,embPct:_gd.emb});
+  propGrupos.push({grupo:'',prazo:192,fr:3,taxaadm:null,credMin:0,credMax:0,credito:340000,qtd:1,mesAtual:0,pr_red:false,taxaadm_user:null,rpPct:_gd.rp,embPct:_gd.emb});
   renderPropGrupos();calcProp();
 }
 function removePropGrupo(i){if(propGrupos.length===1)return;propGrupos.splice(i,1);renderPropGrupos();calcProp();}
@@ -10988,9 +10988,9 @@ function renderPropGrupos(){
     const lanceTotG=rpG+embG;
     // Taxa: real (GUIA) vs negociada (user override / PR)
     const rRed=parseFloat((document.getElementById('p-red')||{}).value)||0;
-    const taReal=hasD?g.taxaadm:'';
+    const taReal=(hasD&&g.taxaadm!=null)?g.taxaadm:'';
     let taNegPlaceholder;
-    if(g.pr_red){taNegPlaceholder=(rRed===30?20:23);} else {taNegPlaceholder=taReal;}
+    if(g.pr_red){taNegPlaceholder=(rRed===30?20:23);} else {taNegPlaceholder=(taReal!==''?taReal:'ex: 16');}
     const taNegVal=g.taxaadm_user!=null?g.taxaadm_user:'';
     return '<div id="pg-box-'+i+'" class="pgrp'+(hasD?' loaded':'')+'">'
       +'<div class="pgrp-hdr">'
@@ -11006,16 +11006,16 @@ function renderPropGrupos(){
       +'<div class="pgrp-fld"><label>Grupo</label><input class="grp-num" placeholder="Nº" value="'+g.grupo+'" oninput="lookupGrupo('+i+',this.value)"></div>'
       +'<div class="pgrp-fld"><label>Qtd Cotas</label><input type="number" placeholder="1" min="1" value="'+g.qtd+'" oninput="propGrupos['+i+'].qtd=parseInt(this.value)||1;calcProp()"></div>'
       +'<div class="pgrp-fld"><label>Crédito/Cota (R$)</label><input id="pg-cred-'+i+'" type="number" placeholder="Valor" value="'+g.credito+'" oninput="propGrupos['+i+'].credito=parseFloat(this.value)||0;calcProp()"></div>'
-      +'<div class="pgrp-fld"><label>Mês Atual</label><input id="pg-mes-'+i+'" type="number" min="0" placeholder="0" value="'+(g.mesAtual||'')+'" oninput="propGrupos['+i+'].mesAtual=parseInt(this.value)||0;renderPropGrupos();calcProp()"></div>'
+      +'<div class="pgrp-fld"><label>Mês Atual</label><input id="pg-mes-'+i+'" type="number" min="0" placeholder="0" value="'+(g.mesAtual||'')+'" oninput="propGrupos['+i+'].mesAtual=parseInt(this.value)||0;calcProp()" onchange="renderPropGrupos()"></div>'
       +'</div>'
       // Linha 2: estratégia de lance + taxas (só quando grupo carregado)
       +(hasD?(
         '<div class="pgrp-strat-title">Estratégia deste grupo</div>'
         +'<div class="pgrp-grid pgrp-grid-strat">'
-        +'<div class="pgrp-fld"><label>Taxa Adm Real</label><input type="number" value="'+taReal+'" readonly title="Taxa do grupo no GUIA"></div>'
-        +'<div class="pgrp-fld"><label>Taxa Adm Negoc.</label><input type="number" step="0.01" min="0" max="60" placeholder="'+taNegPlaceholder+'" value="'+taNegVal+'" oninput="propGrupos['+i+'].taxaadm_user=this.value?(parseFloat(this.value)||0):null;renderPropGrupos();calcProp()" title="Taxa negociada na venda (deixe vazio pra usar a real/PR)"></div>'
-        +'<div class="pgrp-fld"><label>Lance Próprio %</label><input type="number" step="1" min="0" max="100" value="'+rpG+'" oninput="propGrupos['+i+'].rpPct=parseFloat(this.value)||0;renderPropGrupos();calcProp()" title="% da carta pago com recurso próprio"></div>'
-        +'<div class="pgrp-fld"><label>Lance Embutido %</label><input type="number" step="1" min="0" max="100" value="'+embG+'" oninput="propGrupos['+i+'].embPct=parseFloat(this.value)||0;renderPropGrupos();calcProp()" title="% da carta usado como lance embutido"></div>'
+        +'<div class="pgrp-fld"><label>Taxa Adm Real</label><input type="number" step="0.01" min="0" max="60" placeholder="em branco" value="'+taReal+'" oninput="propGrupos['+i+'].taxaadm=this.value?(parseFloat(this.value)||0):null;calcProp()" onchange="renderPropGrupos()" title="Taxa real do grupo (varia por CPF). Deixe em branco se não souber."></div>'
+        +'<div class="pgrp-fld"><label>Taxa Adm Negoc.</label><input type="number" step="0.01" min="0" max="60" placeholder="'+taNegPlaceholder+'" value="'+taNegVal+'" oninput="propGrupos['+i+'].taxaadm_user=this.value?(parseFloat(this.value)||0):null;calcProp()" onchange="renderPropGrupos()" title="Taxa negociada na venda — esta é a usada no cálculo"></div>'
+        +'<div class="pgrp-fld"><label>Lance Próprio %</label><input type="number" step="1" min="0" max="100" value="'+rpG+'" oninput="propGrupos['+i+'].rpPct=parseFloat(this.value)||0;calcProp()" onchange="renderPropGrupos()" title="% da carta pago com recurso próprio"></div>'
+        +'<div class="pgrp-fld"><label>Lance Embutido %</label><input type="number" step="1" min="0" max="100" value="'+embG+'" oninput="propGrupos['+i+'].embPct=parseFloat(this.value)||0;calcProp()" onchange="renderPropGrupos()" title="% da carta usado como lance embutido"></div>'
         +'</div>'
         +'<div class="pgrp-chips">'
         +'<span class="pgrp-chip">Prazo <strong>'+g.prazo+'m</strong></span>'
@@ -11254,7 +11254,7 @@ function usarGrupoSugerido(g){
     if(propGrupos.length===1&&!propGrupos[0].grupo){
       lookupGrupo(0,g);
     }else{
-      propGrupos.push({grupo:'',prazo:192,fr:3,taxaadm:23,credMin:0,credMax:0,credito:340000,qtd:1,mesAtual:0,pr_red:false,taxaadm_user:null,rpPct:10,embPct:30});
+      propGrupos.push({grupo:'',prazo:192,fr:3,taxaadm:null,credMin:0,credMax:0,credito:340000,qtd:1,mesAtual:0,pr_red:false,taxaadm_user:null,rpPct:10,embPct:30});
       lookupGrupo(propGrupos.length-1,g);
     }
   }
@@ -11285,13 +11285,13 @@ function calcProp(){
     const nc=g.qtd||1,cred=g.credito||0,pr=g.prazo||1,fr=g.fr||0;
     let ta;
     if(g.taxaadm_user!=null){
-      ta=g.taxaadm_user;
+      ta=g.taxaadm_user;            // taxa negociada (prioridade)
     }else if(g.pr_red){
-      if(red===30) ta=20;
-      else if(red===50) ta=23;
-      else ta=23;
+      ta=(red===30?20:23);          // PR padrão Itaú (referência)
+    }else if(g.taxaadm!=null){
+      ta=g.taxaadm;                 // taxa do GUIA (se houver)
     }else{
-      ta=g.taxaadm||0;
+      ta=0;                         // sem info — usuário precisa preencher
     }
     // Lance individual do grupo (recurso próprio % + embutido %)
     const rpG=(g.rpPct!=null?g.rpPct:10), lcG=(g.embPct!=null?g.embPct:30);
