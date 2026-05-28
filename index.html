@@ -8412,6 +8412,15 @@ function mlPropStatusToggle(force){
 async function propSetStatus(leadId,newStatus){
   const lead=LEADS.find(l=>l.id===leadId);if(!lead)return;
   const obs=lead.observacao||'';
+  // PROPV2 — proposta do Gerar Proposta novo
+  if(obs.startsWith('PROPV2:')){
+    let payload;
+    try{payload=JSON.parse(obs.slice(7));}catch(e){toast('Erro ao ler proposta','err');return;}
+    payload.status=newStatus;
+    const res=await upsertLead({id:leadId,observacao:'PROPV2:'+JSON.stringify(payload),updated_at:new Date().toISOString()});
+    if(res){Object.assign(lead,res);toast('Status da proposta: '+propStatusInfo(newStatus).label);if(typeof renderCRM==='function')renderCRM();if(typeof mlRenderProposta==='function')mlRenderProposta(lead);}
+    return;
+  }
   if(!obs.startsWith('SIM:')&&!obs.startsWith('SIM_DONE:')){toast('Sem proposta neste lead','err');return;}
   if(obs.startsWith('SIM_DONE:')){toast('Proposta executada — não pode mudar status','warn');return;}
   let payload;
@@ -8471,8 +8480,8 @@ function pipeCardHtml(l,stage,idx){
       ${l.indicado_por?`<div class="pc-line pc-ind">👥 via ${l.indicado_por}</div>`:''}
       ${isReuniao&&dtRStr?`<div class="pc-line pc-reuniao">📅 ${dtRStr}</div>`:''}
     </div>
-    ${sim?(()=>{const st=propStatusInfo(sim.status);return`<div class="pipe-card-propstrip" onclick="event.stopPropagation();viewProposta('${l.id}')" title="Ver proposta completa">
-      <span class="pipe-card-propstrip-ico">${lSimDone?'✅':'📋'}</span>
+    ${sim?(()=>{const st=propStatusInfo(sim.status);const openFn=sim.v2?`propLoadFromLead('${l.id}')`:`viewProposta('${l.id}')`;return`<div class="pipe-card-propstrip" onclick="event.stopPropagation();${openFn}" title="${sim.v2?'Abrir no Gerar Proposta':'Ver proposta completa'}">
+      <span class="pipe-card-propstrip-ico">${lSimDone?'✅':(sim.v2?'📄':'📋')}</span>
       <span class="pipe-card-propstrip-txt">Proposta · <span style="color:${st.color};font-weight:800">${st.label.split(' ').slice(1).join(' ')}</span></span>
       <span class="pipe-card-propstrip-arrow">→</span>
     </div>`;})():''}
