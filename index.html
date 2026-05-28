@@ -843,7 +843,9 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
 .pcom-hdr-label{font-size:11px;letter-spacing:.18em;text-transform:uppercase;font-weight:600;opacity:.85;margin-bottom:4px;font-family:'Inter',sans-serif}
 .pcom-hdr-divider{width:32px;height:2px;background:var(--p-dour);margin:12px 0;border-radius:2px}
 .pcom-hdr-meta{font-size:13px;opacity:.75}
-.pcom-hdr-actions{display:flex;gap:8px}
+.prop-lead-item{display:flex;align-items:center;gap:10px;width:100%;padding:10px 13px;background:var(--card);border:1.5px solid var(--bdr);border-radius:9px;cursor:pointer;transition:all .15s;font-family:'Inter',sans-serif}
+.prop-lead-item:hover{border-color:var(--sb2);background:#f0f7f6}
+.pcom-hdr-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
 .pcom-hdr-actions .pcom-btn{background:rgba(255,243,221,.12);border:1px solid rgba(255,243,221,.25);color:var(--p-creme);padding:8px 14px;border-radius:6px;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;font-family:'Inter',sans-serif}
 .pcom-hdr-actions .pcom-btn:hover{background:rgba(255,243,221,.2);color:var(--p-creme)}
 .pcom-stripe{height:4px;display:grid;grid-template-columns:repeat(4,1fr)}
@@ -2669,6 +2671,7 @@ main.main:has(#page-ajuda.active) .content{
             </div>
             <div class="pcom-hdr-actions">
               <button class="pcom-btn" onclick="propGoStep(1)">← Editar</button>
+              <button class="pcom-btn" onclick="propSalvarNoLead()" title="Vincular esta proposta a um lead do CRM" style="background:rgba(214,175,92,.25);border-color:rgba(214,175,92,.5)">💾 Salvar no Lead</button>
               <button class="pcom-btn" onclick="exportPropPdf()" title="Imprimir / Salvar como PDF">⎙ PDF</button>
               <button class="pcom-btn" onclick="exportPropPng('tall')" title="PNG vertical (uma coluna longa)">🖼 PNG ↕</button>
               <button class="pcom-btn" onclick="exportPropPng('twocol')" title="PNG lado a lado (duas colunas) — ideal pra postar nas redes">🖼 PNG ↔</button>
@@ -2820,6 +2823,18 @@ main.main:has(#page-ajuda.active) .content{
         <div class="tw"><table style="font-size:12px"><thead><tr><th>Estratégia</th><th>Lance %</th><th>Rec. Próprios</th><th>Crédito Líq.</th><th>Parcela Pré</th><th>Parcela Pós</th><th>Economia/mês</th><th>Total Desembolso</th></tr></thead><tbody id="estrat-tbody"></tbody></table></div>
       </div>
     </div>
+    </div>
+
+    <!-- MODAL: selecionar lead pra salvar a proposta -->
+    <div class="moverlay" id="modal-prop-lead">
+      <div class="modal" style="max-width:460px">
+        <div class="mh"><span class="mt">💾 Salvar proposta no lead</span><button class="mc" onclick="closeModal('modal-prop-lead')">✕</button></div>
+        <div class="mb" style="padding:18px 20px">
+          <div style="font-size:12.5px;color:var(--txt2);margin-bottom:12px">Escolha o lead do CRM pra vincular esta proposta. Os dados ficam salvos e você pode reabrir/imprimir depois pelo card do lead.</div>
+          <input class="form-i" id="prop-lead-search" placeholder="🔍 Buscar lead por nome..." oninput="propLeadFilter()" style="margin-bottom:10px">
+          <div id="prop-lead-list" style="max-height:340px;overflow-y:auto;display:flex;flex-direction:column;gap:6px"></div>
+        </div>
+      </div>
     </div>
 
     <!-- STEP 3: Comparativo -->
@@ -8051,6 +8066,31 @@ function renderAssessorLeads(){
 
 function leadCreditoNegociado(l){
   const obs=l.observacao||'';
+  // PROPV2 — proposta vinda do "Gerar Proposta" novo (lance por grupo)
+  if(obs.startsWith('PROPV2:')){
+    try{
+      const d=JSON.parse(obs.slice(7));
+      const grupos=(d.grupos||[]).filter(g=>g.grupo);
+      if(!grupos.length)return null;
+      const red=d.red||0,seg=d.seg||0;
+      let credTot=0,cotas=0,lanceTot=0,parcTot=0;
+      grupos.forEach(g=>{
+        const nc=g.qtd||1,cred=g.credito||0,pr=g.prazo||1,fr=g.fr||0;
+        let ta;
+        if(g.taxaadm_user!=null)ta=g.taxaadm_user;
+        else if(g.pr_red)ta=(red===30?20:23);
+        else if(g.taxaadm!=null)ta=g.taxaadm;
+        else ta=0;
+        const rpG=(g.rpPct!=null?g.rpPct:10),lcG=(g.embPct!=null?g.embPct:30);
+        const ct=cred*nc;
+        lanceTot+=ct*(rpG+lcG)/100;
+        const sd=ct*(1+ta/100+fr/100);
+        parcTot+=(sd/pr)+ct*seg/100;
+        credTot+=ct;cotas+=nc;
+      });
+      return {credTot,cotas,done:false,lanceTot,parcTot,status:d.status||'rascunho',rows:[],nota:'',caso:'',ts:d.ts||l.updated_at,v2:true,leadId:l.id};
+    }catch(e){return null;}
+  }
   const isSim=obs.startsWith('SIM:');
   const isDone=obs.startsWith('SIM_DONE:');
   if(!isSim&&!isDone)return null;
@@ -8345,10 +8385,15 @@ function mlRenderProposta(lead){
       </div>
     </div>
     <div class="ml-prop-actions">
-      <button class="btn btn-pri btn-sm" onclick="closeModal('modal-lead');setTimeout(()=>viewProposta('${lead.id}'),150)">👁 Ver Proposta</button>
-      ${sim.done?'':`<button class="btn btn-out btn-sm" onclick="closeModal('modal-lead');setTimeout(()=>openModalSim('${lead.id}'),150)">✏ Editar</button>`}
-      <button class="btn btn-out btn-sm" onclick="closeModal('modal-lead');setTimeout(()=>{viewProposta('${lead.id}');setTimeout(propPrint,300);},150)">🖨 Imprimir</button>
-      ${sim.done?'':`<button class="btn btn-ok btn-sm" onclick="closeModal('modal-lead');setTimeout(()=>simFecharNegocio('${lead.id}'),150)" style="margin-left:auto">🏠 Lançar ${sim.cotas} Cota${sim.cotas!==1?'s':''}</button>`}
+      ${sim.v2 ? `
+        <button class="btn btn-pri btn-sm" onclick="closeModal('modal-lead');setTimeout(()=>propLoadFromLead('${lead.id}'),150)">📄 Abrir no Gerar Proposta</button>
+        <span style="font-size:11px;color:var(--txt2);align-self:center">Proposta nova — edite, imprima ou exporte PNG lá dentro</span>
+      ` : `
+        <button class="btn btn-pri btn-sm" onclick="closeModal('modal-lead');setTimeout(()=>viewProposta('${lead.id}'),150)">👁 Ver Proposta</button>
+        ${sim.done?'':`<button class="btn btn-out btn-sm" onclick="closeModal('modal-lead');setTimeout(()=>openModalSim('${lead.id}'),150)">✏ Editar</button>`}
+        <button class="btn btn-out btn-sm" onclick="closeModal('modal-lead');setTimeout(()=>{viewProposta('${lead.id}');setTimeout(propPrint,300);},150)">🖨 Imprimir</button>
+        ${sim.done?'':`<button class="btn btn-ok btn-sm" onclick="closeModal('modal-lead');setTimeout(()=>simFecharNegocio('${lead.id}'),150)" style="margin-left:auto">🏠 Lançar ${sim.cotas} Cota${sim.cotas!==1?'s':''}</button>`}
+      `}
     </div>
   </div>`;
 }
@@ -10675,6 +10720,101 @@ document.addEventListener('keydown',function(e){
 function printPropDoc(){
   window.print();
 }
+
+// ═══ VÍNCULO PROPOSTA ↔ LEAD DO CRM ═══
+// Serializa o estado atual do Gerar Proposta
+function _propSerializeEstado(){
+  return {
+    v:2,
+    cliente:(document.getElementById('p-cliente')||{}).value||'',
+    lance:parseFloat((document.getElementById('p-lance')||{}).value)||0,
+    embOn:(document.getElementById('p-emb-on')||{}).checked!==false,
+    red:parseFloat((document.getElementById('p-red')||{}).value)||0,
+    seg:parseFloat((document.getElementById('p-seg')||{}).value)||0,
+    mes:parseInt((document.getElementById('p-mes')||{}).value)||1,
+    grupos:propGrupos.map(g=>({grupo:g.grupo,prazo:g.prazo,fr:g.fr,taxaadm:g.taxaadm,taxaadm_user:g.taxaadm_user,credMin:g.credMin,credMax:g.credMax,credito:g.credito,qtd:g.qtd,mesAtual:g.mesAtual,pr_red:g.pr_red,rpPct:g.rpPct,embPct:g.embPct})),
+    ts:new Date().toISOString()
+  };
+}
+// Abre o modal de seleção de lead
+function propSalvarNoLead(){
+  const errs=window.__propSanityErrors||[];
+  if(errs.length>0){ if(typeof toast==='function')toast('Corrija as inconsistências antes de salvar','err'); return; }
+  if(!propGrupos.some(g=>g.grupo)){ if(typeof toast==='function')toast('Configure ao menos um grupo antes de salvar','err'); return; }
+  const se=document.getElementById('prop-lead-search'); if(se)se.value='';
+  propLeadFilter();
+  document.getElementById('modal-prop-lead').classList.add('open');
+}
+// Filtra/renderiza lista de leads no modal
+function propLeadFilter(){
+  const q=((document.getElementById('prop-lead-search')||{}).value||'').toLowerCase().trim();
+  const all=(typeof myLeads==='function')?myLeads():(Array.isArray(LEADS)?LEADS:[]);
+  const filt=all.filter(l=>!q||(l.nome||'').toLowerCase().includes(q)).slice(0,40);
+  const el=document.getElementById('prop-lead-list');
+  if(!el)return;
+  if(filt.length===0){ el.innerHTML='<div style="text-align:center;color:var(--txt2);font-style:italic;padding:20px;font-size:12.5px">Nenhum lead encontrado</div>'; return; }
+  el.innerHTML=filt.map(l=>{
+    const temProp=(l.observacao||'').startsWith('PROPV2:');
+    const st=l.status||'—';
+    return '<button class="prop-lead-item" onclick="propConfirmSalvarLead(\''+l.id+'\')">'
+      +'<div style="display:flex;flex-direction:column;gap:2px;text-align:left;flex:1;min-width:0">'
+      +'<span style="font-weight:700;color:var(--sb);font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+(l.nome||'(sem nome)')+'</span>'
+      +'<span style="font-size:11px;color:var(--txt2)">'+st+(l.telefone?' · '+l.telefone:'')+'</span>'
+      +'</div>'
+      +(temProp?'<span style="font-size:10px;font-weight:700;color:var(--acc2);background:#fdf6e3;padding:3px 8px;border-radius:99px;white-space:nowrap">📄 já tem</span>':'')
+      +'</button>';
+  }).join('');
+}
+// Salva a proposta no lead escolhido
+async function propConfirmSalvarLead(leadId){
+  const lead=(Array.isArray(LEADS)?LEADS:[]).find(l=>l.id===leadId);
+  if(!lead){ if(typeof toast==='function')toast('Lead não encontrado','err'); return; }
+  const jaTinha=(lead.observacao||'').startsWith('PROPV2:')||(lead.observacao||'').startsWith('SIM');
+  if(jaTinha && !confirm('Este lead já tem uma proposta salva. Substituir pela atual?'))return;
+  const payload=_propSerializeEstado();
+  if(typeof showLoad==='function')showLoad();
+  try{
+    const res=await upsertLead({id:leadId,observacao:'PROPV2:'+JSON.stringify(payload),updated_at:new Date().toISOString()});
+    if(typeof hideLoad==='function')hideLoad();
+    if(res){
+      closeModal('modal-prop-lead');
+      if(typeof toast==='function')toast('Proposta salva no lead '+(lead.nome||''),'ok');
+      if(typeof renderCRM==='function')try{renderCRM();}catch(e){}
+    }else{
+      if(typeof toast==='function')toast('Erro ao salvar no lead','err');
+    }
+  }catch(e){ if(typeof hideLoad==='function')hideLoad(); console.error(e); if(typeof toast==='function')toast('Erro: '+e.message,'err'); }
+}
+// Carrega a proposta salva de um lead pro Gerar Proposta
+function propLoadFromLead(leadId){
+  const lead=(Array.isArray(LEADS)?LEADS:[]).find(l=>l.id===leadId);
+  if(!lead){ if(typeof toast==='function')toast('Lead não encontrado','err'); return; }
+  const obs=lead.observacao||'';
+  if(!obs.startsWith('PROPV2:')){ if(typeof toast==='function')toast('Este lead não tem proposta nova','err'); return; }
+  let d;
+  try{ d=JSON.parse(obs.slice(7)); }catch(e){ if(typeof toast==='function')toast('Proposta corrompida','err'); return; }
+  // Navega pro Gerar Proposta
+  const navItem=document.querySelector('.ni[onclick*="prop"]');
+  if(typeof nav==='function')nav('prop',navItem);
+  setTimeout(()=>{
+    // Restaura config global
+    const set=(id,v)=>{const el=document.getElementById(id);if(el){if(el.type==='checkbox')el.checked=!!v;else el.value=v;}};
+    set('p-cliente',d.cliente||'');
+    set('p-lance',d.lance||40);
+    set('p-emb-on',d.embOn!==false);
+    set('p-red',d.red||0);
+    set('p-seg',d.seg||0);
+    set('p-mes',d.mes||1);
+    // Restaura grupos
+    propGrupos=(d.grupos||[]).map(g=>({grupo:g.grupo||'',prazo:g.prazo||192,fr:g.fr||3,taxaadm:(g.taxaadm!=null?g.taxaadm:null),taxaadm_user:(g.taxaadm_user!=null?g.taxaadm_user:null),credMin:g.credMin||0,credMax:g.credMax||0,credito:g.credito||0,qtd:g.qtd||1,mesAtual:g.mesAtual||0,pr_red:!!g.pr_red,rpPct:(g.rpPct!=null?g.rpPct:10),embPct:(g.embPct!=null?g.embPct:30)}));
+    if(propGrupos.length===0)propGrupos=[{grupo:'',prazo:192,fr:3,taxaadm:null,credMin:0,credMax:0,credito:340000,qtd:1,mesAtual:0,pr_red:false,taxaadm_user:null,rpPct:10,embPct:30}];
+    if(typeof renderPropGrupos==='function')renderPropGrupos();
+    if(typeof calcProp==='function')calcProp();
+    if(typeof propGoStep==='function')propGoStep(2);
+    if(typeof toast==='function')toast('Proposta de '+(lead.nome||'')+' carregada','ok');
+  },150);
+}
+
 // Export PDF — bloqueia se sanity check falhou
 function exportPropPdf(){
   const errs = window.__propSanityErrors || [];
