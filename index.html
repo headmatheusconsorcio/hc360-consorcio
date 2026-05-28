@@ -814,7 +814,9 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
 .pgrp-status{font-size:10.5px;color:var(--ok);font-weight:700;letter-spacing:.3px;display:inline-flex;align-items:center;gap:3px}
 .pgrp-rm{background:none;border:1.5px solid transparent;cursor:pointer;color:var(--txt2);font-size:18px;line-height:1;width:28px;height:28px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;transition:all .15s}
 .pgrp-rm:hover{background:#fee2e2;color:var(--err);border-color:#fecaca}
-.pgrp-grid{display:grid;grid-template-columns:1fr 1fr 1fr 70px;gap:10px;align-items:end}
+.pgrp-grid{display:grid;grid-template-columns:1fr 70px 1fr 70px;gap:10px;align-items:end}
+.pgrp-grid-strat{grid-template-columns:1fr 1fr 1fr 1fr;margin-top:8px}
+.pgrp-strat-title{font-size:10px;font-weight:700;color:var(--acc2);text-transform:uppercase;letter-spacing:.5px;margin-top:14px;padding-top:12px;border-top:1px dashed var(--bdr);font-family:'Raleway',sans-serif}
 .pgrp-fld{display:flex;flex-direction:column;gap:4px}
 .pgrp-fld label{font-size:9.5px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:.3px;font-family:'Raleway',sans-serif;line-height:1.25;min-height:24px;display:flex;align-items:flex-end}
 .pgrp-fld input{padding:7px 9px;border-radius:7px;border:1.5px solid var(--bdr);font-size:13px;color:var(--txt);outline:none;transition:all .15s;width:100%;font-family:'Inter',sans-serif;background:var(--card)}
@@ -2603,15 +2605,16 @@ main.main:has(#page-ajuda.active) .content{
           <div class="dvr"></div>
           <div class="form-g">
             <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px;flex-wrap:wrap">
-              <label class="form-l" style="margin:0">Lance Total (% da carta)</label>
+              <label class="form-l" style="margin:0">Lance Padrão (aplica a todos os grupos)</label>
               <label class="emb-toggle" title="Quando ativo, 30% da carta é usado como lance embutido (regra Itaú). O slider passa a controlar apenas os recursos próprios.">
-                <input type="checkbox" id="p-emb-on" checked onchange="updLance();calcProp()">
+                <input type="checkbox" id="p-emb-on" checked onchange="applyLanceGlobal()">
                 <span class="emb-toggle-track"><span class="emb-toggle-knob"></span></span>
                 <span class="emb-toggle-lbl">Embutido fixo 30%</span>
               </label>
             </div>
-            <input type="range" id="p-lance" min="30" max="95" value="40" oninput="calcProp();updLance()" style="width:100%;accent-color:var(--acc)">
+            <input type="range" id="p-lance" min="30" max="95" value="40" oninput="applyLanceGlobal()" style="width:100%;accent-color:var(--acc)">
             <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--txt2)"><span id="p-lance-min">30%</span><strong id="p-lance-lbl" style="color:var(--acc);font-size:15px">40%</strong><span>95%</span></div>
+            <div style="font-size:10.5px;color:var(--txt2);font-style:italic;margin-top:5px">Define o lance inicial de todos os grupos. Você pode ajustar individualmente em cada grupo abaixo.</div>
           </div>
           <div class="g2" style="margin-bottom:0">
             <div class="form-g"><label class="form-l">Rec. Próprios (%)</label><input type="number" class="form-i" id="p-rp" value="10" readonly style="background:var(--card2);color:var(--txt2);font-weight:700"></div>
@@ -10200,7 +10203,7 @@ function usarNaProposta(){
   if(selGrupo){
     if(!propGrupos.some(pg=>pg.grupo===selGrupo)){
       if(propGrupos.length===1&&!propGrupos[0].grupo)lookupGrupo(0,selGrupo);
-      else{propGrupos.push({grupo:'',prazo:192,fr:3,taxaadm:23,credMin:0,credMax:0,credito:340000,qtd:1});lookupGrupo(propGrupos.length-1,selGrupo);}
+      else{propGrupos.push({grupo:'',prazo:192,fr:3,taxaadm:23,credMin:0,credMax:0,credito:340000,qtd:1,mesAtual:0,pr_red:false,taxaadm_user:null,rpPct:10,embPct:30});lookupGrupo(propGrupos.length-1,selGrupo);}
     }
   }
   nav('prop',document.querySelectorAll('.ni')[6]);
@@ -10870,7 +10873,17 @@ function propGoStep(n){
     }
   }
 }
-let propGrupos=[{grupo:'',prazo:192,fr:3,taxaadm:23,credMin:0,credMax:0,credito:340000,qtd:1,mesAtual:0,pr_red:false,taxaadm_user:null}];
+let propGrupos=[{grupo:'',prazo:192,fr:3,taxaadm:23,credMin:0,credMax:0,credito:340000,qtd:1,mesAtual:0,pr_red:false,taxaadm_user:null,rpPct:10,embPct:30}];
+// Calcula o lance padrão global (a partir do slider + toggle embutido)
+function _lanceGlobalDefault(){
+  const slider=document.getElementById('p-lance');
+  const embEl=document.getElementById('p-emb-on');
+  const embOn=embEl?embEl.checked:true;
+  const t=slider?parseFloat(slider.value)||0:40;
+  if(embOn) return {rp:Math.max(0,t-30),emb:30};
+  return {rp:t,emb:0};
+}
+// Atualiza só os displays globais (NÃO mexe nos grupos) — chamado por calcProp
 function updLance(){
   const slider=document.getElementById('p-lance');
   const embEl=document.getElementById('p-emb-on');
@@ -10893,8 +10906,21 @@ function updLance(){
   const t=parseFloat(slider.value)||0;
   document.getElementById('p-lance-lbl').textContent=t.toFixed(0)+'%';
 }
+// Aplica o lance global a TODOS os grupos (chamado quando usuário mexe no slider/toggle global)
+function applyLanceGlobal(){
+  updLance();
+  const gd=_lanceGlobalDefault();
+  propGrupos.forEach(g=>{g.rpPct=gd.rp;g.embPct=gd.emb;});
+  renderPropGrupos();
+  calcProp();
+}
 function syncCredAlvo(val){const v=parseFloat(val)||0;propGrupos.forEach(g=>{if(v>0)g.credito=v;});renderPropGrupos();calcProp();}
-function addPropGrupo(){propGrupos.push({grupo:'',prazo:192,fr:3,taxaadm:23,credMin:0,credMax:0,credito:340000,qtd:1,mesAtual:0,pr_red:false,taxaadm_user:null});renderPropGrupos();}
+function addPropGrupo(){
+  // novo grupo herda o lance padrão global atual
+  const _gd=_lanceGlobalDefault();
+  propGrupos.push({grupo:'',prazo:192,fr:3,taxaadm:23,credMin:0,credMax:0,credito:340000,qtd:1,mesAtual:0,pr_red:false,taxaadm_user:null,rpPct:_gd.rp,embPct:_gd.emb});
+  renderPropGrupos();calcProp();
+}
 function removePropGrupo(i){if(propGrupos.length===1)return;propGrupos.splice(i,1);renderPropGrupos();calcProp();}
 function lookupGrupo(i,val){
   propGrupos[i].grupo=val.trim();
@@ -10957,6 +10983,15 @@ function renderPropGrupos(){
     ):'';
     const status=hasD?'<span class="pgrp-status">✓ Carregado</span>':'';
     const hint=!hasD?'<div class="pgrp-empty-hint">→ Digite o nº do grupo (ex: 040010) para puxar prazo, taxa e faixa de crédito</div>':'';
+    // Lance individual do grupo
+    const rpG=(g.rpPct!=null?g.rpPct:10), embG=(g.embPct!=null?g.embPct:30);
+    const lanceTotG=rpG+embG;
+    // Taxa: real (GUIA) vs negociada (user override / PR)
+    const rRed=parseFloat((document.getElementById('p-red')||{}).value)||0;
+    const taReal=hasD?g.taxaadm:'';
+    let taNegPlaceholder;
+    if(g.pr_red){taNegPlaceholder=(rRed===30?20:23);} else {taNegPlaceholder=taReal;}
+    const taNegVal=g.taxaadm_user!=null?g.taxaadm_user:'';
     return '<div id="pg-box-'+i+'" class="pgrp'+(hasD?' loaded':'')+'">'
       +'<div class="pgrp-hdr">'
       +'<div class="pgrp-hdr-l">'
@@ -10966,25 +11001,31 @@ function renderPropGrupos(){
       +'</div>'
       +'<button class="pgrp-rm" onclick="removePropGrupo('+i+')" title="Remover grupo"'+(canRemove?'':' disabled')+'>×</button>'
       +'</div>'
+      // Linha 1: dados do grupo
       +'<div class="pgrp-grid">'
       +'<div class="pgrp-fld"><label>Grupo</label><input class="grp-num" placeholder="Nº" value="'+g.grupo+'" oninput="lookupGrupo('+i+',this.value)"></div>'
-      +'<div class="pgrp-fld"><label>Mês Atual</label><input id="pg-mes-'+i+'" type="number" min="0" placeholder="0" value="'+(g.mesAtual||'')+'" oninput="propGrupos['+i+'].mesAtual=parseInt(this.value)||0;renderPropGrupos();calcProp()"></div>'
-      +'<div class="pgrp-fld"><label>Crédito por Cota (R$)</label><input id="pg-cred-'+i+'" type="number" placeholder="Valor" value="'+g.credito+'" oninput="propGrupos['+i+'].credito=parseFloat(this.value)||0;calcProp()"></div>'
       +'<div class="pgrp-fld"><label>Qtd Cotas</label><input type="number" placeholder="1" min="1" value="'+g.qtd+'" oninput="propGrupos['+i+'].qtd=parseInt(this.value)||1;calcProp()"></div>'
+      +'<div class="pgrp-fld"><label>Crédito/Cota (R$)</label><input id="pg-cred-'+i+'" type="number" placeholder="Valor" value="'+g.credito+'" oninput="propGrupos['+i+'].credito=parseFloat(this.value)||0;calcProp()"></div>'
+      +'<div class="pgrp-fld"><label>Mês Atual</label><input id="pg-mes-'+i+'" type="number" min="0" placeholder="0" value="'+(g.mesAtual||'')+'" oninput="propGrupos['+i+'].mesAtual=parseInt(this.value)||0;renderPropGrupos();calcProp()"></div>'
       +'</div>'
-      +(hasD?(()=>{
-        const r=parseFloat((document.getElementById('p-red')||{}).value)||0;
-        let taAuto;
-        if(g.pr_red){taAuto=(r===30?20:(r===50?23:23));}
-        else{taAuto=g.taxaadm;}
-        const taShow=g.taxaadm_user!=null?g.taxaadm_user:taAuto;
-        const isManual=g.taxaadm_user!=null;
-        return '<div class="pgrp-taxa">'
-          +'<label>Taxa Adm (%)</label>'
-          +'<input type="number" step="0.01" min="0" max="60" value="'+taShow+'" oninput="propGrupos['+i+'].taxaadm_user=this.value?(parseFloat(this.value)||0):null;renderPropGrupos();calcProp()">'
-          +(isManual?'<button type="button" class="pgrp-taxa-reset" title="Restaurar taxa automática" onclick="propGrupos['+i+'].taxaadm_user=null;renderPropGrupos();calcProp()">↺ auto</button>':'<span class="pgrp-taxa-hint">'+(g.pr_red?(r===30?'PR 30%':(r===50?'PR 50%':'padrão Itaú')):'do grupo')+'</span>')
-          +'</div>';
-      })()+'<div class="pgrp-chips">'+chips+'</div>':hint)
+      // Linha 2: estratégia de lance + taxas (só quando grupo carregado)
+      +(hasD?(
+        '<div class="pgrp-strat-title">Estratégia deste grupo</div>'
+        +'<div class="pgrp-grid pgrp-grid-strat">'
+        +'<div class="pgrp-fld"><label>Taxa Adm Real</label><input type="number" value="'+taReal+'" readonly title="Taxa do grupo no GUIA"></div>'
+        +'<div class="pgrp-fld"><label>Taxa Adm Negoc.</label><input type="number" step="0.01" min="0" max="60" placeholder="'+taNegPlaceholder+'" value="'+taNegVal+'" oninput="propGrupos['+i+'].taxaadm_user=this.value?(parseFloat(this.value)||0):null;renderPropGrupos();calcProp()" title="Taxa negociada na venda (deixe vazio pra usar a real/PR)"></div>'
+        +'<div class="pgrp-fld"><label>Lance Próprio %</label><input type="number" step="1" min="0" max="100" value="'+rpG+'" oninput="propGrupos['+i+'].rpPct=parseFloat(this.value)||0;renderPropGrupos();calcProp()" title="% da carta pago com recurso próprio"></div>'
+        +'<div class="pgrp-fld"><label>Lance Embutido %</label><input type="number" step="1" min="0" max="100" value="'+embG+'" oninput="propGrupos['+i+'].embPct=parseFloat(this.value)||0;renderPropGrupos();calcProp()" title="% da carta usado como lance embutido"></div>'
+        +'</div>'
+        +'<div class="pgrp-chips">'
+        +'<span class="pgrp-chip">Prazo <strong>'+g.prazo+'m</strong></span>'
+        +'<span class="pgrp-chip">Restante <strong style="color:var(--info)">'+(prazoRest!=null?prazoRest+'m':'—')+'</strong></span>'
+        +'<span class="pgrp-chip">FR <strong>'+g.fr+'%</strong></span>'
+        +'<span class="pgrp-chip">Faixa <strong>'+brl(g.credMin,0)+'–'+brl(g.credMax,0)+'</strong></span>'
+        +'<span class="pgrp-chip" style="background:#fdf6e3;border-color:#e8d09a;color:var(--acc2)">Lance total <strong>'+lanceTotG.toFixed(0)+'%</strong></span>'
+        +(g.pr_red?'<span class="pgrp-chip" style="background:#dbeafe;border-color:#bfdbfe;color:#1e40af">PR <strong>30%/50%</strong></span>':'')
+        +'</div>'
+      ):hint)
       +'</div>';
   }).join('');
 }
@@ -11213,7 +11254,7 @@ function usarGrupoSugerido(g){
     if(propGrupos.length===1&&!propGrupos[0].grupo){
       lookupGrupo(0,g);
     }else{
-      propGrupos.push({grupo:'',prazo:192,fr:3,taxaadm:23,credMin:0,credMax:0,credito:340000,qtd:1,mesAtual:0,pr_red:false,taxaadm_user:null});
+      propGrupos.push({grupo:'',prazo:192,fr:3,taxaadm:23,credMin:0,credMax:0,credito:340000,qtd:1,mesAtual:0,pr_red:false,taxaadm_user:null,rpPct:10,embPct:30});
       lookupGrupo(propGrupos.length-1,g);
     }
   }
@@ -11233,9 +11274,6 @@ function usarGrupoSugerido(g){
 }
 function calcProp(){
   updLance();
-  const lt=parseFloat(document.getElementById('p-lance').value)||0;
-  const rp=parseFloat(document.getElementById('p-rp').value)||0;
-  const lc=Math.max(0,lt-rp);
   const seg=parseFloat(document.getElementById('p-seg').value)||0;
   const mes=Math.max(1,parseInt(document.getElementById('p-mes').value)||1);
   const red=parseFloat(document.getElementById('p-red').value)||0;
@@ -11255,7 +11293,9 @@ function calcProp(){
     }else{
       ta=g.taxaadm||0;
     }
-    const ct=cred*nc,lRP=ct*rp/100,lLC=ct*lc/100,lTot=lRP+lLC,liq=ct-lLC;
+    // Lance individual do grupo (recurso próprio % + embutido %)
+    const rpG=(g.rpPct!=null?g.rpPct:10), lcG=(g.embPct!=null?g.embPct:30);
+    const ct=cred*nc,lRP=ct*rpG/100,lLC=ct*lcG/100,lTot=lRP+lLC,liq=ct-lLC;
     // Saldo devedor — regra Itaú (verificada na planilha oficial):
     // saldo = crédito × (1 + taxa_adm% + fundo_reserva%) — ambas SOMADAS
     const sd=ct*(1+ta/100+fr/100);
@@ -11279,6 +11319,9 @@ function calcProp(){
     totTa+=ta*nc;totFr+=fr*nc;
   });
   const piRed=totPi*(1-red/100);
+  const lt=totCred>0?(totLTot/totCred*100):0;  // lance médio ponderado (exibição)
+  const rp=totCred>0?(totLRP/totCred*100):0;
+  const lc=totCred>0?(totLLC/totCred*100):0;
   const mesReal=Math.min(mes,prazoRef-1);
   const avgTa=totCotas?totTa/totCotas:0;const avgFr=totCotas?totFr/totCotas:0;
   const grupos=propGrupos.filter(g=>g.grupo).map(g=>g.grupo).join(', ')||'—';
