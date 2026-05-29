@@ -7359,12 +7359,28 @@ function mcRecalc(src){
   const stEl=document.getElementById('mc-calc-saldo-total');
   const ppEl=document.getElementById('mc-calc-parc-pre');
   const posEl=document.getElementById('mc-calc-parc-pos');
-  if(stEl)stEl.textContent=cr>0?brl(saldoTotal):'—';
+  const taxaVazia=cr>0&&taxa===0;
+  const avisoTaxa=taxaVazia?' <small style="color:var(--warn);font-weight:700" title="Taxa adm não preenchida — cálculo subestimado">⚠ s/ taxa adm</small>':'';
+  if(stEl)stEl.innerHTML=cr>0?(brl(saldoTotal)+avisoTaxa):'—';
   if(ppEl){
-    const parcPre=(cr>0&&prazo>0)?(saldoTotal/prazo)*fatorPR:0;
-    ppEl.innerHTML=parcPre>0?(brl(parcPre)+(fatorPR<1?` <small style="color:var(--warn);font-weight:700">${(fatorPR*100).toFixed(0)}%</small>`:'')):'—';
+    // Prioridade: parcela REAL cadastrada no campo. Só recalcula se não houver valor salvo.
+    const parcReal=parseBrl(document.getElementById('mc-parcela')?.value)||0;
+    if(parcReal>0){
+      ppEl.innerHTML=brl(parcReal)+' <small style="color:var(--txt2)">cadastrada</small>';
+    }else{
+      const parcPre=(cr>0&&prazo>0)?(saldoTotal/prazo)*fatorPR:0;
+      ppEl.innerHTML=parcPre>0?(brl(parcPre)+(fatorPR<1?` <small style="color:var(--warn);font-weight:700">${(fatorPR*100).toFixed(0)}%</small>`:'')+avisoTaxa):'—';
+    }
   }
-  if(posEl)posEl.textContent=(saldoAtual>0&&prazoRest>0)?brl(saldoAtual/prazoRest):'—';
+  if(posEl){
+    // Prioridade: parcela pós REAL cadastrada. Só estima se vazio.
+    const parcPosReal=parseBrl(document.getElementById('mc-parcela-pos')?.value)||0;
+    if(parcPosReal>0){
+      posEl.innerHTML=brl(parcPosReal)+' <small style="color:var(--txt2)">cadastrada</small>';
+    }else{
+      posEl.innerHTML=(saldoAtual>0&&prazoRest>0)?(brl(saldoAtual/prazoRest)+avisoTaxa):'—';
+    }
+  }
   // Auto-preencher Parcela Pré (campo) baseado no cálculo (só se vazio)
   const parcPreInp=document.getElementById('mc-parcela');
   if(parcPreInp&&!parcPreInp.value&&cr>0&&prazo>0&&taxa>0){
@@ -7497,8 +7513,20 @@ async function saveContemp(){
   const atualizada=carta-lanceEmb;
   const pctLance=carta>0&&lanceTotal>0?lanceTotal/carta:null;
   showLoad();
+  // Crédito liberado = carta atualizada − lance embutido (parte que sai da própria carta)
+  const credLib=Math.max(0,atualizada);
   await sb.from('contemplacoes').insert({grupo:r.grupo,cota:r.cota,nome:r.nome,data_contemplacao:data,tipo,lance_pago:lanceTotal||null,lance_proprio:lancePropr||null,lance_embutido:lanceEmb||null,carta_valor:carta,carta_atualizada:atualizada});
-  const updated={...r,status:'Contemplado',carta_atualizada:atualizada,saldo_devedor:null,lance_total:lanceTotal||null,lance_proprio:lancePropr||null,tipo_contemp:tipo,data_contemplada:data||null,lance1:pctLance,informacao:`Contemplado em ${data.split('-').reverse().join('/')} via ${tipo}${lanceTotal?' | Lance: '+brl(lanceTotal,0):''}`   ,updated_at:new Date().toISOString()};
+  // MECANISMO DE ATUALIZAÇÃO PÓS-CONTEMPLAÇÃO:
+  // calcula e salva automaticamente recurso_proprio, lance_embutido e credito_liberado.
+  // saldo_devedor e parcela_pos NÃO são tocados aqui — preenchidos pelo usuário com dados reais do banco.
+  const updated={...r,status:'Contemplado',carta_atualizada:atualizada,
+    lance_total:lanceTotal||null,
+    lance_proprio:lancePropr||null,
+    recurso_proprio:lancePropr||null,
+    lance_embutido:lanceEmb||null,
+    credito_liberado:credLib||null,
+    tipo_contemp:tipo,data_contemplada:data||null,lance1:pctLance,
+    informacao:`Contemplado em ${data.split('-').reverse().join('/')} via ${tipo}${lanceTotal?' | Lance: '+brl(lanceTotal,0):''}${lanceEmb>0?' | Embutido: '+brl(lanceEmb,0):''}${lancePropr>0?' | Próprio: '+brl(lancePropr,0):''}`,updated_at:new Date().toISOString()};
   const res=await upsertCota(updated);
   hideLoad();
   if(res){toast('Contemplação registrada! Cota atualizada.','ok');closeModal('modal-contemp');filterCtrl();initDash();renderAgenda();}
