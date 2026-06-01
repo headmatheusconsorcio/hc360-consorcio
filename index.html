@@ -3795,6 +3795,31 @@ main.main:has(#page-ajuda.active) .content{
       .gc-resumo-acts button{padding:6px 14px;border-radius:6px;font-size:11.5px;font-weight:700;border:none;cursor:pointer;background:rgba(255,255,255,.15);color:#fff;transition:background .15s}
       .gc-resumo-acts button:hover{background:rgba(255,255,255,.25)}
       .gc-resumo-acts button.danger{background:rgba(229,62,62,.3)}
+      /* === CASES DE ASSEMBLEIA === */
+      .gc-case{border:2px solid #d6bcfa;border-left:6px solid #6b46c1;border-radius:12px;padding:14px 18px;margin-bottom:10px;background:linear-gradient(135deg,#faf5ff 0%,#fff 100%);position:relative;overflow:hidden}
+      .gc-case::after{content:'🏆';position:absolute;right:-8px;top:-10px;font-size:80px;opacity:.05;pointer-events:none}
+      .gc-case-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;flex-wrap:wrap;gap:8px}
+      .gc-case-title{font-size:14px;font-weight:700;color:#44337a;font-family:'Quicksand',sans-serif}
+      .gc-case-sub{font-size:11px;color:#6b46c1;font-weight:600;margin-top:2px}
+      .gc-case-badge{padding:3px 10px;border-radius:12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+      .gc-case-badge.win{background:#c6f6d5;color:#22543d}
+      .gc-case-badge.skip{background:#feebc8;color:#7b341e}
+      .gc-case-comp{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:10px}
+      @media(max-width:700px){.gc-case-comp{grid-template-columns:1fr}}
+      .gc-case-col{background:#fff;border:1px solid #e9d8fd;border-radius:8px;padding:10px 12px}
+      .gc-case-col.est{border-color:#cbd5e0}
+      .gc-case-col.real{border-color:#9ae6b4;background:#f0fff4}
+      .gc-case-col-head{font-size:10px;font-weight:700;color:#718096;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center}
+      .gc-case-col.real .gc-case-col-head{color:#22543d}
+      .gc-case-col-line{display:flex;justify-content:space-between;font-size:11.5px;padding:3px 0;color:#4a5568;font-variant-numeric:tabular-nums}
+      .gc-case-col-line b{color:#1a202c;font-weight:700}
+      .gc-case-col.real .gc-case-col-line b{color:#22543d}
+      .gc-case-supera{background:#22543d;color:#fff;padding:8px 14px;border-radius:8px;font-size:12px;font-weight:700;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+      .gc-case-supera.skip{background:#7b341e}
+      .gc-case-narr{background:#fff;border-radius:8px;padding:10px 14px;font-size:11.5px;line-height:1.6;color:#4a5568;border-left:3px solid #6b46c1;margin-bottom:10px}
+      .gc-case-acts{display:flex;gap:6px;flex-wrap:wrap}
+      .gc-case-acts button{background:#6b46c1;color:#fff;border:none;padding:6px 12px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer}
+      .gc-case-acts button.alt{background:#fff;color:#6b46c1;border:1.5px solid #6b46c1}
     </style>
     <div id="guarda-hero"></div>
     <div id="guarda-kpis"></div>
@@ -3804,6 +3829,7 @@ main.main:has(#page-ajuda.active) .content{
     </div>
     <div id="guarda-cotas"></div>
     <div id="guarda-tranches"></div>
+    <div id="guarda-cases"></div>
     <div id="guarda-em-curso"></div>
     <div id="guarda-decisao"></div>
     <div id="guarda-fluxo"></div>
@@ -14260,6 +14286,9 @@ function renderGuardaChuva(){
       ${trCards}
     </div>`;
 
+  // ═════════ BLOCO 4B: CASES DE ASSEMBLEIA (histórico de performance) ═════════
+  renderGuardaCases();
+
   // ═════════ BLOCO 5: TRANCHE EM CURSO (62 LANCES MAIO/26) ═════════
   // Cruzar cada lance com a cota real do Supabase pra pegar a carta TOTAL
   // (PDF do Santander mostra apenas a carta LÍQUIDA — já com embutido descontado)
@@ -14403,6 +14432,138 @@ function renderGuardaChuva(){
         <div class="gc-rm-step"><div class="gc-rm-num">6</div><div class="gc-rm-lbl">Gilmar quitado</div><div class="gc-rm-sub">previsão dez/2026</div></div>
       </div>
     </div>`;
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// BLOCO CASES DE ASSEMBLEIA — histórico imutável de performance
+// ═══════════════════════════════════════════════════════════════════════
+let GC_CASES = null;
+async function renderGuardaCases(){
+  const div = document.getElementById('guarda-cases');
+  if(!div) return;
+  if(!GC_CASES){
+    try{
+      const { data, error } = await sb.from('cases_assembleia').select('*').order('data_assembleia',{ascending:false});
+      if(error) throw error;
+      GC_CASES = data || [];
+    }catch(e){
+      div.innerHTML='';
+      return;
+    }
+  }
+  if(!GC_CASES.length){div.innerHTML='';return;}
+  let cards = '';
+  GC_CASES.forEach(c=>{
+    const est = c.estimativa||{};
+    const real = c.realizado||{};
+    const cotasOK = (real.cotas_contempladas||0) >= (est.cotas_max||0);
+    const credOK = (real.credito_liquido||0) >= (est.credito_min||0);
+    const supera = cotasOK ? Math.round(((real.cotas_contempladas||0) - (est.cotas_max||0))/(est.cotas_max||1)*100) : 0;
+    const desfechoIcon = c.desfecho==='nao_honrado' ? '⚠️' : '✅';
+    const desfechoLbl = c.desfecho==='nao_honrado' ? 'Cliente não honrou' : 'Honrado';
+    const desfechoCls = c.desfecho==='nao_honrado' ? 'skip' : 'win';
+    const dt = new Date(c.data_assembleia+'T00:00:00').toLocaleDateString('pt-BR');
+    cards += `
+      <div class="gc-case">
+        <div class="gc-case-head">
+          <div>
+            <div class="gc-case-title">🏆 Case · ${c.cliente} · Tranche ${c.tranche}</div>
+            <div class="gc-case-sub">Assembleia ${dt} · Operação ${c.operacao}</div>
+          </div>
+          <span class="gc-case-badge ${desfechoCls}">${desfechoIcon} ${desfechoLbl}</span>
+        </div>
+        <div class="gc-case-supera ${cotasOK?'':'skip'}">
+          <span>${cotasOK ? '🎯 SUPERAMOS a estimativa em '+supera+'%' : '📊 Performance dentro da estimativa'}</span>
+          <span style="font-size:11px;opacity:.9">Esperado: ${est.cotas_min}-${est.cotas_max} cotas · Realizado: <b>${real.cotas_contempladas}</b></span>
+        </div>
+        <div class="gc-case-comp">
+          <div class="gc-case-col est">
+            <div class="gc-case-col-head">📋 Estimativa pré-assembleia</div>
+            <div class="gc-case-col-line"><span>Cotas contempladas</span><b>${est.cotas_min}-${est.cotas_max}</b></div>
+            <div class="gc-case-col-line"><span>Crédito líquido</span><b>${gcBRL(est.credito_min)} a ${gcBRL(est.credito_max)}</b></div>
+            <div class="gc-case-col-line"><span>ROI médio</span><b>${(est.roi_medio_esperado||0).toFixed(2)}x</b></div>
+            <div class="gc-case-col-line"><span style="font-size:10px;color:#a0aec0;font-style:italic">${est.fonte||''}</span><span></span></div>
+          </div>
+          <div class="gc-case-col real">
+            <div class="gc-case-col-head">✅ Realizado</div>
+            <div class="gc-case-col-line"><span>Cotas contempladas</span><b>${real.cotas_contempladas} ${cotasOK?'✅':''}</b></div>
+            <div class="gc-case-col-line"><span>Carta total</span><b>${gcBRL(real.carta_total)}</b></div>
+            <div class="gc-case-col-line"><span>Crédito líquido</span><b>${gcBRL(real.credito_liquido)} ${credOK?'✅':''}</b></div>
+            <div class="gc-case-col-line"><span>Recurso próprio</span><b>${gcBRL(real.recurso_proprio)}</b></div>
+            <div class="gc-case-col-line"><span>Embutido</span><b>${gcBRL(real.embutido)}</b></div>
+            <div class="gc-case-col-line"><span>ROI médio</span><b>${(real.roi_medio||0).toFixed(2)}x</b></div>
+            <div class="gc-case-col-line"><span>Taxa de conversão</span><b>${real.taxa_conversao_pct}% (${real.cotas_contempladas}/${real.lances_ofertados})</b></div>
+          </div>
+        </div>
+        <div class="gc-case-narr">📝 <b>Desfecho:</b> ${c.narrativa}</div>
+        <div class="gc-case-acts">
+          <button onclick="gcCaseImprimir('${c.case_id}')">📄 Relatório PDF do Case</button>
+          <button class="alt" onclick="gcCaseDetalhes('${c.case_id}')">📊 Ver 45 cotas do snapshot</button>
+        </div>
+      </div>`;
+  });
+  div.innerHTML = `
+    <div class="gc-block">
+      <div class="gc-block-title"><span class="gc-ico">🏆</span> Cases de Assembleia — performance do escritório<span class="gc-tag" style="background:#e9d8fd;color:#44337a">${GC_CASES.length} case${GC_CASES.length>1?'s':''}</span></div>
+      <div class="gc-note" style="margin-bottom:10px">Histórico permanente das nossas execuções em assembleias — independente da decisão final do cliente. Mostra a assertividade da estratégia de lance, comparando estimativa vs realizado.</div>
+      ${cards}
+    </div>`;
+}
+function gcCaseDetalhes(caseId){
+  const c = (GC_CASES||[]).find(x=>x.case_id===caseId);
+  if(!c) return;
+  const snap = c.snapshot_cotas||[];
+  let rows='';
+  snap.forEach((s,i)=>{
+    const roi = (s.recurso_proprio||0)>0 ? (s.credito_liberado||0)/(s.recurso_proprio||0) : 0;
+    rows+=`<tr><td>${i+1}</td><td><b>${s.grupo}/${s.cota}</b></td><td>${gcBRL(s.carta_atualizada,0)}</td><td>${(s.lance_pct||0).toFixed(2)}%</td><td>${gcBRL(s.lance_total,0)}</td><td>${gcBRL(s.recurso_proprio,0)}</td><td>${gcBRL(s.lance_embutido,0)}</td><td><b>${gcBRL(s.credito_liberado,0)}</b></td><td><b>${roi.toFixed(2)}x</b></td></tr>`;
+  });
+  const w = window.open('','_blank','width=1100,height=700');
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>${c.case_id} · Snapshot</title>
+    <style>body{font-family:Arial;padding:20px;color:#1a202c}h1{color:#44337a;font-size:18px;margin-bottom:6px}h2{color:#6b46c1;font-size:13px;font-weight:600;margin-bottom:14px}table{width:100%;border-collapse:collapse;font-size:11px}th{background:#44337a;color:#fff;padding:7px;text-align:left}td{padding:6px;border-bottom:1px solid #edf2f7;font-variant-numeric:tabular-nums}tr:hover td{background:#faf5ff}</style></head><body>
+    <h1>🏆 ${c.cliente} · Case ${c.case_id}</h1>
+    <h2>Snapshot de ${snap.length} cotas · Assembleia ${new Date(c.data_assembleia+'T00:00:00').toLocaleDateString('pt-BR')}</h2>
+    <table><thead><tr><th>#</th><th>Cota</th><th>Carta</th><th>%</th><th>Lance</th><th>Rec.Próp</th><th>Embutido</th><th>Cred.Líq</th><th>ROI</th></tr></thead><tbody>${rows}</tbody></table>
+    </body></html>`);
+  w.document.close();
+}
+function gcCaseImprimir(caseId){
+  const c = (GC_CASES||[]).find(x=>x.case_id===caseId);
+  if(!c) return;
+  const est = c.estimativa||{}; const real = c.realizado||{};
+  const cotasOK = (real.cotas_contempladas||0) >= (est.cotas_max||0);
+  const supera = cotasOK ? Math.round(((real.cotas_contempladas||0) - (est.cotas_max||0))/(est.cotas_max||1)*100) : 0;
+  const dt = new Date(c.data_assembleia+'T00:00:00').toLocaleDateString('pt-BR');
+  const dataHj = new Date().toLocaleDateString('pt-BR');
+  const w = window.open('','_blank','width=900,height=700');
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Case ${c.case_id}</title>
+    <style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:Arial;color:#1a202c;background:#f7fafc;padding:20px}.page{background:#fff;padding:32px 40px;max-width:900px;margin:0 auto;box-shadow:0 2px 8px rgba(0,0,0,.08)}.hdr{display:flex;justify-content:space-between;border-bottom:3px solid #44337a;padding-bottom:10px;margin-bottom:18px}.brand{font-size:26px;font-weight:700;color:#44337a}.sub{font-size:11px;color:#718096;text-transform:uppercase;letter-spacing:.5px}.meta{font-size:11px;color:#4a5568;text-align:right}h1{color:#44337a;font-size:20px;margin-bottom:6px}h2{color:#6b46c1;font-size:13px;font-weight:600;margin-bottom:18px}.supera{background:${cotasOK?'#22543d':'#7b341e'};color:#fff;padding:14px 18px;border-radius:8px;margin-bottom:18px;text-align:center;font-size:15px;font-weight:700}.supera small{display:block;font-size:11px;font-weight:400;opacity:.85;margin-top:4px}.comp{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px}.col{border:1px solid #e2e8f0;border-radius:8px;padding:14px}.col.real{background:#f0fff4;border-color:#9ae6b4}.col h3{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:#718096;margin-bottom:10px}.col.real h3{color:#22543d}.l{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px dashed #edf2f7;font-size:12.5px}.l b{color:#1a202c}.narr{background:#faf5ff;border-left:4px solid #6b46c1;padding:12px 16px;font-size:12.5px;line-height:1.7;margin-bottom:14px;border-radius:4px}.rodape{margin-top:24px;padding-top:10px;border-top:1px dashed #cbd5e0;font-size:10.5px;color:#718096;text-align:center;font-style:italic}.topbar{position:fixed;top:10px;right:10px;background:#44337a;color:#fff;padding:8px 14px;border-radius:6px;display:flex;gap:8px;z-index:99}.topbar button{background:rgba(255,255,255,.2);color:#fff;border:none;padding:6px 14px;border-radius:5px;font-weight:700;cursor:pointer}@media print{body{background:#fff;padding:0}.page{box-shadow:none;margin:0;padding:18mm 16mm}.topbar{display:none}}</style></head><body>
+    <div class="topbar"><span>📄 Case PDF</span><button onclick="window.print()">🖨️ Imprimir / Salvar PDF</button></div>
+    <div class="page">
+      <div class="hdr"><div><div class="brand">HC<span style="font-weight:300">360</span></div><div class="sub">🏆 Case de Assembleia</div></div><div><div class="meta">Emitido em ${dataHj}</div><div class="meta">Case ID: ${c.case_id}</div></div></div>
+      <h1>${c.cliente} · Tranche ${c.tranche}</h1>
+      <h2>Assembleia ${dt} · ${c.operacao}</h2>
+      <div class="supera">${cotasOK?'🎯 SUPERAMOS A ESTIMATIVA EM '+supera+'%':'📊 PERFORMANCE DENTRO DA ESTIMATIVA'}<small>Esperado: ${est.cotas_min}-${est.cotas_max} cotas · Realizado: ${real.cotas_contempladas} cotas</small></div>
+      <div class="comp">
+        <div class="col"><h3>📋 Estimativa pré-assembleia</h3>
+          <div class="l"><span>Cotas</span><b>${est.cotas_min}-${est.cotas_max}</b></div>
+          <div class="l"><span>Crédito líquido</span><b>${gcBRL(est.credito_min)}-${gcBRL(est.credito_max)}</b></div>
+          <div class="l"><span>ROI médio</span><b>${(est.roi_medio_esperado||0).toFixed(2)}x</b></div>
+        </div>
+        <div class="col real"><h3>✅ Realizado</h3>
+          <div class="l"><span>Cotas contempladas</span><b>${real.cotas_contempladas}</b></div>
+          <div class="l"><span>Carta total</span><b>${gcBRL(real.carta_total)}</b></div>
+          <div class="l"><span>Crédito líquido</span><b>${gcBRL(real.credito_liquido)}</b></div>
+          <div class="l"><span>Recurso próprio</span><b>${gcBRL(real.recurso_proprio)}</b></div>
+          <div class="l"><span>Embutido</span><b>${gcBRL(real.embutido)}</b></div>
+          <div class="l"><span>ROI médio</span><b>${(real.roi_medio||0).toFixed(2)}x</b></div>
+          <div class="l"><span>Taxa de conversão</span><b>${real.taxa_conversao_pct}%</b></div>
+        </div>
+      </div>
+      <div class="narr"><b>📝 Desfecho e narrativa:</b><br>${c.narrativa}</div>
+      <div class="rodape">HC360 · ${c.cliente} · ${c.operacao} · Documento gerado em ${dataHj}</div>
+    </div></body></html>`);
+  w.document.close();
 }
 
 // ═══════════════════════════════════════════════════════════════════════
