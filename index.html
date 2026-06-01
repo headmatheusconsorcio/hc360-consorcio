@@ -406,6 +406,25 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
 .ac-item{padding:9px 13px;cursor:pointer;font-size:13px;border-bottom:1px solid #edf0f5}
 .ac-item:hover{background:#f0f7f6;color:var(--sb2)}.ac-item strong{color:var(--sb2)}
 
+/* ── FECHAMENTO MENSAL ──────────────────────── */
+.fec-modal{width:min(860px,97vw);max-height:min(92vh,900px)}
+.fec-incc-row{display:flex;align-items:center;gap:16px;background:var(--acc-tint);border:1.5px solid var(--acc);border-radius:var(--r-md);padding:16px 20px}
+.fec-incc-lbl{font-weight:700;color:var(--sb);font-size:14px;flex:1}
+.fec-incc-inp{width:110px;text-align:center;font-size:18px;font-weight:700;padding:8px;border:2px solid var(--acc);border-radius:var(--r-sm);outline:none;font-family:'Quicksand',sans-serif;color:var(--sb)}
+.fec-incc-inp:focus{border-color:var(--sb2)}
+.fec-sec-h{font-family:'Quicksand',sans-serif;font-size:13px;font-weight:700;color:var(--sb);padding:10px 0 6px;border-bottom:2px solid var(--bdr);margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.fec-sec-badge{background:var(--sb);color:#fff;padding:2px 8px;border-radius:var(--r-pill);font-size:10px;font-weight:700}
+.fec-sec-badge.warn{background:var(--warn)}
+.fec-tbl{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:4px}
+.fec-tbl th{padding:6px 8px;background:var(--card2);text-align:left;font-weight:600;color:var(--txt2);font-size:10.5px;text-transform:uppercase;letter-spacing:.3px;border-bottom:1px solid var(--bdr)}
+.fec-tbl td{padding:5px 8px;border-bottom:1px solid var(--bdr-soft);vertical-align:middle}
+.fec-tbl tr:last-child td{border-bottom:none}
+.fec-delta{color:var(--ok);font-weight:600;text-align:right}
+.fec-delta.neg{color:var(--err)}
+.fec-alr{display:flex;align-items:flex-start;gap:8px;padding:8px 12px;background:var(--warn-tint);border-radius:var(--r-sm);border:1px solid #f59e0b;margin-bottom:6px;font-size:12px;line-height:1.45}
+.fec-zero{color:var(--txt3);font-style:italic;font-size:12px;padding:10px 4px}
+.fec-section{margin-bottom:16px}
+
 /* ── PAGINATOR ──────────────────────────────── */
 .pag{display:flex;gap:var(--sp-1);justify-content:center;padding:var(--sp-4) 0;flex-wrap:wrap}
 .pag-btn{padding:5px 13px;border-radius:var(--r-sm);border:1.5px solid var(--bdr);background:var(--card);cursor:pointer;font-size:var(--fs-sm);font-weight:600;transition:background var(--t-fast),border-color var(--t-fast),color var(--t-fast)}
@@ -3515,6 +3534,7 @@ main.main:has(#page-ajuda.active) .content{
         <button class="btn btn-ok btn-sm" onclick="openModalCota(-1)">+ Nova Cota</button>
         <button class="btn btn-pri btn-sm" onclick="projSaveAllDirty()" title="Salvar todas as cotas alteradas">💾 Salvar todas</button>
         <button class="btn btn-warn btn-sm" onclick="projToggleBulk()" id="proj-bulk-toggle">☑ Edição em Massa</button>
+        <button class="btn btn-sm" style="background:#1a4f4d;color:#fff;border-color:#1a4f4d" onclick="abrirFechamentoMensal()" title="Motor mensal: INCC nas cartas + crédito liberado + alertas de lance">📅 Fechamento Mensal</button>
         <label style="display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--txt2);margin-left:auto">Linhas:
           <select class="fi fi-md" id="pf-perpage" onchange="plistSetPerPage(this.value)" style="height:30px;font-size:11.5px;padding:2px 6px;width:auto">
             <option value="25">25</option>
@@ -13226,11 +13246,15 @@ function renderProjList(){
     const isCp=r.status==='Contemplado'||r.status==='CONTEMPLADO'||r.status==='Faturado';
     const parcEf=isCp?(r.parcela_pos||r.parcela||0):(r.parcela||0);
     const proxAgo=calcProxAgo(r.grupo,r);
-    const rowStyle=isDirty?'background:#fdf6e3':(isCan?'opacity:.4;background:#fafafa':'');
+    // Stale alert: >35 dias sem atualização (só cotas ativas, não canceladas/faturadas)
+    const _nowMs=Date.now();
+    const _isStale=!isCan&&r.status!=='Faturado'&&(!r.updated_at||(_nowMs-new Date(r.updated_at).getTime())/86400000>35);
+    const rowStyle=isDirty?'background:#fdf6e3':(isCan?'opacity:.4;background:#fafafa':(_isStale&&!isCp?'background:#fffbeb;border-left:3px solid #f59e0b':''));
+    const staleTag=_isStale?`<span title="Sem atualização há mais de 35 dias — verifique os dados" style="display:inline-block;margin-left:5px;padding:1px 5px;background:#fef3c7;color:#92400e;border:1px solid #f59e0b;border-radius:4px;font-size:9px;font-weight:700;vertical-align:middle">⚠️ +35d</span>`:'';
     const chkCell=bulkMode?`<td><input type="checkbox" id="pchk-${r.id}" ${isSelected?'checked':''} data-rid="${r.id}" onchange="projSelectRow(this.dataset.rid,this.checked)"></td>`:'';
     return `<tr id="plist-row-${r.id}" style="${rowStyle}">
       ${chkCell}
-      <td><strong>${pn(r.nome)}</strong><br><span style="font-size:10.5px;color:var(--txt2)">${pcpf(r.cpf)}</span></td>
+      <td><strong>${pn(r.nome)}</strong>${staleTag}<br><span style="font-size:10.5px;color:var(--txt2)">${pcpf(r.cpf)}</span></td>
       <td><strong>${r.grupo||'—'}</strong> / ${r.cota||'—'}</td>
       <td>${bancoBadge(r.banco)}</td>
       <td style="text-align:right">${brl(r.credito,0)}</td>
@@ -14975,6 +14999,172 @@ function renderGuardaDecisao(cotas){
       <div class="gc-cards-grid">${cards}</div>
     </div>`;
 }
+
+// ═══ MOTOR MENSAL (Fechamento Mensal) ═══
+const _FEC_MESES=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+
+function abrirFechamentoMensal(){
+  const now=new Date();
+  const nomeMes=_FEC_MESES[now.getMonth()];
+  const ano=now.getFullYear();
+  const t=document.getElementById('fec-title');
+  if(t)t.textContent='📅 Fechamento Mensal — '+nomeMes+' / '+ano;
+  const inp=document.getElementById('fec-incc-pct');
+  if(inp)inp.value='';
+  const pb=document.getElementById('fec-preview-body');
+  if(pb)pb.innerHTML='<div class="fec-zero">Digite o INCC do mês acima para visualizar as correções antes de aplicar.</div>';
+  const btn=document.getElementById('fec-btn-aplicar');
+  if(btn)btn.disabled=true;
+  const sm=document.getElementById('fec-summary');
+  if(sm)sm.textContent='';
+  document.getElementById('modal-fechamento').classList.add('open');
+}
+
+function _fecRenderPreview(){
+  const incc=parseFloat(document.getElementById('fec-incc-pct').value||'0');
+  const btn=document.getElementById('fec-btn-aplicar');
+  const body=document.getElementById('fec-preview-body');
+  const sumEl=document.getElementById('fec-summary');
+  if(!incc||incc<=0){
+    body.innerHTML='<div class="fec-zero">Digite o INCC do mês (ex: 0,48) para visualizar as correções.</div>';
+    btn.disabled=true;sumEl.textContent='';return;
+  }
+  const mult=1+incc/100;
+  const _isCancFat=r=>r.status==='Cancelado'||r.status==='CANCELADO'||r.status==='Faturado'||r.status==='FATURADO';
+  const _isContemp=r=>r.status==='Contemplado'||r.status==='CONTEMPLADO';
+  const _isAtivo=r=>!_isCancFat(r);
+  // Cartas a corrigir (todas as cotas ativas — pré e pós contemp)
+  const cotasIncc=COTAS.filter(r=>_isAtivo(r)&&((r.carta_atualizada||0)+(r.credito||0))>0);
+  // Crédito liberado (só contempladas)
+  const cotasCred=COTAS.filter(r=>_isContemp(r)&&(r.credito_liberado||0)>0);
+  // Saldo devedor > 0
+  const cotasSaldo=COTAS.filter(r=>(r.saldo_devedor||0)>0);
+  // Alertas: ofertas sem lance_pct
+  const ofSemPct=(OFERTAS||[]).filter(o=>o.status==='Pendente'&&!o.lance_pct);
+  // Alertas: cotas sem atualização há >35 dias
+  const hoje=new Date();
+  const cotasVelhas=COTAS.filter(r=>{
+    if(_isCancFat(r))return false;
+    if(!r.updated_at)return true;
+    return(hoje-new Date(r.updated_at))/86400000>35;
+  });
+
+  let h='';
+
+  // ─── 1. Carta Atualizada ───
+  const totGanhoIncc=cotasIncc.reduce((s,r)=>{const v=r.carta_atualizada||r.credito||0;return s+(v*mult-v);},0);
+  h+=`<div class="fec-section"><div class="fec-sec-h">📈 Carta Atualizada <span class="fec-sec-badge">${cotasIncc.length} cotas</span><small style="font-weight:400;font-family:Mulish,sans-serif;font-size:11px;color:var(--txt2);margin-left:4px">INCC ${incc}% → carteira cresce +${brl(totGanhoIncc,0)}</small></div>`;
+  if(!cotasIncc.length){h+='<div class="fec-zero">Nenhuma cota ativa com carta para corrigir.</div>';}
+  else{
+    h+=`<table class="fec-tbl"><thead><tr><th>Cliente</th><th>Grupo/Cota</th><th>Status</th><th style="text-align:right">Carta Atual</th><th style="text-align:right">Nova Carta</th><th style="text-align:right">+Delta</th></tr></thead><tbody>`;
+    cotasIncc.slice(0,30).forEach(r=>{
+      const old=r.carta_atualizada||r.credito||0;
+      const nov=Math.round(old*mult*100)/100;
+      h+=`<tr><td style="font-size:11.5px">${pn(r.nome)}</td><td style="font-weight:700">${r.grupo}/${r.cota}</td><td style="font-size:10.5px;color:var(--txt2)">${r.status}</td><td style="text-align:right">${brl(old,0)}</td><td style="text-align:right;font-weight:700;color:var(--sb2)">${brl(nov,0)}</td><td class="fec-delta">+${brl(nov-old,0)}</td></tr>`;
+    });
+    if(cotasIncc.length>30)h+=`<tr><td colspan="6" style="text-align:center;color:var(--txt2);font-style:italic;padding:8px">… e mais ${cotasIncc.length-30} cotas</td></tr>`;
+    h+='</tbody></table>';
+  }
+  h+='</div>';
+
+  // ─── 2. Crédito Liberado ───
+  h+=`<div class="fec-section"><div class="fec-sec-h">💳 Crédito Liberado <span class="fec-sec-badge">${cotasCred.length} cotas</span><small style="font-weight:400;font-family:Mulish,sans-serif;font-size:11px;color:var(--txt2);margin-left:4px">Contempladas — corrigido pelo INCC</small></div>`;
+  if(!cotasCred.length){h+='<div class="fec-zero">Nenhuma contemplada com crédito liberado cadastrado.</div>';}
+  else{
+    h+=`<table class="fec-tbl"><thead><tr><th>Cliente</th><th>Grupo/Cota</th><th style="text-align:right">Crédito Atual</th><th style="text-align:right">Novo Crédito</th><th style="text-align:right">+Delta</th></tr></thead><tbody>`;
+    cotasCred.slice(0,20).forEach(r=>{
+      const old=r.credito_liberado;
+      const nov=Math.round(old*mult*100)/100;
+      h+=`<tr><td style="font-size:11.5px">${pn(r.nome)}</td><td style="font-weight:700">${r.grupo}/${r.cota}</td><td style="text-align:right">${brl(old,0)}</td><td style="text-align:right;font-weight:700;color:var(--sb2)">${brl(nov,0)}</td><td class="fec-delta">+${brl(nov-old,0)}</td></tr>`;
+    });
+    if(cotasCred.length>20)h+=`<tr><td colspan="5" style="text-align:center;color:var(--txt2);font-style:italic;padding:8px">… e mais ${cotasCred.length-20} cotas</td></tr>`;
+    h+='</tbody></table>';
+  }
+  h+='</div>';
+
+  // ─── 3. Saldo Devedor (informativo) ───
+  if(cotasSaldo.length>0){
+    h+=`<div class="fec-section"><div class="fec-sec-h">🏦 Saldo Devedor <span class="fec-sec-badge">${cotasSaldo.length} cotas</span><small style="font-weight:400;font-family:Mulish,sans-serif;font-size:11px;color:var(--txt2);margin-left:4px">Decrementar via boleto pago na Agenda</small></div>`;
+    h+=`<div class="fec-alr" style="background:var(--info-tint);border-color:var(--info)"><span style="font-size:14px">ℹ️</span><span style="color:var(--info-deep);font-size:11.5px">Saldo devedor é decrementado quando o boleto é marcado como <b>Pago</b> na Agenda ou na ficha da cota. As cotas abaixo ainda têm saldo em aberto.</span></div>`;
+    h+=`<table class="fec-tbl"><thead><tr><th>Cliente</th><th>Grupo/Cota</th><th style="text-align:right">Saldo Devedor</th><th style="text-align:right">Parcela Pós</th></tr></thead><tbody>`;
+    cotasSaldo.forEach(r=>{
+      h+=`<tr><td style="font-size:11.5px">${pn(r.nome)}</td><td style="font-weight:700">${r.grupo}/${r.cota}</td><td style="text-align:right;font-weight:700;color:var(--err)">${brl(r.saldo_devedor,0)}</td><td style="text-align:right">${r.parcela_pos?brl(r.parcela_pos,0):'—'}</td></tr>`;
+    });
+    h+='</tbody></table></div>';
+  }
+
+  // ─── 4. Alertas ───
+  const alertas=[];
+  if(ofSemPct.length)alertas.push(`<b>${ofSemPct.length} oferta(s) pendente(s) sem lance%</b> — edite na Lista Completa (botão ○ de cada cota).`);
+  if(cotasVelhas.length)alertas.push(`<b>${cotasVelhas.length} cota(s) há mais de 35 dias sem atualização</b> — confira se os dados estão corretos.`);
+  if(alertas.length){
+    h+=`<div class="fec-section"><div class="fec-sec-h">⚠️ Alertas <span class="fec-sec-badge warn">${alertas.length}</span></div>`;
+    alertas.forEach(a=>{h+=`<div class="fec-alr"><span>⚠️</span><span>${a}</span></div>`;});
+    h+='</div>';
+  }
+
+  body.innerHTML=h;
+  sumEl.textContent=`${cotasIncc.length} cartas + ${cotasCred.length} créditos a corrigir`;
+  btn.disabled=false;
+}
+
+async function executarFechamentoMensal(){
+  const incc=parseFloat(document.getElementById('fec-incc-pct').value||'0');
+  if(!incc||incc<=0)return toast('Digite o INCC antes de aplicar','warn');
+  const mult=1+incc/100;
+  const _isCancFat=r=>r.status==='Cancelado'||r.status==='CANCELADO'||r.status==='Faturado'||r.status==='FATURADO';
+  const _isContemp=r=>r.status==='Contemplado'||r.status==='CONTEMPLADO';
+  // Todas as cotas ativas para correção da carta
+  const cotasIncc=COTAS.filter(r=>!_isCancFat(r)&&((r.carta_atualizada||0)+(r.credito||0))>0);
+  showLoad();
+  let ok=0,errs=0;
+  for(const r of cotasIncc){
+    const cartaAnt=r.carta_atualizada||r.credito||0;
+    const novaCartaAtual=Math.round(cartaAnt*mult*100)/100;
+    const patch={id:r.id,carta_atualizada:novaCartaAtual};
+    // Se contemplada e tem crédito_liberado, corrige junto na mesma chamada
+    if(_isContemp(r)&&(r.credito_liberado||0)>0){
+      patch.credito_liberado=Math.round(r.credito_liberado*mult*100)/100;
+    }
+    const res=await upsertCota(patch);
+    if(res)ok++;else errs++;
+  }
+  hideLoad();
+  closeModal('modal-fechamento');
+  const nomeMes=_FEC_MESES[new Date().getMonth()];
+  toast(`Fechamento de ${nomeMes} aplicado! ${ok} cota(s) corrigida(s) pelo INCC de ${incc}%${errs?' · '+errs+' erro(s)':''}`,errs?'err':'ok');
+  refreshCotaViews();
+  try{initDash();}catch(e){}
+}
 </script>
+
+<!-- MODAL FECHAMENTO MENSAL -->
+<div class="moverlay" id="modal-fechamento">
+  <div class="modal modal-lg fec-modal">
+    <div class="mh">
+      <span class="mt" id="fec-title">📅 Fechamento Mensal</span>
+      <button class="mc" onclick="closeModal('modal-fechamento')">×</button>
+    </div>
+    <div class="mb" style="gap:16px">
+      <div class="fec-incc-row">
+        <div class="fec-incc-lbl">INCC do mês (%)
+          <small style="display:block;font-weight:400;color:var(--txt2);font-size:11px;margin-top:2px">
+            Índice Nacional da Construção Civil — fonte: BCB / extrato Itaú
+          </small>
+        </div>
+        <input class="fec-incc-inp form-i" type="number" id="fec-incc-pct" step="0.01" min="0" max="5" placeholder="0.00" oninput="_fecRenderPreview()">
+        <span style="font-size:18px;font-weight:700;color:var(--acc)">%</span>
+      </div>
+      <div id="fec-preview-body" style="max-height:56vh;overflow-y:auto;padding-right:2px">
+        <div class="fec-zero">Digite o INCC do mês acima para ver o preview das correções antes de aplicar.</div>
+      </div>
+    </div>
+    <div class="mf" style="gap:10px">
+      <span id="fec-summary" style="font-size:12px;color:var(--txt2);flex:1;align-self:center"></span>
+      <button class="btn btn-out" onclick="closeModal('modal-fechamento')">Cancelar</button>
+      <button class="btn btn-ok" id="fec-btn-aplicar" onclick="executarFechamentoMensal()" disabled>✓ Confirmar e Aplicar</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
