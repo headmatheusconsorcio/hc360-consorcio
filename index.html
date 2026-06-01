@@ -6689,6 +6689,8 @@ async function loadData(silent){
     if(typeof dashStartAutoRefresh==='function') dashStartAutoRefresh();
     if(typeof dashStartRealtime==='function') dashStartRealtime();try{renderFatPage();}catch(_){}
     document.getElementById('kpi-leads').textContent=myLeads().filter(l=>!['Cota Aberta','Perdido','Ganho','GANHO','PERDIDO'].includes(l.status||'')).length;
+    // ── Motor Mensal: busca INCC no BCB e aplica automaticamente se houver novo índice ──
+    setTimeout(()=>_autoFechamentoMensal().catch(e=>console.warn('[HC360] autoFechamento:',e)),2000);
   }catch(err){setSync(false);toast('Erro ao conectar: '+err.message,'err');}
   if(!silent) hideLoad();
 }
@@ -15000,19 +15002,74 @@ function renderGuardaDecisao(cotas){
     </div>`;
 }
 
-// ═══ MOTOR MENSAL (Fechamento Mensal) ═══
+// ═══ MOTOR MENSAL — AUTOMÁTICO (INCC do BCB + saldo devedor via ✓ Pago) ═══
 const _FEC_MESES=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+const _FEC_KEY='hc360_fec_last_incc_date'; // localStorage: data BCB da última correção aplicada
+let _FEC_ULTIMO_INCC=null; // incc% do último auto-fechamento (pra mostrar no modal)
+let _FEC_ULTIMO_DATA=null; // data BCB da última correção
+
+// ─── Auto-fechamento: roda após loadData() ───────────────────────────────────
+async function _autoFechamentoMensal(){
+  if(!COTAS||!COTAS.length)return;
+  let ultimaDataAplicada='';
+  try{ultimaDataAplicada=localStorage.getItem(_FEC_KEY)||'';}catch(e){}
+  // Buscar INCC-DI mais recente da BCB (série 192)
+  let inccData=null,inccValor=null;
+  try{
+    const resp=await fetch('https://api.bcb.gov.br/dados/serie/bcdata.sgs.192/dados/ultimos/2?formato=json',{signal:AbortSignal.timeout(8000)});
+    if(resp.ok){
+      const arr=await resp.json();
+      if(arr&&arr.length){const u=arr[arr.length-1];inccData=u.data;inccValor=parseFloat(u.valor);}
+    }
+  }catch(e){console.warn('[HC360] BCB INCC indisponível:',e?.message||e);}
+  if(!inccData||!inccValor||inccValor<=0){console.info('[HC360] INCC BCB não disponível — fechamento automático adiado.');return;}
+  if(inccData===ultimaDataAplicada){console.info('[HC360] INCC',inccData,'já aplicado anteriormente.');return;}
+  // ── Aplicar ──
+  console.info('[HC360] Auto-fechamento: INCC',inccValor,'% referência',inccData);
+  const mult=1+inccValor/100;
+  const _isCancFat=r=>r.status==='Cancelado'||r.status==='CANCELADO'||r.status==='Faturado'||r.status==='FATURADO';
+  const _isContemp=r=>r.status==='Contemplado'||r.status==='CONTEMPLADO';
+  const cotasIncc=COTAS.filter(r=>!_isCancFat(r)&&((r.carta_atualizada||0)+(r.credito||0))>0);
+  if(!cotasIncc.length)return;
+  let ok=0,errs=0;
+  for(const r of cotasIncc){
+    const cartaAnt=r.carta_atualizada||r.credito||0;
+    const patch={id:r.id,carta_atualizada:Math.round(cartaAnt*mult*100)/100};
+    if(_isContemp(r)&&(r.credito_liberado||0)>0){
+      patch.credito_liberado=Math.round(r.credito_liberado*mult*100)/100;
+    }
+    const res=await upsertCota(patch);
+    if(res)ok++;else errs++;
+  }
+  if(ok>0){
+    try{localStorage.setItem(_FEC_KEY,inccData);}catch(e){}
+    _FEC_ULTIMO_INCC=inccValor;_FEC_ULTIMO_DATA=inccData;
+    // Converter data BCB "DD/MM/YYYY" em nome do mês
+    const partes=inccData.split('/');
+    const nomeMes=_FEC_MESES[parseInt(partes[1])-1]||inccData;
+    toast(`📅 INCC ${nomeMes} (${inccValor}%) aplicado em ${ok} cartas automaticamente`,errs?'warn':'ok');
+    try{refreshCotaViews();initDash();}catch(e){}
+  }
+}
 
 function abrirFechamentoMensal(){
   const now=new Date();
   const nomeMes=_FEC_MESES[now.getMonth()];
   const ano=now.getFullYear();
   const t=document.getElementById('fec-title');
-  if(t)t.textContent='📅 Fechamento Mensal — '+nomeMes+' / '+ano;
+  if(t)t.textContent='📅 Correção INCC — '+nomeMes+' / '+ano;
   const inp=document.getElementById('fec-incc-pct');
   if(inp)inp.value='';
+  // Status do auto-fechamento
+  let ultimaDataAplicada='';
+  try{ultimaDataAplicada=localStorage.getItem(_FEC_KEY)||'';}catch(e){}
   const pb=document.getElementById('fec-preview-body');
-  if(pb)pb.innerHTML='<div class="fec-zero">Digite o INCC do mês acima para visualizar as correções antes de aplicar.</div>';
+  if(pb){
+    const info=ultimaDataAplicada
+      ?`<div class="fec-alr" style="background:var(--ok-tint);border-color:var(--ok)"><span>✅</span><span style="color:var(--ok-deep)"><b>Auto-correção já aplicada</b> — INCC de referência <b>${ultimaDataAplicada}</b> foi aplicado automaticamente no último login.<br>Se precisar corrigir manualmente um valor diferente, use o campo abaixo.</span></div>`
+      :'<div class="fec-zero">Nenhuma correção automática detectada ainda. Certifique-se de ter conexão para o sistema buscar o INCC no BCB, ou insira manualmente abaixo.</div>';
+    pb.innerHTML=info;
+  }
   const btn=document.getElementById('fec-btn-aplicar');
   if(btn)btn.disabled=true;
   const sm=document.getElementById('fec-summary');
@@ -15020,14 +15077,21 @@ function abrirFechamentoMensal(){
   document.getElementById('modal-fechamento').classList.add('open');
 }
 
+function _fecResetLocalStorage(){
+  try{localStorage.removeItem(_FEC_KEY);}catch(e){}
+  _FEC_ULTIMO_INCC=null;_FEC_ULTIMO_DATA=null;
+  toast('Cache resetado — sistema vai buscar INCC no BCB no próximo login','ok');
+  closeModal('modal-fechamento');
+}
 function _fecRenderPreview(){
   const incc=parseFloat(document.getElementById('fec-incc-pct').value||'0');
   const btn=document.getElementById('fec-btn-aplicar');
-  const body=document.getElementById('fec-preview-body');
+  const body=document.getElementById('fec-manual-preview');
   const sumEl=document.getElementById('fec-summary');
+  if(!body)return;
   if(!incc||incc<=0){
-    body.innerHTML='<div class="fec-zero">Digite o INCC do mês (ex: 0,48) para visualizar as correções.</div>';
-    btn.disabled=true;sumEl.textContent='';return;
+    body.innerHTML='';
+    if(btn)btn.disabled=true;if(sumEl)sumEl.textContent='';return;
   }
   const mult=1+incc/100;
   const _isCancFat=r=>r.status==='Cancelado'||r.status==='CANCELADO'||r.status==='Faturado'||r.status==='FATURADO';
@@ -15103,9 +15167,9 @@ function _fecRenderPreview(){
     h+='</div>';
   }
 
-  body.innerHTML=h;
-  sumEl.textContent=`${cotasIncc.length} cartas + ${cotasCred.length} créditos a corrigir`;
-  btn.disabled=false;
+  if(body)body.innerHTML=h;
+  if(sumEl)sumEl.textContent=`${cotasIncc.length} cartas + ${cotasCred.length} créditos a corrigir`;
+  if(btn)btn.disabled=false;
 }
 
 async function executarFechamentoMensal(){
@@ -15131,7 +15195,12 @@ async function executarFechamentoMensal(){
   }
   hideLoad();
   closeModal('modal-fechamento');
-  const nomeMes=_FEC_MESES[new Date().getMonth()];
+  // Registra como aplicado manualmente (usa data fictícia do mês atual para não re-aplicar)
+  const now=new Date();
+  const dataManual=`01/${String(now.getMonth()+1).padStart(2,'0')}/${now.getFullYear()}`;
+  try{localStorage.setItem(_FEC_KEY,dataManual);}catch(e){}
+  _FEC_ULTIMO_INCC=incc;_FEC_ULTIMO_DATA=dataManual;
+  const nomeMes=_FEC_MESES[now.getMonth()];
   toast(`Fechamento de ${nomeMes} aplicado! ${ok} cota(s) corrigida(s) pelo INCC de ${incc}%${errs?' · '+errs+' erro(s)':''}`,errs?'err':'ok');
   refreshCotaViews();
   try{initDash();}catch(e){}
@@ -15142,27 +15211,40 @@ async function executarFechamentoMensal(){
 <div class="moverlay" id="modal-fechamento">
   <div class="modal modal-lg fec-modal">
     <div class="mh">
-      <span class="mt" id="fec-title">📅 Fechamento Mensal</span>
+      <span class="mt" id="fec-title">📅 Correção INCC Mensal</span>
       <button class="mc" onclick="closeModal('modal-fechamento')">×</button>
     </div>
-    <div class="mb" style="gap:16px">
-      <div class="fec-incc-row">
-        <div class="fec-incc-lbl">INCC do mês (%)
-          <small style="display:block;font-weight:400;color:var(--txt2);font-size:11px;margin-top:2px">
-            Índice Nacional da Construção Civil — fonte: BCB / extrato Itaú
-          </small>
+    <div class="mb" style="gap:14px">
+      <!-- Status auto-fechamento -->
+      <div id="fec-preview-body" style="max-height:30vh;overflow-y:auto">
+        <div class="fec-zero">Carregando status da correção automática…</div>
+      </div>
+      <!-- Correção manual (fallback) -->
+      <details style="border:1px solid var(--bdr);border-radius:var(--r-md);overflow:hidden">
+        <summary style="padding:10px 14px;background:var(--card2);cursor:pointer;font-size:13px;font-weight:600;color:var(--sb);user-select:none">
+          🔧 Corrigir manualmente (caso o INCC automático esteja errado ou não disponível)
+        </summary>
+        <div style="padding:14px 16px;display:flex;flex-direction:column;gap:12px">
+          <div class="fec-incc-row">
+            <div class="fec-incc-lbl">INCC do mês (%)
+              <small style="display:block;font-weight:400;color:var(--txt2);font-size:11px;margin-top:2px">
+                Fonte: extrato Itaú ou <a href="https://www.bcb.gov.br" target="_blank" style="color:var(--sb2)">bcb.gov.br</a>
+              </small>
+            </div>
+            <input class="fec-incc-inp form-i" type="number" id="fec-incc-pct" step="0.01" min="0" max="5" placeholder="0.00" oninput="_fecRenderPreview()">
+            <span style="font-size:18px;font-weight:700;color:var(--acc)">%</span>
+          </div>
+          <div id="fec-manual-preview"></div>
+          <div style="display:flex;justify-content:flex-end;gap:8px">
+            <span id="fec-summary" style="font-size:12px;color:var(--txt2);flex:1;align-self:center"></span>
+            <button class="btn btn-ok" id="fec-btn-aplicar" onclick="executarFechamentoMensal()" disabled>✓ Aplicar correção manual</button>
+          </div>
         </div>
-        <input class="fec-incc-inp form-i" type="number" id="fec-incc-pct" step="0.01" min="0" max="5" placeholder="0.00" oninput="_fecRenderPreview()">
-        <span style="font-size:18px;font-weight:700;color:var(--acc)">%</span>
-      </div>
-      <div id="fec-preview-body" style="max-height:56vh;overflow-y:auto;padding-right:2px">
-        <div class="fec-zero">Digite o INCC do mês acima para ver o preview das correções antes de aplicar.</div>
-      </div>
+      </details>
     </div>
     <div class="mf" style="gap:10px">
-      <span id="fec-summary" style="font-size:12px;color:var(--txt2);flex:1;align-self:center"></span>
-      <button class="btn btn-out" onclick="closeModal('modal-fechamento')">Cancelar</button>
-      <button class="btn btn-ok" id="fec-btn-aplicar" onclick="executarFechamentoMensal()" disabled>✓ Confirmar e Aplicar</button>
+      <button class="btn btn-out btn-sm" onclick="_fecResetLocalStorage()" title="Limpar cache do auto-fechamento — força nova busca no BCB no próximo login" style="margin-right:auto;font-size:11px;color:var(--txt2)">↺ Resetar cache</button>
+      <button class="btn btn-pri" onclick="closeModal('modal-fechamento')">Fechar</button>
     </div>
   </div>
 </div>
