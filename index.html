@@ -3836,6 +3836,9 @@ main.main:has(#page-ajuda.active) .content{
       .gc-case-col.real .gc-case-col-line b{color:#22543d}
       .gc-case-supera{background:#22543d;color:#fff;padding:8px 14px;border-radius:8px;font-size:12px;font-weight:700;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
       .gc-case-supera.skip{background:#7b341e}
+      .gc-case-supera.wait{background:linear-gradient(135deg,#2c5282,#3182ce)}
+      .gc-case.aberto{border-color:#90cdf4;border-left-color:#2c5282;background:linear-gradient(135deg,#ebf8ff 0%,#fff 100%)}
+      .gc-case-badge.wait{background:#bee3f8;color:#2a4365}
       .gc-case-narr{background:#fff;border-radius:8px;padding:10px 14px;font-size:11.5px;line-height:1.6;color:#4a5568;border-left:3px solid #6b46c1;margin-bottom:10px}
       .gc-case-acts{display:flex;gap:6px;flex-wrap:wrap}
       .gc-case-acts button{background:#6b46c1;color:#fff;border:none;padding:6px 12px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer}
@@ -14482,13 +14485,50 @@ async function renderGuardaCases(){
   GC_CASES.forEach(c=>{
     const est = c.estimativa||{};
     const real = c.realizado||{};
+    const dt = new Date(c.data_assembleia+'T00:00:00').toLocaleDateString('pt-BR');
+    const isAberto = c.desfecho==='aguardando' || !c.realizado;
+    let desfechoIcon, desfechoLbl, desfechoCls;
+    if(isAberto){ desfechoIcon='⏳'; desfechoLbl='Aguardando assembleia'; desfechoCls='wait'; }
+    else if(c.desfecho==='nao_honrado'){ desfechoIcon='⚠️'; desfechoLbl='Cliente não honrou'; desfechoCls='skip'; }
+    else { desfechoIcon='✅'; desfechoLbl='Honrado'; desfechoCls='win'; }
+    if(isAberto){
+      cards += `
+        <div class="gc-case aberto">
+          <div class="gc-case-head">
+            <div>
+              <div class="gc-case-title">⏳ Case em aberto · ${c.cliente} · Tranche ${c.tranche}</div>
+              <div class="gc-case-sub">Assembleia ${dt} · Operação ${c.operacao}</div>
+            </div>
+            <span class="gc-case-badge ${desfechoCls}">${desfechoIcon} ${desfechoLbl}</span>
+          </div>
+          <div class="gc-case-supera wait">
+            <span>🎯 APOSTA: ofertamos ${c.qtd_ofertadas} lances</span>
+            <span style="font-size:11px;opacity:.9">Estimativa: <b>${est.cotas_min}-${est.cotas_max} cotas</b> · R$ <b>${((est.credito_min||0)/1e6).toFixed(1)}-${((est.credito_max||0)/1e6).toFixed(1)}M</b> em crédito</span>
+          </div>
+          <div class="gc-case-comp" style="grid-template-columns:1fr">
+            <div class="gc-case-col est">
+              <div class="gc-case-col-head">📋 Aposta pré-assembleia</div>
+              <div class="gc-case-col-line"><span>Lances ofertados</span><b>${c.qtd_ofertadas}</b></div>
+              <div class="gc-case-col-line"><span>Estimativa de contempladas</span><b>${est.cotas_min}-${est.cotas_max} cotas</b></div>
+              <div class="gc-case-col-line"><span>├─ ALTA chance (~95%)</span><b>${est.alta_chance||0} cotas</b></div>
+              <div class="gc-case-col-line"><span>├─ MÉDIA chance (~60%)</span><b>${est.media_chance||0} cotas</b></div>
+              <div class="gc-case-col-line"><span>└─ ÂNCORAS (~35%)</span><b>${est.ancora||0} cotas</b></div>
+              <div class="gc-case-col-line"><span>Carta total ofertada</span><b>${gcBRL(est.carta_total_ofertada)}</b></div>
+              <div class="gc-case-col-line"><span>Carta esperada (ponderada)</span><b style="color:#22543d">${gcBRL(est.carta_esperada_liberar)}</b></div>
+              <div class="gc-case-col-line"><span>Forma de pagamento</span><b>${est.forma_pagamento||'Diminuir parcela'}</b></div>
+              <div class="gc-case-col-line"><span>Regra de embutido</span><b style="font-size:10.5px;text-align:right;line-height:1.4">${est.regra_embutido||''}</b></div>
+            </div>
+          </div>
+          <div class="gc-case-narr">📝 <b>Narrativa:</b> ${c.narrativa}</div>
+          <div class="gc-case-acts">
+            <button class="alt" onclick="gcCaseDetalhes('${c.case_id}')">📊 Ver ${c.qtd_ofertadas} lances ofertados</button>
+          </div>
+        </div>`;
+      return;
+    }
     const cotasOK = (real.cotas_contempladas||0) >= (est.cotas_max||0);
     const credOK = (real.credito_liquido||0) >= (est.credito_min||0);
     const supera = cotasOK ? Math.round(((real.cotas_contempladas||0) - (est.cotas_max||0))/(est.cotas_max||1)*100) : 0;
-    const desfechoIcon = c.desfecho==='nao_honrado' ? '⚠️' : '✅';
-    const desfechoLbl = c.desfecho==='nao_honrado' ? 'Cliente não honrou' : 'Honrado';
-    const desfechoCls = c.desfecho==='nao_honrado' ? 'skip' : 'win';
-    const dt = new Date(c.data_assembleia+'T00:00:00').toLocaleDateString('pt-BR');
     cards += `
       <div class="gc-case">
         <div class="gc-case-head">
@@ -14508,7 +14548,6 @@ async function renderGuardaCases(){
             <div class="gc-case-col-line"><span>Cotas contempladas</span><b>${est.cotas_min}-${est.cotas_max}</b></div>
             <div class="gc-case-col-line"><span>Crédito líquido</span><b>${gcBRL(est.credito_min)} a ${gcBRL(est.credito_max)}</b></div>
             <div class="gc-case-col-line"><span>ROI médio</span><b>${(est.roi_medio_esperado||0).toFixed(2)}x</b></div>
-            <div class="gc-case-col-line"><span style="font-size:10px;color:#a0aec0;font-style:italic">${est.fonte||''}</span><span></span></div>
           </div>
           <div class="gc-case-col real">
             <div class="gc-case-col-head">✅ Realizado</div>
@@ -14518,13 +14557,13 @@ async function renderGuardaCases(){
             <div class="gc-case-col-line"><span>Recurso próprio</span><b>${gcBRL(real.recurso_proprio)}</b></div>
             <div class="gc-case-col-line"><span>Embutido</span><b>${gcBRL(real.embutido)}</b></div>
             <div class="gc-case-col-line"><span>ROI médio</span><b>${(real.roi_medio||0).toFixed(2)}x</b></div>
-            <div class="gc-case-col-line"><span>Taxa de conversão</span><b>${real.taxa_conversao_pct}% (${real.cotas_contempladas}/${real.lances_ofertados})</b></div>
+            <div class="gc-case-col-line"><span>Taxa de conversão</span><b>${real.taxa_conversao_pct}%</b></div>
           </div>
         </div>
         <div class="gc-case-narr">📝 <b>Desfecho:</b> ${c.narrativa}</div>
         <div class="gc-case-acts">
           <button onclick="gcCaseImprimir('${c.case_id}')">📄 Relatório PDF do Case</button>
-          <button class="alt" onclick="gcCaseDetalhes('${c.case_id}')">📊 Ver 45 cotas do snapshot</button>
+          <button class="alt" onclick="gcCaseDetalhes('${c.case_id}')">📊 Ver ${(c.snapshot_cotas||[]).length} cotas do snapshot</button>
         </div>
       </div>`;
   });
