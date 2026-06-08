@@ -5705,6 +5705,11 @@ function calcRendimento(base,dataInicio,dataFim,taxas){
 // Base: credito_liberado (fallback carta_atualizada → credito).
 // Lance embutido sai da própria carta e NÃO rende separado.
 function rendimentoCota(r){
+  // Modo real: cartas atualizadas na mão pelo portal (ex: Itaú/Serrametal).
+  // Rendimento = crédito liberado atual − valor inicial. Sem CDI nem INCC.
+  if(r.carta_inicial!=null&&r.credito_liberado!=null){
+    return r.credito_liberado-r.carta_inicial;
+  }
   const isCp=r.status==='Contemplado'||r.status==='CONTEMPLADO'||r.status==='Faturado';
   if(!isCp||!r.data_contemplada)return 0;
   // Se já foi faturado, congela na data de faturamento (depois disso a carta sai e não rende mais)
@@ -12743,6 +12748,7 @@ function renderProjDash(name){
   const prazoMax=Math.max(0,...en.map(r=>r.prazo_restante||0));
   // Rendimento total acumulado das cotas contempladas/faturadas (apenas as com data_contemplada preenchida)
   const totRend=en.reduce((s,r)=>s+rendimentoCota(r),0);
+  const rendReal=en.some(r=>r.carta_inicial!=null&&r.credito_liberado!=null);
   const taxaAtual=taxaCdiAtual();
   const nC=en.filter(r=>isC(r.status)&&!isFat(r.status)).length;
   const crC=en.filter(r=>isC(r.status)&&!isFat(r.status)).reduce((s,r)=>s+(r.credito||0),0);
@@ -12877,7 +12883,7 @@ function renderProjDash(name){
       <div class="pd-kpi c-green"><div class="pd-kpi-ico">🏦</div><div class="pd-kpi-lbl">Valor Pago · Lances</div><div class="pd-kpi-val">${fb(totLancePago)}</div><div class="pd-kpi-sub">recurso próprio (excl. embutido)</div></div>
       <div class="pd-kpi c-info"><div class="pd-kpi-ico">📅</div><div class="pd-kpi-lbl">Prazo Ponderado</div><div class="pd-kpi-val">${prazoPonderado}<span style="font-size:14px;font-weight:600;color:var(--txt2)"> m</span></div><div class="pd-kpi-sub">ponderado por parcela &nbsp;·&nbsp; ${(prazoPonderado/12).toFixed(1)} anos</div></div>
       <div class="pd-kpi c-navy"><div class="pd-kpi-ico">⏳</div><div class="pd-kpi-lbl">Prazo Total (maior)</div><div class="pd-kpi-val">${prazoMax}<span style="font-size:14px;font-weight:600;color:var(--txt2)"> m</span></div><div class="pd-kpi-sub">maior prazo entre as cotas &nbsp;·&nbsp; ${(prazoMax/12).toFixed(1)} anos</div></div>
-      <div class="pd-kpi c-green" style="border-left:3px solid #059669"><div class="pd-kpi-ico">📈</div><div class="pd-kpi-lbl">Rendimento da Carta</div><div class="pd-kpi-val" style="color:#059669">${fb(totRend)}</div><div class="pd-kpi-sub">CDI pós-contemplação ${taxaAtual?'· '+taxaAtual.taxa_aa+'% a.a.':''}</div></div>
+      <div class="pd-kpi c-green" style="border-left:3px solid #059669"><div class="pd-kpi-ico">📈</div><div class="pd-kpi-lbl">Rendimento da Carta</div><div class="pd-kpi-val" style="color:#059669">${fb(totRend)}</div><div class="pd-kpi-sub">${rendReal?'correção real (atualizado do portal)':'CDI pós-contemplação '+(taxaAtual?'· '+taxaAtual.taxa_aa+'% a.a.':'')}</div></div>
     </div>
     <div class="pd-st-grid">
       <div class="pd-st-card"><div class="pd-st-count" style="color:#059669">${nC}</div><div class="pd-st-lbl">Contempladas</div><div class="pd-st-cr">${fb(crC)}</div><div class="pd-st-bar" style="background:#d1fae5"><div style="height:100%;width:${totCr>0?Math.round(crC/totCr*100):0}%;background:#059669;border-radius:2px"></div></div></div>
@@ -13722,6 +13728,7 @@ function gerarRelatorioCliente(name){
   const sumP=enComPrazo.reduce((s,r)=>s+parcEf(r),0);
   const prazoPond=sumP>0?Math.round(sumPP/sumP):0;
   const totRend=en.reduce((s,r)=>s+rendimentoCota(r),0);
+  const rendReal=en.some(r=>r.carta_inicial!=null&&r.credito_liberado!=null);
   const taxaA=taxaCdiAtual();
   const nC=en.filter(r=>isC(r.status)&&!isFat(r.status)).length;
   const crC=en.filter(r=>isC(r.status)&&!isFat(r.status)).reduce((s,r)=>s+(r.credito||0),0);
@@ -13836,7 +13843,7 @@ function gerarRelatorioCliente(name){
       <div class="rel-kpi-card"><div class="rel-kpi-l">Saldo Devedor</div><div class="rel-kpi-v">${fb(totSdDB)}</div><div class="rel-kpi-s">consolidado</div></div>
       <div class="rel-kpi-card"><div class="rel-kpi-l">Parcela Mensal</div><div class="rel-kpi-v">${fb(totParc)}</div><div class="rel-kpi-s">pré + pós contempl.</div></div>
       <div class="rel-kpi-card"><div class="rel-kpi-l">Lances Pagos</div><div class="rel-kpi-v">${fb(totLancePago)}</div><div class="rel-kpi-s">recurso próprio</div></div>
-      <div class="rel-kpi-card"><div class="rel-kpi-l">Rendimento da Carta</div><div class="rel-kpi-v">${fb(totRend)}</div><div class="rel-kpi-s">CDI pós-contemplação ${taxaA?'· '+taxaA.taxa_aa+'% a.a.':''}</div></div>
+      <div class="rel-kpi-card"><div class="rel-kpi-l">Rendimento da Carta</div><div class="rel-kpi-v">${fb(totRend)}</div><div class="rel-kpi-s">${rendReal?'correção real (atualizado do portal)':'CDI pós-contemplação '+(taxaA?'· '+taxaA.taxa_aa+'% a.a.':'')}</div></div>
     </div>
     <div class="rel-stats-grid">
       <div class="rel-stat-card green"><div class="rel-stat-n">${nC}</div><div class="rel-stat-l">Contempladas</div><div class="rel-stat-v">${fb(crC)}</div></div>
