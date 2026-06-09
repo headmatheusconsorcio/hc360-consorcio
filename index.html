@@ -2552,6 +2552,16 @@ main.main:has(#page-ajuda.active) .content{
           <div class="gfb-fld"><label title="Média 6 meses">Contempl./mês ≥</label>
             <input type="number" id="guia-f-cont" placeholder="0" min="0" step="0.5" oninput="guiaFilter()" style="width:70px">
           </div>
+          <div class="gfb-fld"><label title="Mês em que o grupo aplica o reajuste anual">Reajuste em</label>
+            <select id="guia-f-aniv" onchange="guiaFilter()">
+              <option value="">Qualquer</option>
+              <option value="1">Janeiro</option><option value="2">Fevereiro</option><option value="3">Março</option>
+              <option value="4">Abril</option><option value="5">Maio</option><option value="6">Junho</option>
+              <option value="7">Julho</option><option value="8">Agosto</option><option value="9">Setembro</option>
+              <option value="10">Outubro</option><option value="11">Novembro</option><option value="12">Dezembro</option>
+              <option value="prox3">Próximos 3 meses</option>
+            </select>
+          </div>
         </div>
         <div class="gfb-actions">
           <button class="btn btn-out btn-sm" onclick="guiaClearFilters()" title="Remover todos os filtros">✕ Limpar</button>
@@ -6714,6 +6724,7 @@ async function loadData(silent){
           vagas:r.vagas!=null?String(r.vagas):null,
           cap:r.capacidade_grupo!=null?String(r.capacidade_grupo):null,
           ocup:r.pct_ocupacao!=null?Number(r.pct_ocupacao):null,
+          mes_aniv:r.mes_aniversario!=null?Number(r.mes_aniversario):null,
           sheet:r.categoria==='imovel'?'Imóvel':'Rodas'
         };
       });
@@ -9835,6 +9846,7 @@ function guiaFilter(){
   const fVagas   =numv('guia-f-vagas');
   const fCont    =numv('guia-f-cont');
   const fCredMin =numv('guia-f-cred-min'),fCredMax=numv('guia-f-cred-max');
+  const fAniv   =document.getElementById('guia-f-aniv')?.value||'';
   browseData=Object.entries(GUIA).filter(([g,d])=>{
     // Tipo
     if(fTipo==='Im'&&!(d.sheet||'').includes('Im'))return false;
@@ -9869,6 +9881,18 @@ function guiaFilter(){
     const cr=(d.vmax||d.vmin||0)/1000;
     if(fCredMin!=null&&cr<fCredMin)return false;
     if(fCredMax!=null&&cr>fCredMax)return false;
+    // Mês aniversário (reajuste)
+    if(fAniv){
+      const ma=d.mes_aniv;
+      if(!ma)return false;
+      if(fAniv==='prox3'){
+        const hoje=new Date();
+        const m1=hoje.getMonth()+1;
+        const m2=m1===12?1:m1+1;
+        const m3=m1>=11?(m1===11?1:2):m1+2;
+        if(ma!==m1&&ma!==m2&&ma!==m3)return false;
+      }else if(String(ma)!==fAniv)return false;
+    }
     return true;
   });
   guiaUpdateChips();
@@ -9880,7 +9904,7 @@ function guiaFilter(){
   renderBrowse(browseData,1);
 }
 // IDs de todos os filtros do guia (mantém em um lugar só)
-const GUIA_FILTER_IDS=['tipo','sit','lf','pr','prazo-min','prazo-max','lance-min','lance-max','vagas','cont','cred-min','cred-max'];
+const GUIA_FILTER_IDS=['tipo','sit','lf','pr','prazo-min','prazo-max','lance-min','lance-max','vagas','cont','cred-min','cred-max','aniv'];
 function guiaUpdateChips(){
   const wrap=document.getElementById('guia-active-chips');if(!wrap)return;
   const sel={
@@ -9905,6 +9929,12 @@ function guiaUpdateChips(){
   // Crédito (range livre, em mil)
   const cmn=v('cred-min'),cmx=v('cred-max');
   if(cmn||cmx)chips.push({keys:['cred-min','cred-max'],lbl:'Crédito '+(cmn?'R$'+cmn+'k':'')+(cmn&&cmx?' – ':'')+(cmx?'R$'+cmx+'k':'')+(cmn&&!cmx?'+':'')+(!cmn&&cmx?' (até)':'')});
+  const fv=v('aniv');
+  if(fv){
+    const meses=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+    const lbl=fv==='prox3'?'Reajuste nos próx. 3 meses':'Reajuste em '+(meses[parseInt(fv)-1]||fv);
+    chips.push({keys:['aniv'],lbl});
+  }
   if(!chips.length){wrap.style.display='none';wrap.innerHTML='';return;}
   wrap.style.display='flex';
   wrap.innerHTML='<span style="font-size:10.5px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:.5px;align-self:center;margin-right:4px">Ativos:</span>'+
@@ -10254,7 +10284,22 @@ function renderGuiaChips(g){
     {l:'Contemp. (LL)',v:d.at_cl||'0',s:'lance livre'},
     {l:'Contemp. (LF)',v:d.at_cl_lf||'0',s:'lance fixo'},
     {l:'F. Reserva',v:d.fr!=null?pct(d.fr):'—',s:''},
-    {l:'Parc. Reduz.',v:d.pr_red==='S'?'Sim':'Não',s:''}
+    {l:'Parc. Reduz.',v:d.pr_red==='S'?'Sim':'Não',s:''},
+    // Mês aniversário + próximo reajuste (em N meses)
+    (()=>{
+      const m=d.mes_aniv;
+      if(!m||m<1||m>12)return {l:'Próx. Reajuste',v:'—',s:''};
+      const meses=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+      const nome=meses[m-1];
+      const hoje=new Date();
+      const mAtual=hoje.getMonth()+1;
+      let faltam=m-mAtual;
+      if(faltam<0)faltam+=12;
+      if(faltam===0)faltam=12; // se é esse mês mas já passou, vai pro próximo ano
+      const lbl=faltam<=1?'este mês ou próximo':`em ${faltam} mês${faltam>1?'es':''}`;
+      const isWarn=faltam<=2;
+      return {l:'Próx. Reajuste',v:nome,s:lbl,hl:isWarn};
+    })()
   ];
   document.getElementById('guia-chips').innerHTML=chips.map(c=>`<div class="chip${c.hl?' hl':''}"><div class="chip-l">${c.l}${c.sel||''}</div><div class="chip-v">${c.v}</div>${c.s?`<div class="chip-s">${c.s}</div>`:''}</div>`).join('');
 }
@@ -12938,8 +12983,20 @@ function renderProjDetail(name){
     const isCan=isCancelada(r);
     const isCp=r.status==='Contemplado'||r.status==='CONTEMPLADO'||r.status==='Faturado';
     const parcEf=isCp?(r.parcela_pos||r.parcela||0):(r.parcela||0);
+    // Badge de próximo reajuste (mês aniversário do grupo)
+    const gData=GUIA[r.grupo]||GUIA[String(r.grupo)]||{};
+    const ma=gData.mes_aniv;
+    let reajusteBadge='';
+    if(ma&&ma>=1&&ma<=12){
+      const hoje=new Date();
+      let faltam=ma-(hoje.getMonth()+1);
+      if(faltam<0)faltam+=12;
+      const meses=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+      if(faltam===0)reajusteBadge=`<span title="Reajuste este mês (${meses[ma-1]})" style="display:inline-block;margin-left:5px;padding:1px 6px;background:#fee2e2;color:#991b1b;border-radius:8px;font-size:9px;font-weight:700;letter-spacing:.3px;vertical-align:middle">⚠ REAJ.</span>`;
+      else if(faltam<=2)reajusteBadge=`<span title="Reajuste em ${faltam} mês${faltam>1?'es':''} (${meses[ma-1]})" style="display:inline-block;margin-left:5px;padding:1px 6px;background:#fef3c7;color:#92400e;border-radius:8px;font-size:9px;font-weight:700;letter-spacing:.3px;vertical-align:middle">⏱ ${faltam}m</span>`;
+    }
     return `<tr id="proj-row-${r.id}" style="${isCan?'opacity:.4;background:#fafafa':''}" >
-      <td><strong>${r.grupo||'—'}</strong></td>
+      <td><strong>${r.grupo||'—'}</strong>${reajusteBadge}</td>
       <td>${r.cota||'—'}</td>
       <td>${brl(r.credito,0)}</td>
       <td>${brl(parcEf)}${isCp&&r.parcela_pos?'<small style="display:block;font-size:9px;color:var(--ok)">pós</small>':''}</td>
