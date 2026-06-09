@@ -7276,35 +7276,62 @@ function renderProxReajustes(){
   });
   const lista=Object.values(porCliente).sort((a,b)=>a.minDias-b.minDias);
   if(!lista.length){
-    body.innerHTML='<div style="padding:36px;text-align:center;color:var(--txt2);font-size:13px">Nenhum reajuste previsto na janela de '+janela+' dias.</div>';
+    body.innerHTML=`<div style="padding:48px 24px;text-align:center"><div style="font-size:44px;margin-bottom:10px;opacity:.5">📅</div><div style="font-family:Quicksand,sans-serif;font-size:15px;font-weight:600;color:var(--sb);margin-bottom:4px">Nenhum reajuste previsto</div><div style="font-size:12px;color:var(--txt2)">Nenhuma cota vai reajustar nos próximos ${janela} dias</div></div>`;
     return;
   }
   const meses=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
-  const rows=lista.map(cli=>{
-    const cotasFmt=cli.cotas.sort((a,b)=>a._dias-b._dias).map(r=>{
-      const corBg=r._dias<=15?'#fee2e2':r._dias<=45?'#fef3c7':'#e0f2fe';
-      const corFg=r._dias<=15?'#991b1b':r._dias<=45?'#92400e':'#075985';
-      return `<span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;background:${corBg};color:${corFg};border-radius:8px;font-size:11px;font-weight:700;margin-right:5px;margin-top:3px">G${r.grupo} · ${meses[r._ma-1]} (${r._dias}d)<small style="opacity:.75;font-weight:600">${r._idx}</small></span>`;
+  // Contagem por faixa de urgência
+  const urgentes=lista.filter(c=>c.minDias<=15).length;
+  const proximos=lista.filter(c=>c.minDias>15&&c.minDias<=45).length;
+  const monitor=lista.filter(c=>c.minDias>45).length;
+  // Helper: iniciais
+  const ini=nm=>{const p=nm.trim().split(/\s+/);return((p[0]||'')[0]+(p.length>1?p[p.length-1][0]:'')).toUpperCase()||'?';};
+  // Helper: cor por urgência (paleta brand book)
+  const urgCor=d=>d<=15?{tag:'#991b1b',bg:'#fef2f2',dot:'#dc2626',lbl:'Urgente'}:d<=45?{tag:'#92400e',bg:'#fffbeb',dot:'#d97706',lbl:'Próximo'}:{tag:'#1e3a8a',bg:'#eff6ff',dot:'#3b82f6',lbl:'Monitorar'};
+  const rows=lista.map((cli,i)=>{
+    const u=urgCor(cli.minDias);
+    const ordCotas=cli.cotas.slice().sort((a,b)=>a._dias-b._dias);
+    const cotasFmt=ordCotas.map(r=>{
+      const cu=urgCor(r._dias);
+      return `<span style="display:inline-flex;align-items:center;gap:5px;padding:3px 9px;background:${cu.bg};color:${cu.tag};border-radius:6px;font-size:10.5px;font-weight:700;letter-spacing:.2px;border:1px solid ${cu.bg.replace(/^#/,'#').slice(0,4)+'cc'}"><span style="width:5px;height:5px;border-radius:50%;background:${cu.dot}"></span>G${r.grupo} · ${meses[r._ma-1]} · ${r._dias}d <span style="opacity:.6;font-weight:600">${r._idx}</span></span>`;
     }).join('');
     const tel=cli.cotas.find(r=>r.telefone)?.telefone||'';
     const telLimpo=tel.replace(/\D/g,'');
     const grupos=cli.cotas.map(r=>'G'+r.grupo).join(', ');
-    const primMesAniv=meses[cli.cotas[0]._ma-1];
+    const primMesAniv=meses[ordCotas[0]._ma-1];
     const msg=encodeURIComponent(`Oi ${cli.nome.split(' ')[0]}! Tudo bem? Passando pra te avisar que o(s) seu(s) grupo(s) ${grupos} terá(ão) reajuste anual em ${primMesAniv} (em ${cli.minDias} dias). Esse é um bom momento pra revisar a estratégia de lance — bora conversar?`);
-    const btnWpp=telLimpo?`<a href="https://wa.me/55${telLimpo}?text=${msg}" target="_blank" rel="noopener" class="btn btn-ok btn-sm" style="padding:5px 10px;font-size:11.5px;text-decoration:none" title="Abrir WhatsApp com mensagem pronta">📱 WhatsApp</a>`:'<span style="font-size:10.5px;color:var(--txt2)" title="Sem telefone cadastrado">— sem tel —</span>';
-    const urgencyBar=cli.minDias<=15?'#dc2626':cli.minDias<=45?'#d97706':'#0ea5e9';
-    return `<div style="padding:12px 16px;border-bottom:1px solid var(--bdr);border-left:4px solid ${urgencyBar};display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap">
-      <div style="flex:1;min-width:240px">
-        <div style="font-family:Quicksand,sans-serif;font-size:15px;font-weight:700;color:var(--sb);cursor:pointer" onclick="event.stopPropagation();selProjFn?selProjFn('${cli.nome.replace(/'/g,"\\'")}',event):null;nav('proj',document.querySelector('.ni[onclick*=proj]'))">${cli.nome}</div>
-        <div style="margin-top:5px">${cotasFmt}</div>
+    const btnWpp=telLimpo?`<a href="https://wa.me/55${telLimpo}?text=${msg}" target="_blank" rel="noopener" onclick="event.stopPropagation()" style="display:inline-flex;align-items:center;gap:5px;padding:6px 11px;background:#dcfce7;color:#166534;border:1px solid #86efac;border-radius:7px;font-size:11px;font-weight:700;text-decoration:none;letter-spacing:.2px;transition:all .15s" onmouseover="this.style.background='#bbf7d0';this.style.transform='translateY(-1px)'" onmouseout="this.style.background='#dcfce7';this.style.transform='none'" title="Abrir WhatsApp com mensagem pronta">📱 Avisar</a>`:`<span style="font-size:10px;color:var(--txt2);font-style:italic" title="Sem telefone cadastrado">sem telefone</span>`;
+    const isLast=i===lista.length-1;
+    return `<div onclick="if(typeof selProjFn==='function')selProjFn('${cli.nome.replace(/'/g,"\\'")}',event);nav('proj',document.querySelector('.ni[onclick*=proj]'))" style="padding:14px 18px;${isLast?'':'border-bottom:1px solid var(--bdr);'}display:flex;align-items:center;gap:14px;cursor:pointer;transition:background .15s" onmouseover="this.style.background='var(--card2)'" onmouseout="this.style.background='transparent'">
+      <div style="width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--sb) 0%,var(--sb2) 100%);color:#fff;display:flex;align-items:center;justify-content:space-around;flex-shrink:0;font-family:Quicksand,sans-serif;font-weight:700;font-size:14px;letter-spacing:.5px;box-shadow:0 2px 6px rgba(44,62,80,.15)">${ini(cli.nome)}</div>
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+          <div style="font-family:Quicksand,sans-serif;font-size:14.5px;font-weight:700;color:var(--sb);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:-.2px">${cli.nome}</div>
+          <span style="font-size:9.5px;font-weight:700;color:${u.tag};background:${u.bg};padding:2px 8px;border-radius:10px;text-transform:uppercase;letter-spacing:.5px;flex-shrink:0">${u.lbl}</span>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:5px">${cotasFmt}</div>
       </div>
-      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px">
-        <div style="font-size:11px;color:var(--txt2);font-weight:600">primeiro em <strong style="color:${urgencyBar}">${cli.minDias}d</strong></div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">
+        <div style="font-family:Quicksand,sans-serif;font-size:11px;color:var(--txt2);font-weight:600;letter-spacing:.3px;text-transform:uppercase">em <strong style="font-size:18px;color:${u.dot};font-weight:800">${cli.minDias}</strong>d</div>
         ${btnWpp}
       </div>
     </div>`;
   }).join('');
-  body.innerHTML=`<div style="padding:10px 16px;background:var(--card2);font-size:11.5px;color:var(--txt2);border-bottom:1px solid var(--bdr)"><strong>${lista.length}</strong> cliente${lista.length>1?'s':''} · <strong>${itens.length}</strong> cota${itens.length>1?'s':''} com reajuste em até ${janela} dias</div>${rows}`;
+  const kpiStrip=`<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0;background:var(--card2);border-bottom:1px solid var(--bdr)">
+    <div style="padding:10px 16px;border-right:1px solid var(--bdr);text-align:center">
+      <div style="font-family:Quicksand,sans-serif;font-size:20px;font-weight:700;color:#dc2626;line-height:1">${urgentes}</div>
+      <div style="font-size:9.5px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:.6px;margin-top:3px">Urgente · ≤15d</div>
+    </div>
+    <div style="padding:10px 16px;border-right:1px solid var(--bdr);text-align:center">
+      <div style="font-family:Quicksand,sans-serif;font-size:20px;font-weight:700;color:#d97706;line-height:1">${proximos}</div>
+      <div style="font-size:9.5px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:.6px;margin-top:3px">Próximo · 16-45d</div>
+    </div>
+    <div style="padding:10px 16px;text-align:center">
+      <div style="font-family:Quicksand,sans-serif;font-size:20px;font-weight:700;color:#3b82f6;line-height:1">${monitor}</div>
+      <div style="font-size:9.5px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:.6px;margin-top:3px">Monitorar · 46d+</div>
+    </div>
+  </div>`;
+  body.innerHTML=kpiStrip+rows;
 }
 
 function initDash(){
