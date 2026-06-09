@@ -2033,6 +2033,25 @@ main.main:has(#page-ajuda.active) .content{
       <div class="cb" style="padding-top:8px"><div class="chart-wrap" style="height:240px"><canvas id="ch-evo"></canvas></div></div>
     </div>
 
+    <!-- Próximos Reajustes -->
+    <div class="card-min" id="dash-reaj-card" style="margin-bottom:14px">
+      <div class="ch" style="flex-wrap:wrap;gap:10px">
+        <span class="ct">📅 Próximos Reajustes</span>
+        <span class="cs">cotas dos clientes em grupos que vão reajustar em breve</span>
+        <div style="margin-left:auto;display:inline-flex;align-items:center;gap:8px">
+          <label style="font-size:11px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:.4px">Janela</label>
+          <select id="dash-reaj-janela" onchange="renderProxReajustes()" style="padding:5px 10px;font-size:12px;border:1.5px solid var(--bdr);border-radius:7px;background:#fff;outline:none">
+            <option value="30">30 dias</option>
+            <option value="60" selected>60 dias</option>
+            <option value="90">90 dias</option>
+          </select>
+        </div>
+      </div>
+      <div class="cb" style="padding:0">
+        <div id="dash-reaj-body" style="max-height:380px;overflow-y:auto"></div>
+      </div>
+    </div>
+
     <div class="card-min">
       <div class="ch"><span class="ct">Maiores Clientes</span><span class="cs">Top 10 · cor por assessor · click abre cotas</span></div>
       <div id="dash-clients-legend" class="dash-legend"></div>
@@ -7210,9 +7229,88 @@ function dashRenderEvo(){
 }
 
 
+// ═══ Próximos Reajustes (Dashboard) ═══
+function renderProxReajustes(){
+  const body=document.getElementById('dash-reaj-body');if(!body)return;
+  const janela=parseInt(document.getElementById('dash-reaj-janela')?.value||'60');
+  const hoje=new Date();
+  const mAtual=hoje.getMonth()+1;
+  const dAtual=hoje.getDate();
+  // Calcula meses elegíveis (no janela)
+  const mesesElegiveis=new Set();
+  const tetoMeses=Math.ceil(janela/30);
+  for(let i=0;i<=tetoMeses;i++){
+    let m=((mAtual-1+i)%12)+1;
+    mesesElegiveis.add(m);
+  }
+  // Estimativa de "dias até reajuste": dia 1 do mês_aniv
+  function diasAteReajuste(ma){
+    if(!ma||ma<1||ma>12)return null;
+    let ano=hoje.getFullYear();
+    if(ma<mAtual||(ma===mAtual&&dAtual>=15))ano+=1; // se este mês já passou metade ou é mês anterior, conta próximo ano
+    if(ma===mAtual)return Math.max(0,15-dAtual); // se é este mês mesmo, assume reajuste por volta do dia 15
+    const alvo=new Date(ano,ma-1,1);
+    return Math.floor((alvo-hoje)/(1000*60*60*24));
+  }
+  // Coleta cotas ativas com grupo válido + filtra por janela
+  const isCp=s=>s==='Contemplado'||s==='CONTEMPLADO'||s==='Faturado';
+  const isCan=s=>(s||'').toUpperCase()==='CANCELADO'||s==='Cancelado';
+  const ativas=(COTAS||[]).filter(r=>!isCan(r.status));
+  const itens=[];
+  ativas.forEach(r=>{
+    const g=r.grupo;if(!g)return;
+    const gd=GUIA[g]||GUIA[String(g)]||{};
+    const ma=gd.mes_aniv;
+    if(!ma)return;
+    const dias=diasAteReajuste(ma);
+    if(dias==null||dias>janela)return;
+    itens.push({...r,_dias:dias,_ma:ma,_idx:gd.idx||'—'});
+  });
+  // Agrupa por cliente
+  const porCliente={};
+  itens.forEach(r=>{
+    const nm=r.nome||'(sem nome)';
+    if(!porCliente[nm])porCliente[nm]={nome:nm,cotas:[],minDias:Infinity};
+    porCliente[nm].cotas.push(r);
+    if(r._dias<porCliente[nm].minDias)porCliente[nm].minDias=r._dias;
+  });
+  const lista=Object.values(porCliente).sort((a,b)=>a.minDias-b.minDias);
+  if(!lista.length){
+    body.innerHTML='<div style="padding:36px;text-align:center;color:var(--txt2);font-size:13px">Nenhum reajuste previsto na janela de '+janela+' dias.</div>';
+    return;
+  }
+  const meses=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  const rows=lista.map(cli=>{
+    const cotasFmt=cli.cotas.sort((a,b)=>a._dias-b._dias).map(r=>{
+      const corBg=r._dias<=15?'#fee2e2':r._dias<=45?'#fef3c7':'#e0f2fe';
+      const corFg=r._dias<=15?'#991b1b':r._dias<=45?'#92400e':'#075985';
+      return `<span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;background:${corBg};color:${corFg};border-radius:8px;font-size:11px;font-weight:700;margin-right:5px;margin-top:3px">G${r.grupo} · ${meses[r._ma-1]} (${r._dias}d)<small style="opacity:.75;font-weight:600">${r._idx}</small></span>`;
+    }).join('');
+    const tel=cli.cotas.find(r=>r.telefone)?.telefone||'';
+    const telLimpo=tel.replace(/\D/g,'');
+    const grupos=cli.cotas.map(r=>'G'+r.grupo).join(', ');
+    const primMesAniv=meses[cli.cotas[0]._ma-1];
+    const msg=encodeURIComponent(`Oi ${cli.nome.split(' ')[0]}! Tudo bem? Passando pra te avisar que o(s) seu(s) grupo(s) ${grupos} terá(ão) reajuste anual em ${primMesAniv} (em ${cli.minDias} dias). Esse é um bom momento pra revisar a estratégia de lance — bora conversar?`);
+    const btnWpp=telLimpo?`<a href="https://wa.me/55${telLimpo}?text=${msg}" target="_blank" rel="noopener" class="btn btn-ok btn-sm" style="padding:5px 10px;font-size:11.5px;text-decoration:none" title="Abrir WhatsApp com mensagem pronta">📱 WhatsApp</a>`:'<span style="font-size:10.5px;color:var(--txt2)" title="Sem telefone cadastrado">— sem tel —</span>';
+    const urgencyBar=cli.minDias<=15?'#dc2626':cli.minDias<=45?'#d97706':'#0ea5e9';
+    return `<div style="padding:12px 16px;border-bottom:1px solid var(--bdr);border-left:4px solid ${urgencyBar};display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap">
+      <div style="flex:1;min-width:240px">
+        <div style="font-family:Quicksand,sans-serif;font-size:15px;font-weight:700;color:var(--sb);cursor:pointer" onclick="event.stopPropagation();selProjFn?selProjFn('${cli.nome.replace(/'/g,"\\'")}',event):null;nav('proj',document.querySelector('.ni[onclick*=proj]'))">${cli.nome}</div>
+        <div style="margin-top:5px">${cotasFmt}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px">
+        <div style="font-size:11px;color:var(--txt2);font-weight:600">primeiro em <strong style="color:${urgencyBar}">${cli.minDias}d</strong></div>
+        ${btnWpp}
+      </div>
+    </div>`;
+  }).join('');
+  body.innerHTML=`<div style="padding:10px 16px;background:var(--card2);font-size:11.5px;color:var(--txt2);border-bottom:1px solid var(--bdr)"><strong>${lista.length}</strong> cliente${lista.length>1?'s':''} · <strong>${itens.length}</strong> cota${itens.length>1?'s':''} com reajuste em até ${janela} dias</div>${rows}`;
+}
+
 function initDash(){
   if(!dashCharts) dashCharts={};
   privLoad(); privUpdateUI();
+  try{renderProxReajustes();}catch(e){console.warn('[Dash] reajustes:',e);}
   const isCancel=s=>(s||'').toUpperCase()==='CANCELADO';
   const isContemp=s=>s==='Contemplado'||s==='CONTEMPLADO'||s==='Faturado';
   const ativas=COTAS.filter(r=>!isCancel(r.status));
