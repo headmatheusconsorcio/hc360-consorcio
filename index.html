@@ -904,7 +904,7 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
 .pgrp-rm{background:none;border:1.5px solid transparent;cursor:pointer;color:var(--txt2);font-size:18px;line-height:1;width:28px;height:28px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;transition:all .15s}
 .pgrp-rm:hover{background:#fee2e2;color:var(--err);border-color:#fecaca}
 .pgrp-grid{display:grid;grid-template-columns:1fr 70px 1fr 70px;gap:10px;align-items:end}
-.pgrp-grid-strat{grid-template-columns:1fr 1fr 1fr 1fr;margin-top:8px}
+.pgrp-grid-strat{grid-template-columns:1fr 1fr 1fr 1fr 1fr;margin-top:8px}
 .pgrp-strat-title{font-size:10px;font-weight:700;color:var(--acc2);text-transform:uppercase;letter-spacing:.5px;margin-top:14px;padding-top:12px;border-top:1px dashed var(--bdr);font-family:'Raleway',sans-serif}
 .pgrp-fld{display:flex;flex-direction:column;gap:4px}
 .pgrp-fld label{font-size:9.5px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:.3px;font-family:'Raleway',sans-serif;line-height:1.25;min-height:24px;display:flex;align-items:flex-end}
@@ -10833,7 +10833,7 @@ function usarNaProposta(){
   if(selGrupo){
     if(!propGrupos.some(pg=>pg.grupo===selGrupo)){
       if(propGrupos.length===1&&!propGrupos[0].grupo)lookupGrupo(0,selGrupo);
-      else{propGrupos.push({grupo:'',prazo:192,fr:3,taxaadm:null,credMin:0,credMax:0,credito:340000,qtd:1,mesAtual:0,pr_red:false,taxaadm_user:null,rpPct:10,embPct:30});lookupGrupo(propGrupos.length-1,selGrupo);}
+      else{propGrupos.push({grupo:'',prazo:192,fr:3,taxaadm:null,credMin:0,credMax:0,credito:340000,qtd:1,mesAtual:0,pr_red:false,taxaadm_user:null,rpPct:10,embPct:30,redPct:0});lookupGrupo(propGrupos.length-1,selGrupo);}
     }
   }
   nav('prop',document.querySelectorAll('.ni')[6]);
@@ -11317,7 +11317,7 @@ function _propSerializeEstado(){
     red:parseFloat((document.getElementById('p-red')||{}).value)||0,
     seg:parseFloat((document.getElementById('p-seg')||{}).value)||0,
     mes:parseInt((document.getElementById('p-mes')||{}).value)||1,
-    grupos:propGrupos.map(g=>({grupo:g.grupo,prazo:g.prazo,fr:g.fr,taxaadm:g.taxaadm,taxaadm_user:g.taxaadm_user,credMin:g.credMin,credMax:g.credMax,credito:g.credito,qtd:g.qtd,mesAtual:g.mesAtual,pr_red:g.pr_red,rpPct:g.rpPct,embPct:g.embPct})),
+    grupos:propGrupos.map(g=>({grupo:g.grupo,prazo:g.prazo,fr:g.fr,taxaadm:g.taxaadm,taxaadm_user:g.taxaadm_user,credMin:g.credMin,credMax:g.credMax,credito:g.credito,qtd:g.qtd,mesAtual:g.mesAtual,pr_red:g.pr_red,rpPct:g.rpPct,embPct:g.embPct,redPct:g.redPct})),
     ts:new Date().toISOString()
   };
 }
@@ -11391,8 +11391,8 @@ function propLoadFromLead(leadId){
     set('p-seg',d.seg||0);
     set('p-mes',d.mes||1);
     // Restaura grupos
-    propGrupos=(d.grupos||[]).map(g=>({grupo:g.grupo||'',prazo:g.prazo||192,fr:g.fr||3,taxaadm:(g.taxaadm!=null?g.taxaadm:null),taxaadm_user:(g.taxaadm_user!=null?g.taxaadm_user:null),credMin:g.credMin||0,credMax:g.credMax||0,credito:g.credito||0,qtd:g.qtd||1,mesAtual:g.mesAtual||0,pr_red:!!g.pr_red,rpPct:(g.rpPct!=null?g.rpPct:10),embPct:(g.embPct!=null?g.embPct:30)}));
-    if(propGrupos.length===0)propGrupos=[{grupo:'',prazo:192,fr:3,taxaadm:null,credMin:0,credMax:0,credito:340000,qtd:1,mesAtual:0,pr_red:false,taxaadm_user:null,rpPct:10,embPct:30}];
+    propGrupos=(d.grupos||[]).map(g=>({grupo:g.grupo||'',prazo:g.prazo||192,fr:g.fr||3,taxaadm:(g.taxaadm!=null?g.taxaadm:null),taxaadm_user:(g.taxaadm_user!=null?g.taxaadm_user:null),credMin:g.credMin||0,credMax:g.credMax||0,credito:g.credito||0,qtd:g.qtd||1,mesAtual:g.mesAtual||0,pr_red:!!g.pr_red,rpPct:(g.rpPct!=null?g.rpPct:10),embPct:(g.embPct!=null?g.embPct:30),redPct:(g.redPct!=null?g.redPct:0)}));
+    if(propGrupos.length===0)propGrupos=[{grupo:'',prazo:192,fr:3,taxaadm:null,credMin:0,credMax:0,credito:340000,qtd:1,mesAtual:0,pr_red:false,taxaadm_user:null,rpPct:10,embPct:30,redPct:0}];
     if(typeof renderPropGrupos==='function')renderPropGrupos();
     if(typeof calcProp==='function')calcProp();
     if(typeof propGoStep==='function')propGoStep(2);
@@ -11598,7 +11598,7 @@ function propGoStep(n){
     }
   }
 }
-let propGrupos=[{grupo:'',prazo:192,fr:3,taxaadm:null,credMin:0,credMax:0,credito:340000,qtd:1,mesAtual:0,pr_red:false,taxaadm_user:null,rpPct:10,embPct:30}];
+let propGrupos=[{grupo:'',prazo:192,fr:3,taxaadm:null,credMin:0,credMax:0,credito:340000,qtd:1,mesAtual:0,pr_red:false,taxaadm_user:null,rpPct:10,embPct:30,redPct:0}];
 // Calcula o lance padrão global (a partir do slider + toggle embutido)
 function _lanceGlobalDefault(){
   const slider=document.getElementById('p-lance');
@@ -11658,9 +11658,9 @@ function lookupGrupo(i,val){
     if(d.vmin!=null)propGrupos[i].credMin=d.vmin;
     propGrupos[i].pr_red=(d.pr_red==='S');
     // Auto-aplica PR 30% se o grupo aceita parcela reduzida e o usuário ainda está em "sem redução"
-    if(d.pr_red==='S'){
-      const redEl=document.getElementById('p-red');
-      if(redEl && (parseFloat(redEl.value)||0)===0){redEl.value='30';}
+    if(d.pr_red==='S' && !propGrupos[i].redPct){
+      // auto-sugere PR30 individual quando o grupo aceita PR
+      propGrupos[i].redPct=30;
     }
   }else{
     propGrupos[i].credMax=0;propGrupos[i].credMin=0;propGrupos[i].pr_red=false;
@@ -11739,7 +11739,7 @@ function renderPropGrupos(){
         +'<div class="pgrp-grid pgrp-grid-strat">'
         +'<div class="pgrp-fld"><label>Taxa Adm Real</label><input type="number" step="0.01" min="0" max="60" placeholder="em branco" value="'+taReal+'" oninput="propGrupos['+i+'].taxaadm=this.value?(parseFloat(this.value)||0):null;calcProp()" onchange="renderPropGrupos()" title="Taxa real do grupo (varia por CPF). Deixe em branco se não souber."></div>'
         +'<div class="pgrp-fld"><label>Taxa Adm Negoc.</label><input type="number" step="0.01" min="0" max="60" placeholder="'+taNegPlaceholder+'" value="'+taNegVal+'" oninput="propGrupos['+i+'].taxaadm_user=this.value?(parseFloat(this.value)||0):null;calcProp()" onchange="renderPropGrupos()" title="Taxa negociada na venda — esta é a usada no cálculo"></div>'
-        +'<div class="pgrp-fld"><label>Lance Próprio %</label><input type="number" step="1" min="0" max="100" value="'+rpG+'" oninput="propGrupos['+i+'].rpPct=parseFloat(this.value)||0;calcProp()" onchange="renderPropGrupos()" title="% da carta pago com recurso próprio"></div>'
+        +'<div class="pgrp-fld"><label>Redução PR</label><select oninput="propGrupos['+i+'].redPct=parseFloat(this.value)||0;calcProp()" onchange="renderPropGrupos()" title="Parcela Reduzida deste grupo (regra Itaú: PR30 → taxa adm 20%, PR50 → 23%)" style="padding:7px 9px;border-radius:7px;border:1.5px solid var(--bdr);font-size:13px;background:var(--card);font-family:Inter,sans-serif">'+'<option value="0"'+((g.redPct||0)===0?' selected':'')+'>Sem PR</option>'+'<option value="30"'+((g.redPct||0)===30?' selected':'')+'>PR 30%</option>'+'<option value="50"'+((g.redPct||0)===50?' selected':'')+'>PR 50%</option>'+'</select></div>'+'<div class="pgrp-fld"><label>Lance Próprio %</label><input type="number" step="1" min="0" max="100" value="'+rpG+'" oninput="propGrupos['+i+'].rpPct=parseFloat(this.value)||0;calcProp()" onchange="renderPropGrupos()" title="% da carta pago com recurso próprio"></div>'
         +'<div class="pgrp-fld"><label>Lance Embutido %</label><input type="number" step="1" min="0" max="100" value="'+embG+'" oninput="propGrupos['+i+'].embPct=parseFloat(this.value)||0;calcProp()" onchange="renderPropGrupos()" title="% da carta usado como lance embutido"></div>'
         +'</div>'
         +'<div class="pgrp-chips">'
@@ -11979,7 +11979,7 @@ function usarGrupoSugerido(g){
     if(propGrupos.length===1&&!propGrupos[0].grupo){
       lookupGrupo(0,g);
     }else{
-      propGrupos.push({grupo:'',prazo:192,fr:3,taxaadm:null,credMin:0,credMax:0,credito:340000,qtd:1,mesAtual:0,pr_red:false,taxaadm_user:null,rpPct:10,embPct:30});
+      propGrupos.push({grupo:'',prazo:192,fr:3,taxaadm:null,credMin:0,credMax:0,credito:340000,qtd:1,mesAtual:0,pr_red:false,taxaadm_user:null,rpPct:10,embPct:30,redPct:0});
       lookupGrupo(propGrupos.length-1,g);
     }
   }
@@ -12003,16 +12003,19 @@ function calcProp(){
   const mes=Math.max(1,parseInt(document.getElementById('p-mes').value)||1);
   const red=parseFloat(document.getElementById('p-red').value)||0;
   const cliente=document.getElementById('p-cliente').value||'—';
-  let totCred=0,totCotas=0,totSD=0,totLRP=0,totLLC=0,totLTot=0,totLiq=0,totPi=0,totPp=0,totSP=0,totTa=0,totFr=0;
+  let totCred=0,totCotas=0,totSD=0,totLRP=0,totLLC=0,totLTot=0,totLiq=0,totPi=0,totPiRed=0,totPp=0,totSP=0,totTa=0,totFr=0;
   let prazoRef=propGrupos[0]?propGrupos[0].prazo:192;
   const _breakdown=[]; // detalhamento por grupo pra Composição da Proposta
   propGrupos.forEach(g=>{
     const nc=g.qtd||1,cred=g.credito||0,pr=g.prazo||1,fr=g.fr||0;
+    const redG=g.redPct||0;         // redução PR DESTE grupo (não global)
     let ta;
     if(g.taxaadm_user!=null){
       ta=g.taxaadm_user;            // taxa negociada (prioridade)
-    }else if(g.pr_red){
-      ta=(red===30?20:23);          // PR padrão Itaú (referência)
+    }else if(redG===30){
+      ta=20;                        // PR30 → 20% (regra Itaú)
+    }else if(redG===50){
+      ta=23;                        // PR50 → 23% (regra Itaú)
     }else if(g.taxaadm!=null){
       ta=g.taxaadm;                 // taxa do GUIA (se houver)
     }else{
@@ -12040,10 +12043,11 @@ function calcProp(){
         ta:ta, fr:fr, taFr:ta+fr
       });
     }
-    totCred+=ct;totCotas+=nc;totSD+=sd;totLRP+=lRP;totLLC+=lLC;totLTot+=lTot;totLiq+=liq;totPi+=pi;totPp+=pp;totSP+=sp;
+    const piRedG = pi*(1-redG/100);
+    totCred+=ct;totCotas+=nc;totSD+=sd;totLRP+=lRP;totLLC+=lLC;totLTot+=lTot;totLiq+=liq;totPi+=pi;totPiRed+=piRedG;totPp+=pp;totSP+=sp;
     totTa+=ta*nc;totFr+=fr*nc;
   });
-  const piRed=totPi*(1-red/100);
+  const piRed=totPiRed; // soma individual por grupo (cada um aplica seu PR)
   const lt=totCred>0?(totLTot/totCred*100):0;  // lance médio ponderado (exibição)
   const rp=totCred>0?(totLRP/totCred*100):0;
   const lc=totCred>0?(totLLC/totCred*100):0;
@@ -12064,10 +12068,20 @@ function calcProp(){
   // KPI "Parcela Pré-Contempl.": destaque é o valor que o cliente paga de fato
   // - Se há redução PR (30/50): destaque = parcela reduzida; sub = parcela cheia (referência)
   // - Sem redução: destaque = parcela cheia; sub vazio
-  set('r-pi', red>0 ? brl(piRed) : brl(totPi));
+  // r-pi: se houver redução em algum grupo, mostra a soma reduzida; senão, a cheia
+  set('r-pi', totPiRed<totPi ? brl(totPiRed) : brl(totPi));
   set('r-pi-red', brl(piRed));
   const prRow=document.getElementById('r-pi-red-row');
-  if(prRow) prRow.textContent = red>0 ? 'Cheia: '+brl(totPi)+' · PR '+red+'%' : '—';
+  // Sub do KPI Parcela Pré: mostra "Cheia" e quantos grupos têm PR (cada um com sua %)
+  const _gruposComPR = propGrupos.filter(g=>g.grupo && (g.redPct||0)>0);
+  if(prRow){
+    if(_gruposComPR.length>0){
+      const _prs = [...new Set(_gruposComPR.map(g=>'PR'+g.redPct+'%'))].join('/');
+      prRow.textContent = 'Cheia: '+brl(totPi)+' · '+_gruposComPR.length+'/'+propGrupos.filter(g=>g.grupo).length+' grupos '+_prs;
+    } else {
+      prRow.textContent = '—';
+    }
+  }
   // ── Preenche novos elementos do layout comercial (flow + reasons + cta) ──
   try {
     const g0 = propGrupos.find(g=>g.grupo) || propGrupos[0];
