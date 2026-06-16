@@ -937,12 +937,13 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
 .pcom-hdr-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
 .pcom-hdr-actions .pcom-btn{background:rgba(255,243,221,.12);border:1px solid rgba(255,243,221,.25);color:var(--p-creme);padding:8px 14px;border-radius:6px;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;font-family:'Inter',sans-serif}
 .pcom-hdr-actions .pcom-btn:hover{background:rgba(255,243,221,.2);color:var(--p-creme)}
-.pcom-stripe{height:4px;display:grid;grid-template-columns:repeat(4,1fr)}
+.pcom-stripe{height:4px;display:grid;grid-template-columns:repeat(5,1fr)}
 .pcom-stripe > div:nth-child(1){background:var(--p-azul)}
 .pcom-stripe > div:nth-child(2){background:var(--p-dour)}
 .pcom-stripe > div:nth-child(3){background:var(--p-verde)}
 .pcom-stripe > div:nth-child(4){background:#6B8FB8}
-.pcom-kpis{background:#fff;border-bottom:1px solid var(--p-borda);display:grid;grid-template-columns:repeat(4,1fr)}
+.pcom-stripe > div:nth-child(5){background:var(--p-cinza)}
+.pcom-kpis{background:#fff;border-bottom:1px solid var(--p-borda);display:grid;grid-template-columns:repeat(5,1fr)}
 .pcom-kpi{padding:22px 20px;text-align:center;border-right:1px solid var(--p-borda)}
 .pcom-kpi:last-child{border-right:none}
 .pcom-kpi-lbl{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--p-cinza-cl);font-weight:600;margin-bottom:8px;font-family:'Inter',sans-serif}
@@ -951,6 +952,7 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
 .pcom-kpi-val.dour{color:var(--p-dour)}
 .pcom-kpi-val.verde{color:var(--p-verde)}
 .pcom-kpi-val.blue-s{color:#6B8FB8}
+.pcom-kpi-val.cinza{color:var(--p-cinza)}
 .pcom-kpi-note{font-size:11px;color:var(--p-cinza-cl);margin-top:6px}
 .pcom-body{background:var(--p-creme-bg);padding:32px}
 .pcom-row{display:grid;gap:16px;margin-bottom:16px}
@@ -1595,7 +1597,7 @@ main.main:has(#page-ajuda.active) .content{
   body.printing-prop > .prop-doc .pcom-reason,
   body.printing-prop > .prop-doc .pcom-cta,
   body.printing-prop > .prop-doc .pcom-footnote{break-inside:avoid!important;page-break-inside:avoid!important}
-  body.printing-prop > .prop-doc .prop-kpis{grid-template-columns:repeat(4,1fr)!important}
+  body.printing-prop > .prop-doc .prop-kpis{grid-template-columns:repeat(5,1fr)!important}
   body.printing-prop > .prop-doc .pcom-sec-title{break-after:avoid!important;page-break-after:avoid!important}
   body.printing-prop > .prop-doc .prop-kpi{padding:10px 12px!important}
   body.printing-prop > .prop-doc .prop-kpi-val{font-size:13pt!important}
@@ -2843,7 +2845,7 @@ main.main:has(#page-ajuda.active) .content{
           </div>
         </div>
         <!-- STRIPE + KPIs -->
-        <div class="pcom-stripe"><div></div><div></div><div></div><div></div></div>
+        <div class="pcom-stripe"><div></div><div></div><div></div><div></div><div></div></div>
         <!-- SANITY BANNER · só aparece se calcProp detectar inconsistência -->
         <div id="prop-sanity-banner" style="display:none;padding:14px 32px 0"></div>
         <div class="pcom-kpis">
@@ -2866,6 +2868,11 @@ main.main:has(#page-ajuda.active) .content{
             <div class="pcom-kpi-lbl">Parcela Pré-Contempl.</div>
             <div class="pcom-kpi-val blue-s" id="r-pi">—</div>
             <div class="pcom-kpi-note" id="r-pi-red-row">—</div>
+          </div>
+          <div class="pcom-kpi">
+            <div class="pcom-kpi-lbl">Taxa Adm + FR (média)</div>
+            <div class="pcom-kpi-val cinza" id="r-tafr-avg">—</div>
+            <div class="pcom-kpi-note" id="r-tafr-avg-note">—</div>
           </div>
         </div>
         <!-- BODY -->
@@ -12086,6 +12093,13 @@ function calcProp(){
   // r-pi: se houver redução em algum grupo, mostra a soma reduzida; senão, a cheia
   set('r-pi', totPiRed<totPi ? brl(totPiRed) : brl(totPi));
   set('r-pi-red', brl(piRed));
+  // KPI Taxa Adm + FR (média ponderada por qtd de cotas)
+  const _tafrAvg = (avgTa+avgFr);
+  set('r-tafr-avg', _tafrAvg.toFixed(2)+'%');
+  const _tafrNote = document.getElementById('r-tafr-avg-note');
+  if(_tafrNote){
+    _tafrNote.textContent = (totCotas?avgTa.toFixed(2)+'% adm + '+avgFr.toFixed(2)+'% fr':'—');
+  }
   const prRow=document.getElementById('r-pi-red-row');
   // Sub do KPI Parcela Pré: mostra "Cheia" e quantos grupos têm PR (cada um com sua %)
   const _gruposComPR = propGrupos.filter(g=>g.grupo && (g.redPct||0)>0);
