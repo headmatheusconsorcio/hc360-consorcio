@@ -1001,9 +1001,24 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
 .pgc-chip{display:inline-flex;align-items:baseline;gap:5px;font-size:11.5px;color:var(--p-azul);font-family:'Inter',sans-serif;padding:4px 10px;background:var(--p-creme-bg);border:1px solid var(--p-borda);border-radius:99px}
 .pgc-chip-lbl{color:var(--p-cinza-cl);font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
 .pgc-chip strong{font-family:'Fraunces',serif;font-size:13px;font-weight:500;color:var(--p-azul);letter-spacing:-.01em}
+/* Linha por cota embaixo dos gráficos do histórico */
+.pcom-hist-cota{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-top:1px solid var(--p-borda);margin-top:14px;background:var(--p-creme-card);border-radius:0 0 8px 8px}
+.phc-cell{padding:12px 14px;border-right:1px solid var(--p-borda);text-align:center}
+.phc-cell:last-child{border-right:none}
+.phc-lbl{font-size:9.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--p-cinza-cl);margin-bottom:5px;font-family:'Inter',sans-serif}
+.phc-val{font-family:'Fraunces',serif;font-size:18px;font-weight:500;color:var(--p-azul);letter-spacing:-.01em;line-height:1.1}
+.phc-val.phc-dour{color:var(--p-dour)}
+.phc-val.phc-verde{color:var(--p-verde)}
+.phc-sub{font-size:10.5px;color:var(--p-cinza-cl);margin-top:3px;font-family:'Inter',sans-serif}
+@media (max-width:720px){
+  .pcom-hist-cota{grid-template-columns:1fr 1fr}
+  .phc-cell:nth-child(2n){border-right:none}
+  .phc-cell:nth-child(-n+2){border-bottom:1px solid var(--p-borda)}
+}
+
 /* Histórico dos grupos · gráficos */
 .pcom-grupos-hist{display:flex;flex-direction:column;gap:14px}
-.pcom-hist-card{background:#fff;border-radius:8px;border:1px solid var(--p-borda);border-left:4px solid var(--p-verde);padding:18px 22px;page-break-inside:avoid;break-inside:avoid}
+.pcom-hist-card{background:#fff;border-radius:8px;border:1px solid var(--p-borda);border-left:4px solid var(--p-verde);padding:18px 22px 0;page-break-inside:avoid;break-inside:avoid;overflow:hidden}
 .pcom-hist-hdr{display:flex;justify-content:space-between;align-items:center;gap:10px;padding-bottom:12px;margin-bottom:14px;border-bottom:1px solid var(--p-borda);flex-wrap:wrap}
 .pcom-hist-title{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--p-azul);font-family:'Inter',sans-serif;font-weight:600}
 .pcom-hist-sub{font-size:11px;color:var(--p-cinza-cl);font-style:italic}
@@ -12191,7 +12206,17 @@ function calcProp(){
         // Meses com pelo menos um dado (lance ou contemplação) — pra honestidade no sub
         let mesesComDado=0;
         for(let i=0;i<mn.length;i++){if((mn[i]!=null)||(ct[i]>0)||(ctLf[i]>0))mesesComDado++;}
-        return { idx, grupo:b.grupo, tagCls, tagLbl, mn, mx, ct, ctLf, avgMin, totalLL, totalLF, hasLF, totalCont:totalLL+totalLF, mesesComDado };
+        // Dados POR COTA pra exibir embaixo dos gráficos
+        const qtdG = b.qtd||1;
+        const lancePctG = b.ct>0?(b.lTot/b.ct*100):0;
+        const lanceRSCota = b.lTot/qtdG;
+        const credLibPctG = b.ct>0?(b.liq/b.ct*100):0;
+        const credLibRSCota = b.liq/qtdG;
+        const credPorCota = b.cred;
+        const taG = b.ta;
+        const frG = b.fr;
+        const taFrG = b.taFr;
+        return { idx, grupo:b.grupo, tagCls, tagLbl, mn, mx, ct, ctLf, avgMin, totalLL, totalLF, hasLF, totalCont:totalLL+totalLF, mesesComDado, qtdG, lancePctG, lanceRSCota, credLibPctG, credLibRSCota, credPorCota, taG, frG, taFrG };
       }).filter(Boolean);
       if(blocks.length===0){
         if(histTitle) histTitle.style.display='none';
@@ -12216,6 +12241,12 @@ function calcProp(){
             +'    <div class="pcom-hist-block-meta">Total: <strong>'+blk.totalCont+'</strong>'+(blk.hasLF?' <span style="font-weight:400;color:var(--p-cinza-cl);font-size:10.5px">· '+blk.totalLL+' Lance Livre · '+blk.totalLF+' Lance Fixo</span>':'')+'</div>'
             +'    <div class="pcom-hist-chart"><canvas id="hist-cont-'+blk.idx+'"></canvas></div>'
             +'  </div>'
+            +'</div>'
+            +'<div class="pcom-hist-cota">'
+            +'  <div class="phc-cell"><div class="phc-lbl">Por cota</div><div class="phc-val">'+blk.qtdG+(blk.qtdG>1?' cotas':' cota')+'</div><div class="phc-sub">de '+brl(blk.credPorCota,0)+'/cota</div></div>'
+            +'  <div class="phc-cell"><div class="phc-lbl">Taxa Adm + FR</div><div class="phc-val">'+blk.taFrG.toFixed(2)+'%</div><div class="phc-sub">'+blk.taG.toFixed(2)+'% + '+blk.frG+'%</div></div>'
+            +'  <div class="phc-cell"><div class="phc-lbl">Lance Ofertado</div><div class="phc-val phc-dour">'+blk.lancePctG.toFixed(0)+'%</div><div class="phc-sub">'+brl(blk.lanceRSCota,0)+'/cota</div></div>'
+            +'  <div class="phc-cell"><div class="phc-lbl">Crédito Liberado</div><div class="phc-val phc-verde">'+blk.credLibPctG.toFixed(0)+'%</div><div class="phc-sub">'+brl(blk.credLibRSCota,0)+'/cota</div></div>'
             +'</div>'
             +'</div>';
         }).join('');
