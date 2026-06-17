@@ -3037,7 +3037,7 @@ main.main:has(#page-ajuda.active) .content{
           <div class="h360-hs2-c">
             <div class="h360-hs2-lbl">CET ao ano</div>
             <div class="h360-hs2-val" id="r-hs2-cet">—</div>
-            <div class="h360-hs2-sub">vs financ. 12-25%</div>
+            <div class="h360-hs2-sub" id="r-hs2-cet-sub">vs financ. 12-25%</div>
           </div>
           <div class="h360-hs2-c">
             <div class="h360-hs2-lbl">Lance total</div>
@@ -12315,6 +12315,25 @@ function calcProp(){
   set('r-hs2-carta-sub', totCotas>0 ? totCotas+' cota'+(totCotas!==1?'s':'')+' · '+_avgPrazo+'m' : '');
   // CET ao ano = (avgTa + avgFr) / VP / prazo × 12 — pega do span existente
   setTimeout(()=>{ const _cetA = document.getElementById('cet-ano'); if(_cetA) document.getElementById('r-hs2-cet').textContent = _cetA.textContent; }, 50);
+  // Sub do CET = indexador real dos grupos da proposta (do GUIA)
+  (function(){
+    const _idxRaw = _grupos.map(g => (typeof GUIA!=='undefined' && GUIA[g.grupo] && GUIA[g.grupo].idx) || '').filter(Boolean);
+    const _idxNorm = _idxRaw.map(s => {
+      const u = (s||'').toString().toUpperCase();
+      if(u.includes('PREF') || u.includes('FIX')) return 'Prefixado 3%';
+      if(u.includes('INCC')) return 'INCC';
+      if(u.includes('IPCA-E') || u.includes('IPCAE')) return 'IPCA-E';
+      if(u.includes('IPCA')) return 'IPCA';
+      return s;
+    });
+    const _unicos = [...new Set(_idxNorm)].filter(Boolean);
+    const _sub = document.getElementById('r-hs2-cet-sub');
+    if(_sub){
+      if(_unicos.length === 0) _sub.textContent = 'vs financ. 12-25%';
+      else if(_unicos.length === 1) _sub.textContent = '+ '+_unicos[0]+' anual';
+      else _sub.textContent = '+ '+_unicos.join(' / ');
+    }
+  })();
   const _lancePctTotKPI = totCred>0?(totLTot/totCred*100):0;
   set('r-hs2-lance', _lancePctTotKPI>0 ? _lancePctTotKPI.toFixed(1)+'%' : '—');
   set('r-hs2-lance-sub', totLTot>0 ? brl(totLTot,0)+' da carta' : '');
