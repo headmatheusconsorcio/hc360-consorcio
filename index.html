@@ -834,7 +834,12 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
 .h360-hero-actions .pcom-btn{background:rgba(255,243,221,.14);border:1px solid rgba(255,243,221,.32);color:#FFF3DD}
 .h360-emp{background:#FAF7F0;border-left:3px solid #D6AF5C;border-radius:0 8px 8px 0;padding:16px 20px;margin-bottom:18px;font-size:14px;line-height:1.65;color:#226866;font-family:'Fraunces',serif}
 .h360-emp strong{color:#B8923A;font-weight:500}
-.h360-emp-lbl{display:block;font-family:'Inter',sans-serif;font-size:9.5px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:#B8923A;margin-bottom:8px}
+.h360-emp-lbl{display:block;font-family:'Inter',sans-serif;font-size:9.5px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:#B8923A;margin-bottom:10px}
+.h360-emp-list{margin:0;padding:0;list-style:none;font-family:'Inter',sans-serif;font-size:13.5px;color:#226866;line-height:1.5}
+.h360-emp-list li{position:relative;padding:5px 0 5px 18px}
+.h360-emp-list li::before{content:'';position:absolute;left:4px;top:13px;width:5px;height:5px;background:#D6AF5C;border-radius:50%}
+.h360-emp-list li strong{color:#B8923A;font-weight:500}
+.h360-emp-foot{margin-top:12px;padding-top:10px;border-top:.5px dashed #E8D09A;font-size:11px;color:#888780;font-style:italic;line-height:1.5;font-family:'Inter',sans-serif}
 .h360-cons{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;margin-bottom:18px;background:#FFF;border:.5px solid #E8E2D4;border-radius:8px;overflow:hidden}
 .h360-cons-col{padding:14px 18px;border-right:.5px solid #F0E4C2}
 .h360-cons-col:last-child{border-right:none}
@@ -2908,7 +2913,9 @@ main.main:has(#page-ajuda.active) .content{
         <!-- EM PALAVRAS SIMPLES -->
         <div class="h360-emp">
           <span class="h360-emp-lbl">Em palavras simples</span>
-          <span id="r-emp-text">—</span>
+          <ul class="h360-emp-list" id="r-emp-list"><li>Configure os grupos na etapa anterior pra ver o resumo.</li></ul>
+          <div class="h360-emp-foot">As parcelas e o saldo devedor são reajustados anualmente pelo indexador do grupo (INCC, IPCA ou IPCA-E), conforme contrato Itaú.</div>
+          <span id="r-emp-text" style="display:none">—</span>
         </div>
 
         <!-- PROPOSTA CONSOLIDADA -->
@@ -12188,17 +12195,20 @@ function calcProp(){
   set('r-rp-pct', totCred>0?(totLRP/totCred*100).toFixed(2)+'%':'—');
   set('r-emb-pct', totCred>0?(totLLC/totCred*100).toFixed(2)+'%':'—');
 
-  // ─── EM PALAVRAS SIMPLES (texto narrativo) ───
-  const _empEl = document.getElementById('r-emp-text');
-  if(_empEl){
+  // ─── EM PALAVRAS SIMPLES (tópicos) ───
+  const _empListEl = document.getElementById('r-emp-list');
+  if(_empListEl){
     if(_grupos.length>0 && totCred>0){
-      const _txt = 'Você vai investir <strong>'+brl(totLRP,0)+' de entrada</strong> + <strong>'+brl(totPi)+' por mês</strong>. ' +
-                   'Quando contemplado, recebe <strong>'+brl(totLiq,0)+'</strong>. ' +
-                   'Após contemplação, a parcela cai pra <strong>'+brl(totPp)+'</strong> até o fim do prazo (<strong>'+_avgPrazo+' meses</strong>). ' +
-                   'Taxa total do consórcio: <strong>'+(avgTa+avgFr).toFixed(2)+'%</strong> (Adm '+avgTa.toFixed(2)+'% + FR '+avgFr.toFixed(2)+'%) — sem juros bancários.';
-      _empEl.innerHTML = _txt;
+      const _items = [
+        'Entrada de <strong>'+brl(totLRP,0)+'</strong> (seu recurso próprio, pago no momento da contemplação)',
+        'Parcela mensal de <strong>'+brl(totPi)+'</strong> até a contemplação',
+        'Na contemplação, você recebe <strong>'+brl(totLiq,0)+'</strong> pra usar como achar melhor',
+        'Após contemplação, a parcela passa a ser <strong>'+brl(totPp)+'/mês</strong>',
+        'Custo total do consórcio: <strong>'+(avgTa+avgFr).toFixed(2)+'%</strong> (Adm '+avgTa.toFixed(2)+'% + FR '+avgFr.toFixed(2)+'%) — sem juros bancários'
+      ];
+      _empListEl.innerHTML = _items.map(i=>'<li>'+i+'</li>').join('');
     } else {
-      _empEl.textContent = 'Configure ao menos um grupo na etapa anterior pra ver o resumo da proposta.';
+      _empListEl.innerHTML = '<li>Configure ao menos um grupo na etapa anterior pra ver o resumo da proposta.</li>';
     }
   }
 
