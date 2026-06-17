@@ -832,10 +832,10 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
 .h360-hero-meta{font-size:11.5px;opacity:.78;margin-top:4px}
 .h360-hero-actions{display:flex;gap:8px;flex-wrap:wrap}
 .h360-hero-actions .pcom-btn{background:rgba(255,243,221,.14);border:1px solid rgba(255,243,221,.32);color:#FFF3DD}
-.h360-hs{display:grid;grid-template-columns:1fr 1px 1fr 1px 1fr;gap:0;align-items:stretch;background:linear-gradient(180deg,#FAF7F0 0%,#FFFFFF 100%);border:.5px solid #E8D09A;border-radius:14px;padding:32px 28px;margin:18px 0 26px;box-shadow:0 1px 3px rgba(184,146,58,.06)}
+.h360-hs{display:grid;grid-template-columns:1fr 1px 1fr 1px 1fr;gap:0;align-items:stretch;background:linear-gradient(180deg,#FAF7F0 0%,#FFFFFF 100%);border:.5px solid #E8D09A;border-radius:16px;padding:40px 32px;margin:20px 0 28px;box-shadow:0 1px 3px rgba(184,146,58,.06)}
 .h360-hs-c{text-align:center;padding:0 16px;display:flex;flex-direction:column;justify-content:center}
 .h360-hs-lbl{font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:#888780;font-family:'Inter',sans-serif;font-weight:500;margin-bottom:10px}
-.h360-hs-val{font-family:'Fraunces',serif;font-size:34px;font-weight:500;color:#226866;line-height:1.05;letter-spacing:-.5px}
+.h360-hs-val{font-family:'Fraunces',serif;font-size:42px;font-weight:500;color:#226866;line-height:1;letter-spacing:-1px}
 .h360-hs-sub{font-size:11.5px;color:#5F5E5A;margin-top:8px;font-family:'Inter',sans-serif;line-height:1.4}
 .h360-hs-sep{background:linear-gradient(180deg,transparent 0%,#E8D09A 30%,#E8D09A 70%,transparent 100%);width:1px;margin:0 auto}
 @media print { .h360-hs{break-inside:avoid;background:#FAF7F0 !important;-webkit-print-color-adjust:exact;print-color-adjust:exact} }
@@ -2929,20 +2929,17 @@ main.main:has(#page-ajuda.active) .content{
           <div class="h360-hs-c">
             <div class="h360-hs-lbl">Você recebe</div>
             <div class="h360-hs-val" id="r-hs-recebe">—</div>
-            <div class="h360-hs-sub">crédito líquido na contemplação</div>
-          </div>
+            </div>
           <div class="h360-hs-sep"></div>
           <div class="h360-hs-c">
             <div class="h360-hs-lbl">Você investe</div>
             <div class="h360-hs-val" id="r-hs-investe">—</div>
-            <div class="h360-hs-sub">recurso próprio (entrada)</div>
-          </div>
+            </div>
           <div class="h360-hs-sep"></div>
           <div class="h360-hs-c">
             <div class="h360-hs-lbl">Parcela mensal</div>
             <div class="h360-hs-val" id="r-hs-parcela">—</div>
-            <div class="h360-hs-sub">até a contemplação</div>
-          </div>
+            </div>
         </div>
 
         <!-- LINHA DO TEMPO -->        <!-- LINHA DO TEMPO -->
@@ -2981,11 +2978,6 @@ main.main:has(#page-ajuda.active) .content{
         </div>
 
 
-        <!-- EM PALAVRAS SIMPLES -->
-        <div class="h360-emp">
-          <span class="h360-emp-lbl">Em palavras simples</span>
-          <ul class="h360-emp-list" id="r-emp-list"><li>Configure os grupos na etapa anterior pra ver o resumo.</li></ul>
-          <div class="h360-emp-foot">As parcelas e o saldo devedor são reajustados anualmente pelo indexador do grupo (INCC, IPCA, IPCA-E ou Prefixado 3% a.a.), conforme contrato Itaú.</div>
           <span id="r-emp-text" style="display:none">—</span>
         </div>
 
@@ -3100,7 +3092,7 @@ main.main:has(#page-ajuda.active) .content{
 
         <!-- FOOTNOTE -->
         <div class="pcom-footnote">
-          <strong>Observacoes:</strong> Lances nao sao garantia de contemplacao · Simulacao considera contemplacao no mes informado · Valores sujeitos a reajuste pelo indexador do grupo · Recurso proprio deve estar disponivel no momento da contemplacao · CET calculado pela formula: (Taxa Adm + FR) / Valor Presente / Prazo.
+          <strong>Observacoes:</strong> Simulacao para contemplacao no mes informado · Lance nao garante contemplacao · Valores sujeitos a reajuste anual do indexador · CET base, sem ITBI/cartorio/seguro opcional.
         </div>
 
       </div>
@@ -12279,10 +12271,8 @@ function calcProp(){
     return d0t && /IM|RES/i.test(d0t.tp||'') ? 'imóvel' : 'veículo';
   })() : 'bem';
   const _f1Items = [
-    'Você paga <strong>'+brl(_piShowTime)+'/mês</strong>'+(_temPRTime?' (com redução PR aplicada)':'')+' a partir da próxima assembleia',
-    'Esse pagamento continua <em>até você ser contemplado</em> (por sorteio ou lance)',
-    'A parcela é reajustada anualmente pelo indexador do grupo (INCC/IPCA/Prefixado 3% a.a.)',
-    'Você pode ofertar lance em qualquer assembleia mensal pra acelerar a contemplação'
+    'Parcela de <strong>'+brl(_piShowTime)+'</strong>'+(_temPRTime?' <em>(PR ativa)</em>':'')+' até contemplar',
+    'Lance em qualquer assembleia mensal'
   ];
   const _t1el = document.getElementById('r-time-1');
   if(_t1el) _t1el.innerHTML = _f1Items.map(i=>'<li>'+i+'</li>').join('');
@@ -12292,11 +12282,8 @@ function calcProp(){
   // FASE 2 — CONTEMPLAÇÃO
   const _lancePctTot = totCred>0?(totLTot/totCred*100):0;
   const _f2Items = [
-    '<strong>Aporte de '+brl(totLRP,0)+'</strong> em recurso próprio (sai do seu bolso)',
-    '<strong>+ '+brl(totLLC,0)+' embutido</strong> da carta (não sai do bolso, vem do próprio crédito)',
-    '<strong>= Lance total '+brl(totLTot,0)+'</strong> ('+_lancePctTot.toFixed(1)+'% da carta)',
-    'Você recebe <em>'+brl(totLiq,0)+' líquidos</em> pra usar como achar melhor',
-    'Pode usar o crédito pra qualquer '+_tipoBem+' (escolha sua) ou converter em capital de giro'
+    'Investe <strong>'+brl(totLRP,0)+'</strong> + lance embutido <strong>'+brl(totLLC,0)+'</strong>',
+    'Recebe <em>'+brl(totLiq,0)+' líquidos</em> — usa pra qualquer '+_tipoBem
   ];
   const _t2el = document.getElementById('r-time-2');
   if(_t2el) _t2el.innerHTML = _f2Items.map(i=>'<li>'+i+'</li>').join('');
@@ -12305,11 +12292,8 @@ function calcProp(){
 
   // FASE 3 — PÓS-CONTEMPLAÇÃO
   const _f3Items = [
-    'Nova parcela: <strong>'+brl(totPp)+'/mês</strong> (cai porque o lance já abateu parte do saldo)',
-    'Prazo restante: <strong>'+_avgPrazo+' meses</strong> a partir da contemplação',
-    'A parcela é reajustada anualmente pelo indexador do grupo (INCC/IPCA/Prefixado 3% a.a.)',
-    'Você pode <em>antecipar a quitação</em> a qualquer momento, sem multa',
-    (_tipoBem==='imóvel'?'Pode usar <em>FGTS</em> pra amortizar ou quitar (consultar regras Caixa)':'Pode ofertar lance pra reduzir prazo ou parcela')
+    'Parcela cai pra <strong>'+brl(totPp)+'</strong> por '+_avgPrazo+' meses',
+    (_tipoBem==='imóvel'?'<em>FGTS</em> + antecipação sem multa':'Antecipação sem multa · lance pra reduzir prazo')
   ];
   const _t3el = document.getElementById('r-time-3');
   if(_t3el) _t3el.innerHTML = _f3Items.map(i=>'<li>'+i+'</li>').join('');
