@@ -852,6 +852,8 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
 .h360-cet-lbl{font-size:9.5px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;opacity:.68;margin-bottom:5px}
 .h360-cet-v{font-family:'Fraunces',serif;font-size:20px;font-weight:500;color:#D6AF5C}
 .h360-cet-h{font-size:10.5px;opacity:.58;margin-top:3px}
+.h360-cet-nota{background:#FAF7F0;border-left:3px solid #D6AF5C;border-radius:0 6px 6px 0;padding:11px 16px;margin:-6px 0 18px;font-size:11.5px;line-height:1.55;color:#5F5E5A;font-family:'Inter',sans-serif}
+.h360-cet-nota strong{color:#226866;font-weight:500}
 .h360-time{background:#FFF;border:.5px solid #E8E2D4;border-radius:8px;padding:16px 20px;margin-bottom:18px;display:grid;grid-template-columns:26px 1fr;gap:14px}
 .h360-time-rail{display:flex;flex-direction:column;align-items:center}
 .h360-time-dot{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;font-family:'Fraunces',serif;color:#FFF3DD;flex-shrink:0}
@@ -2932,10 +2934,11 @@ main.main:has(#page-ajuda.active) .content{
             <div class="h360-cons-row"><span class="h360-cons-lbl">Credito liquido</span><span class="h360-cons-val dour" id="r-liq">—</span></div>
             <div class="h360-cons-row"><span class="h360-cons-lbl">Parcela inicial</span><span class="h360-cons-val" id="r-pi">—</span></div>
             <div class="h360-cons-row"><span class="h360-cons-lbl">Parcela pos-lance</span><span class="h360-cons-val" id="r-pp">—</span></div>
-            <div class="h360-cons-row"><span class="h360-cons-lbl">Parcela com reducao</span><span class="h360-cons-val" id="r-pi-red">—</span></div>
-            <div class="h360-cons-row"><span class="h360-cons-lbl">Reducao</span><span class="h360-cons-val" id="r-pi-red-row">—</span></div>
-            <div class="h360-cons-row"><span class="h360-cons-lbl">Taxa adm + FR</span><span class="h360-cons-val dour" id="r-tafr-avg">—</span></div>
           </div>
+          <!-- spans ocultos pra compat com JS legado -->
+          <span id="r-pi-red" style="display:none">—</span>
+          <span id="r-pi-red-row" style="display:none">—</span>
+          <span id="r-tafr-avg" style="display:none">—</span>
         </div>
 
         <!-- CET -->
@@ -2956,6 +2959,12 @@ main.main:has(#page-ajuda.active) .content{
             <div class="h360-cet-v" id="cet-ano">—</div>
             <div class="h360-cet-h">vs. financ. 12-25% a.a.</div>
           </div>
+        </div>
+        <div class="h360-cet-nota">
+          <strong>Como o CET é calculado:</strong> (Taxa Adm + Fundo de Reserva em R$) ÷ Valor Presente ÷ Prazo médio.
+          O Valor Presente é o Crédito Líquido menos os Recursos Próprios (o que o cliente desembolsa). A taxa anual é a mensal × 12.
+          <strong style="color:#B8923A">Não inclui</strong> reajuste pelo indexador do grupo (INCC/IPCA/IPCA-E), nem ITBI, cartório ou seguro opcional —
+          é o custo estimado nas condições atuais.
         </div>
 
         <!-- Campos ocultos (compatibilidade com calcProp e outros lugares) -->
