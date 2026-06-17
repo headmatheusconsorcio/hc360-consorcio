@@ -870,27 +870,27 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
 .h360-cons-val.dour{color:#B8923A}
 .h360-cet{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:0;background:#1a4f4d;color:#FFF3DD;border-radius:8px;overflow:hidden;margin-bottom:0;position:relative}
 .h360-cet::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#D6AF5C 0%,#B8923A 60%,#D6AF5C 100%)}
-.h360-cet-side{padding:22px 24px 20px;display:flex;flex-direction:column;justify-content:center;background:linear-gradient(135deg,#226866 0%,#1a4f4d 100%)}
+.h360-cet-side{padding:28px 24px 22px;display:flex;flex-direction:column;justify-content:center;background:linear-gradient(135deg,#226866 0%,#1a4f4d 100%)}
 .h360-cet-tag{font-size:9.5px;font-weight:500;letter-spacing:.22em;text-transform:uppercase;color:#D6AF5C;margin-bottom:8px;display:flex;align-items:center;gap:8px}
 .h360-cet-tag::before{content:'';display:inline-block;width:14px;height:1px;background:#D6AF5C}
 .h360-cet-big{font-family:'Fraunces',serif;font-size:38px;font-weight:500;color:#D6AF5C;letter-spacing:-.025em;line-height:1}
 .h360-cet-sm{font-size:10.5px;opacity:.68;margin-top:6px;font-family:'Inter',sans-serif}
-.h360-cet-c{padding:22px 22px 20px;border-left:.5px solid rgba(214,175,92,.18);display:flex;flex-direction:column;justify-content:center}
+.h360-cet-c{padding:28px 22px 22px;border-left:.5px solid rgba(214,175,92,.18);display:flex;flex-direction:column;justify-content:center}
 .h360-cet-lbl{font-size:9pt;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,243,221,.6);margin-bottom:8px}
 .h360-cet-v{font-family:'Fraunces',serif;font-size:22px;font-weight:500;color:#D6AF5C;line-height:1;letter-spacing:-.3px}
 .h360-cet-h{font-size:9.5px;opacity:.55;margin-top:6px;font-family:'Inter',sans-serif;letter-spacing:.04em}
 .h360-cet-nota{background:#FAF7F0;border-left:2px solid #D6AF5C;border-radius:0 6px 6px 0;padding:12px 18px;margin:0 0 22px;font-size:11pt;line-height:1.6;color:#5F5E5A;font-family:'Inter',sans-serif}
 .h360-cet-nota strong{color:#1a4f4d;font-weight:500}
-.h360-time{background:#FFF;border:.5px solid #E8E2D4;border-radius:8px;padding:22px 26px;margin-bottom:18px;display:grid;grid-template-columns:34px 1fr;gap:20px;position:relative}
+.h360-time{background:#FFF;border:.5px solid #E8E2D4;border-radius:8px;padding:22px 26px;margin-bottom:18px;position:relative}
 .h360-time::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent 0%,#D6AF5C 50%,transparent 100%);opacity:.6}
-.h360-time-rail{display:flex;flex-direction:column;align-items:center}
-.h360-time-dot{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13.5px;font-weight:500;font-family:'Fraunces',serif;flex-shrink:0;box-shadow:0 0 0 4px #FFF,0 0 0 5px #F0E4C2}
+.h360-time-row{display:grid;grid-template-columns:32px 1fr;gap:16px;align-items:start;position:relative;padding-bottom:18px}
+.h360-time-row:last-child{padding-bottom:0}
+.h360-time-row:not(:last-child)::before{content:'';position:absolute;left:15.5px;top:32px;bottom:6px;width:1.5px;background:linear-gradient(180deg,#D6AF5C 0%,#E8D09A 100%);opacity:.5}
+.h360-time-dot{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13.5px;font-weight:500;font-family:'Fraunces',serif;flex-shrink:0;position:relative;z-index:2;box-shadow:0 0 0 4px #FFF}
 .h360-time-dot.d1{background:#FAF7F0;color:#B8923A;border:1.5px solid #D6AF5C}
 .h360-time-dot.d2{background:#226866;color:#D6AF5C;border:1.5px solid #226866}
 .h360-time-dot.d3{background:#1a4f4d;color:#D6AF5C;border:1.5px solid #1a4f4d}
-.h360-time-line{flex:1;width:1.5px;background:linear-gradient(180deg,#D6AF5C 0%,#E8D09A 100%);margin:6px 0;min-height:18px;opacity:.55}
-.h360-time-item{padding-bottom:22px}
-.h360-time-item:last-child{padding-bottom:0}
+.h360-time-item{min-height:32px;padding-top:2px}
 .h360-time-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:8px}
 .h360-time-title{font-family:'Fraunces',serif;font-size:15px;font-weight:500;color:#1a4f4d;letter-spacing:-.01em}
 .h360-time-tag{font-size:8.5pt;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:#B8923A;background:#FAF7F0;border:.5px solid #E8D09A;padding:3px 10px;border-radius:99px;font-family:'Inter',sans-serif}
@@ -900,12 +900,12 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
 .h360-time-detail li strong{color:#1a4f4d;font-weight:500}
 .h360-time-detail li em{color:#B8923A;font-style:normal;font-weight:500}
 .h360-time-sub{font-size:12px;color:#888780;margin-top:2px;line-height:1.5}
-.h360-tbl-w{margin-bottom:18px;border:.5px solid #E8E2D4;border-radius:8px;overflow:hidden;background:#FFF;position:relative}
+.h360-tbl-w{margin-bottom:18px;border:.5px solid #E8E2D4;border-radius:8px;overflow-x:auto;overflow-y:hidden;background:#FFF;position:relative;-webkit-overflow-scrolling:touch}
 .h360-tbl{width:100%;border-collapse:collapse;font-size:11.5px}
-.h360-tbl th{background:#1a4f4d;color:#D6AF5C;font-size:9pt;font-weight:500;letter-spacing:.14em;text-transform:uppercase;padding:12px 9px;text-align:right;border-bottom:0;white-space:nowrap;font-family:'Inter',sans-serif}
+.h360-tbl th{background:#1a4f4d;color:#D6AF5C;font-size:8.5pt;font-weight:500;letter-spacing:.1em;text-transform:uppercase;padding:10px 6px;text-align:right;border-bottom:0;white-space:nowrap;font-family:'Inter',sans-serif}
 .h360-tbl th:first-child,.h360-tbl th:nth-child(2){text-align:left}
 .h360-tbl tbody tr:nth-child(even){background:#FAF7F0}
-.h360-tbl td{padding:9px 10px;border-bottom:.5px solid #F0E4C2;color:#1a4f4d;text-align:right;font-family:'Fraunces',serif;font-weight:500;letter-spacing:-.01em;white-space:nowrap;font-size:12px}
+.h360-tbl td{padding:8px 6px;border-bottom:.5px solid #F0E4C2;color:#1a4f4d;text-align:right;font-family:'Fraunces',serif;font-weight:500;letter-spacing:-.01em;white-space:nowrap;font-size:11px}
 .h360-tbl td:first-child,.h360-tbl td:nth-child(2){text-align:left;font-family:'Inter',sans-serif;font-weight:500;font-size:11.5px}
 .h360-tbl tbody tr:last-child td{border-bottom:none}
 .h360-tbl tfoot td{background:linear-gradient(180deg,#FAF7F0 0%,#F1ECDF 100%);border-top:1.5px solid #D6AF5C;border-bottom:none;font-weight:500;color:#B8923A;padding:12px 10px;font-size:12px;letter-spacing:.02em}
@@ -1796,18 +1796,18 @@ main.main:has(#page-ajuda.active) .content{
   body.printing-prop > .prop-doc .h360-tbl tfoot td{padding:8px 7px!important;font-size:9pt!important}
   body.printing-prop > .prop-doc .h360-tbl tr{break-inside:avoid;page-break-inside:avoid}
 
-  /* ═══ LINHA DO TEMPO — INTEIRA PROTEGIDA ═══ */
-  body.printing-prop > .prop-doc .h360-time{padding:16px 18px!important;break-inside:avoid!important;page-break-inside:avoid!important;margin-bottom:8px!important;border-radius:6px!important;gap:14px!important;grid-template-columns:28px 1fr!important}
-  body.printing-prop > .prop-doc .h360-time-rail{break-inside:avoid!important}
-  body.printing-prop > .prop-doc .h360-time-item{margin-bottom:10px!important;padding-bottom:0!important;break-inside:avoid!important;page-break-inside:avoid!important}
-  body.printing-prop > .prop-doc .h360-time-item:last-child{margin-bottom:0!important}
-  body.printing-prop > .prop-doc .h360-time-head{margin-bottom:4px!important;gap:9px!important}
+  /* ═══ LINHA DO TEMPO — rows grid, inteira protegida ═══ */
+  body.printing-prop > .prop-doc .h360-time{padding:16px 18px!important;break-inside:avoid!important;page-break-inside:avoid!important;margin-bottom:8px!important;border-radius:6px!important}
+  body.printing-prop > .prop-doc .h360-time-row{display:grid!important;grid-template-columns:26px 1fr!important;gap:12px!important;align-items:start!important;padding-bottom:12px!important;break-inside:avoid!important;page-break-inside:avoid!important}
+  body.printing-prop > .prop-doc .h360-time-row:last-child{padding-bottom:0!important}
+  body.printing-prop > .prop-doc .h360-time-row:not(:last-child)::before{left:12.5px!important;top:26px!important}
+  body.printing-prop > .prop-doc .h360-time-item{min-height:26px!important;padding-top:2px!important;break-inside:avoid!important}
+  body.printing-prop > .prop-doc .h360-time-head{margin-bottom:3px!important;gap:8px!important}
   body.printing-prop > .prop-doc .h360-time-title{font-size:11pt!important;letter-spacing:-.01em!important}
   body.printing-prop > .prop-doc .h360-time-tag{font-size:7pt!important;padding:2px 8px!important;letter-spacing:.16em!important}
   body.printing-prop > .prop-doc .h360-time-detail{font-size:10pt!important;line-height:1.55!important}
   body.printing-prop > .prop-doc .h360-time-detail li{padding:2px 0 2px 14px!important}
-  body.printing-prop > .prop-doc .h360-time-dot{width:26px!important;height:26px!important;font-size:10.5pt!important;box-shadow:none!important}
-  body.printing-prop > .prop-doc .h360-time-line{min-height:14px!important;width:1.2px!important}
+  body.printing-prop > .prop-doc .h360-time-dot{width:26px!important;height:26px!important;font-size:10.5pt!important;box-shadow:0 0 0 3px #FFF!important}
 
   /* FOOTNOTE */
   body.printing-prop > .prop-doc .pcom-footnote{font-size:8pt!important;padding:9px 13px!important;margin-top:8px!important;line-height:1.55!important;break-inside:avoid;border-radius:5px!important}
@@ -3151,14 +3151,8 @@ main.main:has(#page-ajuda.active) .content{
         <!-- LINHA DO TEMPO -->
         <h3 id="r-time-title">Linha do tempo</h3>
         <div class="h360-time">
-          <div class="h360-time-rail">
+          <div class="h360-time-row">
             <div class="h360-time-dot d1">1</div>
-            <div class="h360-time-line"></div>
-            <div class="h360-time-dot d2">2</div>
-            <div class="h360-time-line"></div>
-            <div class="h360-time-dot d3">3</div>
-          </div>
-          <div>
             <div class="h360-time-item">
               <div class="h360-time-head">
                 <span class="h360-time-title">Pré-contemplação</span>
@@ -3166,6 +3160,9 @@ main.main:has(#page-ajuda.active) .content{
               </div>
               <ul class="h360-time-detail" id="r-time-1"><li>—</li></ul>
             </div>
+          </div>
+          <div class="h360-time-row">
+            <div class="h360-time-dot d2">2</div>
             <div class="h360-time-item">
               <div class="h360-time-head">
                 <span class="h360-time-title">Contemplação</span>
@@ -3173,6 +3170,9 @@ main.main:has(#page-ajuda.active) .content{
               </div>
               <ul class="h360-time-detail" id="r-time-2"><li>—</li></ul>
             </div>
+          </div>
+          <div class="h360-time-row">
+            <div class="h360-time-dot d3">3</div>
             <div class="h360-time-item">
               <div class="h360-time-head">
                 <span class="h360-time-title">Pós-contemplação</span>
