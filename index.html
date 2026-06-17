@@ -12224,6 +12224,9 @@ function calcProp(){
   if(mini&&totCred>0){mini.innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;text-align:left"><div><div style="font-size:10px;color:var(--txt2);text-transform:uppercase;margin-bottom:2px">Crédito Total</div><div style="font-size:18px;font-weight:700;color:var(--sb)">${brl(totCred,0)}</div></div><div><div style="font-size:10px;color:var(--txt2);text-transform:uppercase;margin-bottom:2px">Cotas</div><div style="font-size:18px;font-weight:700">${totCotas}</div></div><div><div style="font-size:10px;color:var(--txt2);text-transform:uppercase;margin-bottom:2px">Lance Total</div><div style="font-size:18px;font-weight:700;color:var(--acc)">${lt.toFixed(1)}%</div></div><div><div style="font-size:10px;color:var(--txt2);text-transform:uppercase;margin-bottom:2px">Parcela Pré</div><div style="font-size:18px;font-weight:700;color:var(--info)">${brl(totPi)}</div></div></div>`;}
   const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
   set('r-cred',brl(totCred,0));set('r-cotas',totCotas);set('r-percota',totCotas?brl(totCred/totCotas,0):'—');
+  // Declaracoes movidas pra cima — usadas pelo HS/HS2 antes do bloco original
+  const _grupos = propGrupos.filter(g=>g.grupo);
+  const _avgPrazo = totCotas ? Math.round(propGrupos.reduce((s,g)=>s+((g.prazo||0)*(g.qtd||1)),0)/totCotas) : 0;
   // ─── HERO STATEMENT (3 KPIs grandes que vendem) ───
   const _hsParc = (totPiRed>0 && totPiRed<totPi) ? totPiRed : totPi;
   set('r-hs-recebe', totLiq>0 ? brl(totLiq,0) : '—');
@@ -12264,9 +12267,7 @@ function calcProp(){
   }
 
   // ─── NOVOS SETS · layout HC360 baseado modelo Itaú ───
-  // Coluna 1: dados gerais
-  const _grupos = propGrupos.filter(g=>g.grupo);
-  const _avgPrazo = totCotas ? Math.round(propGrupos.reduce((s,g)=>s+((g.prazo||0)*(g.qtd||1)),0)/totCotas) : 0;
+  // Coluna 1: dados gerais (_grupos e _avgPrazo ja declarados acima)
   set('r-tx-adm', totCotas?avgTa.toFixed(2)+'%':'—');
   set('r-prazo', _avgPrazo>0?_avgPrazo+' meses':'—');
   set('r-fr', totCotas?avgFr.toFixed(2)+'%':'—');
