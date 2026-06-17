@@ -2931,11 +2931,11 @@ main.main:has(#page-ajuda.active) .content{
           </div>
           <div class="h360-cons-col">
             <div class="h360-cons-row"><span class="h360-cons-lbl">Lance total</span><span class="h360-cons-val dour" id="r-lperc">—</span></div>
-            <div class="h360-cons-row"><span class="h360-cons-lbl">  em R$</span><span class="h360-cons-val" id="r-ltot">—</span></div>
-            <div class="h360-cons-row"><span class="h360-cons-lbl">Rec. proprios</span><span class="h360-cons-val" id="r-rp-pct">—</span></div>
-            <div class="h360-cons-row"><span class="h360-cons-lbl">  em R$</span><span class="h360-cons-val" id="r-lrp">—</span></div>
-            <div class="h360-cons-row"><span class="h360-cons-lbl">Parte da carta</span><span class="h360-cons-val" id="r-emb-pct">—</span></div>
-            <div class="h360-cons-row"><span class="h360-cons-lbl">  em R$</span><span class="h360-cons-val" id="r-llc">—</span></div>
+            <div class="h360-cons-row"><span class="h360-cons-lbl">Rec. próprios</span><span class="h360-cons-val" id="r-lrp">—</span></div>
+            <div class="h360-cons-row"><span class="h360-cons-lbl">Parte da carta (embutido)</span><span class="h360-cons-val" id="r-llc">—</span></div>
+            <span id="r-ltot" style="display:none">—</span>
+            <span id="r-rp-pct" style="display:none">—</span>
+            <span id="r-emb-pct" style="display:none">—</span>
           </div>
           <div class="h360-cons-col">
             <div class="h360-cons-row"><span class="h360-cons-lbl">Credito liquido</span><span class="h360-cons-val dour" id="r-liq">—</span></div>
@@ -12199,9 +12199,12 @@ function calcProp(){
   const _empListEl = document.getElementById('r-emp-list');
   if(_empListEl){
     if(_grupos.length>0 && totCred>0){
+      // Usa parcela com redução (PR) se houver — espelha "Parcela inicial" da consolidada
+      const _piShow = (totPiRed>0 && totPiRed<totPi) ? totPiRed : totPi;
+      const _temPR = totPiRed>0 && totPiRed<totPi;
       const _items = [
         'Entrada de <strong>'+brl(totLRP,0)+'</strong> (seu recurso próprio, pago no momento da contemplação)',
-        'Parcela mensal de <strong>'+brl(totPi)+'</strong> até a contemplação',
+        'Parcela mensal de <strong>'+brl(_piShow)+'</strong> até a contemplação'+(_temPR?' (com redução PR aplicada)':''),
         'Na contemplação, você recebe <strong>'+brl(totLiq,0)+'</strong> pra usar como achar melhor',
         'Após contemplação, a parcela passa a ser <strong>'+brl(totPp)+'/mês</strong>',
         'Custo total do consórcio: <strong>'+(avgTa+avgFr).toFixed(2)+'%</strong> (Adm '+avgTa.toFixed(2)+'% + FR '+avgFr.toFixed(2)+'%) — sem juros bancários'
