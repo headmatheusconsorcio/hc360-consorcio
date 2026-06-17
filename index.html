@@ -2921,7 +2921,7 @@ main.main:has(#page-ajuda.active) .content{
         <div class="h360-emp">
           <span class="h360-emp-lbl">Em palavras simples</span>
           <ul class="h360-emp-list" id="r-emp-list"><li>Configure os grupos na etapa anterior pra ver o resumo.</li></ul>
-          <div class="h360-emp-foot">As parcelas e o saldo devedor são reajustados anualmente pelo indexador do grupo (INCC, IPCA ou IPCA-E), conforme contrato Itaú.</div>
+          <div class="h360-emp-foot">As parcelas e o saldo devedor são reajustados anualmente pelo indexador do grupo (INCC, IPCA, IPCA-E ou Prefixado 3% a.a.), conforme contrato Itaú.</div>
           <span id="r-emp-text" style="display:none">—</span>
         </div>
 
@@ -2977,7 +2977,7 @@ main.main:has(#page-ajuda.active) .content{
         <div class="h360-cet-nota">
           <strong>Como o CET é calculado:</strong> (Taxa Adm + Fundo de Reserva em R$) ÷ Valor Presente ÷ Prazo médio.
           O Valor Presente é o Crédito Líquido menos os Recursos Próprios (o que o cliente desembolsa). A taxa anual é a mensal × 12.
-          <strong style="color:#B8923A">Não inclui</strong> reajuste pelo indexador do grupo (INCC/IPCA/IPCA-E), nem ITBI, cartório ou seguro opcional —
+          <strong style="color:#B8923A">Não inclui</strong> reajuste pelo indexador do grupo (INCC/IPCA/IPCA-E/Prefixado 3%), nem ITBI, cartório ou seguro opcional —
           é o custo estimado nas condições atuais.
         </div>
 
@@ -4417,7 +4417,7 @@ parcela_pós = saldo_remanescente / prazo_restante</pre>
               <tr><th></th><th>Itaú</th><th>Santander</th></tr>
               <tr><td>Lance % aplicado sobre</td><td>Crédito puro</td><td>Saldo devedor (créd + tx + FR)</td></tr>
               <tr><td>Embutido máximo</td><td>30% da carta</td><td>Pode ser maior em valor absoluto</td></tr>
-              <tr><td>Reajuste pré-contemp.</td><td>INCC anual (imóvel)</td><td>IPCA anual</td></tr>
+              <tr><td>Reajuste pré-contemp.</td><td>INCC anual (imóvel) ou Prefixado 3% a.a.</td><td>IPCA anual</td></tr>
               <tr><td>credito_liberado</td><td>carta − embutido</td><td>Vem direto do extrato ("Líquido a Pagar")</td></tr>
             </table>
             <p><b>Exemplo:</b> carta R$ 131.745, taxa 21,64%, FR 3% → saldo total inicial = R$ 164.232. Lance de 64,86% sobre esse saldo = R$ 106.351 (não 64,86% × 131.745).</p>
@@ -4458,6 +4458,7 @@ CET ao Ano     = CET ao Mês × 12</pre>
           <div class="ajuda-glos-item"><b>Fundo de Reserva (FR)</b> — ~3% do crédito. Cobre inadimplência do grupo.</div>
           <div class="ajuda-glos-item"><b>INCC</b> — Índice Nacional de Custo da Construção. Reajusta carta de imóvel anualmente.</div>
           <div class="ajuda-glos-item"><b>IPCA</b> — Índice Nacional de Preços ao Consumidor. Reajusta cartas Santander e veículos.</div>
+          <div class="ajuda-glos-item"><b>Prefixado 3%</b> — Indexador fixo Itaú: 3% ao ano + correção residual conforme contrato do grupo. Alternativa ao INCC em alguns grupos de imóvel.</div>
           <div class="ajuda-glos-item"><b>IQ</b> — Interveniente Quitante. Quando vendedor do imóvel tem financiamento ativo. Carta vai DIRETO pro banco do vendedor quitar.</div>
           <div class="ajuda-glos-item"><b>Lance Embutido</b> — Parte do lance paga com a própria carta. Limite 30% no Itaú.</div>
           <div class="ajuda-glos-item"><b>Lance Fixo (LF)</b> — Modalidade onde o % é fixo (40% no Itaú). Compete só com outros fixos.</div>
@@ -12245,7 +12246,7 @@ function calcProp(){
   const _f1Items = [
     'Você paga <strong>'+brl(_piShowTime)+'/mês</strong>'+(_temPRTime?' (com redução PR aplicada)':'')+' a partir da próxima assembleia',
     'Esse pagamento continua <em>até você ser contemplado</em> (por sorteio ou lance)',
-    'A parcela é reajustada anualmente pelo indexador do grupo (INCC/IPCA)',
+    'A parcela é reajustada anualmente pelo indexador do grupo (INCC/IPCA/Prefixado 3% a.a.)',
     'Você pode ofertar lance em qualquer assembleia mensal pra acelerar a contemplação'
   ];
   const _t1el = document.getElementById('r-time-1');
@@ -12271,7 +12272,7 @@ function calcProp(){
   const _f3Items = [
     'Nova parcela: <strong>'+brl(totPp)+'/mês</strong> (cai porque o lance já abateu parte do saldo)',
     'Prazo restante: <strong>'+_avgPrazo+' meses</strong> a partir da contemplação',
-    'A parcela é reajustada anualmente pelo indexador do grupo (INCC/IPCA)',
+    'A parcela é reajustada anualmente pelo indexador do grupo (INCC/IPCA/Prefixado 3% a.a.)',
     'Você pode <em>antecipar a quitação</em> a qualquer momento, sem multa',
     (_tipoBem==='imóvel'?'Pode usar <em>FGTS</em> pra amortizar ou quitar (consultar regras Caixa)':'Pode ofertar lance pra reduzir prazo ou parcela')
   ];
