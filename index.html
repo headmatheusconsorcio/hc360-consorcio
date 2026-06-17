@@ -1707,6 +1707,67 @@ main.main:has(#page-ajuda.active) .content{
   body.printing-prop > .prop-doc .prop-cet-cell.hl{
     -webkit-print-color-adjust:exact!important;print-color-adjust:exact!important
   }
+
+  /* ─── COMPACTACAO AGRESSIVA — proposta nova em 2 paginas A4 ─── */
+  @page{size:A4 portrait;margin:8mm 8mm 10mm 8mm!important}
+  body.printing-prop > .prop-doc{padding:0!important;font-size:9pt!important}
+  /* Hero */
+  body.printing-prop > .prop-doc .h360-hero{padding:8px 14px!important;margin-bottom:8px!important;break-inside:avoid}
+  body.printing-prop > .prop-doc .h360-hero-tag{font-size:8pt!important}
+  body.printing-prop > .prop-doc .h360-hero-cli{font-size:14pt!important;margin:2px 0!important}
+  /* Hero Statement */
+  body.printing-prop > .prop-doc .h360-hs{padding:12px 16px!important;margin:6px 0 8px!important;border-radius:8px!important;break-inside:avoid}
+  body.printing-prop > .prop-doc .h360-hs-lbl{font-size:7.5pt!important;margin-bottom:3px!important}
+  body.printing-prop > .prop-doc .h360-hs-val{font-size:18pt!important;line-height:1!important}
+  body.printing-prop > .prop-doc .h360-hs-sep{height:36px!important}
+  /* Hero Secundario 3 cards */
+  body.printing-prop > .prop-doc .h360-hs2{gap:5px!important;margin:0 0 10px!important;break-inside:avoid}
+  body.printing-prop > .prop-doc .h360-hs2-c{padding:7px 8px!important;border-radius:6px!important}
+  body.printing-prop > .prop-doc .h360-hs2-lbl{font-size:6.5pt!important;margin-bottom:2px!important}
+  body.printing-prop > .prop-doc .h360-hs2-val{font-size:11pt!important}
+  body.printing-prop > .prop-doc .h360-hs2-sub{font-size:6.5pt!important;margin-top:1px!important}
+  /* H3 titulos */
+  body.printing-prop > .prop-doc h3{font-size:9pt!important;margin:8px 0 4px!important;padding-bottom:2px!important;letter-spacing:.12em!important}
+  /* Consolidada */
+  body.printing-prop > .prop-doc .h360-cons{gap:10px!important;padding:8px 0!important;margin-bottom:8px!important;break-inside:avoid}
+  body.printing-prop > .prop-doc .h360-cons-row{padding:2.5px 0!important;font-size:8.5pt!important}
+  body.printing-prop > .prop-doc .h360-cons-lbl{font-size:8pt!important}
+  body.printing-prop > .prop-doc .h360-cons-val{font-size:9pt!important}
+  /* Historico (mais compacto) */
+  body.printing-prop > .prop-doc .pcom-hist-card{padding:6px 8px!important;margin-bottom:6px!important;break-inside:avoid}
+  body.printing-prop > .prop-doc .pcom-hist-chart{height:22mm!important}
+  body.printing-prop > .prop-doc .pcom-hist-chart canvas{max-height:22mm!important}
+  body.printing-prop > .prop-doc .pcom-hist-grid{gap:6px!important}
+  body.printing-prop > .prop-doc .pcom-hist-block-title{font-size:7.5pt!important;margin-bottom:1px!important}
+  body.printing-prop > .prop-doc .pcom-hist-block-meta{font-size:7.5pt!important}
+  body.printing-prop > .prop-doc .pcom-hist-cota{margin-top:4px!important;gap:4px!important}
+  body.printing-prop > .prop-doc .phc-cell{padding:3px 4px!important}
+  body.printing-prop > .prop-doc .phc-lbl{font-size:6pt!important}
+  body.printing-prop > .prop-doc .phc-val{font-size:9pt!important}
+  body.printing-prop > .prop-doc .phc-sub{font-size:6.5pt!important}
+  /* CET */
+  body.printing-prop > .prop-doc .h360-cet{padding:8px 10px!important;margin-bottom:4px!important;break-inside:avoid}
+  body.printing-prop > .prop-doc .h360-cet-big{font-size:18pt!important}
+  body.printing-prop > .prop-doc .h360-cet-v{font-size:12pt!important}
+  body.printing-prop > .prop-doc .h360-cet-lbl,
+  body.printing-prop > .prop-doc .h360-cet-tag{font-size:7pt!important}
+  body.printing-prop > .prop-doc .h360-cet-nota{font-size:7.5pt!important;padding:5px 8px!important;line-height:1.4!important;margin-bottom:8px!important}
+  /* Tabela cartas */
+  body.printing-prop > .prop-doc .h360-tbl{font-size:7.5pt!important}
+  body.printing-prop > .prop-doc .h360-tbl th{padding:3px 4px!important;font-size:6.5pt!important}
+  body.printing-prop > .prop-doc .h360-tbl td{padding:3px 4px!important;font-size:7.5pt!important}
+  body.printing-prop > .prop-doc .h360-tbl-w{margin-bottom:8px!important;break-inside:avoid}
+  /* Linha do tempo */
+  body.printing-prop > .prop-doc .h360-time{padding:8px 10px!important;break-inside:avoid;margin-bottom:6px!important}
+  body.printing-prop > .prop-doc .h360-time-item{margin-bottom:6px!important}
+  body.printing-prop > .prop-doc .h360-time-head{margin-bottom:2px!important}
+  body.printing-prop > .prop-doc .h360-time-title{font-size:10pt!important}
+  body.printing-prop > .prop-doc .h360-time-tag{font-size:6.5pt!important;padding:1px 5px!important}
+  body.printing-prop > .prop-doc .h360-time-detail{font-size:8pt!important;line-height:1.4!important}
+  body.printing-prop > .prop-doc .h360-time-detail li{padding:1.5px 0 1.5px 12px!important}
+  body.printing-prop > .prop-doc .h360-time-dot{width:22px!important;height:22px!important;font-size:9pt!important}
+  /* Footnote */
+  body.printing-prop > .prop-doc .pcom-footnote{font-size:7pt!important;padding:6px 8px!important;margin-top:4px!important;line-height:1.4!important}
 }
 
 /* ── RELATÓRIO PATRIMONIAL — view dedicada A4 ────────── */
