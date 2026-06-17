@@ -832,6 +832,12 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
 .h360-hero-meta{font-size:11.5px;opacity:.78;margin-top:4px}
 .h360-hero-actions{display:flex;gap:8px;flex-wrap:wrap}
 .h360-hero-actions .pcom-btn{background:rgba(255,243,221,.14);border:1px solid rgba(255,243,221,.32);color:#FFF3DD}
+.h360-hs2{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:0 0 22px}
+.h360-hs2-c{background:#FFFFFF;border:.5px solid #E8D09A;border-radius:10px;padding:14px 16px;text-align:center}
+.h360-hs2-lbl{font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:#888780;font-family:'Inter',sans-serif;font-weight:500;margin-bottom:5px}
+.h360-hs2-val{font-family:'Fraunces',serif;font-size:20px;font-weight:500;color:#226866;line-height:1.1;letter-spacing:-.3px}
+.h360-hs2-sub{font-size:10px;color:#B8923A;margin-top:3px;font-family:'Inter',sans-serif;font-weight:500}
+@media print { .h360-hs2-c{break-inside:avoid;background:#FFF !important;-webkit-print-color-adjust:exact;print-color-adjust:exact} }
 .h360-hs{display:grid;grid-template-columns:1fr 1px 1fr 1px 1fr;gap:0;align-items:stretch;background:linear-gradient(180deg,#FAF7F0 0%,#FFFFFF 100%);border:.5px solid #E8D09A;border-radius:16px;padding:40px 32px;margin:20px 0 28px;box-shadow:0 1px 3px rgba(184,146,58,.06)}
 .h360-hs-c{text-align:center;padding:0 16px;display:flex;flex-direction:column;justify-content:center}
 .h360-hs-lbl{font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:#888780;font-family:'Inter',sans-serif;font-weight:500;margin-bottom:10px}
@@ -2910,7 +2916,7 @@ main.main:has(#page-ajuda.active) .content{
           <div class="h360-hero-l">
             <div class="h360-hero-tag">HC360 Consorcio · Proposta Comercial</div>
             <div class="h360-hero-cli" id="prop-doc-cliente">—</div>
-            <div class="h360-hero-meta" id="prop-doc-data">—</div>
+            <span id="prop-doc-data" style="display:none">—</span>
           </div>
           <div class="h360-hero-actions pcom-hdr-actions">
             <button class="pcom-btn" onclick="propGoStep(1)">← Editar</button>
@@ -2942,7 +2948,105 @@ main.main:has(#page-ajuda.active) .content{
             </div>
         </div>
 
-        <!-- LINHA DO TEMPO -->        <!-- LINHA DO TEMPO -->
+        <!-- HERO SECUNDARIO -->
+        <div class="h360-hs2">
+          <div class="h360-hs2-c">
+            <div class="h360-hs2-lbl">Crédito da carta</div>
+            <div class="h360-hs2-val" id="r-hs2-carta">—</div>
+            <div class="h360-hs2-sub" id="r-hs2-carta-sub">—</div>
+          </div>
+          <div class="h360-hs2-c">
+            <div class="h360-hs2-lbl">CET ao ano</div>
+            <div class="h360-hs2-val" id="r-hs2-cet">—</div>
+            <div class="h360-hs2-sub">vs financ. 12-25%</div>
+          </div>
+          <div class="h360-hs2-c">
+            <div class="h360-hs2-lbl">Lance total</div>
+            <div class="h360-hs2-val" id="r-hs2-lance">—</div>
+            <div class="h360-hs2-sub" id="r-hs2-lance-sub">—</div>
+          </div>
+        </div>
+
+        <!-- LINHA DO TEMPO -->
+
+          <span id="r-emp-text" style="display:none">—</span>
+        </div>
+
+        <!-- PROPOSTA CONSOLIDADA -->
+        <h3>Proposta consolidada</h3>
+        <div class="h360-cons">
+          <div class="h360-cons-col">
+            <div class="h360-cons-row"><span class="h360-cons-lbl">Valor credito</span><span class="h360-cons-val" id="r-cred">—</span></div>
+            <div class="h360-cons-row"><span class="h360-cons-lbl">Valor bem + taxas</span><span class="h360-cons-val" id="r-sd">—</span></div>
+            <div class="h360-cons-row"><span class="h360-cons-lbl">Qtd. cotas</span><span class="h360-cons-val" id="r-cotas">—</span></div>
+            <div class="h360-cons-row"><span class="h360-cons-lbl">Taxa adm (media)</span><span class="h360-cons-val" id="r-tx-adm">—</span></div>
+            <div class="h360-cons-row"><span class="h360-cons-lbl">Prazo (medio)</span><span class="h360-cons-val" id="r-prazo">—</span></div>
+            <div class="h360-cons-row"><span class="h360-cons-lbl">Fundo reserva</span><span class="h360-cons-val" id="r-fr">—</span></div>
+          </div>
+          <div class="h360-cons-col">
+            <div class="h360-cons-row"><span class="h360-cons-lbl">Lance total</span><span class="h360-cons-val dour" id="r-lperc">—</span></div>
+            <div class="h360-cons-row"><span class="h360-cons-lbl">Rec. próprios</span><span class="h360-cons-val" id="r-lrp">—</span></div>
+            <div class="h360-cons-row"><span class="h360-cons-lbl">Parte da carta (embutido)</span><span class="h360-cons-val" id="r-llc">—</span></div>
+            <span id="r-ltot" style="display:none">—</span>
+            <span id="r-rp-pct" style="display:none">—</span>
+            <span id="r-emb-pct" style="display:none">—</span>
+          </div>
+          <div class="h360-cons-col">
+            <div class="h360-cons-row"><span class="h360-cons-lbl">Credito liquido</span><span class="h360-cons-val dour" id="r-liq">—</span></div>
+            <div class="h360-cons-row"><span class="h360-cons-lbl">Parcela inicial</span><span class="h360-cons-val" id="r-pi">—</span></div>
+            <div class="h360-cons-row"><span class="h360-cons-lbl">Parcela pos-lance</span><span class="h360-cons-val" id="r-pp">—</span></div>
+          </div>
+          <!-- spans ocultos pra compat com JS legado -->
+          <span id="r-pi-red" style="display:none">—</span>
+          <span id="r-pi-red-row" style="display:none">—</span>
+          <span id="r-tafr-avg" style="display:none">—</span>
+        </div>
+
+        <!-- HISTORICO DOS GRUPOS -->
+        <h3 id="r-hist-title" style="display:none">Historico dos Ultimos 6 Meses</h3>
+        <div id="r-grupos-hist" class="pcom-grupos-hist"></div>
+
+        <!-- CET -->
+        <h3>CET · Custo efetivo total</h3>
+        <div class="h360-cet">
+          <div class="h360-cet-side">
+            <div class="h360-cet-tag">Custo estimado total</div>
+            <div class="h360-cet-big" id="cet-pct">—</div>
+            <div class="h360-cet-sm" id="cet-ta">—</div>
+          </div>
+          <div class="h360-cet-c">
+            <div class="h360-cet-lbl">Ao mes</div>
+            <div class="h360-cet-v" id="cet-mes">—</div>
+            <div class="h360-cet-h">custo / VP / prazo</div>
+          </div>
+          <div class="h360-cet-c">
+            <div class="h360-cet-lbl">Ao ano</div>
+            <div class="h360-cet-v" id="cet-ano">—</div>
+            <div class="h360-cet-h">vs. financ. 12-25% a.a.</div>
+          </div>
+        </div>
+        <div class="h360-cet-nota">
+          <strong>Como o CET é calculado:</strong> (Taxa Adm + Fundo de Reserva em R$) ÷ Valor Presente ÷ Prazo médio.
+          O Valor Presente é o Crédito Líquido menos os Recursos Próprios (o que o cliente desembolsa). A taxa anual é a mensal × 12.
+          <strong style="color:#B8923A">Não inclui</strong> reajuste pelo indexador do grupo (INCC/IPCA/IPCA-E/Prefixado 3%), nem ITBI, cartório ou seguro opcional —
+          é o custo estimado nas condições atuais.
+        </div>
+
+        <!-- CARTAS INDIVIDUAIS -->
+        <h3 id="r-tbl-title">Cartas individuais</h3>
+        <div class="h360-tbl-w">
+          <table class="h360-tbl">
+            <thead>
+              <tr>
+                <th>Tipo</th><th>Grupo</th><th>Qtd</th><th>Valor do bem</th><th>Adm</th><th>FR</th><th>Prazo</th><th>Saldo dev.</th><th>Parc. inicial</th><th>Lance %</th><th>Lance R$</th><th>Cred. liq.</th><th>Parc. pos</th>
+              </tr>
+            </thead>
+            <tbody id="r-tbl-body"></tbody>
+            <tfoot id="r-tbl-foot"></tfoot>
+          </table>
+        </div>
+
+        <!-- LINHA DO TEMPO -->
         <h3 id="r-time-title">Linha do tempo</h3>
         <div class="h360-time">
           <div class="h360-time-rail">
@@ -2978,64 +3082,6 @@ main.main:has(#page-ajuda.active) .content{
         </div>
 
 
-          <span id="r-emp-text" style="display:none">—</span>
-        </div>
-
-        <!-- PROPOSTA CONSOLIDADA -->
-        <h3>Proposta consolidada</h3>
-        <div class="h360-cons">
-          <div class="h360-cons-col">
-            <div class="h360-cons-row"><span class="h360-cons-lbl">Valor credito</span><span class="h360-cons-val" id="r-cred">—</span></div>
-            <div class="h360-cons-row"><span class="h360-cons-lbl">Valor bem + taxas</span><span class="h360-cons-val" id="r-sd">—</span></div>
-            <div class="h360-cons-row"><span class="h360-cons-lbl">Qtd. cotas</span><span class="h360-cons-val" id="r-cotas">—</span></div>
-            <div class="h360-cons-row"><span class="h360-cons-lbl">Taxa adm (media)</span><span class="h360-cons-val" id="r-tx-adm">—</span></div>
-            <div class="h360-cons-row"><span class="h360-cons-lbl">Prazo (medio)</span><span class="h360-cons-val" id="r-prazo">—</span></div>
-            <div class="h360-cons-row"><span class="h360-cons-lbl">Fundo reserva</span><span class="h360-cons-val" id="r-fr">—</span></div>
-          </div>
-          <div class="h360-cons-col">
-            <div class="h360-cons-row"><span class="h360-cons-lbl">Lance total</span><span class="h360-cons-val dour" id="r-lperc">—</span></div>
-            <div class="h360-cons-row"><span class="h360-cons-lbl">Rec. próprios</span><span class="h360-cons-val" id="r-lrp">—</span></div>
-            <div class="h360-cons-row"><span class="h360-cons-lbl">Parte da carta (embutido)</span><span class="h360-cons-val" id="r-llc">—</span></div>
-            <span id="r-ltot" style="display:none">—</span>
-            <span id="r-rp-pct" style="display:none">—</span>
-            <span id="r-emb-pct" style="display:none">—</span>
-          </div>
-          <div class="h360-cons-col">
-            <div class="h360-cons-row"><span class="h360-cons-lbl">Credito liquido</span><span class="h360-cons-val dour" id="r-liq">—</span></div>
-            <div class="h360-cons-row"><span class="h360-cons-lbl">Parcela inicial</span><span class="h360-cons-val" id="r-pi">—</span></div>
-            <div class="h360-cons-row"><span class="h360-cons-lbl">Parcela pos-lance</span><span class="h360-cons-val" id="r-pp">—</span></div>
-          </div>
-          <!-- spans ocultos pra compat com JS legado -->
-          <span id="r-pi-red" style="display:none">—</span>
-          <span id="r-pi-red-row" style="display:none">—</span>
-          <span id="r-tafr-avg" style="display:none">—</span>
-        </div>
-
-        <!-- CET -->
-        <h3>CET · Custo efetivo total</h3>
-        <div class="h360-cet">
-          <div class="h360-cet-side">
-            <div class="h360-cet-tag">Custo estimado total</div>
-            <div class="h360-cet-big" id="cet-pct">—</div>
-            <div class="h360-cet-sm" id="cet-ta">—</div>
-          </div>
-          <div class="h360-cet-c">
-            <div class="h360-cet-lbl">Ao mes</div>
-            <div class="h360-cet-v" id="cet-mes">—</div>
-            <div class="h360-cet-h">custo / VP / prazo</div>
-          </div>
-          <div class="h360-cet-c">
-            <div class="h360-cet-lbl">Ao ano</div>
-            <div class="h360-cet-v" id="cet-ano">—</div>
-            <div class="h360-cet-h">vs. financ. 12-25% a.a.</div>
-          </div>
-        </div>
-        <div class="h360-cet-nota">
-          <strong>Como o CET é calculado:</strong> (Taxa Adm + Fundo de Reserva em R$) ÷ Valor Presente ÷ Prazo médio.
-          O Valor Presente é o Crédito Líquido menos os Recursos Próprios (o que o cliente desembolsa). A taxa anual é a mensal × 12.
-          <strong style="color:#B8923A">Não inclui</strong> reajuste pelo indexador do grupo (INCC/IPCA/IPCA-E/Prefixado 3%), nem ITBI, cartório ou seguro opcional —
-          é o custo estimado nas condições atuais.
-        </div>
 
         <!-- Campos ocultos (compatibilidade com calcProp e outros lugares) -->
         <span id="cet-vp" style="display:none">—</span>
@@ -3066,23 +3112,7 @@ main.main:has(#page-ajuda.active) .content{
         </div>
 
 
-        <!-- CARTAS INDIVIDUAIS -->
-        <h3 id="r-tbl-title">Cartas individuais</h3>
-        <div class="h360-tbl-w">
-          <table class="h360-tbl">
-            <thead>
-              <tr>
-                <th>Tipo</th><th>Grupo</th><th>Qtd</th><th>Valor do bem</th><th>Adm</th><th>FR</th><th>Prazo</th><th>Saldo dev.</th><th>Parc. inicial</th><th>Lance %</th><th>Lance R$</th><th>Cred. liq.</th><th>Parc. pos</th>
-              </tr>
-            </thead>
-            <tbody id="r-tbl-body"></tbody>
-            <tfoot id="r-tbl-foot"></tfoot>
-          </table>
-        </div>
 
-        <!-- HISTORICO DOS GRUPOS -->
-        <h3 id="r-hist-title" style="display:none">Historico dos Ultimos 6 Meses</h3>
-        <div id="r-grupos-hist" class="pcom-grupos-hist"></div>
 
         <!-- AUDITORIA -->
         <div class="pcom-audit-wrap">
@@ -12201,6 +12231,13 @@ function calcProp(){
   set('r-hs-recebe', totLiq>0 ? brl(totLiq,0) : '—');
   set('r-hs-investe', totLRP>0 ? brl(totLRP,0) : '—');
   set('r-hs-parcela', _hsParc>0 ? brl(_hsParc) : '—');
+  set('r-hs2-carta', totCred>0 ? brl(totCred,0) : '—');
+  set('r-hs2-carta-sub', totCotas>0 ? totCotas+' cota'+(totCotas!==1?'s':'')+' · '+_avgPrazo+'m' : '');
+  // CET ao ano = (avgTa + avgFr) / VP / prazo × 12 — pega do span existente
+  setTimeout(()=>{ const _cetA = document.getElementById('cet-ano'); if(_cetA) document.getElementById('r-hs2-cet').textContent = _cetA.textContent; }, 50);
+  const _lancePctTotKPI = totCred>0?(totLTot/totCred*100):0;
+  set('r-hs2-lance', _lancePctTotKPI>0 ? _lancePctTotKPI.toFixed(1)+'%' : '—');
+  set('r-hs2-lance-sub', totLTot>0 ? brl(totLTot,0)+' da carta' : '');
   set('r-lperc',lt.toFixed(2)+'%');set('r-lrp',brl(totLRP,0));set('r-llc',brl(totLLC,0));set('r-ltot',brl(totLTot,0));
   set('r-liq',brl(totLiq,0));set('r-sd',brl(totSD,0));
   // KPI "Parcela Pré-Contempl.": destaque é o valor que o cliente paga de fato
@@ -12271,8 +12308,7 @@ function calcProp(){
     return d0t && /IM|RES/i.test(d0t.tp||'') ? 'imóvel' : 'veículo';
   })() : 'bem';
   const _f1Items = [
-    'Parcela de <strong>'+brl(_piShowTime)+'</strong>'+(_temPRTime?' <em>(PR ativa)</em>':'')+' até contemplar',
-    'Lance em qualquer assembleia mensal'
+    'Paga <strong>'+brl(_piShowTime)+'/mês</strong>'+(_temPRTime?' <em>(com PR)</em>':'')+' até ser contemplado'
   ];
   const _t1el = document.getElementById('r-time-1');
   if(_t1el) _t1el.innerHTML = _f1Items.map(i=>'<li>'+i+'</li>').join('');
@@ -12282,8 +12318,7 @@ function calcProp(){
   // FASE 2 — CONTEMPLAÇÃO
   const _lancePctTot = totCred>0?(totLTot/totCred*100):0;
   const _f2Items = [
-    'Investe <strong>'+brl(totLRP,0)+'</strong> + lance embutido <strong>'+brl(totLLC,0)+'</strong>',
-    'Recebe <em>'+brl(totLiq,0)+' líquidos</em> — usa pra qualquer '+_tipoBem
+    'Investe <strong>'+brl(totLRP,0)+'</strong> e recebe <em>'+brl(totLiq,0)+' líquidos</em>'
   ];
   const _t2el = document.getElementById('r-time-2');
   if(_t2el) _t2el.innerHTML = _f2Items.map(i=>'<li>'+i+'</li>').join('');
@@ -12292,8 +12327,7 @@ function calcProp(){
 
   // FASE 3 — PÓS-CONTEMPLAÇÃO
   const _f3Items = [
-    'Parcela cai pra <strong>'+brl(totPp)+'</strong> por '+_avgPrazo+' meses',
-    (_tipoBem==='imóvel'?'<em>FGTS</em> + antecipação sem multa':'Antecipação sem multa · lance pra reduzir prazo')
+    'Parcela cai pra <strong>'+brl(totPp)+'/mês</strong> por '+_avgPrazo+' meses'+(_tipoBem==='imóvel'?' · <em>FGTS</em> liberado':'')
   ];
   const _t3el = document.getElementById('r-time-3');
   if(_t3el) _t3el.innerHTML = _f3Items.map(i=>'<li>'+i+'</li>').join('');
