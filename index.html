@@ -1755,8 +1755,7 @@ main.main:has(#page-ajuda.active) .content{
   body.printing-prop > .prop-doc .phc-val{font-size:8pt!important}
   body.printing-prop > .prop-doc .phc-sub{font-size:5.5pt!important}
 
-  /* ═══ QUEBRA OBRIGATORIA — Pag 2 comeca no CET ═══ */
-  body.printing-prop > .prop-doc h3.h360-page2-start{break-before:page!important;page-break-before:always!important;margin-top:0!important;padding-top:0!important}
+  /* CET — flow natural, sem forcar quebra */
   body.printing-prop > .prop-doc .h360-cet{padding:8px 12px!important;margin-bottom:4px!important;break-inside:avoid}
 
   /* CET — TAMANHO PADRAO 1 (igual HS principal) */
@@ -3084,7 +3083,7 @@ main.main:has(#page-ajuda.active) .content{
         <div id="r-grupos-hist" class="pcom-grupos-hist"></div>
 
         <!-- CET -->
-        <h3 class="h360-page2-start">CET · Custo efetivo total</h3>
+        <h3>CET · Custo efetivo total</h3>
         <div class="h360-cet">
           <div class="h360-cet-side">
             <div class="h360-cet-tag">Custo estimado total</div>
