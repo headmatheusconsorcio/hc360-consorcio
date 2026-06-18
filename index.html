@@ -2607,8 +2607,75 @@ main.main:has(#page-ajuda.active) .content{
           <button id="oport-lf-tab-sem" class="toggle-btn" onclick="setLanceFixoTab('sem')" style="padding:6px 14px;font-size:12px">Sem vagas (monitorar)</button>
         </div>
       </div>
+      <!-- Filtros minimalistas -->
+      <div class="gfb" style="border-radius:0;border-left:0;border-right:0;border-top:0;margin:0">
+        <div class="gfb-grp">
+          <div class="gfb-fld"><label>Tipo</label>
+            <select id="lf-f-tipo" onchange="renderLanceFixoFila()">
+              <option value="">Todos</option><option value="im">🏠 Imóveis</option><option value="ro">🚗 Veículos</option>
+            </select>
+          </div>
+          <div class="gfb-fld"><label>Proporção LF</label>
+            <select id="lf-f-prop" onchange="renderLanceFixoFila()">
+              <option value="">Todas</option><option value="1:4">1:4</option><option value="1:8">1:8</option>
+            </select>
+          </div>
+          <div class="gfb-fld"><label title="Slot LF sem ninguém ofertando — quem entrar pega 1ª posição">Status oferta</label>
+            <select id="lf-f-oferta" onchange="renderLanceFixoFila()">
+              <option value="">Todos</option><option value="sem">🔓 Sem oferta</option><option value="com">Com oferta</option>
+            </select>
+          </div>
+        </div>
+        <div class="gfb-grp">
+          <div class="gfb-fld"><label>Prazo restante</label>
+            <div class="gfb-range">
+              <input type="number" id="lf-f-prazo-min" placeholder="mín" oninput="renderLanceFixoFila()">
+              <span class="sep">–</span>
+              <input type="number" id="lf-f-prazo-max" placeholder="máx" oninput="renderLanceFixoFila()">
+              <span class="unit">m</span>
+            </div>
+          </div>
+          <div class="gfb-fld"><label>Fila atrás</label>
+            <div class="gfb-range">
+              <input type="number" id="lf-f-fila-min" placeholder="mín" oninput="renderLanceFixoFila()">
+              <span class="sep">–</span>
+              <input type="number" id="lf-f-fila-max" placeholder="máx" oninput="renderLanceFixoFila()" value="20">
+            </div>
+          </div>
+          <div class="gfb-fld"><label>Crédito</label>
+            <div class="gfb-range">
+              <input type="number" id="lf-f-cred-min" placeholder="mín" min="0" step="10" oninput="renderLanceFixoFila()">
+              <span class="sep">–</span>
+              <input type="number" id="lf-f-cred-max" placeholder="máx" min="0" step="10" oninput="renderLanceFixoFila()">
+              <span class="unit">R$ mil</span>
+            </div>
+          </div>
+        </div>
+        <div class="gfb-grp">
+          <div class="gfb-fld"><label>Vagas ≥</label>
+            <input type="number" id="lf-f-vagas" placeholder="0" min="0" oninput="renderLanceFixoFila()" style="width:70px">
+          </div>
+          <div class="gfb-fld"><label>Cont./mês ≥</label>
+            <input type="number" id="lf-f-cont" placeholder="0" min="0" step="1" oninput="renderLanceFixoFila()" style="width:70px">
+          </div>
+          <div class="gfb-fld"><label title="Mês aniversário (reajuste)">Reajuste</label>
+            <select id="lf-f-aniv" onchange="renderLanceFixoFila()">
+              <option value="">Qualquer</option>
+              <option value="1">Janeiro</option><option value="2">Fevereiro</option><option value="3">Março</option>
+              <option value="4">Abril</option><option value="5">Maio</option><option value="6">Junho</option>
+              <option value="7">Julho</option><option value="8">Agosto</option><option value="9">Setembro</option>
+              <option value="10">Outubro</option><option value="11">Novembro</option><option value="12">Dezembro</option>
+              <option value="prox3">Próximos 3 meses</option>
+            </select>
+          </div>
+        </div>
+        <div class="gfb-actions">
+          <button class="btn btn-out btn-sm" onclick="lfClearFilters()" title="Limpar filtros">✕ Limpar</button>
+          <span id="oport-lf-count" class="gfb-count">—</span>
+        </div>
+      </div>
       <div class="cb" style="padding:0">
-        <div id="oport-lf-body" style="max-height:480px;overflow-y:auto"></div>
+        <div id="oport-lf-body" style="max-height:520px;overflow-y:auto;position:relative"></div>
       </div>
     </div>
 
@@ -11260,11 +11327,30 @@ function setLanceFixoTab(t){
   document.getElementById('oport-lf-tab-sem')?.classList.toggle('act',t==='sem');
   renderLanceFixoFila();
 }
+function lfClearFilters(){
+  ['tipo','prop','oferta','prazo-min','prazo-max','fila-min','fila-max','cred-min','cred-max','vagas','cont','aniv'].forEach(k=>{
+    const el=document.getElementById('lf-f-'+k);if(el)el.value='';
+  });
+  // Restaura default fila-max = 20
+  const fm=document.getElementById('lf-f-fila-max');if(fm)fm.value='20';
+  renderLanceFixoFila();
+}
 function renderLanceFixoFila(){
   const body=document.getElementById('oport-lf-body');if(!body)return;
   const meta=document.getElementById('oport-lf-meta');
-  // Cruza LANCE_FIXO_FILA com GUIA e filtra por critérios operacionais
-  const FILA_MAX=20;
+  const countEl=document.getElementById('oport-lf-count');
+  // Lê filtros
+  const numv=id=>{const el=document.getElementById(id);if(!el||el.value==='')return null;const n=parseFloat(el.value);return isNaN(n)?null:n;};
+  const fTipo=document.getElementById('lf-f-tipo')?.value||'';
+  const fProp=document.getElementById('lf-f-prop')?.value||'';
+  const fOferta=document.getElementById('lf-f-oferta')?.value||'';
+  const fPrazoMin=numv('lf-f-prazo-min'),fPrazoMax=numv('lf-f-prazo-max');
+  const fFilaMin=numv('lf-f-fila-min'),fFilaMax=numv('lf-f-fila-max');
+  const fCredMin=numv('lf-f-cred-min'),fCredMax=numv('lf-f-cred-max');
+  const fVagas=numv('lf-f-vagas'),fCont=numv('lf-f-cont');
+  const fAniv=document.getElementById('lf-f-aniv')?.value||'';
+  const hoje=new Date(),mAtual=hoje.getMonth()+1;
+  // Cruza LANCE_FIXO_FILA com GUIA
   const itens=[];
   Object.values(LANCE_FIXO_FILA||{}).forEach(lf=>{
     const g=lf.grupo;
@@ -11275,24 +11361,46 @@ function renderLanceFixoFila(){
     const prazoMin=isImov?50:24;
     if(prazo<prazoMin)return;
     const vagas=parseInt(gd.vagas)||0;
+    // Tab Com/Sem vagas
     if(LF_TAB==='com'&&vagas<=0)return;
     if(LF_TAB==='sem'&&vagas>0)return;
-    if((lf.fila_atras||0)>FILA_MAX)return;
     const lm=LANCES_MEDIAS[g];
     const m6=lm&&lm.media_6m!=null?Number(lm.media_6m):null;
     const cred=gd.vmax?Number(gd.vmax):(gd.vmin?Number(gd.vmin):null);
+    const fila=lf.fila_atras||0,contemp=lf.contemplados_mes||0;
+    const temOferta=lf.tem_oferta!==false;
+    const aniv=gd.mes_aniv||null;
+    // Aplica filtros do usuário
+    if(fTipo==='im'&&!isImov)return;
+    if(fTipo==='ro'&&isImov)return;
+    if(fProp&&(lf.proporcao||'')!==fProp)return;
+    if(fOferta==='sem'&&temOferta)return;
+    if(fOferta==='com'&&!temOferta)return;
+    if(fPrazoMin!=null&&prazo<fPrazoMin)return;
+    if(fPrazoMax!=null&&prazo>fPrazoMax)return;
+    if(fFilaMin!=null&&fila<fFilaMin)return;
+    if(fFilaMax!=null&&fila>fFilaMax)return;
+    if(fVagas!=null&&vagas<fVagas)return;
+    if(fCont!=null&&contemp<fCont)return;
+    if(cred!=null){
+      const credK=cred/1000;
+      if(fCredMin!=null&&credK<fCredMin)return;
+      if(fCredMax!=null&&credK>fCredMax)return;
+    }
+    if(fAniv){
+      if(!aniv)return;
+      if(fAniv==='prox3'){
+        const m1=mAtual,m2=m1===12?1:m1+1,m3=m1>=11?(m1===11?1:2):m1+2;
+        if(aniv!==m1&&aniv!==m2&&aniv!==m3)return;
+      }else if(String(aniv)!==fAniv)return;
+    }
     itens.push({
       grupo:g, isImov, tipoBem:lf.tipo_bem||gd.tp||'',
       proporcao:lf.proporcao||'—',
-      prazo, vagas,
-      fila:lf.fila_atras||0,
-      contemp:lf.contemplados_mes||0,
-      temOferta:lf.tem_oferta!==false,
-      cred, m6,
-      aniv:gd.mes_aniv||null
+      prazo, vagas, fila, contemp, temOferta, cred, m6, aniv
     });
   });
-  // Ordena: imóveis primeiro, depois por fila ascendente, depois prazo desc
+  // Ordena
   itens.sort((a,b)=>{
     if(a.isImov!==b.isImov)return a.isImov?-1:1;
     if(a.fila!==b.fila)return a.fila-b.fila;
@@ -11300,20 +11408,27 @@ function renderLanceFixoFila(){
   });
   const nIm=itens.filter(i=>i.isImov).length;
   const nRo=itens.length-nIm;
-  if(meta)meta.textContent=`Snapshot Maio/26 · ${nIm} imóvel${nIm!==1?'eis':''} + ${nRo} veículo${nRo!==1?'s':''} · fila ≤ ${FILA_MAX}`;
+  const totalLF=Object.keys(LANCE_FIXO_FILA||{}).length;
+  if(meta)meta.textContent=`Snapshot Maio/26 · ${totalLF} grupos na base`;
+  if(countEl)countEl.textContent=itens.length===0?'nenhum resultado':`${nIm} 🏠 + ${nRo} 🚗 = ${itens.length} grupos`;
   if(!itens.length){
-    body.innerHTML=`<div style="padding:36px 24px;text-align:center"><div style="font-size:38px;margin-bottom:8px;opacity:.45">🔒</div><div style="font-size:13px;color:var(--txt2)">Nenhum grupo elegível ${LF_TAB==='com'?'com vagas':'sem vagas'} nesta janela</div></div>`;
+    body.innerHTML=`<div style="padding:36px 24px;text-align:center"><div style="font-size:38px;margin-bottom:8px;opacity:.45">🔒</div><div style="font-size:13px;color:var(--txt2)">Nenhum grupo encontrado com esses filtros</div></div>`;
     return;
   }
   const meses=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
-  // Agrupa por tipo pra header de seção
   function urgFila(f){return f<=5?{tag:'#166534',bg:'#dcfce7',dot:'#22c55e'}:f<=12?{tag:'#92400e',bg:'#fef3c7',dot:'#d97706'}:{tag:'#1e3a8a',bg:'#eff6ff',dot:'#3b82f6'};}
+  const cols='90px 1fr 80px 110px 90px 140px 80px';
+  // Sticky header
+  const head=`<div style="padding:8px 18px;background:var(--card2);border-bottom:1px solid var(--bdr);display:grid;grid-template-columns:${cols};gap:14px;font-size:9.5px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:.5px;position:sticky;top:0;z-index:5;backdrop-filter:saturate(180%) blur(6px)">
+    <div>Grupo</div><div>Tipo</div><div style="text-align:center">Prazo</div><div style="text-align:center">Vagas</div><div style="text-align:center">Fila</div><div style="text-align:center">Crédito · Prop · M6 · Aniv</div><div style="text-align:center">Cont./mês</div>
+  </div>`;
   const rows=[];
   let lastSeg=null;
   itens.forEach(it=>{
     const seg=it.isImov?'im':'ro';
-    if(seg!==lastSeg){
-      rows.push(`<div style="padding:8px 18px;background:${seg==='im'?'#eff6ff':'#fffbeb'};border-bottom:1px solid var(--bdr);font-size:11px;font-weight:700;color:${seg==='im'?'#1e40af':'#92400e'};text-transform:uppercase;letter-spacing:.6px">${seg==='im'?'🏠 Imóveis':'🚗 Veículos'}</div>`);
+    // Só mostra header de seção se houver mais de um tipo no filtro
+    if(seg!==lastSeg&&!fTipo){
+      rows.push(`<div style="padding:7px 18px;background:${seg==='im'?'#eff6ff':'#fffbeb'};border-bottom:1px solid var(--bdr);font-size:11px;font-weight:700;color:${seg==='im'?'#1e40af':'#92400e'};text-transform:uppercase;letter-spacing:.6px;position:sticky;top:34px;z-index:4">${seg==='im'?'🏠 Imóveis':'🚗 Veículos'}</div>`);
       lastSeg=seg;
     }
     const u=urgFila(it.fila);
@@ -11321,7 +11436,7 @@ function renderLanceFixoFila(){
     const lance6=it.m6!=null?it.m6.toFixed(1)+'%':'—';
     const anivLbl=it.aniv?meses[it.aniv-1]:'—';
     const ofertaLbl=it.temOferta?'':'<span title="Ninguém ofertou no mês — slot LF livre" style="display:inline-block;margin-left:5px;padding:1px 6px;background:#dcfce7;color:#166534;border-radius:6px;font-size:9.5px;font-weight:700;letter-spacing:.3px">🔓 SEM OFERTA</span>';
-    rows.push(`<div onclick="if(typeof guiaSel==='function')guiaSel('${it.grupo}');nav('guia',document.querySelector('.ni[onclick*=guia]'))" style="padding:11px 18px;border-bottom:1px solid var(--bdr);display:grid;grid-template-columns:90px 1fr 80px 110px 90px 100px 60px;gap:14px;align-items:center;cursor:pointer;transition:background .15s;font-size:12.5px" onmouseover="this.style.background='var(--card2)'" onmouseout="this.style.background='transparent'">
+    rows.push(`<div onclick="if(typeof guiaSel==='function')guiaSel('${it.grupo}');nav('guia',document.querySelector('.ni[onclick*=guia]'))" style="padding:11px 18px;border-bottom:1px solid var(--bdr);display:grid;grid-template-columns:${cols};gap:14px;align-items:center;cursor:pointer;transition:background .15s;font-size:12.5px" onmouseover="this.style.background='var(--card2)'" onmouseout="this.style.background='transparent'">
       <div><strong style="color:var(--acc2);font-family:Quicksand,sans-serif;font-size:14px">G${it.grupo}</strong>${ofertaLbl}</div>
       <div style="font-size:11px;color:var(--txt2)">${it.tipoBem||''}</div>
       <div style="text-align:center"><strong>${it.prazo}m</strong></div>
@@ -11330,12 +11445,9 @@ function renderLanceFixoFila(){
         <span style="display:inline-flex;align-items:center;gap:5px;padding:3px 9px;background:${u.bg};color:${u.tag};border-radius:6px;font-size:11px;font-weight:700"><span style="width:5px;height:5px;border-radius:50%;background:${u.dot}"></span>${it.fila}</span>
       </div>
       <div style="text-align:center;font-size:11.5px">${credFmt}<div style="font-size:10px;color:var(--txt2)">${it.proporcao} · ${lance6} · ${anivLbl}</div></div>
-      <div style="text-align:center"><strong style="font-size:13px;color:var(--sb)">${it.contemp}</strong><div style="font-size:9px;color:var(--txt2);text-transform:uppercase;letter-spacing:.3px">cont/mês</div></div>
+      <div style="text-align:center"><strong style="font-size:14px;color:var(--sb);font-family:Quicksand,sans-serif">${it.contemp}</strong></div>
     </div>`);
   });
-  const head=`<div style="padding:8px 18px;background:var(--card2);border-bottom:1px solid var(--bdr);display:grid;grid-template-columns:90px 1fr 80px 110px 90px 100px 60px;gap:14px;font-size:9.5px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:.5px">
-    <div>Grupo</div><div>Tipo</div><div style="text-align:center">Prazo</div><div style="text-align:center">Vagas</div><div style="text-align:center">Fila</div><div style="text-align:center">Crédito · Prop · M6 · Aniv</div><div style="text-align:center">Cont.</div>
-  </div>`;
   body.innerHTML=head+rows.join('');
 }
 
