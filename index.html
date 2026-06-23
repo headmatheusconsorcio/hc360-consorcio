@@ -10769,6 +10769,16 @@ function renderGuiaChips(g){
     {l:'Contemp. (LF)',v:d.at_cl_lf||'0',s:'lance fixo'},
     {l:'F. Reserva',v:d.fr!=null?pct(d.fr):'—',s:''},
     {l:'Parc. Reduz.',v:d.pr_red==='S'?'Sim':'Não',s:''},
+    // Fila Lance Fixo (snapshot mensal Itaú LF 40%)
+    (()=>{
+      const lf=LANCE_FIXO_FILA[g]||LANCE_FIXO_FILA[String(g)];
+      if(!lf)return {l:'Fila LF',v:'—',s:'fora do snapshot LF 40%'};
+      const fila=lf.fila_atras||0;
+      const cm=lf.contemplados_mes||0;
+      const tem=lf.tem_oferta!==false;
+      const sub=`${lf.proporcao||'?'} · ${cm} cont/mês · ${lf.fonte_mes||'Maio/26'}`;
+      return {l:'Fila LF',v:tem?fila+' atrás':'🔓 sem oferta',s:sub,hl:tem&&fila<=5};
+    })(),
     // Mês aniversário + próximo reajuste (em N meses)
     (()=>{
       const m=d.mes_aniv;
