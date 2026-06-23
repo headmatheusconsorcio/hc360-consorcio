@@ -1945,7 +1945,7 @@ main.main:has(#page-ajuda.active) .content{
   html{overflow:visible!important}
   *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
   /* Quebra de pagina: SOMENTE depois da capa e do resumo. Portfolio flui livre. */
-  .rel-cover{padding:0!important;page-break-after:always!important;break-after:page!important}
+  .rel-cover{display:flex!important;flex-direction:column!important;min-height:297mm!important;height:297mm!important;padding:0!important;page-break-after:always!important;break-after:page!important}
   .rel-page-resumo{page-break-after:always!important;break-after:page!important}
   .rel-page:last-child{page-break-after:auto!important;break-after:auto!important}
   /* Fontes ajustadas pra caber em A4 e ficar elegantes */
