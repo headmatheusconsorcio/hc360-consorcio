@@ -184,7 +184,11 @@ function draw(o,m){
  [['#D6AF5C',carta(o,m)],['#226866',investido(o,m)]].forEach(function(d){x.fillStyle=d[0];x.beginPath();x.arc(X(m),Y(d[1]),4.5,0,7);x.fill();x.strokeStyle='#fff';x.lineWidth=2;x.stroke();});
 }
 ['mes','agio','rend'].forEach(function(id){var e=document.getElementById(id);e.addEventListener('input',calc);e.addEventListener('change',calc);});
-buildTabs();calc();
+var DBG=location.search.indexOf('debug')>=0;
+function showErr(m){var d=document.getElementById('_err');if(!d){d=document.createElement('div');d.id='_err';d.style.cssText='position:fixed;left:0;right:0;bottom:0;background:#B0594F;color:#fff;padding:10px;font:12px sans-serif;z-index:99999;white-space:pre-wrap';document.body.appendChild(d);}d.textContent+=' | '+m;}
+window.onerror=function(m,u,l){if(DBG)showErr('JS:'+m+' L'+l);};
+function init(){try{buildTabs();}catch(e){if(DBG)showErr('tabs:'+(e&&e.message));}try{calc();}catch(e){if(DBG)showErr('calc:'+(e&&e.message));}}
+init();
 var rt;window.addEventListener('resize',function(){clearTimeout(rt);rt=setTimeout(function(){draw(OPS[cur],+document.getElementById('mes').value);},120);});
 </script>
 </body></html>
