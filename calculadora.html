@@ -122,8 +122,9 @@ var OPS=[
  {nome:'Automóvel · R$ 100 mil', cred:100000, parc:683.88, prazo:100, corr:0.05}
 ];
 var cur=0, CW=900, CH=340;
-function brl(v){return v.toLocaleString('pt-BR',{style:'currency',currency:'BRL',maximumFractionDigits:0});}
-function pct(v){return (v*100).toLocaleString('pt-BR',{maximumFractionDigits:0})+'%';}
+function fmt(n){n=Math.round(Math.abs(n));var s=''+n,o='';for(var i=0;i<s.length;i++){if(i>0&&(s.length-i)%3===0)o+='.';o+=s.charAt(i);}return o;}
+function brl(v){return (v<0?'-R$ ':'R$ ')+fmt(v);}
+function pct(v){return Math.round(v*100)+'%';}
 function carta(o,m){return o.cred*Math.pow(1+o.corr,Math.floor(m/12));}
 function parcM(o,m){return o.parc*Math.pow(1+o.corr,Math.floor((m-1)/12));}
 function investido(o,m){var s=0;for(var i=1;i<=m;i++)s+=parcM(o,i);return s;}
@@ -131,7 +132,8 @@ function buildTabs(){
  var h='';
  OPS.forEach(function(o,i){h+='<div class="tab'+(i==cur?' active':'')+'" data-i="'+i+'"><div class="t1">Oportunidade '+(i+1)+'</div><div class="t2">'+o.nome+'</div><div class="t3">parcela '+brl(o.parc)+' · '+o.prazo+' meses · correção '+pct(o.corr)+' a.a.</div></div>';});
  document.getElementById('tabs').innerHTML=h;
- document.querySelectorAll('.tab').forEach(function(t){t.onclick=function(){cur=+t.dataset.i;var o=OPS[cur];var ms=document.getElementById('mes');ms.max=o.prazo;if(+ms.value>o.prazo)ms.value=Math.round(o.prazo*0.3);buildTabs();calc();};});
+ var tt=document.querySelectorAll('.tab');
+ for(var k=0;k<tt.length;k++){tt[k].onclick=function(){cur=+this.getAttribute('data-i');var o=OPS[cur];var ms=document.getElementById('mes');ms.max=o.prazo;if(+ms.value>o.prazo)ms.value=Math.round(o.prazo*0.3);buildTabs();calc();};}
 }
 function sizeCanvas(){
  var cv=document.getElementById('chart'),box=cv.parentElement;
@@ -148,7 +150,7 @@ function calc(){
  document.getElementById('vMes').textContent=m;
  document.getElementById('hMes').textContent='ano '+Math.ceil(m/12)+' do plano';
  document.getElementById('vAgio').textContent=pct(agio);
- document.getElementById('vRend').textContent=(rend*100).toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1})+'%';
+ document.getElementById('vRend').textContent=(rend*100).toFixed(1).replace('.',',')+'%';
  document.getElementById('oCarta').textContent=brl(C);
  document.getElementById('oCartaX').textContent='partiu de '+brl(o.cred);
  document.getElementById('oInvest').textContent=brl(inv);
@@ -181,7 +183,7 @@ function draw(o,m){
  plot(function(mm){return investido(o,mm);},'#226866',2.5);
  [['#D6AF5C',carta(o,m)],['#226866',investido(o,m)]].forEach(function(d){x.fillStyle=d[0];x.beginPath();x.arc(X(m),Y(d[1]),4.5,0,7);x.fill();x.strokeStyle='#fff';x.lineWidth=2;x.stroke();});
 }
-['mes','agio','rend'].forEach(function(id){document.getElementById(id).addEventListener('input',calc);});
+['mes','agio','rend'].forEach(function(id){var e=document.getElementById(id);e.addEventListener('input',calc);e.addEventListener('change',calc);});
 buildTabs();calc();
 var rt;window.addEventListener('resize',function(){clearTimeout(rt);rt=setTimeout(function(){draw(OPS[cur],+document.getElementById('mes').value);},120);});
 </script>
