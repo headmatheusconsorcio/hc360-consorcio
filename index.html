@@ -727,7 +727,6 @@ tbody tr.sel td,tbody tr[class*=" sel"] td{background:var(--acc-tint);border-lef
   #rel-modal .rel-pages{padding:0!important;gap:0!important;display:block!important}
   #rel-modal .rel-page{width:auto!important;min-height:auto!important;height:auto!important;box-shadow:none!important;margin:0!important;padding:14mm 12mm!important;display:block!important;overflow:visible!important;page-break-after:always;break-after:page;visibility:visible!important}
   #rel-modal .rel-page:last-child{page-break-after:auto;break-after:auto}
-  #rel-modal .rel-page.rel-cover{display:flex!important;flex-direction:column!important;min-height:297mm!important;height:297mm!important;padding:0!important;}
   @page{margin:0;size:A4}
 }
 
@@ -1946,9 +1945,7 @@ main.main:has(#page-ajuda.active) .content{
   html{overflow:visible!important}
   *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
   /* Quebra de pagina: SOMENTE depois da capa e do resumo. Portfolio flui livre. */
-  .rel-cover{display:flex!important;flex-direction:column!important;min-height:297mm!important;height:297mm!important;padding:0!important;page-break-after:always!important;break-after:page!important;justify-content:space-between!important}
-  .rel-cover-body{flex:1!important;display:flex!important;flex-direction:column!important;justify-content:center!important;align-items:center!important}
-  .rel-cover-foot{margin-top:auto!important}
+  .rel-cover{padding:0!important;page-break-after:always!important;break-after:page!important}
   .rel-page-resumo{page-break-after:always!important;break-after:page!important}
   .rel-page:last-child{page-break-after:auto!important;break-after:auto!important}
   /* Fontes ajustadas pra caber em A4 e ficar elegantes */
@@ -5964,14 +5961,16 @@ function _normToTokens(s){
 }
 function userOwnsRecord(rec,user,isLead){
   if(!user||user.isAdmin)return true;
+  // Monta tokens do usuário: nome canônico + display + apelidos cadastrados no perfil
   const myTokens=new Set([..._normToTokens(user.assessorName),..._normToTokens(user.displayName)]);
+  (user.perfilApelidos||[]).forEach(a=>_normToTokens(a).forEach(t=>myTokens.add(t)));
   if(myTokens.size===0)return false; // sem identidade → não vê nada (defensivo)
-  // LEADS: campo `indicado_por`. COTAS: campo `assessor`.
-  const target=isLead?rec.indicado_por:rec.assessor;
-  if(!target)return false;
-  const recTokens=_normToTokens(target);
-  for(const t of recTokens){
-    if(myTokens.has(t))return true;
+  // Checa AMBOS os campos: `assessor` (dono da venda) e `indicado_por` (quem indicou)
+  const targets=[rec.assessor, rec.indicado_por].filter(Boolean);
+  for(const target of targets){
+    for(const t of _normToTokens(target)){
+      if(myTokens.has(t))return true;
+    }
   }
   return false;
 }
