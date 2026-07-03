@@ -115,24 +115,24 @@ footer b{color:var(--gray)}
 </div>
 <script>
 var OPS=[
- {g:'40064',cred:157765,parc:859,prazo:112,idx:'INCC'},
- {g:'40203',cred:192726,parc:707,prazo:169,idx:'INCC'},
- {g:'40196',cred:203890,parc:779,prazo:161,idx:'INCC'},
- {g:'40212',cred:240000,parc:783,prazo:193,idx:'Pré-fixado 3%'},
- {g:'40187',cred:406368,parc:1559,prazo:159,idx:'INCC'},
- {g:'40194',cred:407780,parc:1545,prazo:161,idx:'INCC'},
- {g:'40198',cred:412125,parc:1219,prazo:213,idx:'INCC'},
- {g:'40182',cred:419662,parc:1716,prazo:148,idx:'INCC'},
- {g:'40210',cred:420000,parc:1171,prazo:226,idx:'Pré-fixado 3%'},
- {g:'40211',cred:420000,parc:1171,prazo:226,idx:'Pré-fixado 3%'},
- {g:'40205',cred:432600,parc:1239,prazo:220,idx:'Pré-fixado 3%'},
- {g:'40206',cred:432600,parc:1233,prazo:221,idx:'Pré-fixado 3%'},
- {g:'40209',cred:432600,parc:1211,prazo:225,idx:'Pré-fixado 3%'},
- {g:'40079',cred:545871,parc:2662,prazo:121,idx:'INCC'},
- {g:'40188',cred:903038,parc:2670,prazo:208,idx:'INCC'},
- {g:'40177',cred:931790,parc:2939,prazo:195,idx:'INCC'},
- {g:'40105',cred:1135002,parc:3880,prazo:177,idx:'INCC'},
- {g:'40098',cred:1158373,parc:4005,prazo:175,idx:'INCC'}
+ {g:'40064',cred:157765,parc:859,prazo:112,idx:'INCC',tadm:20},
+ {g:'40203',cred:192726,parc:707,prazo:169,idx:'INCC',tadm:21},
+ {g:'40196',cred:203890,parc:779,prazo:161,idx:'INCC',tadm:21},
+ {g:'40212',cred:240000,parc:783,prazo:193,idx:'Pré-fixado 3%',tadm:23},
+ {g:'40187',cred:406368,parc:1559,prazo:159,idx:'INCC',tadm:20},
+ {g:'40194',cred:407780,parc:1545,prazo:161,idx:'INCC',tadm:20},
+ {g:'40198',cred:412125,parc:1219,prazo:213,idx:'INCC',tadm:23},
+ {g:'40182',cred:419662,parc:1716,prazo:148,idx:'INCC',tadm:19},
+ {g:'40210',cred:420000,parc:1171,prazo:226,idx:'Pré-fixado 3%',tadm:23},
+ {g:'40211',cred:420000,parc:1171,prazo:226,idx:'Pré-fixado 3%',tadm:23},
+ {g:'40205',cred:432600,parc:1239,prazo:220,idx:'Pré-fixado 3%',tadm:23},
+ {g:'40206',cred:432600,parc:1233,prazo:221,idx:'Pré-fixado 3%',tadm:23},
+ {g:'40209',cred:432600,parc:1211,prazo:225,idx:'Pré-fixado 3%',tadm:23},
+ {g:'40079',cred:545871,parc:2662,prazo:121,idx:'INCC',tadm:16},
+ {g:'40188',cred:903038,parc:2670,prazo:208,idx:'INCC',tadm:21},
+ {g:'40177',cred:931790,parc:2939,prazo:195,idx:'INCC',tadm:21},
+ {g:'40105',cred:1135002,parc:3880,prazo:177,idx:'INCC',tadm:19},
+ {g:'40098',cred:1158373,parc:4005,prazo:175,idx:'INCC',tadm:19}
 ];
 var cur=0, CW=900, CH=340;
 var mesEl,corrEl,agioEl,rendEl,oppEl;
@@ -155,7 +155,7 @@ function selOpp(){
 }
 function oinfoUpdate(){
  var o=OPS[cur];
- document.getElementById('oinfo').innerHTML='Parcela reduzida (50%) '+brl(o.parc)+'/mês · '+o.prazo+' meses · índice '+o.idx;
+ document.getElementById('oinfo').innerHTML='Parcela reduzida (50%) '+brl(o.parc)+'/mês · '+o.prazo+' meses · '+o.idx+' · taxa adm '+o.tadm+'%';
 }
 function calc(){
  var o=OPS[cur],m=+mesEl.value,c=+corrEl.value/1000;
