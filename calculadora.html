@@ -55,7 +55,24 @@ input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;bac
 canvas{display:block;touch-action:pan-y}
 footer{margin-top:22px;font-size:11px;color:var(--mute);line-height:1.5}
 footer b{color:var(--gray)}
+.rankbox{background:var(--white);border-radius:12px;box-shadow:0 4px 18px rgba(44,62,80,.07);margin-top:16px;padding:18px 20px 20px}
+.rankbox h3{font-family:Georgia,serif;color:var(--navy);font-size:19px;font-weight:700}
+.ranksub{font-size:12.5px;color:var(--mute);margin:2px 0 14px}
+.rrow{display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:9px;cursor:pointer;transition:.12s;border:1px solid transparent}
+.rrow:hover{background:var(--bg);border-color:var(--border)}
+.rrow.top{background:#FBF7EC}
+.rnum{font-family:Georgia,serif;font-weight:700;font-size:19px;color:var(--gold2);width:26px;text-align:center;flex:none}
+.rrow.top .rnum{color:var(--gold)}
+.rmain{flex:1;min-width:0}
+.rmain b{color:var(--navy);font-size:15px}.rmain .rg{color:var(--mute);font-size:12px}.rmain .rp{font-size:12px;color:var(--gray)}
+.rmet{flex:none;text-align:right;width:94px}
+.rmet .rlab{font-size:9.5px;color:var(--mute);text-transform:uppercase;letter-spacing:.4px;font-weight:700}
+.rmet .rval{font-family:Georgia,serif;font-weight:700;font-size:16px;color:var(--navy)}
+.tier{display:inline-block;font-size:10px;font-weight:700;padding:1px 7px;border-radius:10px;margin-top:2px}
+.tier.a{background:#DDEEE9;color:var(--petrol)}.tier.m{background:#FBF0D8;color:var(--gold2)}.tier.b{background:#EFE9E2;color:var(--mute)}
+.rankfoot{font-size:10.5px;color:var(--mute);margin-top:12px;line-height:1.5}
 @media(max-width:620px){
+ .rankbox{padding:14px}.rmet{width:78px}.rmet .rval{font-size:14px}.rmain b{font-size:13.5px}.rnum{width:20px;font-size:16px}.rrow{gap:8px;padding:10px 6px}
  body{padding:14px}h1{font-size:25px}.sub{font-size:14px}
  .roda{grid-template-columns:1fr 1fr;gap:10px}
  .panel{grid-template-columns:1fr;gap:16px;padding:16px}
@@ -107,6 +124,13 @@ footer b{color:var(--gray)}
  <canvas id="chart"></canvas>
 </div>
 
+<div class="rankbox">
+ <h3 class="serif">Ranking das melhores oportunidades</h3>
+ <p class="ranksub">Mais crédito pagando menos + maior chance de contemplar cedo. Toque numa linha para simular.</p>
+ <div id="ranklist"></div>
+ <p class="rankfoot"><b>Alavancagem</b> = crédito que você controla por R$ 1 de parcela/mês (quanto maior, mais crédito pagando menos). <b>Contempla/mês</b> = média de contemplações do grupo (histórico jan/25–mar/26) — quanto maior, mais chance de sair cedo. Sorteio é probabilístico, sem data garantida.</p>
+</div>
+
 <footer>
  <b>Como ler:</b> valores ilustrativos, em reais nominais. Contemplação por <b>sorteio</b> não tem data garantida — o simulador serve para provisionar cenários. Correção: grupos Pré-fixado usam 3% a.a.; grupos INCC variam ano a ano (ajuste no slider). Ágio do mercado secundário varia com a demanda. Rendimento de fundo não é garantido.
  <br><br><span style="color:var(--petrol);font-weight:700">HC360 · Consultoria Financeira</span>
@@ -115,24 +139,24 @@ footer b{color:var(--gray)}
 </div>
 <script>
 var OPS=[
- {g:'40064',cred:157765,parc:859,prazo:112,idx:'INCC',tadm:20},
- {g:'40203',cred:192726,parc:707,prazo:169,idx:'INCC',tadm:21},
- {g:'40196',cred:203890,parc:779,prazo:161,idx:'INCC',tadm:21},
- {g:'40212',cred:240000,parc:783,prazo:193,idx:'Pré-fixado 3%',tadm:23},
- {g:'40187',cred:406368,parc:1559,prazo:159,idx:'INCC',tadm:20},
- {g:'40194',cred:407780,parc:1545,prazo:161,idx:'INCC',tadm:20},
- {g:'40198',cred:412125,parc:1219,prazo:213,idx:'INCC',tadm:23},
- {g:'40182',cred:419662,parc:1716,prazo:148,idx:'INCC',tadm:19},
- {g:'40210',cred:420000,parc:1171,prazo:226,idx:'Pré-fixado 3%',tadm:23},
- {g:'40211',cred:420000,parc:1171,prazo:226,idx:'Pré-fixado 3%',tadm:23},
- {g:'40205',cred:432600,parc:1239,prazo:220,idx:'Pré-fixado 3%',tadm:23},
- {g:'40206',cred:432600,parc:1233,prazo:221,idx:'Pré-fixado 3%',tadm:23},
- {g:'40209',cred:432600,parc:1211,prazo:225,idx:'Pré-fixado 3%',tadm:23},
- {g:'40079',cred:545871,parc:2662,prazo:121,idx:'INCC',tadm:16},
- {g:'40188',cred:903038,parc:2670,prazo:208,idx:'INCC',tadm:21},
- {g:'40177',cred:931790,parc:2939,prazo:195,idx:'INCC',tadm:21},
- {g:'40105',cred:1135002,parc:3880,prazo:177,idx:'INCC',tadm:19},
- {g:'40098',cred:1158373,parc:4005,prazo:175,idx:'INCC',tadm:19}
+ {g:'40064',cred:157765,parc:859,prazo:112,idx:'INCC',tadm:20,cm:4.3},
+ {g:'40203',cred:192726,parc:707,prazo:169,idx:'INCC',tadm:21,cm:3.9},
+ {g:'40196',cred:203890,parc:779,prazo:161,idx:'INCC',tadm:21,cm:8.6},
+ {g:'40212',cred:240000,parc:783,prazo:193,idx:'Pré-fixado 3%',tadm:23,cm:0.1},
+ {g:'40187',cred:406368,parc:1559,prazo:159,idx:'INCC',tadm:20,cm:5.0},
+ {g:'40194',cred:407780,parc:1545,prazo:161,idx:'INCC',tadm:20,cm:3.9},
+ {g:'40198',cred:412125,parc:1219,prazo:213,idx:'INCC',tadm:23,cm:2.7},
+ {g:'40182',cred:419662,parc:1716,prazo:148,idx:'INCC',tadm:19,cm:7.7},
+ {g:'40210',cred:420000,parc:1171,prazo:226,idx:'Pré-fixado 3%',tadm:23,cm:13.3},
+ {g:'40211',cred:420000,parc:1171,prazo:226,idx:'Pré-fixado 3%',tadm:23,cm:6.5},
+ {g:'40205',cred:432600,parc:1239,prazo:220,idx:'Pré-fixado 3%',tadm:23,cm:43.3},
+ {g:'40206',cred:432600,parc:1233,prazo:221,idx:'Pré-fixado 3%',tadm:23,cm:36.3},
+ {g:'40209',cred:432600,parc:1211,prazo:225,idx:'Pré-fixado 3%',tadm:23,cm:18.8},
+ {g:'40079',cred:545871,parc:2662,prazo:121,idx:'INCC',tadm:16,cm:6.6},
+ {g:'40188',cred:903038,parc:2670,prazo:208,idx:'INCC',tadm:21,cm:2.3},
+ {g:'40177',cred:931790,parc:2939,prazo:195,idx:'INCC',tadm:21,cm:2.3},
+ {g:'40105',cred:1135002,parc:3880,prazo:177,idx:'INCC',tadm:19,cm:4.1},
+ {g:'40098',cred:1158373,parc:4005,prazo:175,idx:'INCC',tadm:19,cm:3.5}
 ];
 var cur=0, CW=900, CH=340;
 var mesEl,corrEl,agioEl,rendEl,oppEl;
@@ -207,13 +231,30 @@ function draw(o,m,c){
  plot(function(mm){return investido(o,mm,c);},'#226866',2.5);
  [['#D6AF5C',carta(o,m,c)],['#226866',investido(o,m,c)]].forEach(function(d){x.fillStyle=d[0];x.beginPath();x.arc(X(m),Y(d[1]),4.5,0,7);x.fill();x.strokeStyle='#fff';x.lineWidth=2;x.stroke();});
 }
+function tierOf(cm){return cm>=12?['a','Alta']:cm>=5?['m','Média']:['b','Baixa'];}
+function renderRank(){
+ var maxA=0,i;for(i=0;i<OPS.length;i++){var a=OPS[i].cred/OPS[i].parc;if(a>maxA)maxA=a;}
+ var arr=[];
+ for(i=0;i<OPS.length;i++){var o=OPS[i],alav=o.cred/o.parc;arr.push({i:i,o:o,alav:alav,score:0.55*(alav/maxA)+0.45*Math.min(o.cm/20,1)});}
+ arr.sort(function(a,b){return b.score-a.score;});
+ var h='';
+ for(var r=0;r<arr.length;r++){var it=arr[r],o=it.o,tt=tierOf(o.cm);
+  h+='<div class="rrow'+(r<3?' top':'')+'" data-i="'+it.i+'"><div class="rnum">'+(r+1)+'</div>'+
+   '<div class="rmain"><b>R$ '+fmt(o.cred)+'</b> <span class="rg">· G'+o.g+' · '+o.idx+'</span><div class="rp">parcela R$ '+fmt(o.parc)+'/mês · '+o.prazo+' meses</div></div>'+
+   '<div class="rmet"><div class="rlab">Alavancagem</div><div class="rval">'+Math.round(it.alav)+'×</div></div>'+
+   '<div class="rmet"><div class="rlab">Contempla/mês</div><div class="rval">'+Math.round(o.cm)+'</div><span class="tier '+tt[0]+'">'+tt[1]+'</span></div></div>';
+ }
+ var rl=document.getElementById('ranklist');rl.innerHTML=h;
+ var rows=rl.querySelectorAll('.rrow');
+ for(var k=0;k<rows.length;k++){rows[k].onclick=function(){oppEl.value=this.getAttribute('data-i');selOpp();window.scrollTo({top:0,behavior:'smooth'});};}
+}
 mesEl=document.getElementById('mes');corrEl=document.getElementById('corr');agioEl=document.getElementById('agio');rendEl=document.getElementById('rend');oppEl=document.getElementById('opp');
 ['mes','corr','agio','rend'].forEach(function(id){var e=document.getElementById(id);e.addEventListener('input',calc);e.addEventListener('change',calc);});
 oppEl.addEventListener('change',selOpp);
 var DBG=location.search.indexOf('debug')>=0;
 function showErr(m){var d=document.getElementById('_err');if(!d){d=document.createElement('div');d.id='_err';d.style.cssText='position:fixed;left:0;right:0;bottom:0;background:#B0594F;color:#fff;padding:10px;font:12px sans-serif;z-index:99999;white-space:pre-wrap';document.body.appendChild(d);}d.textContent+=' | '+m;}
 window.onerror=function(m,u,l){if(DBG)showErr('JS:'+m+' L'+l);};
-function init(){try{buildOpts();oppEl.value='0';selOpp();}catch(e){if(DBG)showErr('init:'+(e&&e.message));}}
+function init(){try{buildOpts();oppEl.value='0';selOpp();renderRank();}catch(e){if(DBG)showErr('init:'+(e&&e.message));}}
 init();
 var rt;window.addEventListener('resize',function(){clearTimeout(rt);rt=setTimeout(function(){draw(OPS[cur],+mesEl.value,+corrEl.value/1000);},120);});
 </script>
