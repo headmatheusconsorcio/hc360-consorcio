@@ -91,7 +91,7 @@ footer b{color:var(--gray)}
 <p class="sub">Você entra com parcela reduzida, é contemplado <b>no sorteio</b>, vende a carta com ágio e aplica o ganho. O rendimento começa a pagar a parcela da próxima carta — e a roda se retroalimenta.</p>
 
 <section class="roda">
- <div class="step"><span class="n">01</span><b>Entra na carta</b><p>Parcela reduzida em 50%, sem entrada e sem juros. A carta corrige todo ano.</p></div>
+ <div class="step"><span class="n">01</span><b>Entra na carta</b><p>Parcela reduzida, sem entrada e sem juros. A carta corrige todo ano.</p></div>
  <div class="step"><span class="n">02</span><b>Contempla no sorteio</b><p>Sem dar lance. Escolha abaixo em que período quer provisionar.</p></div>
  <div class="step"><span class="n">03</span><b>Vende com ágio</b><p>Carta contemplada vale mais no mercado secundário. Você realiza o ganho.</p></div>
  <div class="step"><span class="n">04</span><b>Aplica e gira</b><p>O ágio rende ~1%/mês e paga a parcela da próxima carta. A roda gira.</p></div>
@@ -139,6 +139,9 @@ footer b{color:var(--gray)}
 </div>
 <script>
 var OPS=[
+ {tipo:'Imóvel',cred:300000,parc:1255.03,prazo:239,idx:'Pré-fixado 3%',red:30,base:1},
+ {tipo:'Imóvel',cred:420000,parc:1519.56,prazo:238,idx:'Pré-fixado 3%',red:30,base:1},
+ {tipo:'Automóvel',cred:100000,parc:683.88,prazo:100,idx:'Pré-fixado 5%',red:50,base:1},
  {g:'40064',cred:157765,parc:859,prazo:112,idx:'INCC',tadm:20,cm:4.3},
  {g:'40203',cred:192726,parc:707,prazo:169,idx:'INCC',tadm:21,cm:3.9},
  {g:'40196',cred:203890,parc:779,prazo:161,idx:'INCC',tadm:21,cm:8.6},
@@ -168,18 +171,18 @@ function parcM(o,m,c){return o.parc*Math.pow(1+c,Math.floor((m-1)/12));}
 function investido(o,m,c){var s=0;for(var i=1;i<=m;i++)s+=parcM(o,i,c);return s;}
 function buildOpts(){
  var h='';
- for(var i=0;i<OPS.length;i++){var o=OPS[i];h+='<option value="'+i+'">R$ '+fmt(o.cred)+'  ·  G'+o.g+'  ·  '+o.idx+'</option>';}
+ for(var i=0;i<OPS.length;i++){var o=OPS[i];var g=o.g?'G'+o.g:o.tipo;h+='<option value="'+i+'">R$ '+fmt(o.cred)+'  ·  '+g+'  ·  '+o.idx+'  ·  parcela −'+(o.red||50)+'%</option>';}
  oppEl.innerHTML=h;
 }
 function selOpp(){
  cur=+oppEl.value;var o=OPS[cur];
  mesEl.max=o.prazo; mesEl.value=Math.round(o.prazo*0.30);
- corrEl.value=(o.idx.indexOf('INCC')>=0?40:30);
+ corrEl.value=(o.idx.indexOf('INCC')>=0?40:(o.idx.indexOf('5%')>=0?50:30));
  oinfoUpdate();calc();
 }
 function oinfoUpdate(){
  var o=OPS[cur];
- document.getElementById('oinfo').innerHTML='Parcela reduzida (50%) '+brl(o.parc)+'/mês · '+o.prazo+' meses · '+o.idx+' · taxa adm '+o.tadm+'%';
+ document.getElementById('oinfo').innerHTML='Parcela reduzida ('+(o.red||50)+'%) '+brl(o.parc)+'/mês · '+o.prazo+' meses · '+o.idx+(o.tadm?' · taxa adm '+o.tadm+'%':'');
 }
 function calc(){
  var o=OPS[cur],m=+mesEl.value,c=+corrEl.value/1000;
@@ -233,9 +236,9 @@ function draw(o,m,c){
 }
 function tierOf(cm){return cm>=12?['a','Alta']:cm>=5?['m','Média']:['b','Baixa'];}
 function renderRank(){
- var maxA=0,i;for(i=0;i<OPS.length;i++){var a=OPS[i].cred/OPS[i].parc;if(a>maxA)maxA=a;}
+ var maxA=0,i;for(i=0;i<OPS.length;i++){if(OPS[i].base)continue;var a=OPS[i].cred/OPS[i].parc;if(a>maxA)maxA=a;}
  var arr=[];
- for(i=0;i<OPS.length;i++){var o=OPS[i],alav=o.cred/o.parc;arr.push({i:i,o:o,alav:alav,score:0.55*(alav/maxA)+0.45*Math.min(o.cm/20,1)});}
+ for(i=0;i<OPS.length;i++){if(OPS[i].base)continue;var o=OPS[i],alav=o.cred/o.parc;arr.push({i:i,o:o,alav:alav,score:0.55*(alav/maxA)+0.45*Math.min(o.cm/20,1)});}
  arr.sort(function(a,b){return b.score-a.score;});
  var h='';
  for(var r=0;r<arr.length;r++){var it=arr[r],o=it.o,tt=tierOf(o.cm);
