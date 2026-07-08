@@ -2791,7 +2791,7 @@ main.main:has(#page-ajuda.active) .content{
   <div class="page" id="page-guia">
     <div class="card"><div class="cb">
       <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px">
-        <p style="font-size:12.5px;color:var(--txt2);margin:0">Base com <strong>560 grupos Itaú</strong> (242 Imóveis + 318 Rodas) · <span id="guia-last-update">Dados de Abr/2026</span> · Histórico Jan/25–Mar/26</p>
+        <p style="font-size:12.5px;color:var(--txt2);margin:0">Base com <strong>560 grupos Itaú</strong> (242 Imóveis + 318 Rodas) · <span id="guia-last-update">Dados de Abr/2026</span> · Histórico Jan/25–Mar/26 · <span title="Data em que este sistema foi gerado — os dados embutidos do Guia valem até aqui">Sistema gerado em <strong>08/07/2026</strong></span></p>
         <button class="btn btn-out btn-sm" data-admin-only="1" onclick="guiaOpenUpdateModal()" title="Atualizar a base do GUIA com novo JSON">📤 Atualizar Base GUIA</button>
       </div>
       <!-- Linha 1: Busca direta -->
@@ -6144,8 +6144,37 @@ let selProj=null, minChart=null, contChart=null;
 const brl=(v,d=2)=>{if(v==null||v==='')return'—';const n=Number(v);if(isNaN(n))return'—';const s=n.toFixed(d);const[i,dec]=s.split('.');const fmt=i.replace(/\B(?=(\d{3})+(?!\d))/g,'.');return'R$ '+fmt+(d>0?','+dec:'');}
 const parseBrl=s=>{if(s===''||s==null)return null;const n=parseFloat(String(s).replace(/\./g,'').replace(',','.'));return isNaN(n)?null:n;};
 const pct=(v,d=2)=>v==null?'—':(Number(v)*100).toFixed(d)+'%';
+
+// ═══ STATUS CANÔNICO ═══
+// Tradutor ÚNICO de status pra todo o sistema. Qualquer grafia que exista no
+// banco (maiúscula, minúscula, acento, variantes de extrato tipo 'LANCE' ou
+// 'SUPLENCIA - 2 NA FRENTE') cai no mesmo balde. Toda verificação de status
+// de cota deve passar por estes helpers — nunca comparar string na mão.
+const stNorm=s=>(s==null?'':String(s)).trim().toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+const isStCancelado=s=>stNorm(s)==='CANCELADO';
+const isStFaturado=s=>stNorm(s)==='FATURADO';
+const isStContemp=s=>{const n=stNorm(s);return n==='CONTEMPLADO'||n==='FATURADO';};
+const isStSorteio=s=>{const n=stNorm(s);return n==='SORTEIO'||n==='SORTEIO / LANCE';};
+const isStLance=s=>{const n=stNorm(s);return n==='EM ANDAMENTO'||n==='LANCE'||n==='LANCE LIVRE'||n==='LANCE FIXO'||n.indexOf('SUPLENCIA')===0;};
+// Rótulo canônico (pra dropdowns e agrupamentos). Mantém Lance Livre/Fixo separados.
+function stCanon(s){
+  const n=stNorm(s);
+  if(n==='CONTEMPLADO')return'Contemplado';
+  if(n==='FATURADO')return'Faturado';
+  if(n==='CANCELADO')return'Cancelado';
+  if(n==='LANCE LIVRE')return'Lance Livre';
+  if(n==='LANCE FIXO')return'Lance Fixo';
+  if(n==='EM ANDAMENTO'||n==='LANCE'||isStSorteio(s)||n.indexOf('SUPLENCIA')===0)return'Em Andamento';
+  return s;
+}
+// % padrão do Lance Fixo Itaú — injetado pelo gerador Python (fonte única).
+const LF_PCT_PADRAO=40;
+// Cotas Santander (operação Robson): credito_liberado vem DIRETO do extrato.
+// Nunca derivar com fórmula Itaú (carta − embutido 30%).
+const isSantanderCota=r=>{const n=((r&&r.nome)||'').toUpperCase();return n.indexOf('ROBSON')>=0&&n.indexOf('MOCELLIN')>=0;};
+
 const SB={'Em Andamento':'<span class="badge b-warn">⚡ Em Andamento</span>','Lance Livre':'<span class="badge b-info">⚡ Lance Livre</span>','Lance Fixo':'<span class="badge b-ora">?? Lance Fixo</span>','Contemplado':'<span class="badge b-ok">✓ Contemplado</span>','Faturado':'<span class="badge b-teal">✔ Faturado</span>','CONTEMPLADO':'<span class="badge b-ok">✓ Contemplado</span>','Sorteio':'<span class="badge b-gray">Sorteio</span>','SORTEIO / LANCE':'<span class="badge b-gray">Sorteio</span>','LANCE':'<span class="badge b-warn">⚡ Em Andamento</span>','SUPLENCIA - 2 NA FRENTE':'<span class="badge b-warn">Em Andamento</span>','Cancelado':'<span class="badge b-err">✕ Cancelado</span>','CANCELADO':'<span class="badge b-err">✕ Cancelado</span>'};
-function sbadge(s){return SB[s]||`<span class="badge b-gray">${s}</span>`;}
+function sbadge(s){return SB[s]||SB[stCanon(s)]||`<span class="badge b-gray">${s}</span>`;}
 function atag(a){if(!a)return'';const cls=a.includes('ALAN')?'tAL':a.includes('ALE')?'tAE':a==='GLAUCO'?'tGL':(a==='GIL'||a==='Gil')?'tGI':a==='SZPIN'?'tSZ':a==='Coyote'?'tCO':'tOT';return`<span class="tag ${cls}">${a}</span>`;}
 function paginate(items,pg,pp=30){if(pp==='all'||pp===Infinity||!pp||pp<=0||pp>=items.length)return{items:items.slice(),total:items.length,pages:1};const s=(pg-1)*pp;return{items:items.slice(s,s+pp),total:items.length,pages:Math.ceil(items.length/pp)};}
 function sortArr(arr,col,dir){return arr.slice().sort((a,b)=>{const va=a[col]??'',vb=b[col]??'';if(typeof va==='number'&&typeof vb==='number')return(va-vb)*dir;return String(va).localeCompare(String(vb),'pt-BR')*dir;});}
@@ -6194,12 +6223,12 @@ function rendimentoCota(r){
   if(r.carta_inicial!=null&&r.credito_liberado!=null){
     return r.credito_liberado-r.carta_inicial;
   }
-  const isCp=r.status==='Contemplado'||r.status==='CONTEMPLADO'||r.status==='Faturado';
+  const isCp=isStContemp(r.status);
   if(!isCp||!r.data_contemplada)return 0;
   // Se já foi faturado, congela na data de faturamento (depois disso a carta sai e não rende mais)
-  const dataFim=r.status==='Faturado'?(r.data_faturamento||null):null;
+  const dataFim=isStFaturado(r.status)?(r.data_faturamento||null):null;
   // Faturado SEM data_faturamento = não calcula (evita rendimento até hoje em carta já entregue)
-  if(r.status==='Faturado'&&!r.data_faturamento)return 0;
+  if(isStFaturado(r.status)&&!r.data_faturamento)return 0;
   const base=r.credito_liberado||r.carta_atualizada||r.credito||0;
   return calcRendimento(base,r.data_contemplada,dataFim,TAXAS_CDI);
 }
@@ -7423,10 +7452,10 @@ function openMddet(title, sub, htmlBody){
   document.getElementById('modal-dash-det').classList.add('open');
 }
 function openAssessorDet(assessorName){
-  const isContemp=s=>s==='Contemplado'||s==='CONTEMPLADO'||s==='Faturado';
+  const isContemp=s=>isStContemp(s);
   const list=COTAS.filter(r=>{
     let a=normAssessor(r.assessor); if(a==='Gil')a='GIL';
-    return a===assessorName && (r.status||'').toUpperCase()!=='CANCELADO';
+    return a===assessorName && !isStCancelado(r.status);
   });
   // Consolida por cliente
   const byClient={};
@@ -7453,7 +7482,7 @@ function openAssessorDet(assessorName){
 
 function openEvoVendas(monthKey){
   const labelMode=({adesao:'Adesões',contemp:'Contemplações',faturado:'Faturamento'})[dashEvoMode];
-  const ativas=COTAS.filter(r=>(r.status||'').toUpperCase()!=='CANCELADO').filter(dashTipoMatch);
+  const ativas=COTAS.filter(r=>!isStCancelado(r.status)).filter(dashTipoMatch);
   const getDate=r=>{
     if(dashEvoMode==='adesao') return r.adesao||r.created_at||null;
     if(dashEvoMode==='contemp') return r.data_contemplada||null;
@@ -7475,9 +7504,9 @@ function openEvoVendas(monthKey){
   openMddet(labelMode+' · '+dashFmtMonthLong(monthKey), tipoLbl, html);
 }
 function openClienteDet(nome){
-  const list=COTAS.filter(r=>(r.nome||'')===nome && (r.status||'').toUpperCase()!=='CANCELADO').sort((a,b)=>(b.credito||0)-(a.credito||0));
+  const list=COTAS.filter(r=>(r.nome||'')===nome && !isStCancelado(r.status)).sort((a,b)=>(b.credito||0)-(a.credito||0));
   const tot=list.reduce((s,r)=>s+(r.credito||0),0);
-  const isContemp=s=>s==='Contemplado'||s==='CONTEMPLADO'||s==='Faturado';
+  const isContemp=s=>isStContemp(s);
   const contemp=list.filter(r=>isContemp(r.status)).length;
   const html=list.length?(`<table class="dash-modal-tbl">
     <thead><tr><th>Grupo/Cota</th><th>Status</th><th>Banco</th><th style="text-align:right">Crédito</th><th>Adesão</th><th>Assessor</th></tr></thead>
@@ -7495,7 +7524,7 @@ function dashEvoExpand(d){ return d<=DASH_EVO_T?d:DASH_EVO_T+(d-DASH_EVO_T)*DASH
 function dashRenderEvo(){
   if(!dashCharts) dashCharts={};
   if(dashCharts.evo){dashCharts.evo.destroy(); dashCharts.evo=null;}
-  const ativas=COTAS.filter(r=>(r.status||'').toUpperCase()!=='CANCELADO').filter(dashTipoMatch);
+  const ativas=COTAS.filter(r=>!isStCancelado(r.status)).filter(dashTipoMatch);
   // Universe total (matches KPI logic — tipo já aplicado)
   const universeCount=ativas.length;
   const universeVol=ativas.reduce((s,r)=>s+(r.credito||0),0);
@@ -7614,8 +7643,8 @@ function renderProxReajustes(){
     return Math.floor((alvo-hoje)/(1000*60*60*24));
   }
   // Coleta cotas ativas com grupo válido + filtra por janela
-  const isCp=s=>s==='Contemplado'||s==='CONTEMPLADO'||s==='Faturado';
-  const isCan=s=>(s||'').toUpperCase()==='CANCELADO'||s==='Cancelado';
+  const isCp=s=>isStContemp(s);
+  const isCan=s=>isStCancelado(s);
   const ativas=(COTAS||[]).filter(r=>!isCan(r.status));
   const itens=[];
   ativas.forEach(r=>{
@@ -7699,13 +7728,13 @@ function initDash(){
   if(!dashCharts) dashCharts={};
   privLoad(); privUpdateUI();
   try{renderProxReajustes();}catch(e){console.warn('[Dash] reajustes:',e);}
-  const isCancel=s=>(s||'').toUpperCase()==='CANCELADO';
-  const isContemp=s=>s==='Contemplado'||s==='CONTEMPLADO'||s==='Faturado';
+  const isCancel=s=>isStCancelado(s);
+  const isContemp=s=>isStContemp(s);
   const ativas=COTAS.filter(r=>!isCancel(r.status));
   const canceladas=COTAS.filter(r=>isCancel(r.status));
   const contemp=ativas.filter(r=>isContemp(r.status)).length;
-  const lance=ativas.filter(r=>['Em Andamento','Lance Livre','Lance Fixo','LANCE'].includes(r.status||'')).length;
-  const aguard=ativas.filter(r=>(r.status||'').toUpperCase()==='SORTEIO / LANCE'||(r.status||'')==='Sorteio').length;
+  const lance=ativas.filter(r=>isStLance(r.status)).length;
+  const aguard=ativas.filter(r=>isStSorteio(r.status)).length;
   const cred=ativas.reduce((s,r)=>s+(r.credito||0),0);
   const credCancel=canceladas.reduce((s,r)=>s+(r.credito||0),0);
   document.getElementById('kpi-total').textContent=ativas.length;
@@ -7766,7 +7795,7 @@ function filterCtrl(){
   const as=document.getElementById('f-assessor').value;
   const bc=(document.getElementById('f-banco')||{}).value||'';
   const inclCancel=(document.getElementById('f-incl-cancel')||{}).checked||false;
-  const isCancel=v=>v==='Cancelado'||v==='CANCELADO';
+  const isCancel=v=>isStCancelado(v);
   ctrlFiltered=COTAS.filter(r=>{
     const na=a=>a==='Gil'?'GIL':a;
     if(!inclCancel&&st!=='Cancelado'&&isCancel(r.status))return false;
@@ -7782,11 +7811,11 @@ function renderCtrl(){
   const sorted=ctrlSort.col?sortArr(ctrlFiltered,ctrlSort.col,ctrlSort.dir):ctrlFiltered;
   ['nome','grupo','banco','credito','parcela','status','lance1'].forEach(c=>{const el=document.getElementById('csort-'+c);if(el)el.textContent=sortIcon(ctrlSort,c);});
   const{items,total,pages}=paginate(sorted,ctrlPage,30);
-  const totalCancel=COTAS.filter(r=>r.status==='Cancelado'||r.status==='CANCELADO').length;
+  const totalCancel=COTAS.filter(r=>isStCancelado(r.status)).length;
   document.getElementById('ctrl-count').textContent=total+' cotas'+(totalCancel?` · ${totalCancel} cancelada(s) ocultas`:'');
   document.getElementById('ctrl-tbody').innerHTML=items.map(r=>{
-    const isCan=r.status==='Cancelado'||r.status==='CANCELADO';
-    const isCp=r.status==='Contemplado'||r.status==='CONTEMPLADO'||r.status==='Faturado';
+    const isCan=isStCancelado(r.status);
+    const isCp=isStContemp(r.status);
     const parcEf=isCp?(r.parcela_pos||r.parcela||0):(r.parcela||0);
     const proxAgo=calcProxAgo(r.grupo,r);
     return `<tr id="ctrl-row-${r.id}" style="${isCan?'opacity:.4;background:#fafafa':''}">
@@ -7797,7 +7826,7 @@ function renderCtrl(){
       <td style="text-align:right">${brl(parcEf)}${isCp&&r.parcela_pos?'<small style="display:block;font-size:9px;color:var(--ok)">pós</small>':''}</td>
       <td>
         <select class="form-i" style="padding:3px 6px;font-size:12px;min-width:140px;transition:background .2s,border-color .2s" id="ps-${r.id}" onchange="projScheduleAutoSave('${r.id}',400)" title="Auto-salva ao mudar">
-          ${['Em Andamento','Lance Livre','Lance Fixo','Contemplado','Faturado','Cancelado'].map(s=>`<option${r.status===s||(s==='Contemplado'&&r.status==='CONTEMPLADO')||(s==='Em Andamento'&&['LANCE','SORTEIO / LANCE','Sorteio','SUPLENCIA - 2 NA FRENTE'].includes(r.status))||(s==='Cancelado'&&r.status==='CANCELADO')?' selected':''}>` +s+`</option>`).join('')}
+          ${['Em Andamento','Lance Livre','Lance Fixo','Contemplado','Faturado','Cancelado'].map(s=>`<option${stCanon(r.status)===s?' selected':''}>` +s+`</option>`).join('')}
         </select>
       </td>
       <td><input class="form-i" style="padding:3px 6px;font-size:12px;width:70px;transition:background .2s,border-color .2s" id="pl1-${r.id}" type="number" step="0.1" min="0" max="100" value="${r.lance1?+(r.lance1*100).toFixed(1):''}" placeholder="%" oninput="projScheduleAutoSave('${r.id}',1500)" onblur="projAutoSaveImediato('${r.id}')" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" title="Auto-salva ao sair do campo (Tab/Enter)"></td>
@@ -8060,7 +8089,7 @@ function pagoHoje(r){
   return r.ultima_parcela_paga===_hojeStr();
 }
 function parcelaEfetiva(r){
-  const isC=r.status==='Contemplado'||r.status==='CONTEMPLADO'||r.status==='Faturado';
+  const isC=isStContemp(r.status);
   return isC?(r.parcela_pos||r.parcela||0):(r.parcela||0);
 }
 async function confirmarPagamento(id){
@@ -8249,7 +8278,7 @@ function renderAgenda(){
 
   // Aplica filtros globais sobre o universo
   const baseCotas=_aplicarFiltrosGlobaisAgenda(COTAS);
-  const isCancel=s=>(s||'').toUpperCase()==='CANCELADO';
+  const isCancel=s=>isStCancelado(s);
   const isFatContemp=s=>s==='Contemplado'||s==='CONTEMPLADO'||s==='Faturado'||s==='FATURADO';
 
   // Parcelas vencendo: TODAS as cotas (incluindo contempladas/faturadas, que continuam pagando boleto), exceto canceladas
@@ -8554,7 +8583,7 @@ function renderAgendaAsm(){
 function renderQOport(){
   const filtro=(document.getElementById('oport-filter')||{value:''}).value.toLowerCase().trim();
   const sortV=(document.getElementById('oport-sort')||{value:'prazo'}).value;
-  const isCancel=s=>(s||'').toUpperCase()==='CANCELADO';
+  const isCancel=s=>isStCancelado(s);
   const baseCotas=_aplicarFiltrosGlobaisAgenda(COTAS);
   // Critério: cotas nos últimos 20% do prazo (gancho de venda nova)
   let list=baseCotas.filter(r=>{
@@ -10850,8 +10879,8 @@ function renderGuiaCharts(){
     mn=guiaPeriodoSlice(guiaHistData.min).map(v=>v||0);
     mx=guiaPeriodoSlice(guiaHistData.max).map(v=>v||0);
     ct=guiaPeriodoSlice(guiaHistData.cont_ll).map(v=>v||0);
-    // Defesa em profundidade: se algum mês vier com min>max, faz swap
-    for(let i=0;i<mn.length;i++){if(mn[i]>0&&mx[i]>0&&mn[i]>mx[i]){const t=mn[i];mn[i]=mx[i];mx[i]=t;}}
+    // Defesa em profundidade: se algum mês vier com min>max, faz swap E avisa no console
+    for(let i=0;i<mn.length;i++){if(mn[i]>0&&mx[i]>0&&mn[i]>mx[i]){console.warn('Guia: lance min>max no mês',months[i],'— dados invertidos na origem, corrigido só pra exibição');const t=mn[i];mn[i]=mx[i];mx[i]=t;}}
   }
   // Lance Médio do banco (LANCES_MEDIAS) — linha horizontal de referência (período sincronizado com chip)
   const lmRef=selGrupo?getLanceMed(selGrupo):null;
@@ -12393,7 +12422,7 @@ function renderOportSugestoes(){
     const avgCont=cont6.length?cont6.reduce((a,b)=>a+b,0)/cont6.length:0;
     const vagas=d.vagas||0;
     if(vagas<=0)return; // Descarta grupos sem vagas — não faz sentido sugerir
-    const successLf=hasLf&&mn.length?mn.filter(v=>40>=v).length/mn.length:null;const successLfCount=hasLf&&mn.length?mn.filter(v=>40>=v).length:0;
+    const successLf=hasLf&&mn.length?mn.filter(v=>LF_PCT_PADRAO>=v).length/mn.length:null;const successLfCount=hasLf&&mn.length?mn.filter(v=>LF_PCT_PADRAO>=v).length:0;
     scored.push({g,d,avgMin,lanceMed,trend,success,successCount,successTotal,successLf,successLfCount,successLfTotal:mn.length,vagas,isIm:isImov,dist,prazo:d.pr,cred:d.vmax,atualPct,avgCont,hasLf,hasPr});
   });
   // Ordenacao
@@ -12444,7 +12473,7 @@ function renderOportSugestoes(){
     if(o.hasLf&&o.successLf!=null){
       const pctLf=Math.round(o.successLf*100);
       const catLf=pctLf>=70?{lbl:'Alta',bg:'#d1fae5',fg:'#065f46',icon:'🎯'}:pctLf>=40?{lbl:'Média',bg:'#fef3c7',fg:'#92400e',icon:'⚠️'}:{lbl:'Baixa',bg:'#fee2e2',fg:'#991b1b',icon:'⚡'};
-      chTxtLf='<span style="background:'+catLf.bg+';color:'+catLf.fg+';padding:3px 9px;border-radius:8px;font-size:10.5px;font-weight:700;white-space:nowrap" title="LF 40%: bateu o mínimo em '+o.successLfCount+'/'+o.successLfTotal+' meses ('+pctLf+'%)">'+catLf.icon+' '+catLf.lbl+' <span style="opacity:.7;font-weight:600">'+o.successLfCount+'/'+o.successLfTotal+'</span></span>';
+      chTxtLf='<span style="background:'+catLf.bg+';color:'+catLf.fg+';padding:3px 9px;border-radius:8px;font-size:10.5px;font-weight:700;white-space:nowrap" title="LF '+LF_PCT_PADRAO+'%: bateu o mínimo em '+o.successLfCount+'/'+o.successLfTotal+' meses ('+pctLf+'%)">'+catLf.icon+' '+catLf.lbl+' <span style="opacity:.7;font-weight:600">'+o.successLfCount+'/'+o.successLfTotal+'</span></span>';
     }
     const lfBadge='<span style="background:'+(o.hasLf?'#d1fae5':'#fee2e2')+';color:'+(o.hasLf?'#065f46':'#991b1b')+';padding:2px 8px;border-radius:8px;font-size:10px;font-weight:700;white-space:nowrap">'+(o.hasLf?'✓':'✕')+'</span>';
     const prBadge='<span style="background:'+(o.hasPr?'#dbeafe':'#f3f4f6')+';color:'+(o.hasPr?'#1e40af':'#6b7280')+';padding:2px 8px;border-radius:8px;font-size:10px;font-weight:700;white-space:nowrap">'+(o.hasPr?'✓':'✕')+'</span>';
@@ -12523,7 +12552,8 @@ function calcProp(){
       ta=0;                         // sem info — usuário precisa preencher
     }
     // Lance individual do grupo (recurso próprio % + embutido %)
-    const rpG=(g.rpPct!=null?g.rpPct:10), lcG=(g.embPct!=null?g.embPct:30);
+    // Embutido travado em 0–30% (teto do contrato Itaú) — digitou acima, o cálculo segura no teto
+    const rpG=Math.max(0,(g.rpPct!=null?g.rpPct:10)), lcG=Math.min(30,Math.max(0,(g.embPct!=null?g.embPct:30)));
     const ct=cred*nc,lRP=ct*rpG/100,lLC=ct*lcG/100,lTot=lRP+lLC,liq=ct-lLC;
     // Saldo devedor — regra Itaú (verificada na planilha oficial):
     // saldo = crédito × (1 + taxa_adm% + fundo_reserva%) — ambas SOMADAS
@@ -13630,8 +13660,8 @@ function renderProj(){
   });
   // Calcular agregados
   const agg=([n,d])=>{
-    const ativas=d.cotas.filter(r=>r.status!=='Cancelado'&&r.status!=='CANCELADO');
-    const c=ativas.filter(r=>r.status==='CONTEMPLADO'||r.status==='Contemplado'||r.status==='Faturado').length;
+    const ativas=d.cotas.filter(r=>!isStCancelado(r.status));
+    const c=ativas.filter(r=>isStContemp(r.status)).length;
     const t=ativas.length;
     const cr=ativas.reduce((s,r)=>s+(r.credito||0),0);
     const p=t>0?Math.round(c/t*100):0;
@@ -13753,26 +13783,28 @@ function selProjFn(name){
 }
 function renderProjDetail(name){
   const cotas=COTAS.filter(r=>r.nome===name);
-  const ativas=cotas.filter(r=>r.status!=='CANCELADO'&&r.status!=='Cancelado');
+  const ativas=cotas.filter(r=>!isStCancelado(r.status));
   const isCcheck=s=>s==='Contemplado'||s==='CONTEMPLADO'||s==='Faturado';
   const contemp=cotas.filter(r=>isCcheck(r.status)).length;
-  const cancel=cotas.filter(r=>r.status==='CANCELADO'||r.status==='Cancelado').length;
+  const cancel=cotas.filter(r=>isStCancelado(r.status)).length;
   const lanceN=cotas.filter(r=>r.status==='LANCE'||r.status==='Em Andamento').length;
-  const sorteio=cotas.filter(r=>r.status==='SORTEIO / LANCE'||r.status==='Sorteio').length;
+  const sorteio=cotas.filter(r=>isStSorteio(r.status)).length;
   const cr=ativas.reduce((s,r)=>s+(r.credito||0),0);
   // Parcela atual: pós-contempl. para contempladas/faturadas, pré para ativas
   const parc=ativas.reduce((s,r)=>s+(isCcheck(r.status)?(r.parcela_pos||r.parcela||0):(r.parcela||0)),0);
   // Crédito Liberado: igual ao do dashboard
   const credLib=ativas.filter(r=>isCcheck(r.status)).reduce((s,r)=>{
     if(r.credito_liberado!=null&&r.credito_liberado>0) return s+r.credito_liberado;
+    // Santander (Robson): credito_liberado só vem do extrato — nunca derivar com fórmula Itaú
+    if(isSantanderCota(r)) return s+(r.credito_liberado||0);
     const carta=r.carta_atualizada||r.credito||0;
     if(r.lance_embutido!=null&&r.lance_embutido>0) return s+Math.max(0,carta-r.lance_embutido);
     return s+carta;
   },0);
   const pct=ativas.length>0?Math.round(contemp/ativas.length*100):0;
-  const isCancelada=r=>r.status==='Cancelado'||r.status==='CANCELADO';
+  const isCancelada=r=>isStCancelado(r.status);
   const ordem={'Em Andamento':0,'Lance Livre':0,'Lance Fixo':0,'LANCE':0,'Sorteio':1,'SORTEIO / LANCE':1,'SUPLENCIA - 2 NA FRENTE':1,'Contemplado':2,'CONTEMPLADO':2,'Faturado':3,'Cancelado':4,'CANCELADO':4};
-  const normSt=s=>{const m={'SORTEIO / LANCE':'Em Andamento','LANCE':'Em Andamento','SUPLENCIA - 2 NA FRENTE':'Em Andamento','CONTEMPLADO':'Contemplado','CANCELADO':'Cancelado','Sorteio':'Em Andamento'};return m[s]||s;};
+  const normSt=s=>stCanon(s);
   const filtradas=projFiltro==='TODOS'?cotas:cotas.filter(r=>normSt(r.status)===projFiltro);
   const ativas2=filtradas.filter(r=>!isCancelada(r)).slice().sort((a,b)=>(ordem[a.status]??5)-(ordem[b.status]??5));
   const canceladas2=filtradas.filter(r=>isCancelada(r));
@@ -13781,18 +13813,18 @@ function renderProjDetail(name){
 
   const FILTROS=[
     {k:'TODOS',label:'Todos',n:cotas.length,cls:''},
-    {k:'Em Andamento',label:'⚡ Em Andamento',n:cotas.filter(r=>['Em Andamento','Lance Livre','Lance Fixo','LANCE','SORTEIO / LANCE','Sorteio'].includes(r.status)).length,cls:'b-warn'},
+    {k:'Em Andamento',label:'⚡ Em Andamento',n:cotas.filter(r=>isStLance(r.status)||isStSorteio(r.status)).length,cls:'b-warn'},
     {k:'Lance Livre',label:'⚡ Lance Livre',n:cotas.filter(r=>r.status==='Lance Livre').length,cls:'b-info'},
     {k:'Lance Fixo',label:'?? Lance Fixo',n:cotas.filter(r=>r.status==='Lance Fixo').length,cls:'b-ora'},
-    {k:'Contemplado',label:'✓ Contemplado',n:cotas.filter(r=>r.status==='Contemplado'||r.status==='CONTEMPLADO').length,cls:'b-ok'},
-    {k:'Faturado',label:'✔ Faturado',n:cotas.filter(r=>r.status==='Faturado').length,cls:'b-teal'},
+    {k:'Contemplado',label:'✓ Contemplado',n:cotas.filter(r=>isStContemp(r.status)&&!isStFaturado(r.status)).length,cls:'b-ok'},
+    {k:'Faturado',label:'✔ Faturado',n:cotas.filter(r=>isStFaturado(r.status)).length,cls:'b-teal'},
   ];
 
   const statusOpts=['Sorteio','Em Andamento','Contemplado','Cancelado'].map(s=>`<option>${s}</option>`).join('');
 
   function mkRow(r){
     const isCan=isCancelada(r);
-    const isCp=r.status==='Contemplado'||r.status==='CONTEMPLADO'||r.status==='Faturado';
+    const isCp=isStContemp(r.status);
     const parcEf=isCp?(r.parcela_pos||r.parcela||0):(r.parcela||0);
     // Badge de próximo reajuste (mês aniversário do grupo)
     const gData=GUIA[r.grupo]||GUIA[String(r.grupo)]||{};
@@ -13813,7 +13845,7 @@ function renderProjDetail(name){
       <td>${brl(parcEf)}${isCp&&r.parcela_pos?'<small style="display:block;font-size:9px;color:var(--ok)">pós</small>':''}</td>
       <td>
         <select class="form-i" style="padding:3px 6px;font-size:12px;min-width:140px;transition:background .2s,border-color .2s" id="ps-${r.id}" onchange="projScheduleAutoSave('${r.id}',400)" title="Auto-salva ao mudar">
-          ${['Em Andamento','Lance Livre','Lance Fixo','Contemplado','Faturado'].map(s=>`<option${r.status===s||(s==='Contemplado'&&r.status==='CONTEMPLADO')||(s==='Em Andamento'&&['LANCE','SORTEIO / LANCE','Sorteio','SUPLENCIA - 2 NA FRENTE'].includes(r.status))?' selected':''}>` +s+`</option>`).join('')}
+          ${['Em Andamento','Lance Livre','Lance Fixo','Contemplado','Faturado'].map(s=>`<option${stCanon(r.status)===s?' selected':''}>` +s+`</option>`).join('')}
         </select>
       </td>
       <td><input class="form-i" style="padding:3px 6px;font-size:12px;width:70px;transition:background .2s,border-color .2s" id="pl1-${r.id}" type="number" step="0.1" min="0" max="100" value="${r.lance1?+(r.lance1*100).toFixed(1):''}" placeholder="%" oninput="projScheduleAutoSave('${r.id}',1500)" onblur="projAutoSaveImediato('${r.id}')" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" title="Auto-salva ao sair do campo (Tab/Enter)"></td>
@@ -13890,11 +13922,11 @@ function renderProjDash(name){
   projDetailTab='dash';
   destroyPdCharts();
   const cotas=COTAS.filter(r=>r.nome===name);
-  const ativas=cotas.filter(r=>r.status!=='CANCELADO'&&r.status!=='Cancelado');
+  const ativas=cotas.filter(r=>!isStCancelado(r.status));
   const today=new Date();
-  const isC=s=>s==='Contemplado'||s==='CONTEMPLADO'||s==='Faturado';
-  const isFat=s=>s==='Faturado';
-  const isAtivo=s=>s==='Em Andamento'||s==='Lance Livre'||s==='Lance Fixo'||s==='LANCE'||s==='SORTEIO / LANCE'||s==='Sorteio';
+  const isC=s=>isStContemp(s);
+  const isFat=s=>isStFaturado(s);
+  const isAtivo=s=>isStLance(s)||isStSorteio(s);
   // Parcela efetiva: pós para contempladas/faturadas (se existir), pré caso contrário
   const parcEfetiva=r=>isC(r.status)?(r.parcela_pos||r.parcela||0):(r.parcela||0);
   // Enrich cotas: progresso medido a partir da DATA DE ADESÃO da cota.
@@ -13920,6 +13952,8 @@ function renderProjDash(name){
   // Crédito Liberado: usa credito_liberado se preenchido; se tem embutido calcula carta-embutido; senão usa carta inteira
   const credLib=en.filter(r=>isC(r.status)).reduce((s,r)=>{
     if(r.credito_liberado!=null&&r.credito_liberado>0) return s+r.credito_liberado;
+    // Santander (Robson): credito_liberado só vem do extrato — nunca derivar com fórmula Itaú
+    if(isSantanderCota(r)) return s+(r.credito_liberado||0);
     const carta=r.carta_atualizada||r.credito||0;
     if(r.lance_embutido!=null&&r.lance_embutido>0) return s+Math.max(0,carta-r.lance_embutido);
     return s+carta;
@@ -14221,7 +14255,7 @@ async function projAutoSaveRow(id){
   const statusIgual=novoStatus===r.status;
   const lanceIgual=(novoLance1==null&&r.lance1==null)||(novoLance1!=null&&r.lance1!=null&&Math.abs(novoLance1-r.lance1)<0.0001);
   if(statusIgual&&lanceIgual){_projMarkDirtyVisual(id,false);const btn=document.getElementById('psave-'+id);if(btn)btn.style.display='none';return;}
-  const statusEraContempl=r.status==='Contemplado'||r.status==='CONTEMPLADO'||r.status==='Faturado';
+  const statusEraContempl=isStContemp(r.status);
   const statusEhContempl=novoStatus==='Contemplado'||novoStatus==='Faturado';
   const patch={id,status:novoStatus,lance1:novoLance1};
   const res=await upsertCota(patch);
@@ -14286,7 +14320,7 @@ async function projSaveAllDirty(name){
     const ps=document.getElementById('ps-'+id);
     const pl=document.getElementById('pl1-'+id);
     const novoStatus=ps?ps.value:r.status;
-    const statusEraContempl=r.status==='Contemplado'||r.status==='CONTEMPLADO'||r.status==='Faturado';
+    const statusEraContempl=isStContemp(r.status);
     const statusEhContempl=novoStatus==='Contemplado'||novoStatus==='Faturado';
     const patch={id,status:novoStatus,lance1:pl&&pl.value?parseFloat(pl.value)/100:null};
     const res=await upsertCota(patch);
@@ -14309,7 +14343,7 @@ async function projSaveRow(id){
   const r=COTAS.find(c=>String(c.id)===String(id));if(!r)return;
   const status=document.getElementById('ps-'+id).value;
   const l1v=document.getElementById('pl1-'+id).value;
-  const statusEraContempl=r.status==='Contemplado'||r.status==='CONTEMPLADO'||r.status==='Faturado';
+  const statusEraContempl=isStContemp(r.status);
   const statusEhContempl=status==='Contemplado'||status==='Faturado';
   const patch={id,status,lance1:l1v?parseFloat(l1v)/100:null};
   const res=await upsertCota(patch);
@@ -14408,9 +14442,9 @@ function filterProjList(){
   const inclCancel=(document.getElementById('pf-incl-cancel')?.checked||false);
   const soLance=(document.getElementById('pf-so-lance')?.checked||false);
   const na=a=>a==='Gil'?'GIL':a;
-  const isCancel=v=>v==='Cancelado'||v==='CANCELADO';
+  const isCancel=v=>isStCancelado(v);
   const isContempOuFat=v=>v==='Contemplado'||v==='CONTEMPLADO'||v==='Faturado'||v==='FATURADO';
-  const normSt2=x=>{const u=(x||'').toUpperCase();if(u==='CONTEMPLADO')return'Contemplado';if(u==='CANCELADO')return'Cancelado';if(u==='LANCE'||u==='SUPLENCIA - 2 NA FRENTE'||u==='SORTEIO / LANCE'||u==='SORTEIO')return'Em Andamento';return x;};
+  const normSt2=x=>stCanon(x);
   plistFiltered=COTAS.filter(r=>{
     if(!inclCancel&&st!=='Cancelado'&&isCancel(r.status))return false;
     // "Só passíveis de lance": esconde Contempladas/Faturadas (Canceladas já são ocultas pela regra acima)
@@ -14428,7 +14462,7 @@ function plistGo(p){plistPage=p;renderProjList();}
 function renderProjList(){
   const sorted=plistSort.col?sortArr(plistFiltered,plistSort.col,plistSort.dir):plistFiltered;
   ['nome','grupo','banco','credito','parcela','status','lance1'].forEach(c=>{const el=document.getElementById('psort-'+c);if(el)el.textContent=sortIcon(plistSort,c);});
-  const totalCancel=COTAS.filter(r=>r.status==='Cancelado'||r.status==='CANCELADO').length;
+  const totalCancel=COTAS.filter(r=>isStCancelado(r.status)).length;
   document.getElementById('pf-count').textContent=plistFiltered.length+' cotas'+(totalCancel?` · ${totalCancel} cancelada(s) ocultas`:'');
   const chkTh=document.getElementById('plist-th-chk');
   if(chkTh)chkTh.style.display=bulkMode?'table-cell':'none';
@@ -14440,13 +14474,13 @@ function renderProjList(){
   document.getElementById('plist-tbody').innerHTML=items.map(r=>{
     const isDirty=dirtyBulk.has(String(r.id));
     const isSelected=projSelected.has(String(r.id));
-    const isCan=r.status==='Cancelado'||r.status==='CANCELADO';
-    const isCp=r.status==='Contemplado'||r.status==='CONTEMPLADO'||r.status==='Faturado';
+    const isCan=isStCancelado(r.status);
+    const isCp=isStContemp(r.status);
     const parcEf=isCp?(r.parcela_pos||r.parcela||0):(r.parcela||0);
     const proxAgo=calcProxAgo(r.grupo,r);
     // Stale alert: >35 dias sem atualização (só cotas ativas, não canceladas/faturadas)
     const _nowMs=Date.now();
-    const _isStale=!isCan&&r.status!=='Faturado'&&(!r.updated_at||(_nowMs-new Date(r.updated_at).getTime())/86400000>35);
+    const _isStale=!isCan&&!isStFaturado(r.status)&&(!r.updated_at||(_nowMs-new Date(r.updated_at).getTime())/86400000>35);
     const rowStyle=isDirty?'background:#fdf6e3':(isCan?'opacity:.4;background:#fafafa':(_isStale&&!isCp?'background:#fffbeb;border-left:3px solid #f59e0b':''));
     const staleTag=_isStale?`<span title="Sem atualização há mais de 35 dias — verifique os dados" style="display:inline-block;margin-left:5px;padding:1px 5px;background:#fef3c7;color:#92400e;border:1px solid #f59e0b;border-radius:4px;font-size:9px;font-weight:700;vertical-align:middle">⚠️ +35d</span>`:'';
     const chkCell=bulkMode?`<td><input type="checkbox" id="pchk-${r.id}" ${isSelected?'checked':''} data-rid="${r.id}" onchange="projSelectRow(this.dataset.rid,this.checked)"></td>`:'';
@@ -14459,7 +14493,7 @@ function renderProjList(){
       <td style="text-align:right">${brl(parcEf)}${isCp&&r.parcela_pos?'<small style="display:block;font-size:9px;color:var(--ok)">pós</small>':''}</td>
       <td>
         <select class="form-i" style="padding:3px 6px;font-size:12px;min-width:140px;transition:background .2s,border-color .2s" id="ps-${r.id}" onchange="projScheduleAutoSave('${r.id}',400)" title="Auto-salva ao mudar">
-          ${['Em Andamento','Lance Livre','Lance Fixo','Contemplado','Faturado','Cancelado'].map(s=>`<option${r.status===s||(s==='Contemplado'&&r.status==='CONTEMPLADO')||(s==='Em Andamento'&&['LANCE','SORTEIO / LANCE','Sorteio','SUPLENCIA - 2 NA FRENTE'].includes(r.status))||(s==='Cancelado'&&r.status==='CANCELADO')?' selected':''}>` +s+`</option>`).join('')}
+          ${['Em Andamento','Lance Livre','Lance Fixo','Contemplado','Faturado','Cancelado'].map(s=>`<option${stCanon(r.status)===s?' selected':''}>` +s+`</option>`).join('')}
         </select>
       </td>
       <td><input class="form-i" style="padding:3px 6px;font-size:12px;width:70px;transition:background .2s,border-color .2s" id="pl1-${r.id}" type="number" step="0.1" min="0" max="100" value="${r.lance1?+(r.lance1*100).toFixed(1):''}" placeholder="%" oninput="projScheduleAutoSave('${r.id}',1500)" onblur="projAutoSaveImediato('${r.id}')" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" title="Auto-salva ao sair do campo (Tab/Enter)"></td>
@@ -14885,11 +14919,11 @@ function fecharRelatorio(){
 function gerarRelatorioCliente(name){
   // Reusa toda a lógica de cálculo do dashboard
   const cotas=COTAS.filter(r=>r.nome===name);
-  const ativas=cotas.filter(r=>r.status!=='CANCELADO'&&r.status!=='Cancelado');
+  const ativas=cotas.filter(r=>!isStCancelado(r.status));
   const today=new Date();
-  const isC=s=>s==='Contemplado'||s==='CONTEMPLADO'||s==='Faturado';
-  const isFat=s=>s==='Faturado';
-  const isAtivo=s=>s==='Em Andamento'||s==='Lance Livre'||s==='Lance Fixo'||s==='LANCE'||s==='SORTEIO / LANCE'||s==='Sorteio';
+  const isC=s=>isStContemp(s);
+  const isFat=s=>isStFaturado(s);
+  const isAtivo=s=>isStLance(s)||isStSorteio(s);
   const parcEf=r=>isC(r.status)?(r.parcela_pos||r.parcela||0):(r.parcela||0);
   const en=ativas.map(r=>{
     const g=GUIA[r.grupo]||GUIA[String(r.grupo)]||{};
@@ -15306,8 +15340,8 @@ function renderGuardaChuva(){
     document.getElementById('guarda-hero').innerHTML='<div class="gc-block" style="text-align:center;color:#742a2a;padding:30px">Nenhuma cota do Robson encontrada no Supabase. Verifique cadastro.</div>';
     return;
   }
-  const fat=cotas.filter(r=>r.status==='Faturado');
-  const cont=cotas.filter(r=>r.status==='Contemplado');
+  const fat=cotas.filter(r=>isStFaturado(r.status));
+  const cont=cotas.filter(r=>isStContemp(r.status)&&!isStFaturado(r.status));
   const em=cotas.filter(r=>r.status==='Em Andamento');
   const totalCotas=cotas.length;
   const contempladasTotal=fat.length+cont.length;
@@ -15344,7 +15378,7 @@ function renderGuardaChuva(){
       const m=Math.max(0,Math.floor((hojeMs-adMs)/MES));
       return m*(r.parcela||0);
     }
-    if(r.status==='Contemplado'||r.status==='Faturado'){
+    if(isStContemp(r.status)){
       const dcMs=r.data_contemplada?new Date(r.data_contemplada+'T00:00:00').getTime():adMs;
       const mPre=Math.max(0,Math.floor((dcMs-adMs)/MES));
       const mPos=Math.max(0,Math.floor((hojeMs-dcMs)/MES));
@@ -15360,7 +15394,7 @@ function renderGuardaChuva(){
   const credLibFat=fat.reduce((s,r)=>s+(r.credito_liberado||0),0);
   const credLibCont=cont.reduce((s,r)=>s+(r.credito_liberado||0),0);
 
-  const parcMensalTotal=cotas.reduce((s,r)=>s+(((r.status==='Contemplado'||r.status==='Faturado')&&r.parcela_pos)?r.parcela_pos:(r.parcela||0)),0);
+  const parcMensalTotal=cotas.reduce((s,r)=>s+((isStContemp(r.status)&&r.parcela_pos)?r.parcela_pos:(r.parcela||0)),0);
 
   const pagoGilmar=GC_DATA.contrato.pago_gilmar_ja;
   const totalGilmar=GC_DATA.contrato.pago_gilmar_total;
@@ -15433,11 +15467,11 @@ function renderGuardaChuva(){
   cotas.forEach(r=>{
     const g=r.grupo;
     if(!grupos[g])grupos[g]={fat:0,cont:0,em:0,cartaT:0,parcT:0,tx:r.taxa_adm||0,fr:r.fundo_reserva||0};
-    if(r.status==='Faturado')grupos[g].fat++;
-    else if(r.status==='Contemplado')grupos[g].cont++;
+    if(isStFaturado(r.status))grupos[g].fat++;
+    else if(isStContemp(r.status))grupos[g].cont++;
     else if(r.status==='Em Andamento')grupos[g].em++;
     grupos[g].cartaT+=(r.carta_atualizada||r.credito||0);
-    grupos[g].parcT+=((r.status==='Contemplado'||r.status==='Faturado')&&r.parcela_pos?r.parcela_pos:(r.parcela||0));
+    grupos[g].parcT+=(isStContemp(r.status)&&r.parcela_pos?r.parcela_pos:(r.parcela||0));
   });
   const gruposArr=Object.entries(grupos).sort((a,b)=>a[0].localeCompare(b[0]));
   let trGrupos='';
@@ -16260,8 +16294,8 @@ async function _autoFechamentoMensal(){
   // ── Aplicar ──
   console.info('[HC360] Auto-fechamento: INCC',inccValor,'% referência',inccData);
   const mult=1+inccValor/100;
-  const _isCancFat=r=>r.status==='Cancelado'||r.status==='CANCELADO'||r.status==='Faturado'||r.status==='FATURADO';
-  const _isContemp=r=>r.status==='Contemplado'||r.status==='CONTEMPLADO';
+  const _isCancFat=r=>isStCancelado(r.status)||isStFaturado(r.status);
+  const _isContemp=r=>isStContemp(r.status)&&!isStFaturado(r.status);
   const cotasIncc=COTAS.filter(r=>!_isCancFat(r)&&((r.carta_atualizada||0)+(r.credito||0))>0);
   if(!cotasIncc.length)return;
   let ok=0,errs=0;
@@ -16327,8 +16361,8 @@ function _fecRenderPreview(){
     if(btn)btn.disabled=true;if(sumEl)sumEl.textContent='';return;
   }
   const mult=1+incc/100;
-  const _isCancFat=r=>r.status==='Cancelado'||r.status==='CANCELADO'||r.status==='Faturado'||r.status==='FATURADO';
-  const _isContemp=r=>r.status==='Contemplado'||r.status==='CONTEMPLADO';
+  const _isCancFat=r=>isStCancelado(r.status)||isStFaturado(r.status);
+  const _isContemp=r=>isStContemp(r.status)&&!isStFaturado(r.status);
   const _isAtivo=r=>!_isCancFat(r);
   // Cartas a corrigir (todas as cotas ativas — pré e pós contemp)
   const cotasIncc=COTAS.filter(r=>_isAtivo(r)&&((r.carta_atualizada||0)+(r.credito||0))>0);
@@ -16409,8 +16443,8 @@ async function executarFechamentoMensal(){
   const incc=parseFloat(document.getElementById('fec-incc-pct').value||'0');
   if(!incc||incc<=0)return toast('Digite o INCC antes de aplicar','warn');
   const mult=1+incc/100;
-  const _isCancFat=r=>r.status==='Cancelado'||r.status==='CANCELADO'||r.status==='Faturado'||r.status==='FATURADO';
-  const _isContemp=r=>r.status==='Contemplado'||r.status==='CONTEMPLADO';
+  const _isCancFat=r=>isStCancelado(r.status)||isStFaturado(r.status);
+  const _isContemp=r=>isStContemp(r.status)&&!isStFaturado(r.status);
   // Todas as cotas ativas para correção da carta
   const cotasIncc=COTAS.filter(r=>!_isCancFat(r)&&((r.carta_atualizada||0)+(r.credito||0))>0);
   showLoad();
