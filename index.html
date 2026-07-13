@@ -9437,13 +9437,17 @@ let PERFIS_LISTA=[];
 // Preserva o valor selecionado se ainda existir na nova lista.
 function _repopularSelectsAssessor(){
   if(!PERFIS_LISTA||!PERFIS_LISTA.length)return;
-  // Coleta apelidos de perfis ativos + heads + sócios op (todos que podem receber lead/cota)
+  // Só perfis que podem receber lead/cota
   const validos=PERFIS_LISTA.filter(p=>['ativo','head','socio_op'].includes(p.categoria));
-  const apelidos=new Set();
-  validos.forEach(p=>{(p.apelidos||[]).forEach(a=>{if(a)apelidos.add(a);});});
-  // Extras fixos (canais avulsos que não estão no cadastro de perfil mas ainda são usados)
-  apelidos.add('Indicação / Marcus');
-  const opcoes=[...apelidos].sort((a,b)=>a.localeCompare(b,'pt-BR'));
+  // Pega APENAS o primeiro apelido de cada perfil (rótulo principal)
+  const rotulos=new Set();
+  validos.forEach(p=>{
+    const primeiro=(p.apelidos&&p.apelidos[0])||p.assessor_name;
+    if(primeiro)rotulos.add(primeiro);
+  });
+  // Fallback fixo (canal avulso)
+  rotulos.add('Indicação / Marcus');
+  const opcoes=[...rotulos].sort((a,b)=>a.localeCompare(b,'pt-BR'));
   document.querySelectorAll('select[data-assessor-select="1"]').forEach(sel=>{
     const valorAtual=sel.value;
     // Preserva opção "" (Todos) se existir
