@@ -2298,9 +2298,9 @@ main.main:has(#page-ajuda.active) .content{
         <option value="">Todos Status</option>
         <option>Em Andamento</option><option>Lance Livre</option><option>Lance Fixo</option><option>Contemplado</option><option>Faturado</option><option>Cancelado</option>
       </select>
-      <select class="fi fi-md" id="f-assessor" onchange="filterCtrl()">
+      <select class="fi fi-md" id="f-assessor" data-assessor-select="1" onchange="filterCtrl()">
         <option value="">Todos Assessores</option>
-        <option>ALAN / ESCRITORIO</option><option>ALE / ESCRITORIO</option><option>GLAUCO</option><option>GIL</option><option>SZPIN</option><option>Coyote</option><option>BUZA</option><option>GUSTAVO SANTOS</option><option>GUSTAVO MARTINI</option><option>NETÃO</option><option>FELIPE MOGI</option><option>Indicação / Marcus</option>
+        <option data-assessor-fallback>ALAN / ESCRITORIO</option><option data-assessor-fallback>ALE / ESCRITORIO</option><option data-assessor-fallback>GLAUCO</option><option data-assessor-fallback>GIL</option><option data-assessor-fallback>SZPIN</option><option data-assessor-fallback>Coyote</option><option data-assessor-fallback>BUZA</option><option data-assessor-fallback>GUSTAVO SANTOS</option><option data-assessor-fallback>GUSTAVO MARTINI</option><option data-assessor-fallback>NETÃO</option><option data-assessor-fallback>FELIPE MOGI</option><option data-assessor-fallback>Indicação / Marcus</option>
       </select>
       <select class="fi fi-md" id="f-banco" onchange="filterCtrl()">
         <option value="">Todos Bancos</option>
@@ -2495,9 +2495,9 @@ main.main:has(#page-ajuda.active) .content{
         <option>Novo Lead</option><option>Qualificando</option><option>Reunião Agendada</option><option>Proposta Enviada</option><option>Em Negociação</option><option>Ganho</option><option>Perdido</option>
       </select>
       <span id="crm-assessor-f-wrap">
-      <select class="fi fi-md" id="crm-assessor-f" onchange="filterCRM()">
+      <select class="fi fi-md" id="crm-assessor-f" data-assessor-select="1" onchange="filterCRM()">
         <option value="">Todos Assessores</option>
-        <option>ALAN / ESCRITORIO</option><option>ALE / ESCRITORIO</option><option>GLAUCO</option><option>GIL</option><option>SZPIN</option><option>Coyote</option><option>BUZA</option><option>GUSTAVO SANTOS</option><option>GUSTAVO MARTINI</option><option>NETÃO</option><option>FELIPE MOGI</option><option>Indicação / Marcus</option>
+        <option data-assessor-fallback>ALAN / ESCRITORIO</option><option data-assessor-fallback>ALE / ESCRITORIO</option><option data-assessor-fallback>GLAUCO</option><option data-assessor-fallback>GIL</option><option data-assessor-fallback>SZPIN</option><option data-assessor-fallback>Coyote</option><option data-assessor-fallback>BUZA</option><option data-assessor-fallback>GUSTAVO SANTOS</option><option data-assessor-fallback>GUSTAVO MARTINI</option><option data-assessor-fallback>NETÃO</option><option data-assessor-fallback>FELIPE MOGI</option><option data-assessor-fallback>Indicação / Marcus</option>
       </select>
       </span>
       <button class="btn btn-out btn-sm" onclick="crmClearFilters()">Limpar</button>
@@ -2791,7 +2791,7 @@ main.main:has(#page-ajuda.active) .content{
   <div class="page" id="page-guia">
     <div class="card"><div class="cb">
       <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px">
-        <p style="font-size:12.5px;color:var(--txt2);margin:0">Base com <strong>560 grupos Itaú</strong> (242 Imóveis + 318 Rodas) · <span id="guia-last-update">Dados de Abr/2026</span> · Histórico Jan/25–Mar/26 · <span title="Data em que este sistema foi gerado — os dados embutidos do Guia valem até aqui">Sistema gerado em <strong>08/07/2026</strong></span></p>
+        <p style="font-size:12.5px;color:var(--txt2);margin:0">Base com <strong>560 grupos Itaú</strong> (242 Imóveis + 318 Rodas) · <span id="guia-last-update">Dados de Abr/2026</span> · Histórico Jan/25–Mar/26 · <span title="Data em que este sistema foi gerado — os dados embutidos do Guia valem até aqui">Sistema gerado em <strong>13/07/2026</strong></span></p>
         <button class="btn btn-out btn-sm" data-admin-only="1" onclick="guiaOpenUpdateModal()" title="Atualizar a base do GUIA com novo JSON">📤 Atualizar Base GUIA</button>
       </div>
       <!-- Linha 1: Busca direta -->
@@ -4000,9 +4000,9 @@ main.main:has(#page-ajuda.active) .content{
           <option value="">Todos Status</option>
           <option>Em Andamento</option><option>Lance Livre</option><option>Lance Fixo</option><option>Contemplado</option><option>Faturado</option><option>Cancelado</option>
         </select>
-        <select class="fi fi-md" id="pf-assessor" onchange="filterProjList()">
+        <select class="fi fi-md" id="pf-assessor" data-assessor-select="1" onchange="filterProjList()">
           <option value="">Todos Assessores</option>
-          <option>ALAN / ESCRITORIO</option><option>ALE / ESCRITORIO</option><option>GLAUCO</option><option>GIL</option><option>SZPIN</option><option>Coyote</option><option>BUZA</option><option>GUSTAVO SANTOS</option><option>GUSTAVO MARTINI</option><option>NETÃO</option><option>FELIPE MOGI</option><option>Indicação / Marcus</option>
+          <option data-assessor-fallback>ALAN / ESCRITORIO</option><option data-assessor-fallback>ALE / ESCRITORIO</option><option data-assessor-fallback>GLAUCO</option><option data-assessor-fallback>GIL</option><option data-assessor-fallback>SZPIN</option><option data-assessor-fallback>Coyote</option><option data-assessor-fallback>BUZA</option><option data-assessor-fallback>GUSTAVO SANTOS</option><option data-assessor-fallback>GUSTAVO MARTINI</option><option data-assessor-fallback>NETÃO</option><option data-assessor-fallback>FELIPE MOGI</option><option data-assessor-fallback>Indicação / Marcus</option>
         </select>
         <select class="fi fi-md" id="pf-banco" onchange="filterProjList()">
           <option value="">Todos Bancos</option>
@@ -4046,9 +4046,9 @@ main.main:has(#page-ajuda.active) .content{
           <option value="credito-desc">Maior volume</option>
           <option value="credito">Menor volume</option>
         </select>
-        <select class="fi fi-md" id="pcards-assessor" onchange="syncProjFilter('assessor',this.value)">
+        <select class="fi fi-md" id="pcards-assessor" data-assessor-select="1" onchange="syncProjFilter('assessor',this.value)">
           <option value="">Todos Assessores</option>
-          <option>ALAN / ESCRITORIO</option><option>ALE / ESCRITORIO</option><option>GLAUCO</option><option>GIL</option><option>SZPIN</option><option>Coyote</option><option>BUZA</option><option>GUSTAVO SANTOS</option><option>GUSTAVO MARTINI</option><option>NETÃO</option><option>FELIPE MOGI</option><option>Indicação / Marcus</option>
+          <option data-assessor-fallback>ALAN / ESCRITORIO</option><option data-assessor-fallback>ALE / ESCRITORIO</option><option data-assessor-fallback>GLAUCO</option><option data-assessor-fallback>GIL</option><option data-assessor-fallback>SZPIN</option><option data-assessor-fallback>Coyote</option><option data-assessor-fallback>BUZA</option><option data-assessor-fallback>GUSTAVO SANTOS</option><option data-assessor-fallback>GUSTAVO MARTINI</option><option data-assessor-fallback>NETÃO</option><option data-assessor-fallback>FELIPE MOGI</option><option data-assessor-fallback>Indicação / Marcus</option>
         </select>
         <select class="fi fi-md" id="pcards-banco" onchange="syncProjFilter('banco',this.value)">
           <option value="">Todos Bancos</option>
@@ -4081,9 +4081,9 @@ main.main:has(#page-ajuda.active) .content{
           <option value="credito-desc">Maior volume</option>
           <option value="credito">Menor volume</option>
         </select>
-        <select class="fi fi-md" id="pcards-assessor-bot" onchange="syncProjFilter('assessor',this.value)">
+        <select class="fi fi-md" id="pcards-assessor-bot" data-assessor-select="1" onchange="syncProjFilter('assessor',this.value)">
           <option value="">Todos Assessores</option>
-          <option>ALAN / ESCRITORIO</option><option>ALE / ESCRITORIO</option><option>GLAUCO</option><option>GIL</option><option>SZPIN</option><option>Coyote</option><option>BUZA</option><option>GUSTAVO SANTOS</option><option>GUSTAVO MARTINI</option><option>NETÃO</option><option>FELIPE MOGI</option><option>Indicação / Marcus</option>
+          <option data-assessor-fallback>ALAN / ESCRITORIO</option><option data-assessor-fallback>ALE / ESCRITORIO</option><option data-assessor-fallback>GLAUCO</option><option data-assessor-fallback>GIL</option><option data-assessor-fallback>SZPIN</option><option data-assessor-fallback>Coyote</option><option data-assessor-fallback>BUZA</option><option data-assessor-fallback>GUSTAVO SANTOS</option><option data-assessor-fallback>GUSTAVO MARTINI</option><option data-assessor-fallback>NETÃO</option><option data-assessor-fallback>FELIPE MOGI</option><option data-assessor-fallback>Indicação / Marcus</option>
         </select>
         <select class="fi fi-md" id="pcards-banco-bot" onchange="syncProjFilter('banco',this.value)">
           <option value="">Todos Bancos</option>
@@ -4104,9 +4104,9 @@ main.main:has(#page-ajuda.active) .content{
             <option>Sorteio</option><option>Em Andamento</option><option>Contemplado</option><option>Cancelado</option>
           </select>
           <input id="proj-bulk-lance" type="number" class="fi" placeholder="↳ Lance %..." style="width:110px">
-          <select id="proj-bulk-assessor" class="fi fi-md">
+          <select id="proj-bulk-assessor" class="fi fi-md" data-assessor-select="1">
             <option value="">↳ Assessor...</option>
-            <option>ALAN / ESCRITORIO</option><option>ALE / ESCRITORIO</option><option>GLAUCO</option><option>GIL</option><option>SZPIN</option><option>Coyote</option><option>BUZA</option><option>GUSTAVO SANTOS</option><option>GUSTAVO MARTINI</option><option>NETÃO</option><option>FELIPE MOGI</option><option>Indicação / Marcus</option>
+            <option data-assessor-fallback>ALAN / ESCRITORIO</option><option data-assessor-fallback>ALE / ESCRITORIO</option><option data-assessor-fallback>GLAUCO</option><option data-assessor-fallback>GIL</option><option data-assessor-fallback>SZPIN</option><option data-assessor-fallback>Coyote</option><option data-assessor-fallback>BUZA</option><option data-assessor-fallback>GUSTAVO SANTOS</option><option data-assessor-fallback>GUSTAVO MARTINI</option><option data-assessor-fallback>NETÃO</option><option data-assessor-fallback>FELIPE MOGI</option><option data-assessor-fallback>Indicação / Marcus</option>
           </select>
           <button class="btn btn-pri btn-sm" onclick="projApplyBulk()">Aplicar a Selecionadas</button>
           <button class="btn btn-ok" onclick="projSalvarTudo()" id="proj-save-all-btn" style="display:none">💾 Salvar Tudo (<span id="proj-dirty-count">0</span>)</button>
@@ -5509,8 +5509,8 @@ CET ao Ano     = CET ao Mês × 12</pre>
       </div>
       <div class="g2" style="margin-bottom:0">
         <div class="form-g"><label class="form-l">Assessor</label>
-          <select class="form-i" id="mc-assessor">
-            <option>ALAN / ESCRITORIO</option><option>ALE / ESCRITORIO</option><option>GLAUCO</option><option>GIL</option><option>SZPIN</option><option>Coyote</option><option>BUZA</option><option>GUSTAVO SANTOS</option><option>GUSTAVO MARTINI</option><option>NETÃO</option><option>FELIPE MOGI</option><option>Indicação / Marcus</option>
+          <select class="form-i" id="mc-assessor" data-assessor-select="1">
+            <option data-assessor-fallback>ALAN / ESCRITORIO</option><option data-assessor-fallback>ALE / ESCRITORIO</option><option data-assessor-fallback>GLAUCO</option><option data-assessor-fallback>GIL</option><option data-assessor-fallback>SZPIN</option><option data-assessor-fallback>Coyote</option><option data-assessor-fallback>BUZA</option><option data-assessor-fallback>GUSTAVO SANTOS</option><option data-assessor-fallback>GUSTAVO MARTINI</option><option data-assessor-fallback>NETÃO</option><option data-assessor-fallback>FELIPE MOGI</option><option data-assessor-fallback>Indicação / Marcus</option>
           </select>
         </div>
         <div class="form-g"><label class="form-l">Data de Adesão</label><input type="date" class="form-i" id="mc-adesao"></div>
@@ -5800,8 +5800,8 @@ CET ao Ano     = CET ao Mês × 12</pre>
       </div>
       <div class="g2" style="margin-bottom:0">
         <div class="form-g"><label class="form-l">Assessor <span class="form-l-hint" id="ml-ass-hint"></span></label>
-          <select class="form-i" id="ml-assessor" onchange="mlAtualizaReceita()">
-            <option>ALAN / ESCRITORIO</option><option>ALE / ESCRITORIO</option><option>GLAUCO</option><option>GIL</option><option>SZPIN</option><option>Coyote</option><option>BUZA</option><option>GUSTAVO SANTOS</option><option>GUSTAVO MARTINI</option><option>NETÃO</option><option>FELIPE MOGI</option><option>Indicação / Marcus</option>
+          <select class="form-i" id="ml-assessor" data-assessor-select="1" onchange="mlAtualizaReceita()">
+            <option data-assessor-fallback>ALAN / ESCRITORIO</option><option data-assessor-fallback>ALE / ESCRITORIO</option><option data-assessor-fallback>GLAUCO</option><option data-assessor-fallback>GIL</option><option data-assessor-fallback>SZPIN</option><option data-assessor-fallback>Coyote</option><option data-assessor-fallback>BUZA</option><option data-assessor-fallback>GUSTAVO SANTOS</option><option data-assessor-fallback>GUSTAVO MARTINI</option><option data-assessor-fallback>NETÃO</option><option data-assessor-fallback>FELIPE MOGI</option><option data-assessor-fallback>Indicação / Marcus</option>
           </select>
         </div>
         <div class="form-g"><label class="form-l">Status <span class="form-l-hint" id="ml-st-hint"></span></label>
@@ -7074,10 +7074,12 @@ async function loadData(silent){
     // Indexar perfis por apelido + heads de filial pra cálculo de receita
     PERFIS_BY_APELIDO={};
     HEADS_POR_FILIAL={};
+    PERFIS_LISTA=perfis||[];
     (perfis||[]).forEach(p=>{
       (p.apelidos||[]).forEach(a=>{PERFIS_BY_APELIDO[a]=p;PERFIS_BY_APELIDO[(a||'').toUpperCase()]=p;PERFIS_BY_APELIDO[(a||'').toLowerCase()]=p;});
       if(p.head_filial)HEADS_POR_FILIAL[p.filial]=p;
     });
+    _repopularSelectsAssessor();
     // Paginação completa do lances_historico_mensal (Supabase cap = 1000; tabela ~50k linhas filtradas → ~22k em 18m)
     if(lhm&&lhm.length>=1000){
       try{
@@ -9428,6 +9430,36 @@ function _crmLegacyRowDeprecated(){
 // Mapas carregados em loadData
 let PERFIS_BY_APELIDO={};
 let HEADS_POR_FILIAL={};
+let PERFIS_LISTA=[];
+
+// Popula todos os <select data-assessor-select="1"> com apelidos vindos do banco (assessores_perfil).
+// Substitui as opções hardcoded (marcadas com data-assessor-fallback).
+// Preserva o valor selecionado se ainda existir na nova lista.
+function _repopularSelectsAssessor(){
+  if(!PERFIS_LISTA||!PERFIS_LISTA.length)return;
+  // Coleta apelidos de perfis ativos + heads + sócios op (todos que podem receber lead/cota)
+  const validos=PERFIS_LISTA.filter(p=>['ativo','head','socio_op'].includes(p.categoria));
+  const apelidos=new Set();
+  validos.forEach(p=>{(p.apelidos||[]).forEach(a=>{if(a)apelidos.add(a);});});
+  // Extras fixos (canais avulsos que não estão no cadastro de perfil mas ainda são usados)
+  apelidos.add('Indicação / Marcus');
+  const opcoes=[...apelidos].sort((a,b)=>a.localeCompare(b,'pt-BR'));
+  document.querySelectorAll('select[data-assessor-select="1"]').forEach(sel=>{
+    const valorAtual=sel.value;
+    // Preserva opção "" (Todos) se existir
+    const temTodos=[...sel.options].some(o=>o.value===''&&o.text.includes('Todos'));
+    // Remove opções que vieram do fallback OU que foram populadas dinamicamente antes
+    [...sel.querySelectorAll('option[data-assessor-fallback], option[data-assessor-dyn]')].forEach(o=>o.remove());
+    // Injeta as novas
+    opcoes.forEach(a=>{
+      const opt=document.createElement('option');
+      opt.value=a; opt.textContent=a; opt.setAttribute('data-assessor-dyn','1');
+      sel.appendChild(opt);
+    });
+    // Restaura valor anterior se ainda existe
+    if(valorAtual&&[...sel.options].some(o=>o.value===valorAtual))sel.value=valorAtual;
+  });
+}
 
 // === Estimativa de receita do assessor a partir de um lead ===
 // REGRA OFICIAL:
