@@ -1759,16 +1759,16 @@ main.main:has(#page-ajuda.active) .content{
   body.printing-prop > .prop-doc .h360-cons-val{font-size:11.5pt!important;font-weight:500!important;white-space:nowrap!important;text-align:right!important;flex-shrink:0!important;letter-spacing:-.015em!important;line-height:1.1!important}
 
   /* HISTORICO — cada card protegido */
-  body.printing-prop > .prop-doc .pcom-hist-card{padding:10px 12px!important;margin-bottom:8px!important;break-inside:avoid;page-break-inside:avoid;border-radius:5px!important}
-  body.printing-prop > .prop-doc .pcom-hist-hdr{margin-bottom:6px!important}
+  body.printing-prop > .prop-doc .pcom-hist-card{padding:12px 14px 10px!important;margin-bottom:10px!important;break-inside:avoid;page-break-inside:avoid;border-radius:6px!important;overflow:visible!important;border:.5px solid #E8D09A!important;border-left:2px solid #226866!important}
+  body.printing-prop > .prop-doc .pcom-hist-hdr{margin-bottom:8px!important;padding-bottom:6px!important;border-bottom:.5px dashed #F0E4C2!important}
   body.printing-prop > .prop-doc .pcom-hist-title{font-size:10pt!important}
   body.printing-prop > .prop-doc .pcom-hist-sub{font-size:8pt!important}
-  body.printing-prop > .prop-doc .pcom-hist-chart{height:30mm!important}
-  body.printing-prop > .prop-doc .pcom-hist-chart canvas{max-height:30mm!important}
+  body.printing-prop > .prop-doc .pcom-hist-chart{height:28mm!important;position:relative!important}
+  body.printing-prop > .prop-doc .pcom-hist-chart canvas{max-height:28mm!important;width:100%!important;height:28mm!important}
   body.printing-prop > .prop-doc .pcom-hist-grid{gap:12px!important}
   body.printing-prop > .prop-doc .pcom-hist-block-title{font-size:8.5pt!important;margin-bottom:3px!important}
   body.printing-prop > .prop-doc .pcom-hist-block-meta{font-size:8.5pt!important}
-  body.printing-prop > .prop-doc .pcom-hist-cota{margin-top:6px!important;gap:6px!important;display:grid!important;grid-template-columns:repeat(4,1fr)!important}
+  body.printing-prop > .prop-doc .pcom-hist-cota{margin-top:10px!important;padding-top:8px!important;border-top:.5px dashed #F0E4C2!important;gap:6px!important;display:grid!important;grid-template-columns:repeat(4,1fr)!important}
   body.printing-prop > .prop-doc .phc-cell{padding:5px 6px!important}
   body.printing-prop > .prop-doc .phc-lbl{font-size:7pt!important}
   body.printing-prop > .prop-doc .phc-val{font-size:10pt!important}
@@ -12975,7 +12975,7 @@ function calcProp(){
                     const val = ds.data[i];
                     if(val==null || val===0) return;
                     ctx.save();
-                    ctx.font='700 9px Inter,sans-serif';
+                    ctx.font='700 10.5px Inter,sans-serif';
                     ctx.fillStyle = ds.borderColor || ds.backgroundColor || '#515151';
                     ctx.textAlign='center';
                     ctx.textBaseline='bottom';
@@ -13002,7 +13002,7 @@ function calcProp(){
                       const val=ds.data[i];
                       if(val==null) return;
                       ctx.save();
-                      ctx.font='700 9px Inter,sans-serif';
+                      ctx.font='700 10.5px Inter,sans-serif';
                       ctx.fillStyle=ds.borderColor || '#515151';
                       ctx.textAlign='center';
                       ctx.textBaseline = above ? 'bottom' : 'top';
@@ -13058,7 +13058,7 @@ function calcProp(){
                       const val=ds.data[i];
                       if(!val || val===0) return;
                       ctx.save();
-                      ctx.font='700 9px Inter,sans-serif';
+                      ctx.font='700 10.5px Inter,sans-serif';
                       ctx.fillStyle = di===0 ? '#92400e' : '#226866';
                       ctx.textAlign='center';
                       ctx.textBaseline='bottom';
