@@ -2791,7 +2791,7 @@ main.main:has(#page-ajuda.active) .content{
   <div class="page" id="page-guia">
     <div class="card"><div class="cb">
       <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px">
-        <p style="font-size:12.5px;color:var(--txt2);margin:0">Base com <strong>560 grupos Itaú</strong> (242 Imóveis + 318 Rodas) · <span id="guia-last-update">Dados de Abr/2026</span> · Histórico Jan/25–Mar/26 · <span title="Data em que este sistema foi gerado — os dados embutidos do Guia valem até aqui">Sistema gerado em <strong>13/07/2026</strong></span></p>
+        <p style="font-size:12.5px;color:var(--txt2);margin:0">Base com <strong>560 grupos Itaú</strong> (242 Imóveis + 318 Rodas) · <span id="guia-last-update">Dados de Abr/2026</span> · Histórico Jan/25–Mar/26 · <span title="Data em que este sistema foi gerado — os dados embutidos do Guia valem até aqui">Sistema gerado em <strong>20/07/2026</strong></span></p>
         <button class="btn btn-out btn-sm" data-admin-only="1" onclick="guiaOpenUpdateModal()" title="Atualizar a base do GUIA com novo JSON">📤 Atualizar Base GUIA</button>
       </div>
       <!-- Linha 1: Busca direta -->
@@ -12605,9 +12605,9 @@ function calcProp(){
       _breakdown.push({
         grupo:g.grupo, tipo:(typeof GUIA!=='undefined'&&GUIA[g.grupo]&&GUIA[g.grupo].tp)||'',
         qtd:nc, cred:cred, ct:ct, liq:liq, lTot:lTot, lRP:lRP, lLC:lLC,
-        sd:sd, sp:sp, pi:pi, piRed:pi*(1-red/100), pp:pp,
+        sd:sd, sp:sp, pi:pi, piRed:pi*(1-redG/100), pp:pp,
         prazo:pr, prazoRest:Math.max(0,pr-(g.mesAtual||0)),
-        ta:ta, fr:fr, taFr:ta+fr
+        ta:ta, fr:fr, taFr:ta+fr, red:redG
       });
     }
     const piRedG = pi*(1-redG/100);
@@ -12782,7 +12782,7 @@ function calcProp(){
           +'<td>'+_lpct.toFixed(1)+'%</td>'
           +'<td>'+brl(b.lTot,0)+'</td>'
           +'<td>'+brl(b.liq,0)+'</td>'
-          +'<td>'+brl(b.pi,0)+'</td>'
+          +'<td>'+(b.red>0?brl(b.piRed,0)+'<span style="color:#B8923A;font-size:.85em;font-family:Inter;margin-left:3px">(PR)</span>':brl(b.pi,0))+'</td>'
           +'<td>'+brl(b.pp,0)+'</td>'
           +'</tr>';
       }).join('');
@@ -12795,7 +12795,7 @@ function calcProp(){
           +'<td>'+_lancePctTot.toFixed(2)+'%</td>'
           +'<td>'+brl(totLTot,0)+'</td>'
           +'<td>'+brl(totLiq,0)+'</td>'
-          +'<td>'+brl(totPi,0)+'</td>'
+          +'<td>'+((totPiRed>0 && totPiRed<totPi)?brl(totPiRed,0)+'<span style="color:#B8923A;font-size:.8em;font-family:Inter;margin-left:3px">(PR)</span>':brl(totPi,0))+'</td>'
           +'<td>'+brl(totPp,0)+'</td>'
           +'</tr>';
       }
