@@ -2791,7 +2791,7 @@ main.main:has(#page-ajuda.active) .content{
   <div class="page" id="page-guia">
     <div class="card"><div class="cb">
       <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px">
-        <p style="font-size:12.5px;color:var(--txt2);margin:0">Base com <strong>560 grupos Itaú</strong> (242 Imóveis + 318 Rodas) · <span id="guia-last-update">Dados de Abr/2026</span> · Histórico Jan/25–Mar/26 · <span title="Data em que este sistema foi gerado — os dados embutidos do Guia valem até aqui">Sistema gerado em <strong>09/09/2026</strong></span></p>
+        <p style="font-size:12.5px;color:var(--txt2);margin:0">Base com <strong>560 grupos Itaú</strong> (242 Imóveis + 318 Rodas) · <span id="guia-last-update">Dados de Abr/2026</span> · Histórico Jan/25–Mar/26 · <span title="Data em que este sistema foi gerado — os dados embutidos do Guia valem até aqui">Sistema gerado em <strong>21/09/2026</strong></span></p>
         <button class="btn btn-out btn-sm" data-admin-only="1" onclick="guiaOpenUpdateModal()" title="Atualizar a base do GUIA com novo JSON">📤 Atualizar Base GUIA</button>
       </div>
       <!-- Linha 1: Busca direta -->
@@ -12908,6 +12908,11 @@ function calcProp(){
         const totalLL=ct.reduce((a,b)=>a+b,0);
         const totalLF=ctLf.reduce((a,b)=>a+b,0);
         const hasLF=totalLF>0;
+        // Fila LF real (snapshot mensal Itaú) — pra mostrar no lugar de "LL + LF"
+        const lffData=(typeof LANCE_FIXO_FILA!=='undefined'&&LANCE_FIXO_FILA[String(b.grupo)])||null;
+        const lfFila=lffData?(lffData.fila_atras||0):0;
+        const lfRitmo=lffData?(lffData.contemplados_mes||0):0;
+        const lfMesesEst=lfRitmo>0?Math.ceil(lfFila/lfRitmo):null;
         // Meses com pelo menos um dado (lance ou contemplação) — pra honestidade no sub
         let mesesComDado=0;
         for(let i=0;i<mn.length;i++){if((mn[i]!=null)||(ct[i]>0)||(ctLf[i]>0))mesesComDado++;}
@@ -12921,7 +12926,7 @@ function calcProp(){
         const taG = b.ta;
         const frG = b.fr;
         const taFrG = b.taFr;
-        return { idx, grupo:b.grupo, tagCls, tagLbl, mn, mx, ct, ctLf, avgMin, totalLL, totalLF, hasLF, totalCont:totalLL+totalLF, mesesComDado, qtdG, lancePctG, lanceRSCota, credLibPctG, credLibRSCota, credPorCota, taG, frG, taFrG };
+        return { idx, grupo:b.grupo, tagCls, tagLbl, mn, mx, ct, ctLf, avgMin, totalLL, totalLF, hasLF, totalCont:totalLL+totalLF, mesesComDado, qtdG, lancePctG, lanceRSCota, credLibPctG, credLibRSCota, credPorCota, taG, frG, taFrG, lfFila, lfRitmo, lfMesesEst };
       }).filter(Boolean);
       if(blocks.length===0){
         if(histTitle) histTitle.style.display='none';
@@ -12942,8 +12947,12 @@ function calcProp(){
             +'    <div class="pcom-hist-chart"><canvas id="hist-lance-'+blk.idx+'"></canvas></div>'
             +'  </div>'
             +'  <div class="pcom-hist-block">'
-            +'    <div class="pcom-hist-block-title">Contemplações por mês'+(blk.hasLF?' <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--p-cinza-cl);font-size:9.5px">(LL + LF)</span>':'')+'</div>'
-            +'    <div class="pcom-hist-block-meta">Total: <strong>'+blk.totalCont+'</strong>'+(blk.hasLF?' <span style="font-weight:400;color:var(--p-cinza-cl);font-size:10.5px">· '+blk.totalLL+' Lance Livre · '+blk.totalLF+' Lance Fixo</span>':'')+'</div>'
+            +(blk.lfRitmo>0
+              ? '    <div class="pcom-hist-block-title">Fila do Lance Fixo 40%</div>'
+                +'    <div class="pcom-hist-block-meta">Ofertando <strong>40%</strong> · fila de <strong>'+blk.lfFila+'</strong> cota'+(blk.lfFila===1?'':'s')+' · contempla <strong>'+blk.lfRitmo+'/mês</strong>'+(blk.lfMesesEst?' <span style="font-weight:400;color:var(--p-cinza-cl);font-size:10.5px">· estimativa ~'+blk.lfMesesEst+' meses</span>':'')+'</div>'
+              : '    <div class="pcom-hist-block-title">Contemplações por mês'+(blk.hasLF?' <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--p-cinza-cl);font-size:9.5px">(LL + LF)</span>':'')+'</div>'
+                +'    <div class="pcom-hist-block-meta">Total: <strong>'+blk.totalCont+'</strong>'+(blk.hasLF?' <span style="font-weight:400;color:var(--p-cinza-cl);font-size:10.5px">· '+blk.totalLL+' Lance Livre · '+blk.totalLF+' Lance Fixo</span>':'')+'</div>'
+             )
             +'    <div class="pcom-hist-chart"><canvas id="hist-cont-'+blk.idx+'"></canvas></div>'
             +'  </div>'
             +'</div>'
