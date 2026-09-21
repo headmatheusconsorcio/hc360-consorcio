@@ -12908,11 +12908,6 @@ function calcProp(){
         const totalLL=ct.reduce((a,b)=>a+b,0);
         const totalLF=ctLf.reduce((a,b)=>a+b,0);
         const hasLF=totalLF>0;
-        // Fila LF real (snapshot mensal Itaú) — pra mostrar no lugar de "LL + LF"
-        const lffData=(typeof LANCE_FIXO_FILA!=='undefined'&&LANCE_FIXO_FILA[String(b.grupo)])||null;
-        const lfFila=lffData?(lffData.fila_atras||0):0;
-        const lfRitmo=lffData?(lffData.contemplados_mes||0):0;
-        const lfMesesEst=lfRitmo>0?Math.ceil(lfFila/lfRitmo):null;
         // Meses com pelo menos um dado (lance ou contemplação) — pra honestidade no sub
         let mesesComDado=0;
         for(let i=0;i<mn.length;i++){if((mn[i]!=null)||(ct[i]>0)||(ctLf[i]>0))mesesComDado++;}
@@ -12926,7 +12921,7 @@ function calcProp(){
         const taG = b.ta;
         const frG = b.fr;
         const taFrG = b.taFr;
-        return { idx, grupo:b.grupo, tagCls, tagLbl, mn, mx, ct, ctLf, avgMin, totalLL, totalLF, hasLF, totalCont:totalLL+totalLF, mesesComDado, qtdG, lancePctG, lanceRSCota, credLibPctG, credLibRSCota, credPorCota, taG, frG, taFrG, lfFila, lfRitmo, lfMesesEst };
+        return { idx, grupo:b.grupo, tagCls, tagLbl, mn, mx, ct, ctLf, avgMin, totalLL, totalLF, hasLF, totalCont:totalLL+totalLF, mesesComDado, qtdG, lancePctG, lanceRSCota, credLibPctG, credLibRSCota, credPorCota, taG, frG, taFrG };
       }).filter(Boolean);
       if(blocks.length===0){
         if(histTitle) histTitle.style.display='none';
@@ -12947,12 +12942,8 @@ function calcProp(){
             +'    <div class="pcom-hist-chart"><canvas id="hist-lance-'+blk.idx+'"></canvas></div>'
             +'  </div>'
             +'  <div class="pcom-hist-block">'
-            +(blk.lfRitmo>0
-              ? '    <div class="pcom-hist-block-title">Fila do Lance Fixo 40%</div>'
-                +'    <div class="pcom-hist-block-meta">Ofertando <strong>40%</strong> · fila de <strong>'+blk.lfFila+'</strong> cota'+(blk.lfFila===1?'':'s')+' · contempla <strong>'+blk.lfRitmo+'/mês</strong>'+(blk.lfMesesEst?' <span style="font-weight:400;color:var(--p-cinza-cl);font-size:10.5px">· estimativa ~'+blk.lfMesesEst+' meses</span>':'')+'</div>'
-              : '    <div class="pcom-hist-block-title">Contemplações por mês'+(blk.hasLF?' <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--p-cinza-cl);font-size:9.5px">(LL + LF)</span>':'')+'</div>'
-                +'    <div class="pcom-hist-block-meta">Total: <strong>'+blk.totalCont+'</strong>'+(blk.hasLF?' <span style="font-weight:400;color:var(--p-cinza-cl);font-size:10.5px">· '+blk.totalLL+' Lance Livre · '+blk.totalLF+' Lance Fixo</span>':'')+'</div>'
-             )
+            +'    <div class="pcom-hist-block-title">Contemplações por mês'+(blk.hasLF?' <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--p-cinza-cl);font-size:9.5px">(LL + LF)</span>':'')+'</div>'
+            +'    <div class="pcom-hist-block-meta">Total: <strong>'+blk.totalCont+'</strong>'+(blk.hasLF?' <span style="font-weight:400;color:var(--p-cinza-cl);font-size:10.5px">· '+blk.totalLL+' Lance Livre · '+blk.totalLF+' Lance Fixo</span>':'')+'</div>'
             +'    <div class="pcom-hist-chart"><canvas id="hist-cont-'+blk.idx+'"></canvas></div>'
             +'  </div>'
             +'</div>'
