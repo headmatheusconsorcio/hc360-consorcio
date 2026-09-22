@@ -2620,9 +2620,23 @@ main.main:has(#page-ajuda.active) .content{
               <option value="">Todas</option><option value="1:4">1:4</option><option value="1:8">1:8</option>
             </select>
           </div>
-          <div class="gfb-fld"><label title="Slot LF sem ninguém ofertando — quem entrar pega 1ª posição">Status oferta</label>
+          <div class="gfb-fld"><label title="Situação real da fila do fixo neste grupo">Fluxo da fila</label>
             <select id="lf-f-oferta" onchange="renderLanceFixoFila()">
-              <option value="">Todos</option><option value="sem">🔓 Sem oferta</option><option value="com">Com oferta</option>
+              <option value="">Todos</option>
+              <option value="livre">🔓 Slot livre (fila 0 + contempla)</option>
+              <option value="fluxo">▶ Com fluxo</option>
+              <option value="parado">⏸ Sem fluxo (não contempla)</option>
+              <option value="travado">⚠ Travado (fila sem contemplar)</option>
+            </select>
+          </div>
+          <div class="gfb-fld"><label title="Como ordenar a lista">Ordenar por</label>
+            <select id="lf-f-sort" onchange="renderLanceFixoFila()">
+              <option value="espera">⏱ Espera (menor)</option>
+              <option value="fila">Fila (menor)</option>
+              <option value="cont">Contemplações/mês (maior)</option>
+              <option value="cred">Crédito (maior)</option>
+              <option value="prazo">Prazo (menor)</option>
+              <option value="vagas">Vagas (maior)</option>
             </select>
           </div>
         </div>
@@ -2639,7 +2653,7 @@ main.main:has(#page-ajuda.active) .content{
             <div class="gfb-range">
               <input type="number" id="lf-f-fila-min" placeholder="mín" oninput="renderLanceFixoFila()">
               <span class="sep">–</span>
-              <input type="number" id="lf-f-fila-max" placeholder="máx" oninput="renderLanceFixoFila()" value="20">
+              <input type="number" id="lf-f-fila-max" placeholder="máx" oninput="renderLanceFixoFila()">
             </div>
           </div>
           <div class="gfb-fld"><label>Crédito</label>
@@ -2791,7 +2805,7 @@ main.main:has(#page-ajuda.active) .content{
   <div class="page" id="page-guia">
     <div class="card"><div class="cb">
       <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px">
-        <p style="font-size:12.5px;color:var(--txt2);margin:0">Base com <strong>560 grupos Itaú</strong> (242 Imóveis + 318 Rodas) · <span id="guia-last-update">Dados de Abr/2026</span> · Histórico Jan/25–Mar/26 · <span title="Data em que este sistema foi gerado — os dados embutidos do Guia valem até aqui">Sistema gerado em <strong>21/09/2026</strong></span></p>
+        <p style="font-size:12.5px;color:var(--txt2);margin:0">Base com <strong>560 grupos Itaú</strong> (242 Imóveis + 318 Rodas) · <span id="guia-last-update">Dados de Abr/2026</span> · Histórico Jan/25–Mar/26 · <span title="Data em que este sistema foi gerado — os dados embutidos do Guia valem até aqui">Sistema gerado em <strong>22/09/2026</strong></span></p>
         <button class="btn btn-out btn-sm" data-admin-only="1" onclick="guiaOpenUpdateModal()" title="Atualizar a base do GUIA com novo JSON">📤 Atualizar Base GUIA</button>
       </div>
       <!-- Linha 1: Busca direta -->
@@ -11408,9 +11422,15 @@ function lfClearFilters(){
   ['tipo','prop','oferta','prazo-min','prazo-max','fila-min','fila-max','cred-min','cred-max','vagas','cont','aniv'].forEach(k=>{
     const el=document.getElementById('lf-f-'+k);if(el)el.value='';
   });
-  // Restaura default fila-max = 20
-  const fm=document.getElementById('lf-f-fila-max');if(fm)fm.value='20';
+  const so=document.getElementById('lf-f-sort');if(so)so.value='espera';
   renderLanceFixoFila();
+}
+// Espera real no fixo = (fila à frente + 1) / contemplações por mês.
+// Sem contemplação no mês não há espera calculável — o grupo não anda.
+function lfEspera(fila,cont){return cont>0?(fila+1)/cont:null;}
+function lfFluxo(fila,cont){
+  if(cont<=0)return fila>0?'travado':'parado';
+  return fila<=0?'livre':'fluxo';
 }
 function renderLanceFixoFila(){
   const body=document.getElementById('oport-lf-body');if(!body)return;
@@ -11432,11 +11452,10 @@ function renderLanceFixoFila(){
   Object.values(LANCE_FIXO_FILA||{}).forEach(lf=>{
     const g=lf.grupo;
     const gd=GUIA[g]||GUIA[String(g)];if(!gd)return;
-    if(gd.sit&&gd.sit!=='Andamento')return;
+    if(gd.sit==='Encerrado')return;
+    const emFormacao=gd.sit==='Formação';
     const prazo=parseInt(gd.pr)||0;
     const isImov=(gd.tp||'').toUpperCase().includes('IM');
-    const prazoMin=isImov?50:24;
-    if(prazo<prazoMin)return;
     const vagas=parseInt(gd.vagas)||0;
     // Tab Com/Sem vagas
     if(LF_TAB==='com'&&vagas<=0)return;
@@ -11445,14 +11464,14 @@ function renderLanceFixoFila(){
     const m6=lm&&lm.media_6m!=null?Number(lm.media_6m):null;
     const cred=gd.vmax?Number(gd.vmax):(gd.vmin?Number(gd.vmin):null);
     const fila=lf.fila_atras||0,contemp=lf.contemplados_mes||0;
-    const temOferta=lf.tem_oferta!==false;
+    const espera=lfEspera(fila,contemp);
+    const fluxo=lfFluxo(fila,contemp);
     const aniv=gd.mes_aniv||null;
     // Aplica filtros do usuário
     if(fTipo==='im'&&!isImov)return;
     if(fTipo==='ro'&&isImov)return;
     if(fProp&&(lf.proporcao||'')!==fProp)return;
-    if(fOferta==='sem'&&temOferta)return;
-    if(fOferta==='com'&&!temOferta)return;
+    if(fOferta&&fluxo!==fOferta)return;
     if(fPrazoMin!=null&&prazo<fPrazoMin)return;
     if(fPrazoMax!=null&&prazo>fPrazoMax)return;
     if(fFilaMin!=null&&fila<fFilaMin)return;
@@ -11474,57 +11493,78 @@ function renderLanceFixoFila(){
     itens.push({
       grupo:g, isImov, tipoBem:lf.tipo_bem||gd.tp||'',
       proporcao:lf.proporcao||'—',
-      prazo, vagas, fila, contemp, temOferta, cred, m6, aniv
+      prazo, vagas, fila, contemp, espera, fluxo, cred, m6, aniv, emFormacao
     });
   });
-  // Ordena
+  // Ordena. Grupos sem contemplação no mês vão sempre pro fim — não são oportunidade.
+  const fSort=document.getElementById('lf-f-sort')?.value||'espera';
+  const cmp={
+    espera:(a,b)=>a.espera-b.espera,
+    fila:(a,b)=>a.fila-b.fila,
+    cont:(a,b)=>b.contemp-a.contemp,
+    cred:(a,b)=>(b.cred||0)-(a.cred||0),
+    prazo:(a,b)=>a.prazo-b.prazo,
+    vagas:(a,b)=>b.vagas-a.vagas,
+  }[fSort]||((a,b)=>a.espera-b.espera);
   itens.sort((a,b)=>{
-    if(a.isImov!==b.isImov)return a.isImov?-1:1;
-    if(a.fila!==b.fila)return a.fila-b.fila;
-    return b.prazo-a.prazo;
+    const pa=a.espera==null?1:0,pb=b.espera==null?1:0;
+    if(pa!==pb)return pa-pb;
+    if(pa===1)return b.contemp-a.contemp||a.fila-b.fila;
+    return cmp(a,b)||a.fila-b.fila;
   });
   const nIm=itens.filter(i=>i.isImov).length;
   const nRo=itens.length-nIm;
   const totalLF=Object.keys(LANCE_FIXO_FILA||{}).length;
   const fonteMes=(Object.values(LANCE_FIXO_FILA||{})[0]||{}).fonte_mes||'—';
   if(meta)meta.textContent=`Snapshot ${fonteMes} · ${totalLF} grupos na base`;
-  if(countEl)countEl.textContent=itens.length===0?'nenhum resultado':`${nIm} 🏠 + ${nRo} 🚗 = ${itens.length} grupos`;
+  const nLivre=itens.filter(i=>i.fluxo==='livre').length;
+  const nParado=itens.filter(i=>i.fluxo==='parado'||i.fluxo==='travado').length;
+  if(countEl)countEl.textContent=itens.length===0?'nenhum resultado'
+    :`${nIm} 🏠 + ${nRo} 🚗 = ${itens.length} grupos`+(nLivre?` · ${nLivre} slot livre`:'')+(nParado?` · ${nParado} sem fluxo`:'');
   if(!itens.length){
     body.innerHTML=`<div style="padding:36px 24px;text-align:center"><div style="font-size:38px;margin-bottom:8px;opacity:.45">🔒</div><div style="font-size:13px;color:var(--txt2)">Nenhum grupo encontrado com esses filtros</div></div>`;
     return;
   }
   const meses=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
-  function urgFila(f){return f<=5?{tag:'#166534',bg:'#dcfce7',dot:'#22c55e'}:f<=12?{tag:'#92400e',bg:'#fef3c7',dot:'#d97706'}:{tag:'#1e3a8a',bg:'#eff6ff',dot:'#3b82f6'};}
-  const cols='90px 1fr 80px 110px 90px 140px 80px';
-  // Sticky header
-  const head=`<div style="padding:8px 18px;background:var(--card2);border-bottom:1px solid var(--bdr);display:grid;grid-template-columns:${cols};gap:14px;font-size:9.5px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:.5px;position:sticky;top:0;z-index:5;backdrop-filter:saturate(180%) blur(6px)">
-    <div>Grupo</div><div>Tipo</div><div style="text-align:center">Prazo</div><div style="text-align:center">Vagas</div><div style="text-align:center">Fila</div><div style="text-align:center">Crédito · Prop · M6 · Aniv</div><div style="text-align:center">Cont./mês</div>
+  function urgEspera(m){
+    if(m==null)return {tag:'#6b7280',bg:'#f3f4f6',dot:'#9ca3af'};
+    return m<=3?{tag:'#166534',bg:'#dcfce7',dot:'#22c55e'}
+         :m<=6?{tag:'#92400e',bg:'#fef3c7',dot:'#d97706'}
+         :m<=12?{tag:'#1e3a8a',bg:'#eff6ff',dot:'#3b82f6'}
+         :{tag:'#6b7280',bg:'#f3f4f6',dot:'#9ca3af'};
+  }
+  const FLUXO={
+    livre:{lbl:'🔓 SLOT LIVRE',bg:'#dcfce7',fg:'#166534',tip:'Fila zerada e o grupo contempla — quem entrar pega a 1ª posição'},
+    parado:{lbl:'⏸ SEM FLUXO',bg:'#f3f4f6',fg:'#6b7280',tip:'Nenhuma contemplação no fixo neste mês — não dá pra estimar espera'},
+    travado:{lbl:'⚠ TRAVADO',bg:'#fee2e2',fg:'#991b1b',tip:'Tem gente na fila mas o grupo não contemplou no fixo neste mês'},
+    fluxo:null
+  };
+  const cols='120px 1fr 70px 95px 78px 100px 130px 78px';
+  const head=`<div style="padding:8px 18px;background:var(--card2);border-bottom:1px solid var(--bdr);display:grid;grid-template-columns:${cols};gap:12px;font-size:9.5px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:.5px;position:sticky;top:0;z-index:5;backdrop-filter:saturate(180%) blur(6px)">
+    <div>Grupo</div><div>Tipo</div><div style="text-align:center">Prazo</div><div style="text-align:center">Vagas</div><div style="text-align:center">Fila</div><div style="text-align:center" title="(fila + 1) ÷ contemplações por mês">Espera</div><div style="text-align:center">Crédito · Prop · M6 · Aniv</div><div style="text-align:center">Cont./mês</div>
   </div>`;
-  const rows=[];
-  let lastSeg=null;
-  itens.forEach(it=>{
-    const seg=it.isImov?'im':'ro';
-    // Só mostra header de seção se houver mais de um tipo no filtro
-    if(seg!==lastSeg&&!fTipo){
-      rows.push(`<div style="padding:7px 18px;background:${seg==='im'?'#eff6ff':'#fffbeb'};border-bottom:1px solid var(--bdr);font-size:11px;font-weight:700;color:${seg==='im'?'#1e40af':'#92400e'};text-transform:uppercase;letter-spacing:.6px;position:sticky;top:34px;z-index:4">${seg==='im'?'🏠 Imóveis':'🚗 Veículos'}</div>`);
-      lastSeg=seg;
-    }
-    const u=urgFila(it.fila);
+  const rows=itens.map(it=>{
+    const u=urgEspera(it.espera);
     const credFmt=it.cred?(it.cred>=1e6?(it.cred/1e6).toFixed(2)+'M':brl(it.cred,0)):'—';
     const lance6=it.m6!=null?it.m6.toFixed(1)+'%':'—';
     const anivLbl=it.aniv?meses[it.aniv-1]:'—';
-    const ofertaLbl=it.temOferta?'':'<span title="Ninguém ofertou no mês — slot LF livre" style="display:inline-block;margin-left:5px;padding:1px 6px;background:#dcfce7;color:#166534;border-radius:6px;font-size:9.5px;font-weight:700;letter-spacing:.3px">🔓 SEM OFERTA</span>';
-    rows.push(`<div onclick="if(typeof guiaSel==='function')guiaSel('${it.grupo}');nav('guia',document.querySelector('.ni[onclick*=guia]'))" style="padding:11px 18px;border-bottom:1px solid var(--bdr);display:grid;grid-template-columns:${cols};gap:14px;align-items:center;cursor:pointer;transition:background .15s;font-size:12.5px" onmouseover="this.style.background='var(--card2)'" onmouseout="this.style.background='transparent'">
-      <div><strong style="color:var(--acc2);font-family:Quicksand,sans-serif;font-size:14px">G${it.grupo}</strong>${ofertaLbl}</div>
-      <div style="font-size:11px;color:var(--txt2)">${it.tipoBem||''}</div>
+    const f=FLUXO[it.fluxo];
+    let badge=f?`<span title="${f.tip}" style="display:inline-block;margin-top:3px;padding:1px 6px;background:${f.bg};color:${f.fg};border-radius:6px;font-size:9px;font-weight:700;letter-spacing:.3px">${f.lbl}</span>`:'';
+    if(it.emFormacao)badge+=`<span title="Grupo ainda em formação — sem assembleia realizada" style="display:inline-block;margin-top:3px;margin-left:4px;padding:1px 6px;background:#e0e7ff;color:#3730a3;border-radius:6px;font-size:9px;font-weight:700;letter-spacing:.3px">🌱 FORMAÇÃO</span>`;
+    const espLbl=it.espera==null?'—':(it.espera<1?'<1m':Math.round(it.espera)+'m');
+    const segIco=it.isImov?'🏠':'🚗';
+    return `<div onclick="if(typeof guiaSel==='function')guiaSel('${it.grupo}');nav('guia',document.querySelector('.ni[onclick*=guia]'))" style="padding:10px 18px;border-bottom:1px solid var(--bdr);display:grid;grid-template-columns:${cols};gap:12px;align-items:center;cursor:pointer;transition:background .15s;font-size:12.5px${it.fluxo==='parado'?';opacity:.62':''}" onmouseover="this.style.background='var(--card2)'" onmouseout="this.style.background='transparent'">
+      <div><strong style="color:var(--acc2);font-family:Quicksand,sans-serif;font-size:14px">G${it.grupo}</strong>${badge}</div>
+      <div style="font-size:11px;color:var(--txt2)">${segIco} ${it.tipoBem||''}</div>
       <div style="text-align:center"><strong>${it.prazo}m</strong></div>
       <div style="text-align:center">${it.vagas>0?'<strong style="color:'+(it.vagas>20?'var(--ok)':'var(--warn)')+'">'+it.vagas+'</strong>':'<span style="color:var(--txt2)">0</span>'}</div>
+      <div style="text-align:center"><strong style="font-family:Quicksand,sans-serif;font-size:13px">${it.fila}</strong></div>
       <div style="text-align:center">
-        <span style="display:inline-flex;align-items:center;gap:5px;padding:3px 9px;background:${u.bg};color:${u.tag};border-radius:6px;font-size:11px;font-weight:700"><span style="width:5px;height:5px;border-radius:50%;background:${u.dot}"></span>${it.fila}</span>
+        <span style="display:inline-flex;align-items:center;gap:5px;padding:3px 9px;background:${u.bg};color:${u.tag};border-radius:6px;font-size:11px;font-weight:700"><span style="width:5px;height:5px;border-radius:50%;background:${u.dot}"></span>${espLbl}</span>
       </div>
       <div style="text-align:center;font-size:11.5px">${credFmt}<div style="font-size:10px;color:var(--txt2)">${it.proporcao} · ${lance6} · ${anivLbl}</div></div>
       <div style="text-align:center"><strong style="font-size:14px;color:var(--sb);font-family:Quicksand,sans-serif">${it.contemp}</strong></div>
-    </div>`);
+    </div>`;
   });
   body.innerHTML=head+rows.join('');
 }
