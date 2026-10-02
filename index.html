@@ -2795,7 +2795,7 @@ main.main:has(#page-ajuda.active) .content{
   <div class="page" id="page-guia">
     <div class="card"><div class="cb">
       <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px">
-        <p style="font-size:12.5px;color:var(--txt2);margin:0">Base com <strong>560 grupos Itaú</strong> (242 Imóveis + 318 Rodas) · <span id="guia-last-update">Dados de Abr/2026</span> · Histórico Jan/25–Mar/26 · <span title="Data em que este sistema foi gerado — os dados embutidos do Guia valem até aqui">Sistema gerado em <strong>23/09/2026</strong></span></p>
+        <p style="font-size:12.5px;color:var(--txt2);margin:0">Base com <strong>560 grupos Itaú</strong> (242 Imóveis + 318 Rodas) · <span id="guia-last-update">Dados de Abr/2026</span> · Histórico Jan/25–Mar/26 · <span title="Data em que este sistema foi gerado — os dados embutidos do Guia valem até aqui">Sistema gerado em <strong>02/10/2026</strong></span></p>
         <button class="btn btn-out btn-sm" data-admin-only="1" onclick="guiaOpenUpdateModal()" title="Atualizar a base do GUIA com novo JSON">📤 Atualizar Base GUIA</button>
       </div>
       <!-- Linha 1: Busca direta -->
@@ -3176,6 +3176,7 @@ main.main:has(#page-ajuda.active) .content{
             <div class="h360-cons-row"><span class="h360-cons-lbl">Lance total</span><span class="h360-cons-val dour" id="r-lperc">—</span></div>
             <div class="h360-cons-row"><span class="h360-cons-lbl">Rec. próprios</span><span class="h360-cons-val" id="r-lrp">—</span></div>
             <div class="h360-cons-row"><span class="h360-cons-lbl">Parte da carta (embutido)</span><span class="h360-cons-val" id="r-llc">—</span></div>
+            <div class="h360-cons-row"><span class="h360-cons-lbl">Quanto você põe para quanto leva</span><span class="h360-cons-val dour" id="r-esforco">—</span></div>
             <span id="r-ltot" style="display:none">—</span>
             <span id="r-rp-pct" style="display:none">—</span>
             <span id="r-emb-pct" style="display:none">—</span>
@@ -12784,6 +12785,8 @@ function calcProp(){
   set('r-hs2-lance', _lancePctTotKPI>0 ? _lancePctTotKPI.toFixed(1)+'%' : '—');
   set('r-hs2-lance-sub', totLTot>0 ? brl(totLTot,0)+' da carta' : '');
   set('r-lperc',lt.toFixed(2)+'%');set('r-lrp',brl(totLRP,0));set('r-llc',brl(totLLC,0));set('r-ltot',brl(totLTot,0));
+  // esforco proprio = recurso proprio / credito liquido ("quanto poe para quanto leva")
+  set('r-esforco', totLiq>0 ? (totLRP/totLiq*100).toFixed(2).replace('.',',')+'%' : '—');
   set('r-liq',brl(totLiq,0));set('r-sd',brl(totSD,0));
   // KPI "Parcela Pré-Contempl.": destaque é o valor que o cliente paga de fato
   // - Se há redução PR (30/50): destaque = parcela reduzida; sub = parcela cheia (referência)
