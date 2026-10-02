@@ -3147,12 +3147,12 @@ main.main:has(#page-ajuda.active) .content{
             <div class="h360-hs2-sub" id="r-hs2-carta-sub">—</div>
           </div>
           <div class="h360-hs2-c">
-            <div class="h360-hs2-lbl">CET ao ano</div>
+            <div class="h360-hs2-lbl">Taxa adm no período total</div>
             <div class="h360-hs2-val" id="r-hs2-cet">—</div>
-            <div class="h360-hs2-sub" id="r-hs2-cet-sub">vs financ. 12-25%</div>
+            <div class="h360-hs2-sub" id="r-hs2-cet-sub">—</div>
           </div>
           <div class="h360-hs2-c">
-            <div class="h360-hs2-lbl">Lance total</div>
+            <div class="h360-hs2-lbl">Quanto você põe para quanto leva</div>
             <div class="h360-hs2-val" id="r-hs2-lance">—</div>
             <div class="h360-hs2-sub" id="r-hs2-lance-sub">—</div>
           </div>
@@ -3170,13 +3170,14 @@ main.main:has(#page-ajuda.active) .content{
             <div class="h360-cons-row"><span class="h360-cons-lbl">Qtd. cotas</span><span class="h360-cons-val" id="r-cotas">—</span></div>
             <div class="h360-cons-row"><span class="h360-cons-lbl">Taxa adm (media)</span><span class="h360-cons-val" id="r-tx-adm">—</span></div>
             <div class="h360-cons-row"><span class="h360-cons-lbl">Prazo (medio)</span><span class="h360-cons-val" id="r-prazo">—</span></div>
+            <div class="h360-cons-row"><span class="h360-cons-lbl">CET ao ano</span><span class="h360-cons-val" id="r-cet-ano">—</span></div>
+            <div class="h360-cons-row"><span class="h360-cons-lbl">Indexador</span><span class="h360-cons-val" id="r-indexador">—</span></div>
             <div class="h360-cons-row"><span class="h360-cons-lbl">Fundo reserva</span><span class="h360-cons-val" id="r-fr">—</span></div>
           </div>
           <div class="h360-cons-col">
             <div class="h360-cons-row"><span class="h360-cons-lbl">Lance total</span><span class="h360-cons-val dour" id="r-lperc">—</span></div>
             <div class="h360-cons-row"><span class="h360-cons-lbl">Rec. próprios</span><span class="h360-cons-val" id="r-lrp">—</span></div>
             <div class="h360-cons-row"><span class="h360-cons-lbl">Parte da carta (embutido)</span><span class="h360-cons-val" id="r-llc">—</span></div>
-            <div class="h360-cons-row"><span class="h360-cons-lbl">Quanto você põe para quanto leva</span><span class="h360-cons-val dour" id="r-esforco">—</span></div>
             <span id="r-ltot" style="display:none">—</span>
             <span id="r-rp-pct" style="display:none">—</span>
             <span id="r-emb-pct" style="display:none">—</span>
@@ -12761,7 +12762,10 @@ function calcProp(){
   set('r-hs2-carta', totCred>0 ? brl(totCred,0) : '—');
   set('r-hs2-carta-sub', totCotas>0 ? totCotas+' cota'+(totCotas!==1?'s':'')+' · '+_avgPrazo+'m' : '');
   // CET ao ano = (avgTa + avgFr) / VP / prazo × 12 — pega do span existente
-  setTimeout(()=>{ const _cetA = document.getElementById('cet-ano'); if(_cetA) document.getElementById('r-hs2-cet').textContent = _cetA.textContent; }, 50);
+  // card 2 = taxa de administracao do periodo; o CET foi pro consolidado
+  set('r-hs2-cet', totCotas?avgTa.toFixed(2).replace('.',',')+'%':'—');
+  set('r-hs2-cet-sub', _avgPrazo>0?'em '+_avgPrazo+' meses':'');
+  setTimeout(()=>{ const _cetA = document.getElementById('cet-ano'); if(_cetA) document.getElementById('r-cet-ano').textContent = _cetA.textContent; }, 50);
   // Sub do CET = indexador real dos grupos da proposta (do GUIA)
   (function(){
     const _idxRaw = _grupos.map(g => (typeof GUIA!=='undefined' && GUIA[g.grupo] && GUIA[g.grupo].idx) || '').filter(Boolean);
@@ -12774,19 +12778,17 @@ function calcProp(){
       return s;
     });
     const _unicos = [...new Set(_idxNorm)].filter(Boolean);
-    const _sub = document.getElementById('r-hs2-cet-sub');
+    const _sub = document.getElementById('r-indexador');
     if(_sub){
-      if(_unicos.length === 0) _sub.textContent = 'vs financ. 12-25%';
-      else if(_unicos.length === 1) _sub.textContent = '+ '+_unicos[0]+' anual';
-      else _sub.textContent = '+ '+_unicos.join(' / ');
+      if(_unicos.length === 0) _sub.textContent = '—';
+      else _sub.textContent = _unicos.join(' / ');
     }
   })();
-  const _lancePctTotKPI = totCred>0?(totLTot/totCred*100):0;
-  set('r-hs2-lance', _lancePctTotKPI>0 ? _lancePctTotKPI.toFixed(1)+'%' : '—');
-  set('r-hs2-lance-sub', totLTot>0 ? brl(totLTot,0)+' da carta' : '');
+  // card 3 = quanto poe para quanto leva (recurso proprio / credito liquido)
+  const _esfKPI = totLiq>0?(totLRP/totLiq*100):0;
+  set('r-hs2-lance', _esfKPI>0 ? _esfKPI.toFixed(2).replace('.',',')+'%' : '—');
+  set('r-hs2-lance-sub', totLRP>0 ? brl(totLRP,0)+' do bolso p/ '+brl(totLiq,0) : '');
   set('r-lperc',lt.toFixed(2)+'%');set('r-lrp',brl(totLRP,0));set('r-llc',brl(totLLC,0));set('r-ltot',brl(totLTot,0));
-  // esforco proprio = recurso proprio / credito liquido ("quanto poe para quanto leva")
-  set('r-esforco', totLiq>0 ? (totLRP/totLiq*100).toFixed(2).replace('.',',')+'%' : '—');
   set('r-liq',brl(totLiq,0));set('r-sd',brl(totSD,0));
   // KPI "Parcela Pré-Contempl.": destaque é o valor que o cliente paga de fato
   // - Se há redução PR (30/50): destaque = parcela reduzida; sub = parcela cheia (referência)
